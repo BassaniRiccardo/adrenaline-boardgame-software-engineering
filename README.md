@@ -16,5 +16,5 @@
 
 # Bassani Riccardo:
 #       GitHub:                 BassaniRiccardo
-#       Codice Persona:         10597506
+#       Codice Persona:         10497506
 #       Mail:                   riccardo1.bassani@mail.polimi.it

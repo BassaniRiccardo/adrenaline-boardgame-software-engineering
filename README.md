@@ -9,9 +9,9 @@
 
 
 # Bagatella Marco:
-#       GitHub:                 *****toAdd****
+#       GitHub:                 marcobaga
 #       Codice Persona:         10529686
-#       Mail:                   ******toAdd: mail del poli******
+#       Mail:                   10529686@polimi.it
 
 
 # Bassani Riccardo:

@@ -1,6 +1,6 @@
 # ing-sw-2019-alde-bagatella-bassani
 
-
+# Numero gruppo: 43
 
 # Alde Davide:
 #       GitHub:                 davidealde

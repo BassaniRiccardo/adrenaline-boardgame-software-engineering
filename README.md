@@ -3,7 +3,7 @@
 
 - ###   10529686    Marco Bagatella ([@marcobaga](https://github.com/marcobaga))<br>marco.bagatella@mail.polimi.it
 - ###   10497506    Riccardo Bassani ([@BassaniRiccardo](https://github.com/BassaniRiccardo))<br>riccardo1.bassani@mail.polimi.it
-- ###   10503657    Davide Aldè ([@davidealde](https://github.com/davide.alde))<br>davidealde@mail.polimi.it
+- ###   10503657    Davide Aldè ([@davidealde](https://github.com/davidealde))<br>davide.alde@mail.polimi.it
 
 | Functionality | State |
 |:-----------------------|:------------------------------------:|

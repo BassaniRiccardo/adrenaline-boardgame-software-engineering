@@ -1,0 +1,389 @@
+package it.polimi.ingsw.model;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Collections;
+
+import static org.junit.Assert.*;
+
+/**
+ * Tests all methods of the class KillShotTrack, covering all the instructions.
+ */
+
+public class KillShotTrackTest {
+
+
+    /**
+     * Constructs a killShotTrack with 8 skulls.
+     * Constructs 5 players.
+     */
+    @Before
+    public void setup(){
+
+        BoardConfigurer.getInstance().configureKillShotTrack(8);
+        BoardConfigurer.getInstance().configurePlayerOptions(5);
+
+    }
+
+
+    /**
+     * Tests the method registerKill() in the case of a single kill.
+     */
+    @Test
+    public void registerStandardKill() {
+
+        //initializes the killShotTrack, a killer and a dead
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player killer = Board.getInstance().getPlayers().get(0);
+        Player dead = Board.getInstance().getPlayers().get(1);
+
+        //registers the standard kill
+        killShotTrack.registerKill(killer, dead, false);
+
+        //checks that the number of occurrences of the killer in the killers list is incremented by 1
+        //and that he is inserted in the correct position
+        assertEquals(1, Collections.frequency(killShotTrack.getKillers(), killer));
+        assertEquals(killer, killShotTrack.getKillers().get(0));
+
+        //checks that a skull has been removed
+        assertEquals(7, killShotTrack.getSkullsLeft());
+
+        //checks that the points given for the death of the dead player have been updated
+        assertEquals(6, dead.getPointsToGive());
+
+    }
+
+
+    /**
+     * Tests the method registerKill() until the points given for the next death of the dead player
+     * should not be reduced, since their value is 1.
+     */
+    @Test
+    public void registerMultipleStandardKills() {
+
+        //initializes the killShotTrack, a killer and a dead
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player killer = Board.getInstance().getPlayers().get(0);
+        Player dead = Board.getInstance().getPlayers().get(1);
+
+        //registers 4 kills and checks that the points given for the death of the dead player have been updated
+        killShotTrack.registerKill(killer, dead, false);
+        assertEquals(6, dead.getPointsToGive());
+        killShotTrack.registerKill(killer, dead, false);
+        assertEquals(4, dead.getPointsToGive());
+        killShotTrack.registerKill(killer, dead, false);
+        assertEquals(2, dead.getPointsToGive());
+        killShotTrack.registerKill(killer, dead, false);
+        assertEquals(1, dead.getPointsToGive());
+
+        //register the fifth kill and
+        //checks that the points given for the death of the dead player have not been update to 0
+        killShotTrack.registerKill(killer, dead, false);
+        assertEquals(1, dead.getPointsToGive());
+
+        //checks that the number of occurrences of the killer in the killers list is incremented by 5 and
+        //that he is inserted in the correct positions
+        assertEquals(5, Collections.frequency(killShotTrack.getKillers(), killer));
+        assertEquals(killer, killShotTrack.getKillers().get(0));
+        assertEquals(killer, killShotTrack.getKillers().get(1));
+        assertEquals(killer, killShotTrack.getKillers().get(2));
+        assertEquals(killer, killShotTrack.getKillers().get(3));
+        assertEquals(killer, killShotTrack.getKillers().get(4));
+
+        //checks that 5 skulls has been removed
+        assertEquals(8-5, killShotTrack.getSkullsLeft());
+    }
+
+
+    /**
+     * Tests the method registerKill() in the case of an overkill.
+     */
+    @Test
+    public void registerOverkill() {
+
+        //initializes the killShotTrack, a killer and a dead
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player killer = Board.getInstance().getPlayers().get(0);
+        Player dead = Board.getInstance().getPlayers().get(1);
+
+        //registers the overkill
+        killShotTrack.registerKill(killer, dead, true);
+
+        //checks that the number of occurrences of the killer in the killers list is incremented by 2
+        //and that he is inserted in the correct positions
+        assertEquals(2, Collections.frequency(killShotTrack.getKillers(), killer));
+        assertEquals(killer, killShotTrack.getKillers().get(0));
+        assertEquals(killer, killShotTrack.getKillers().get(1));
+
+        //checks that a skull has been removed
+        assertEquals(7, killShotTrack.getSkullsLeft());
+
+        //checks that the awards given for the death of the dead player have been updated
+        assertEquals(6, dead.getPointsToGive());
+
+
+    }
+
+
+    /**
+     * Tests the method registerKill() in the event that there are not skulls left on the track and
+     * the kill occurred in the final frenzy, therefore the player board is flipped and the awards
+     * do not need to be updated.
+     */
+    @Test
+    public void registerKillWhenSkullsAbsentFrenzy() {
+
+        //initializes the killShotTrack, a killer and a dead
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player killer = Board.getInstance().getPlayers().get(0);
+        Player dead = Board.getInstance().getPlayers().get(1);
+
+        //removes all the skulls
+        killShotTrack.removeSkulls(8);
+
+        //simulates a flipped player board
+        dead.setPointsToGive(2);
+
+        //registers the standard kill
+        killShotTrack.registerKill(killer, dead, false);
+
+        //checks that the number of occurrences of the killer in the killers list is incremented by 1
+        //and that he is inserted in the correct position
+        assertEquals(1, Collections.frequency(killShotTrack.getKillers(), killer));
+        assertEquals(killer, killShotTrack.getKillers().get(0));
+
+        //checks that the number of skulls is 0 and not -1
+        assertEquals(0, killShotTrack.getSkullsLeft());
+
+        //checks that the awards given for the death of the dead player have not been updated
+        assertEquals(2, dead.getPointsToGive());
+
+
+    }
+
+
+    /**
+     * Tests the method registerKill() in the event that there are not skulls left on the track and
+     * the kill occurred in the final turn.
+     * The awards do not need to be updated, since the board of the dead will be flipped in the final frenzy.
+     */
+    @Test
+    public void registerKillWhenSkullsAbsentFinalTurn() {
+
+        //initializes the killShotTrack, a killer and a dead
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player killer = Board.getInstance().getPlayers().get(0);
+        Player dead = Board.getInstance().getPlayers().get(1);
+
+        //removes all the skulls
+        killShotTrack.removeSkulls(8);
+
+        //registers the standard kill
+        killShotTrack.registerKill(killer, dead, false);
+
+        //checks that the number of occurrences of the killer in the killers list is incremented by 1
+        //and that he is inserted in the correct position
+        assertEquals(1, Collections.frequency(killShotTrack.getKillers(), killer));
+        assertEquals(killer, killShotTrack.getKillers().get(0));
+
+        //checks that the number of skulls is 0 and not -1
+        assertEquals(0, killShotTrack.getSkullsLeft());
+
+        //checks that the awards given for the death of the dead player have not been updated
+        assertEquals(8, dead.getPointsToGive());
+
+
+    }
+
+
+    /**
+     * Tests the method registerKill() in the event that some kills have already been registered.
+     */
+    @Test
+    public void registerKillWhenTheKillerListIsNotEmpty() {
+
+        //initializes the killShotTrack, a killer, a dead and another player
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player killer = Board.getInstance().getPlayers().get(0);
+        Player dead = Board.getInstance().getPlayers().get(1);
+        Player otherPlayer = Board.getInstance().getPlayers().get(2);
+
+        //insert some old killers in the killer list
+        killShotTrack.getKillers().add(otherPlayer);
+        killShotTrack.getKillers().add(killer);
+        killShotTrack.getKillers().add(dead);
+
+        //removes the skulls
+        killShotTrack.removeSkulls(3);
+
+        //registers the standard kill
+        killShotTrack.registerKill(killer, dead, false);
+
+        //checks that the number of occurrences of the killer in the killers list is incremented by 1 and
+        //that he is inserted in the correct position
+        assertEquals(1+1, Collections.frequency(killShotTrack.getKillers(), killer));
+        assertEquals(killer, killShotTrack.getKillers().get(3));
+
+        //checks that a skull has been removed
+        assertEquals(8-3-1, killShotTrack.getSkullsLeft());
+
+        //checks that the awards given for the death of the dead player have been updated
+        assertEquals(6, dead.getPointsToGive());
+
+    }
+
+
+    /**
+     * Tests the method rewardKillers() in the event that every player killed a different number of opponents.
+     */
+    @Test
+    public void rewardKillersWithDistinctNumberOfKills() {
+
+        //initializes the killShotTrack and five players, with 0 points
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player p1 = Board.getInstance().getPlayers().get(0);
+        Player p2 = Board.getInstance().getPlayers().get(1);
+        Player p3 = Board.getInstance().getPlayers().get(2);
+        Player p4 = Board.getInstance().getPlayers().get(3);
+        Player p5 = Board.getInstance().getPlayers().get(4);
+
+        //insert players in the killer list several times
+
+        killShotTrack.getKillers().add(p1);
+        killShotTrack.getKillers().add(p1);
+        killShotTrack.getKillers().add(p1);
+        killShotTrack.getKillers().add(p1);
+        killShotTrack.getKillers().add(p1);
+
+        killShotTrack.getKillers().add(p2);
+        killShotTrack.getKillers().add(p2);
+        killShotTrack.getKillers().add(p2);
+        killShotTrack.getKillers().add(p2);
+
+        killShotTrack.getKillers().add(p3);
+        killShotTrack.getKillers().add(p3);
+        killShotTrack.getKillers().add(p3);
+
+        killShotTrack.getKillers().add(p4);
+        killShotTrack.getKillers().add(p4);
+
+        killShotTrack.getKillers().add(p5);
+
+        //rewards all the killers
+        killShotTrack.rewardKillers();
+
+        //check that every killer has gain the right number of points
+        assertEquals(8, p1.getPoints());
+        assertEquals(6, p2.getPoints());
+        assertEquals(4, p3.getPoints());
+        assertEquals(2, p4.getPoints());
+        assertEquals(1, p5.getPoints());
+
+    }
+
+
+    /**
+     * Tests the method rewardKillers() in the event that every player killed the same number of opponents.
+     */
+    @Test
+    public void awardKillersWithSameNumberOfKills() {
+
+        //initializes the killShotTrack and five players, with 0 points
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player p1 = Board.getInstance().getPlayers().get(0);
+        Player p2 = Board.getInstance().getPlayers().get(1);
+        Player p3 = Board.getInstance().getPlayers().get(2);
+        Player p4 = Board.getInstance().getPlayers().get(3);
+        Player p5 = Board.getInstance().getPlayers().get(4);
+
+        //inserts every player in the killer list exactly one time
+        killShotTrack.getKillers().add(p1);
+        killShotTrack.getKillers().add(p2);
+        killShotTrack.getKillers().add(p3);
+        killShotTrack.getKillers().add(p4);
+        killShotTrack.getKillers().add(p5);
+
+        //rewards all the killers
+        killShotTrack.rewardKillers();
+
+        //checks that every killer has gain the right number of points
+        assertEquals(8, p1.getPoints());
+        assertEquals(6, p2.getPoints());
+        assertEquals(4, p3.getPoints());
+        assertEquals(2, p4.getPoints());
+        assertEquals(1, p5.getPoints());
+
+    }
+
+
+    /**
+     * Tests the method rewardKillers() in the event that the player who killed the highest number of opponents killed
+     * his first opponent after everyone else had killed someone.
+     */
+    @Test
+    public void awardKillerWhenTheLastKillerHasTheHighestNumberOfKills() {
+
+        //initializes the killShotTrack and five players, with 0 points
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player p1 = Board.getInstance().getPlayers().get(0);
+        Player p2 = Board.getInstance().getPlayers().get(1);
+        Player p3 = Board.getInstance().getPlayers().get(2);
+        Player p4 = Board.getInstance().getPlayers().get(3);
+        Player p5 = Board.getInstance().getPlayers().get(4);
+
+        //inserts players in the killer list several times
+        killShotTrack.getKillers().add(p1);
+        killShotTrack.getKillers().add(p2);
+        killShotTrack.getKillers().add(p3);
+        killShotTrack.getKillers().add(p4);
+        killShotTrack.getKillers().add(p5);
+        killShotTrack.getKillers().add(p5);
+
+        //rewards all the killers
+        killShotTrack.rewardKillers();
+
+        //checks that every killer has gain the right number of points
+        assertEquals(8, p5.getPoints());
+        assertEquals(6, p1.getPoints());
+        assertEquals(4, p2.getPoints());
+        assertEquals(2, p3.getPoints());
+        assertEquals(1, p4.getPoints());
+
+    }
+
+
+    /**
+     * Tests the method rewardKillers() in the event that some players did not kill anyone.
+     */
+    @Test
+    public void awardKillersWhenSomePlayersWithNoKills() {
+
+        //initializes the killShotTrack and five players, with 0 points
+        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
+        Player p1 = Board.getInstance().getPlayers().get(0);
+        Player p2 = Board.getInstance().getPlayers().get(1);
+        Player p3 = Board.getInstance().getPlayers().get(2);
+        Player p4 = Board.getInstance().getPlayers().get(3);
+        Player p5 = Board.getInstance().getPlayers().get(4);
+
+        //inserts players in the killer list several times
+        killShotTrack.getKillers().add(p1);
+        killShotTrack.getKillers().add(p2);
+        killShotTrack.getKillers().add(p2);
+        killShotTrack.getKillers().add(p1);
+        killShotTrack.getKillers().add(p3);
+
+        //awards all the killers
+        killShotTrack.rewardKillers();
+
+        //checks that every killer has gain the right number of points
+        assertEquals(8, p1.getPoints());
+        assertEquals(6, p2.getPoints());
+        assertEquals(4, p3.getPoints());
+        assertEquals(0, p4.getPoints());
+        assertEquals(0, p5.getPoints());
+
+    }
+
+}

@@ -1,17 +1,16 @@
 package it.polimi.ingsw.model;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 //This class needs more in-depth testing once it has been fully implemented
-class WeaponFactoryTest {
+public class WeaponFactoryTest {
 
     /**
      * Creates the first weapon and checks that it is initialized correctly
      */
     @Test
-    void createWeapon() {
+    public void createWeapon() {
         Weapon w = WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         assertTrue(w.getWeaponName() == Weapon.WeaponName.LOCK_RIFLE);
 

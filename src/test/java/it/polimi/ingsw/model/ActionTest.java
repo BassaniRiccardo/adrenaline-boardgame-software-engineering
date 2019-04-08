@@ -1,20 +1,20 @@
 package it.polimi.ingsw.model;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests the override of equals for confrontations between Actions
  */
 
-class ActionTest {
+public class ActionTest {
 
     /**
      * Tests the confrontation between an Action and itself
      */
     @Test
-    void equalsSameObject() {
+    public void equalsSameObject() {
 
         //Instantiates an Action
         Action a1=new Action(1,true,false,false);
@@ -28,7 +28,7 @@ class ActionTest {
      * Tests the confrontation between an Action and an object that is not an Action
      */
     @Test
-    void equalsDifferentKindOfObject() {
+    public void equalsDifferentKindOfObject() {
 
         //Instantiates an Action and a Player
         Action a1=new Action(1,true,false,false);
@@ -43,7 +43,7 @@ class ActionTest {
      * Tests the confrontation between two Actions that are different
      */
     @Test
-    void equalsDifferentActions() {
+    public void equalsDifferentActions() {
 
         //Instantiates 2 Actions that are different
         Action a1=new Action(1,true,false,false);
@@ -58,7 +58,7 @@ class ActionTest {
      * Tests the confrontation between two equals Actions
      */
     @Test
-    void equalsEqualsActions() {
+    public void equalsEqualsActions() {
 
         //Instantiates 2 Actions that are different
         Action a1=new Action(1,true,false,false);

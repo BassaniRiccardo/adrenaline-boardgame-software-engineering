@@ -115,6 +115,9 @@ public class AmmoSquareTest {
     @Test
     public void addAmmo() {
 
+        //initializes board
+        BoardConfigurer.getInstance().simulateScenario();
+
         //creates a new ammo square with no ammo tiles and no players
         AmmoSquare ammoSquare = new AmmoSquare(1, 1, 1, 1, RED);
 

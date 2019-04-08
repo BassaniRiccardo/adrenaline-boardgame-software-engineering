@@ -1,18 +1,17 @@
 package it.polimi.ingsw.model;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
-class FireModeTest {
+public class FireModeTest {
 
     /**
      * Checks that a firemode is created correctly and available
      */
     @Test
-    void isAvailable() {
+    public void isAvailable() {
         BoardConfigurer.getInstance().simulateScenario();
         Player p = Board.getInstance().getPlayers().get(0);
         p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -27,7 +26,7 @@ class FireModeTest {
      * Checks that a firemode is created correctly and not available
      */
     @Test
-    void isAvailable2() {
+    public void isAvailable2() {
         BoardConfigurer.getInstance().simulateScenario();
         Player p = Board.getInstance().getPlayers().get(4);
         p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -42,7 +41,7 @@ class FireModeTest {
      * Checks that the firemode applies its effect
      */
     @Test
-    void applyEffects() {
+    public void applyEffects() {
         BoardConfigurer.getInstance().simulateScenario();
         Player p = Board.getInstance().getPlayers().get(4);
         p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -57,7 +56,7 @@ class FireModeTest {
      * Checks that targets are selected correctly when there are some
      */
     @Test
-    void findTargets() {
+    public void findTargets() {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         FireMode f = Board.getInstance().getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
@@ -70,7 +69,7 @@ class FireModeTest {
      * Checks that targets are not selected when none is visible
      */
     @Test
-    void findTargets2() {
+    public void findTargets2() {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(4).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         FireMode f = Board.getInstance().getPlayers().get(4).getWeaponList().get(0).getFireModeList().get(0);
@@ -81,7 +80,7 @@ class FireModeTest {
      * Checks that destinationFinder is working correctly (Note: the only weapon implemented so far always returns null as intended)
      */
     @Test
-    void findDestinations(){
+    public void findDestinations(){
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         FireMode f = Board.getInstance().getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);

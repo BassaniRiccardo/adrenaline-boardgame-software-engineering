@@ -1,21 +1,21 @@
 package it.polimi.ingsw.model;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.Before;
+
+import static org.junit.Assert.*;
 
 import static java.util.Collections.*;
 
 import static it.polimi.ingsw.model.Color.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * Tests all methods of the class Player, covering all the instructions.
  */
 
-class PlayerTest {
+public class PlayerTest {
 
-    @BeforeEach
+    @Before
     public void setup() {
 
         BoardConfigurer.getInstance().configureMap(1);
@@ -27,7 +27,7 @@ class PlayerTest {
      * Tests addMarks()
      */
     @Test
-    void addMarks() {
+    public void addMarks() {
 
         //instantiates the player who takes damage and two shooters
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -45,7 +45,7 @@ class PlayerTest {
      * Tests addMarks()
      */
     @Test
-    void addMarksMultipleShooters() {
+    public void addMarksMultipleShooters() {
 
         //instantiates the player who takes damage and two shooters
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -68,7 +68,7 @@ class PlayerTest {
      * Tests addMarks()
      */
     @Test
-    void addMarksMaximum3() {
+    public void addMarksMaximum3() {
 
         //instantiates the player who takes damage and two shooters
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -86,7 +86,7 @@ class PlayerTest {
      * Tests powerUp()
      */
     @Test
-    void drawPowerUp() {
+    public void drawPowerUp() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -107,7 +107,7 @@ class PlayerTest {
      * Tests powerUp()
      */
     @Test
-    void drawPowerUpMultiple() {
+    public void drawPowerUpMultiple() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -140,7 +140,7 @@ class PlayerTest {
      * Tests discardPowerUp()
      */
     @Test
-    void discardPowerUp() {
+    public void discardPowerUp() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -168,7 +168,7 @@ class PlayerTest {
      * Tests addPoints()
      */
     @Test
-    void addPoints() {
+    public void addPoints() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -186,7 +186,7 @@ class PlayerTest {
      * Tests addPoints()
      */
     @Test
-    void addPointsMultiple() {
+    public void addPointsMultiple() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -209,7 +209,7 @@ class PlayerTest {
      * Tests addWeapon()
      */
     @Test
-    void addWeapon() {
+    public void addWeapon() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -230,7 +230,7 @@ class PlayerTest {
      * Tests addWeapon()
      */
     @Test
-    void addWeaponMultiple() {
+    public void addWeaponMultiple() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -255,7 +255,7 @@ class PlayerTest {
      * Tests discardWeapon()
      */
     @Test
-    void discardWeapon() {
+    public void discardWeapon() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -280,7 +280,7 @@ class PlayerTest {
      * Tests updateAwards()
      */
     @Test
-    void updateAwards() {
+    public void updateAwards() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -322,7 +322,7 @@ class PlayerTest {
      * Tests useAsAmmo()
      */
     @Test
-    void useAsAmmo() {
+    public void useAsAmmo() {
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
 
@@ -357,7 +357,7 @@ class PlayerTest {
      * Tests addAmmoPack()
      */
     @Test
-    void addAmmoPackPlayer() {
+    public void addAmmoPackPlayer() {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -377,7 +377,7 @@ class PlayerTest {
      * Tests useAmmo()
      */
     @Test
-    void useAmmo() {
+    public void useAmmo() {
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
 
@@ -400,7 +400,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamage() {
+    public void sufferDamage() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -421,7 +421,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageMultipleShooters() {
+    public void sufferDamageMultipleShooters() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -445,7 +445,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageJustDamaged() {
+    public void sufferDamageJustDamaged() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -464,7 +464,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageNotOverkilled() {
+    public void sufferDamageNotOverkilled() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -483,7 +483,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageNotDead() {
+    public void sufferDamageNotDead() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -502,7 +502,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageStatus1() {
+    public void sufferDamageStatus1() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -520,7 +520,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageStatus2() {
+    public void sufferDamageStatus2() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -540,7 +540,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageStatus3() {
+    public void sufferDamageStatus3() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -559,7 +559,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageAndMarks() {
+    public void sufferDamageAndMarks() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -581,7 +581,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageDeath() {
+    public void sufferDamageDeath() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -600,7 +600,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageOverkilled() {
+    public void sufferDamageOverkilled() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -618,7 +618,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageMarksToOverkiller() {
+    public void sufferDamageMarksToOverkiller() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -636,7 +636,7 @@ class PlayerTest {
      * Tests sufferDamage()
      */
     @Test
-    void sufferDamageMax12Dmgs() {
+    public void sufferDamageMax12Dmgs() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -655,7 +655,7 @@ class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    void rewardKillers() {
+    public void rewardKillers() {
 
         BoardConfigurer.getInstance().configurePlayerOptions(3);
 
@@ -682,7 +682,7 @@ class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    void rewardKillersManyShooters1() {
+    public void rewardKillersManyShooters1() {
 
         BoardConfigurer.getInstance().configurePlayerOptions(5);
 
@@ -718,7 +718,7 @@ class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    void rewardKillersManyShooters2() {
+    public void rewardKillersManyShooters2() {
 
         BoardConfigurer.getInstance().configurePlayerOptions(5);
 
@@ -753,7 +753,7 @@ class PlayerTest {
      * Tests refreshActionList()
      */
     @Test
-    void refreshActionListBASIC() {
+    public void refreshActionListBASIC() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -773,7 +773,7 @@ class PlayerTest {
      * Tests refreshActionList()
      */
     @Test
-    void refreshActionListFRENZY_1() {
+    public void refreshActionListFRENZY_1() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -796,7 +796,7 @@ class PlayerTest {
      * Tests refreshActionList()
      */
     @Test
-    void refreshActionListFRENZY_2() {
+    public void refreshActionListFRENZY_2() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -818,7 +818,7 @@ class PlayerTest {
      * Tests refreshActionList()
      */
     @Test
-    void refreshActionListADRENALINE_1() {
+    public void refreshActionListADRENALINE_1() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -842,7 +842,7 @@ class PlayerTest {
      * Tests refreshActionList()
      */
     @Test
-    void refreshActionListADRENALINE_2() {
+    public void refreshActionListADRENALINE_2() {
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET);

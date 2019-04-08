@@ -1,20 +1,19 @@
 package it.polimi.ingsw.model;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.Assert.*;
 /**
  * Tests all methods of the class AmmoPack, covering all the instructions.
  */
 
-class AmmoPackTest {
+public class AmmoPackTest {
 
     /**
      * Tests addAmmoPack() without reaching the maximum of the ammos
      */
     @Test
-    void addAmmoPack() {
+    public void addAmmoPack() {
 
         //instantiates 2 ammpPacks
         AmmoPack ammoPack1=new AmmoPack(0,0,0);
@@ -43,7 +42,7 @@ class AmmoPackTest {
      * Tests addAmmoPack() reaching the maximum of the ammos
      */
     @Test
-    void addAmmoPackMaximum() {
+    public void addAmmoPackMaximum() {
 
         //instantiates 2 ammpPacks
         AmmoPack ammoPack1=new AmmoPack(0,0,0);
@@ -72,7 +71,7 @@ class AmmoPackTest {
      * Tests subAmmoPack() without going below 0 ammos
      */
     @Test
-    void subAmmoPack() {
+    public void subAmmoPack() {
         //instantiates 2 ammpPacks
         AmmoPack ammoPack1=new AmmoPack(1,2,3);
         AmmoPack ammoPack2=new AmmoPack(0,1,3);

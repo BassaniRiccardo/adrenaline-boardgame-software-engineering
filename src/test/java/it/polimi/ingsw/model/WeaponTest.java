@@ -1,19 +1,18 @@
 package it.polimi.ingsw.model;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
-//This class needs more in-depth testing once WeaponFactory has been fully implemented
-class WeaponTest {
+public class WeaponTest {
 
     /**
      * Tests listAvailableFireModes() when all firemodes are available
      */
     @Test
-    void listAvailableFireModes() {
+    public void listAvailableFireModes() {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -30,7 +29,7 @@ class WeaponTest {
      * Tests listAvailableFireModes() when the player has no ammo and only the main firemode is available
      */
     @Test
-    void listAvailableFireModes2() {
+    public void listAvailableFireModes2() {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -48,7 +47,7 @@ class WeaponTest {
      * can only hit targets that are contained by mainTargets, which is empty by default)
      */
     @Test
-    void listAvailableFireModes3() {
+    public void listAvailableFireModes3() {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -64,7 +63,7 @@ class WeaponTest {
      * Tests listAvailableFireModes() when no firemodes are available
      */
     @Test
-    void listAvailableFireModes4() {
+    public void listAvailableFireModes4() {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(4).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -78,7 +77,7 @@ class WeaponTest {
      * Tests reload(), checks for a weapon to be unloaded by default, for the reload method to work and return the correct value
      */
     @Test
-    void reload() {
+    public void reload() {
         Weapon w = WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         assertFalse(w.isLoaded());
         w.reload();

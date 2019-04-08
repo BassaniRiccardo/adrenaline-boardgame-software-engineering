@@ -1,16 +1,15 @@
 package it.polimi.ingsw.model;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class PowerUpFactoryTest {
+public class PowerUpFactoryTest {
 
     /**
      * Creates the first powerup and checks that it is initialized correctly
      */
     @Test
-    void createPowerUp() {
+    public void createPowerUp() {
         PowerUp p = PowerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, Color.BLUE);
         assertTrue(p.getName() == PowerUp.PowerUpName.TARGETING_SCOPE);
         assertTrue(p.getCost().getRedAmmo()==0);

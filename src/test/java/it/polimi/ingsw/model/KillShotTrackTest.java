@@ -26,12 +26,37 @@ public class KillShotTrackTest {
 
     }
 
+    /**
+     * Tests that an exception is thrown in the constructor of KillShotTrack
+     * if the number of skulls is not between 5 and 8.
+     *
+     * @throws IllegalArgumentException
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorParameters() throws IllegalArgumentException {
+        new KillShotTrack(21);
+    }
+
+    /**
+     * Tests that an exception is thrown if the decrement of the number of skulls would make it negative.
+     *
+     * @throws UnacceptableItemNumberException
+     */
+    @Test(expected = UnacceptableItemNumberException.class)
+    public void removeSkulls() throws UnacceptableItemNumberException {
+        KillShotTrack killShotTrack = new KillShotTrack(6);
+        killShotTrack.removeSkulls(11);
+    }
+
 
     /**
      * Tests the method registerKill() in the case of a single kill.
+     *
+     * @throws  UnacceptableItemNumberException
+     *
      */
     @Test
-    public void registerStandardKill() {
+    public void registerStandardKill() throws UnacceptableItemNumberException {
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -58,9 +83,11 @@ public class KillShotTrackTest {
     /**
      * Tests the method registerKill() until the points given for the next death of the dead player
      * should not be reduced, since their value is 1.
+     *
+     * @throws  UnacceptableItemNumberException
      */
     @Test
-    public void registerMultipleStandardKills() {
+    public void registerMultipleStandardKills() throws UnacceptableItemNumberException{
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -98,9 +125,11 @@ public class KillShotTrackTest {
 
     /**
      * Tests the method registerKill() in the case of an overkill.
+     *
+     * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerOverkill() {
+    public void registerOverkill() throws UnacceptableItemNumberException{
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -130,9 +159,11 @@ public class KillShotTrackTest {
      * Tests the method registerKill() in the event that there are not skulls left on the track and
      * the kill occurred in the final frenzy, therefore the player board is flipped and the awards
      * do not need to be updated.
+     *
+     * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenSkullsAbsentFrenzy() {
+    public void registerKillWhenSkullsAbsentFrenzy() throws UnacceptableItemNumberException {
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -167,9 +198,11 @@ public class KillShotTrackTest {
      * Tests the method registerKill() in the event that there are not skulls left on the track and
      * the kill occurred in the final turn.
      * The awards do not need to be updated, since the board of the dead will be flipped in the final frenzy.
+     *
+     * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenSkullsAbsentFinalTurn() {
+    public void registerKillWhenSkullsAbsentFinalTurn() throws UnacceptableItemNumberException {
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -199,9 +232,11 @@ public class KillShotTrackTest {
 
     /**
      * Tests the method registerKill() in the event that some kills have already been registered.
+     *
+     * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenTheKillerListIsNotEmpty() {
+    public void registerKillWhenTheKillerListIsNotEmpty() throws UnacceptableItemNumberException {
 
         //initializes the killShotTrack, a killer, a dead and another player
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();

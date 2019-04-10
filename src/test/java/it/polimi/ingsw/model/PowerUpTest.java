@@ -1,7 +1,6 @@
 package it.polimi.ingsw.model;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -12,7 +11,7 @@ public class PowerUpTest {
      * Checks that a powerup is correctly marked as available
      */
     @Test
-    public void isAvailable() {
+    public void isAvailable() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).drawPowerUp();
         PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
@@ -24,7 +23,7 @@ public class PowerUpTest {
      * Checks that a powerup is not available when no targets can be seen
      */
     @Test
-    public void isAvailable2() {
+    public void isAvailable2() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(4).drawPowerUp();
         PowerUp p = Board.getInstance().getPlayers().get(4).getPowerUpList().get(0);
@@ -35,7 +34,7 @@ public class PowerUpTest {
      * Checks that a powerup is not available when players are visibile but cannot be selected
      */
     @Test
-    public void isAvailable3() {
+    public void isAvailable3() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).drawPowerUp();
         PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
@@ -46,7 +45,7 @@ public class PowerUpTest {
      * Checks that the powerup applies its effect
      */
     @Test
-    public void applyEffects() {
+    public void applyEffects() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).drawPowerUp();
         PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
@@ -58,7 +57,7 @@ public class PowerUpTest {
      * Checks that targets are selected when there are some
      */
     @Test
-    public void findTargets() {
+    public void findTargets() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).drawPowerUp();
         PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
@@ -72,7 +71,7 @@ public class PowerUpTest {
      * Checks that targets are selected when there are none
      */
     @Test
-    public void findTargets2() {
+    public void findTargets2() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).drawPowerUp();
         PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
@@ -83,7 +82,7 @@ public class PowerUpTest {
      * Checks that destinationFinder is working correctly (Note: the only powerup implemented so far always returns null as intended)
      */
     @Test
-    public void findDestinations(){
+    public void findDestinations() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).drawPowerUp();
         PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);

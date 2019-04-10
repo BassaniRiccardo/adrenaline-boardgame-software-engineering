@@ -24,8 +24,15 @@ public abstract class Square {
     /**
      * Constructor for the abstract class Square.
      * This constructor is never really used but it is invoked by the constructors of Square subclasses.
+     *
+     * @throws IllegalFormatCodePointException
      */
     public Square(int id, int roomId, int row, int column, Color color) {
+
+        if(id<0 || id>11 || roomId<1 || roomId>6 || row<1 || row>4 || column<1 || column>4){
+            throw new IllegalArgumentException("Bad parameters for the constructor of AmmoSquare");
+        }
+
         this.id = id;
         this.roomId = roomId;
         this.row = row;
@@ -37,7 +44,7 @@ public abstract class Square {
     /**
      * Getter for id.
      *
-     * @return the id of the square.
+     * @return      the id of the square.
      */
     public int getId() {
         return id;
@@ -46,7 +53,7 @@ public abstract class Square {
     /**
      * Getter for roomId.
      *
-     * @return the id of the room the square is in.
+     * @return      the id of the room the square is in.
      */
     public int getRoomId() {
         return roomId;
@@ -55,7 +62,7 @@ public abstract class Square {
     /**
      * Getter for row.
      *
-     * @return the row the square.
+     * @return      the row the square.
      */
     public int getRow() {
         return row;
@@ -64,7 +71,7 @@ public abstract class Square {
     /**
      * Getter for column.
      *
-     * @return the column of square.
+     * @return      the column of square.
      */
     public int getColumn() {
         return column;
@@ -73,7 +80,7 @@ public abstract class Square {
     /**
      * Getter for color.
      *
-     * @return the color of the square.
+     * @return      the color of the square.
      */
     public Color getColor() {
         return color;
@@ -82,7 +89,7 @@ public abstract class Square {
     /**
      * Getter for players.
      *
-     * @return the players in the square.
+     * @return      the players in the square.
      */
     public List<Player> getPlayers() {
         return players;
@@ -92,9 +99,9 @@ public abstract class Square {
     /**
      * Returns true if the square contains the player
      *
-     * @param p the player to consider.
-     * @return true if the square contains the player.
-     * false otherwise.
+     * @param p     the player to consider.
+     * @return      true if the square contains the player.
+     *              false otherwise.
      */
     public boolean containsPlayer(Player p) {
         return players.contains(p);
@@ -104,47 +111,56 @@ public abstract class Square {
     /**
      * Adds a player to the player list of the square.
      *
-     * @param p the player to add.
+     * @param p     the player to add.
      */
     public void addPlayer(Player p) {
+
+        if (containsPlayer(p)) throw new IllegalArgumentException("The square already contains the player");
+        if (!Board.getInstance().getPlayers().contains(p)) throw new IllegalArgumentException("Only players of the Board can be added to the Square");
         this.players.add(p);
     }
+
 
 
     /**
      * Removes a player from the player list of the square.
      *
-     * @param p the player to remove.
+     * @param p     the player to remove.
+     * @throws      IllegalArgumentException
      */
     public void removePlayer(Player p) {
+
+        if (!containsPlayer(p)) throw new IllegalArgumentException("The square does not contain the player whose removal is asked");
         this.players.remove(p);
     }
-
-
-    /**
-     * Adds cards from the deck to the square.
-     * It is called at the beginning of the game and it adds a ammo tile to the ammo squares and
-     * three weapons to the weapon squares.
-     */
-    public abstract void addAllCards();
 
 
     /**
      * Removed a card form the square.
      *
      * @param card      the removed card.
-     *
      * @return          the removed card.
+     * @throws          NoMoreCardsException
      */
-    public abstract Card removeCard(Card card);
+    public abstract Card removeCard(Card card) throws NoMoreCardsException;
+
+    /**
+     * Adds cards from the deck to the square.
+     * It is called at the beginning of the game and it adds a ammo tile to the ammo squares and
+     * three weapons to the weapon squares.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     */
+    public abstract void addAllCards() throws UnacceptableItemNumberException, NoMoreCardsException;
 
 
     /**
      * Returns true if the two squares have the same id.
      *
      * @param o the square to compare to the current square.
-     * @return true if the two squares have the same id.
-     * false otherwise.
+     * @return      true if the two squares have the same id.
+     *              false otherwise.
      */
     @Override
     public boolean equals(Object o) {
@@ -168,6 +184,8 @@ public abstract class Square {
 
     /**
      * Returns the hashCode of the square.
+     *
+     * @return      the hashCode of the square.
      */
     @Override
     public int hashCode() {

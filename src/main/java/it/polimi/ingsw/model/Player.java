@@ -216,18 +216,7 @@ public class Player {
         addedWeapon.setHolder(this);
         weaponList.add(addedWeapon);
     }
-
-
-    /**
-     * Draws a random power up from the deck of power ups and adds it at the player power ups list.
-     */
-    public void drawPowerUp() {
-        PowerUp p = (PowerUp)Board.getInstance().getPowerUpDeck().drawCard();
-        p.setHolder(this);
-        powerUpList.add(p);
-
-    }
-
+    
 
     /**
      * Adds ammo to the AmmoPack of the player.
@@ -236,6 +225,38 @@ public class Player {
      */
     public void addAmmoPack(AmmoPack ammoPack) {this.ammoPack.addAmmoPack(ammoPack); }
 
+
+    /**
+     * Collects a weapon.
+     *
+     */
+    public void collect(Card collectedCard) throws NoMoreCardsException {
+
+        position.removeCard(collectedCard);
+
+        if (Board.getInstance().getSpawnPoints().contains(position)){
+            addWeapon((Weapon)collectedCard);
+        }
+        else {
+            addAmmoPack(((AmmoTile)collectedCard).getAmmoPack());
+            if (((AmmoTile)collectedCard).hasPowerUp()) drawPowerUp();
+        }
+
+    }
+
+
+
+    /**
+     * Draws a random power up from the deck of power ups and adds it at the player power ups list.
+     */
+    public void drawPowerUp() throws NoMoreCardsException {
+
+        PowerUp p = (PowerUp)Board.getInstance().getPowerUpDeck().drawCard();
+        p.setHolder(this);
+        powerUpList.add(p);
+
+    }
+    
 
     /**
      * Removes a weapon from the player weapons list.

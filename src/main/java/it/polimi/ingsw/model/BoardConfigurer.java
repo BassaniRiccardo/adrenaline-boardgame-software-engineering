@@ -261,7 +261,7 @@ public class BoardConfigurer {
     /**
      * Sets the ammoTiles and the weapons on the board, drawing from the respective decks.
      */
-    public void setAmmoTilesAndWeapons() {
+    public void setAmmoTilesAndWeapons() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         Iterator<Square> squareIt = Board.getInstance().getMap().iterator();
         while (squareIt.hasNext()){
@@ -291,7 +291,7 @@ public class BoardConfigurer {
      * The decks are configured.
      * The starting weapons and ammo tiles are placed on the board.    *
      */
-    public void simulateScenario(){
+    public void simulateScenario() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //sets the board components
         configureMap(4);

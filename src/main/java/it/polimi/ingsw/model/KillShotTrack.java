@@ -26,8 +26,11 @@ public class KillShotTrack {
      * Constructs a killshot track with the number of skulls to add to the track.
      *
      * @param skullsNumber  the number of skulls to add to the track.
+     * @throws              IllegalArgumentException
      */
     public KillShotTrack(int skullsNumber) {
+
+        if (skullsNumber<5 || skullsNumber > 8) throw new IllegalArgumentException("The number of skulls must be between 5 and 8");
 
         this.skullsLeft = skullsNumber;
         this.killers = new ArrayList<>();
@@ -59,9 +62,13 @@ public class KillShotTrack {
      * Removes a specified number of skulls from the track.
      *
      * @param quantity  the number of skulls to remove.
+     * @throws          UnacceptableItemNumberException
      */
-    public void removeSkulls(int quantity){
+    public void removeSkulls(int quantity) throws UnacceptableItemNumberException{
+
+        if (quantity > skullsLeft) throw new UnacceptableItemNumberException("The number of skulls left must be major or equal to zero.");
         skullsLeft -= quantity;
+
     }
 
 
@@ -75,9 +82,11 @@ public class KillShotTrack {
      * @param killer        the player who killed the opponent.
      * @param dead          the player who had been killed by the opponent.
      * @param overkill      whether the killer overkilled the opponent
+     * @throws              UnacceptableItemNumberException
      */
-    public void registerKill(Player killer, Player dead, boolean overkill) {
+    public void registerKill(Player killer, Player dead, boolean overkill) throws UnacceptableItemNumberException {
 
+        if (killer.equals(dead))    throw new IllegalArgumentException("The killer and the dead can not be the same person,");
         killers.add(killer);
         if (overkill){
             killers.add(killer);

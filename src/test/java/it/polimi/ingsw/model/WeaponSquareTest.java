@@ -4,96 +4,26 @@ import org.junit.Test;
 
 import static it.polimi.ingsw.model.Color.*;
 import static it.polimi.ingsw.model.Weapon.WeaponName.*;
-import static it.polimi.ingsw.model.Player.HeroName.*;
 import static org.junit.Assert.*;
 
 /**
- * Tests all methods of the class WeaponSquare, covering all the instructions.
+ * Tests all methods of the class WeaponSquare, covering all the instructions apart from the first constructor.
+ * The method shared with the class AmmoSquare are tested in SquareTest.
+ *
+ * @author BassaniRiccardo
  */
 
 public class WeaponSquareTest {
 
-    /**
-     * Tests the method addPlayer(), covering all the instructions.
-     */
-    @Test
-    public void addPlayer() {
-
-        //creates a new weapon square with no weapons
-        //the first constructor is tested in this test too
-        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED, null);
-
-        //creates a new player
-        Player p = new Player(3, VIOLET);
-
-        //checks that the weapon square does not contain the created player
-        assertFalse(weaponSquare.containsPlayer(p));
-
-        //adds the player to the weapon square
-        weaponSquare.addPlayer(p);
-
-        //checks that the weapon square contains the added player
-        assertTrue(weaponSquare.containsPlayer(p));
-
-    }
 
     /**
-     * Tests the method removePlayer(), covering all the instructions.
+     * Tests the method removeCard(), covering all the instructions apart from the exception.
+     *
+     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException
      */
     @Test
-    public void removePlayer() {
-
-        //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
-
-        //adds a player to the weapon square
-        Player p = new Player(3, VIOLET);
-        weaponSquare.getPlayers().add(p);
-
-        //checks that the weapon square contains the removed player
-        assertTrue(weaponSquare.getPlayers().contains(p));
-
-        //removes the added player form the weapon square
-        weaponSquare.removePlayer(p);
-
-        //checks that the weapon square does not contain the removed player
-        assertFalse(weaponSquare.getPlayers().contains(p));
-
-
-    }
-
-
-    /**
-     * Tests the method containsPlayer(), covering all the instructions.
-     */
-    @Test
-    public void containsPlayer() {
-
-        //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
-
-        //adds a player to the weapon square
-        Player p = new Player(3, VIOLET);
-        weaponSquare.getPlayers().add(p);
-
-        //checks that the weapon square contains the added player
-        assertTrue(weaponSquare.containsPlayer(p));
-
-        //removes the added player form the weapon square
-        weaponSquare.getPlayers().remove(p);
-
-        //checks that the weapon square does not contain the removed player
-        assertFalse(weaponSquare.containsPlayer(p));
-
-
-    }
-
-
-    /**
-     * Tests the method removeCard(), covering all the instructions.
-     */
-    @Test
-    public void removeWeapon() {
+    public void removeWeapon() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         //creates a new weapon square with no weapons
         WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
@@ -115,12 +45,39 @@ public class WeaponSquareTest {
 
 
     /**
-     * Tests the method addCard(Weapon), covering all the instructions.
+     * Tests the method removeCard(), when an exception should be thrown since the square is empty.
+     *
+     * @throws NoMoreCardsException
+     */
+    @Test(expected = NoMoreCardsException.class )
+
+    public void removeWeaponEmptySquare() throws NoMoreCardsException {
+
+        //creates a new weapon square with no weapons
+        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
+
+        //creates the weapons that the player wants to collect
+        Weapon electroscythe = WeaponFactory.createWeapon(ELECTROSCYTHE);
+
+        //tries to remove the weapon from the weapon square
+        weaponSquare.removeCard(electroscythe);
+
+        //checks that the weapon square is still empty
+        assertEquals(0, weaponSquare.getWeapons().size());
+    }
+
+
+    /**
+     * Tests the method addCard(Weapon), covering all the instructions, apart form the exception.
+     * Testing the exception is not necessary since there are no relevant
+     * differences with the test addSingleWeaponFromDeckFullSquare.
+     *
+     * @throws UnacceptableItemNumberException
      */
     @Test
-    public void addSingleWeapon() /*throws Exception */ {
+    public void addSingleWeapon() throws UnacceptableItemNumberException {
 
-        //creates a new weapon square with no wepaons
+        //creates a new weapon square with no weapons
         WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
 
         //creates three weapons and adds two of them to the list of weapons
@@ -142,10 +99,13 @@ public class WeaponSquareTest {
 
 
     /**
-     * Tests the method addCard(), covering all the instructions.
+     * Tests the method addCard(), covering all the instructions apart from the exception.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
      */
     @Test
-    public void addSingleWeaponFromDeck() /*throws Exception */ {
+    public void addSingleWeaponFromDeck() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //configures the map and the decks
         BoardConfigurer.getInstance().configureMap(1);
@@ -165,7 +125,12 @@ public class WeaponSquareTest {
 
         //adds the first weapon of the weapon deck to the weapon square
         Weapon drawn = (Weapon) Board.getInstance().getWeaponDeck().getDrawable().get(0);
-        weaponSquare.addCard();
+        try {
+            weaponSquare.addCard();
+        }
+        catch (UnacceptableItemNumberException e) {
+            e.printStackTrace();
+        }
 
         //checks that the square contains three weapons and that the added weapon has been drawn from the deck
         assertEquals(3, weaponSquare.getWeapons().size());
@@ -175,10 +140,52 @@ public class WeaponSquareTest {
 
 
     /**
-     * Tests the method addAllCards(), covering all the instructions.
+     * Tests the method addCard() when an exception should be thrown since the square already contains three weapons.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     */
+    @Test(expected = UnacceptableItemNumberException.class)
+
+    public void addSingleWeaponFromDeckFullSquare() throws UnacceptableItemNumberException, NoMoreCardsException {
+
+        //configures the map and the decks
+        BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configureDecks();
+
+        //creates a new weapon square with no weapons
+        WeaponSquare weaponSquare = Board.getInstance().getSpawnPoints().get(0);
+
+        //creates three weapons and adds them to the list of weapons
+        Weapon lockRifle = WeaponFactory.createWeapon(LOCK_RIFLE);
+        Weapon tractorBeam = WeaponFactory.createWeapon(TRACTOR_BEAM);
+        Weapon rocketLauncher = WeaponFactory.createWeapon(ROCKET_LAUNCHER);
+        weaponSquare.addCard(lockRifle);
+        weaponSquare.addCard(tractorBeam);
+        weaponSquare.addCard(rocketLauncher);
+
+        //checks that the square contains two weapons
+        assertEquals(3, weaponSquare.getWeapons().size());
+
+        //adds the first weapon of the weapon deck to the weapon square
+        Weapon drawn = (Weapon) Board.getInstance().getWeaponDeck().getDrawable().get(0);
+        weaponSquare.addCard();
+
+        //checks that the square contains three weapons and that the added weapon has been drawn from the deck
+        assertEquals(3, weaponSquare.getWeapons().size());
+        assertFalse(weaponSquare.getWeapons().contains(drawn));
+
+    }
+
+
+    /**
+     * Tests the method addAllCards(), covering all the instructions apart form the exceptions.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
      */
     @Test
-    public void addStartingWeaponsFromDeck() /*throws Exception */ {
+    public void addStartingWeaponsFromDeck() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //configures the map and the decks
         BoardConfigurer.getInstance().configureMap(1);
@@ -202,6 +209,34 @@ public class WeaponSquareTest {
         assertEquals(drawn2, weaponSquare.getWeapons().get(1));
         assertEquals(drawn3, weaponSquare.getWeapons().get(2));
 
+    }
+
+
+    /**
+     * Tests the method addAllCards(), when an exception should be thrown since it is not called after the setup phase.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     */
+    @Test(expected = UnacceptableItemNumberException.class)
+    public void addStartingWeaponsFromDeckNotSetup() throws UnacceptableItemNumberException, NoMoreCardsException {
+
+        //configures the map and the decks
+        BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configureDecks();
+
+        //creates a new weapon square with no weapons
+        WeaponSquare weaponSquare = Board.getInstance().getSpawnPoints().get(0);
+
+        //adds a weapon to the square
+        Weapon weapon = WeaponFactory.createWeapon(POWER_GLOVE);
+        weaponSquare.getWeapons().add(weapon);
+
+        //adds three weapons from the deck to the weapon square
+        weaponSquare.addAllCards();
+
+        //checks that the square only contains the weapon it already contained
+        assertEquals(1, weaponSquare.getWeapons().size());
 
     }
 

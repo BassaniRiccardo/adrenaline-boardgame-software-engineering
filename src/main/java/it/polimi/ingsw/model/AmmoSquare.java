@@ -22,6 +22,7 @@ public class AmmoSquare extends Square  {
      * @param column        the column of the square.
      * @param color         the color of the square.
      * @param ammoTile      the ammo tile in the square.
+     * @throws              IllegalArgumentException
      */
     public AmmoSquare(int id, int roomId, int row, int column, Color color, AmmoTile ammoTile) {
 
@@ -39,6 +40,7 @@ public class AmmoSquare extends Square  {
      * @param row           the row of the square.
      * @param column        the column of the square.
      * @param color         the color of the square.
+     * @throws              IllegalArgumentException
      */
     public AmmoSquare(int id, int roomId, int row, int column, Color color) {
 
@@ -53,8 +55,11 @@ public class AmmoSquare extends Square  {
      *
      * @return      the ammo tile in the square.
      */
-    public AmmoTile getAmmoTile() {
+    public AmmoTile getAmmoTile() throws NotAvailableAttributeException {
+
+        if (ammoTile==null) throw new NotAvailableAttributeException("Impossible to return the value: the square does not contain any ammo tile");
         return ammoTile;
+
     }
 
 
@@ -62,8 +67,11 @@ public class AmmoSquare extends Square  {
      * Removes an ammo tile from the square and returns it to the player who collected it.
      *
      * @return      the collected ammo tile.
+     * @throws      NoMoreCardsException
      */
-    public Card removeCard(Card ammotile) {
+    public Card removeCard(Card ammoTile) throws NoMoreCardsException{
+
+        if (this.ammoTile == null) throw new NoMoreCardsException("Impossible to remove the card: the square does not contain any ammo tile");
 
         Card collected = this.ammoTile;
         this.ammoTile = null;
@@ -75,8 +83,12 @@ public class AmmoSquare extends Square  {
     /**
      * Add an ammo tile to the square.
      *
+     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException
      */
-    public void addAllCards() {
+    public void addAllCards() throws NoMoreCardsException, UnacceptableItemNumberException {
+
+        if (ammoTile!=null)  throw new UnacceptableItemNumberException("The square already contains an ammo tile.");
 
         this.ammoTile = (AmmoTile) Board.getInstance().getAmmoDeck().drawCard();
 

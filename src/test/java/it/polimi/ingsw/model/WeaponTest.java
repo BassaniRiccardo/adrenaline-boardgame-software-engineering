@@ -12,7 +12,7 @@ public class WeaponTest {
      * Tests listAvailableFireModes() when all firemodes are available
      */
     @Test
-    public void listAvailableFireModes() {
+    public void listAvailableFireModes() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -29,7 +29,7 @@ public class WeaponTest {
      * Tests listAvailableFireModes() when the player has no ammo and only the main firemode is available
      */
     @Test
-    public void listAvailableFireModes2() {
+    public void listAvailableFireModes2() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -47,7 +47,7 @@ public class WeaponTest {
      * can only hit targets that are contained by mainTargets, which is empty by default)
      */
     @Test
-    public void listAvailableFireModes3() {
+    public void listAvailableFireModes3() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -63,7 +63,7 @@ public class WeaponTest {
      * Tests listAvailableFireModes() when no firemodes are available
      */
     @Test
-    public void listAvailableFireModes4() {
+    public void listAvailableFireModes4() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(4).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));

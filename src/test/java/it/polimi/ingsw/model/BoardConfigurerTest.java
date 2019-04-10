@@ -18,7 +18,7 @@ public class BoardConfigurerTest {
      * Simulates a predefined scenario with the method simulateScenario().
      */
     @Before
-    public void setup() {
+    public void setup() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         BoardConfigurer.getInstance().simulateScenario();
     }

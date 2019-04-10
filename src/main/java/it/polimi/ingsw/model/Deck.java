@@ -76,11 +76,17 @@ public class Deck {
      *
      * @return          the drawn card.
      */
-    public Card drawCard() {
+    public Card drawCard() throws NoMoreCardsException {
 
-        Card drawn = drawable.get(0);
-        drawable.remove(0);
-        return drawn;
+        try{
+            Card drawn = drawable.get(0);
+            drawable.remove(0);
+            return drawn;
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            throw new NoMoreCardsException("The deck is empty");
+        }
 
     }
 

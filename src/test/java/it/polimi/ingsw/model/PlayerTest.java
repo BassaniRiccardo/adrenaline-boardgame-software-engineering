@@ -83,10 +83,90 @@ public class PlayerTest {
 
 
     /**
-     * Tests powerUp()
+     * Tests collect() in an ammo square, when the ammo tile is available.
+     */
+    @Test(expected = NotAvailableAttributeException.class)
+    public void collectAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
+
+        //simulates a scenario, all the squares are filled
+        BoardConfigurer.getInstance().simulateScenario();
+
+        //a player with no ammo pack
+        Player player = Board.getInstance().getPlayers().get(0);
+
+        //checks that the player has no ammo
+        assertEquals(0, player.getAmmopack().getBlueAmmo());
+        assertEquals(0, player.getAmmopack().getRedAmmo());
+        assertEquals(0, player.getAmmopack().getYellowAmmo());
+
+        assertNotNull(((AmmoSquare) player.getPosition()).getAmmoTile());
+
+        //the player collects the ammo tile
+        player.collect(((AmmoSquare)player.getPosition()).getAmmoTile());
+
+        //checks that the player has some ammo
+        assertFalse(player.getAmmopack().getBlueAmmo()==0 && player.getAmmopack().getRedAmmo()==0 &&
+                    player.getAmmopack().getYellowAmmo()==0 );
+
+        //checks that the ammo square does not have an ammo tile anymore: exception thrown
+        ((AmmoSquare) player.getPosition()).getAmmoTile();
+
+    }
+
+    /**
+     * Tests collect() in an ammo square, when no ammo tile is available.
      */
     @Test
-    public void drawPowerUp() {
+    public void collectNoAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
+
+        //simulates a scenario, all the squares are filled
+        BoardConfigurer.getInstance().simulateScenario();
+
+        //a player with no ammo pack
+        Player player1 = Board.getInstance().getPlayers().get(0);
+        Player player2 = Board.getInstance().getPlayers().get(1);
+
+        //checks there is a ammo tile in the square
+        assertNotNull(((AmmoSquare) player1.getPosition()).getAmmoTile());
+
+        //the first player collects the ammo tile
+        player1.collect(((AmmoSquare)player1.getPosition()).getAmmoTile());
+
+        //the second player moves in the square of the first player
+        player2.setPosition(player1.getPosition());
+
+        //the second players try to collect the ammo tile and fails
+        try{
+            player2.collect(((AmmoSquare)player2.getPosition()).getAmmoTile());
+        }
+        catch (NotAvailableAttributeException notAvailableAttributeException) {
+        }
+        catch (NoMoreCardsException noMoreCardsException) {
+        }
+
+        //checks that the first player has some ammo
+        assertFalse(player1.getAmmopack().getBlueAmmo()==0 && player1.getAmmopack().getRedAmmo()==0 &&
+                player1.getAmmopack().getYellowAmmo()==0 );
+
+        //checks that the second player has no ammo
+        assertEquals(0, player2.getAmmopack().getBlueAmmo());
+        assertEquals(0, player2.getAmmopack().getRedAmmo());
+        assertEquals(0, player2.getAmmopack().getYellowAmmo());
+
+        //checks that the square has no ammo left
+        try{
+            ((AmmoSquare) player1.getPosition()).getAmmoTile();
+        }
+        catch (NotAvailableAttributeException notAvailableAttributeException) {
+        }
+
+    }
+
+    /**
+     * Tests drawPowerUp().
+     */
+    @Test
+    public void drawPowerUp() throws NoMoreCardsException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -104,10 +184,10 @@ public class PlayerTest {
 
 
     /**
-     * Tests powerUp()
+     * Tests drawPowerUp(), drawing 2 power ups.
      */
     @Test
-    public void drawPowerUpMultiple() {
+    public void drawPowerUpMultiple() throws NoMoreCardsException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -140,7 +220,7 @@ public class PlayerTest {
      * Tests discardPowerUp()
      */
     @Test
-    public void discardPowerUp() {
+    public void discardPowerUp() throws NoMoreCardsException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -322,7 +402,7 @@ public class PlayerTest {
      * Tests useAsAmmo()
      */
     @Test
-    public void useAsAmmo() {
+    public void useAsAmmo() throws NoMoreCardsException {
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
 

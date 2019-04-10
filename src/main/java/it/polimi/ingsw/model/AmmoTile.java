@@ -37,11 +37,10 @@ public class AmmoTile implements Card{
         return ammoPack;
     }
 
-    public Player getHolder() { return null; }
+    public Player getHolder() throws NotAvailableAttributeException { throw new NotAvailableAttributeException("An ammo tile does not have an holder"); }
 
-    public Color getColor() {return null;}
+    public Color getColor() throws NotAvailableAttributeException { throw new NotAvailableAttributeException("An ammo tile does not have a color"); }
 
-    public void setHolder(Player holder){//nothing
-         }
+    public void setHolder(Player holder) throws NotAvailableAttributeException { throw new NotAvailableAttributeException("An ammo tile does not have an holder"); }
 
 }

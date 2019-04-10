@@ -34,22 +34,28 @@ public class BoardTest {
      * Tests the method getPlayerInside(), covering all the instructions.
      */
     @Test
-    public void getPlayersInside() {
+    public void getPlayersInside() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         //declares the array the method is expected to return
         ArrayList<Player> expected = new ArrayList<>();
 
-        //adds expected players
-        Player p1 = new Player(1,BANSHEE);
-        Player p2 = new Player(2, DOZER);
+        //simulates a scenario
+        BoardConfigurer.getInstance().simulateScenario();
+
+        //selects two player and a square; p1 is already in the square
+        Player p1 = Board.getInstance().getPlayers().get(0);
+        Player p2 = Board.getInstance().getPlayers().get(1);
+        AmmoSquare ammoSquare = (AmmoSquare)Board.getInstance().getMap().get(0);
+
+        //checks that p1 is in the square
         expected.add(p1);
+        assertEquals(expected, Board.getInstance().getPlayersInside(Board.getInstance().getMap().get(0)));
+
+        //adds p2 to the square
+        p2.setPosition(ammoSquare);
         expected.add(p2);
 
-        //adds players to the square
-        Board.getInstance().getMap().get(0).addPlayer(p1);
-        Board.getInstance().getMap().get(0).addPlayer(p2);
-
-        //checks that the square contains the added players
+        //checks that the square contains p1 the added players, p2
         assertEquals(expected, Board.getInstance().getPlayersInside(Board.getInstance().getMap().get(0)));
 
         //remove all the players from the square

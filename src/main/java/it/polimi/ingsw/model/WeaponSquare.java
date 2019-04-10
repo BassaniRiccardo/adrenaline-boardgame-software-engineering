@@ -6,6 +6,12 @@ import java.util.*;
  * Extends the class Square.
  * Contains up to tree weapons, that can be collected by a player.
  * Collected weapons are replaced drawing from the deck of weapons.
+ * Exceptions written:
+ *
+ * -    removeCard(Weapon)
+ * -    addAllCards()
+ * -    addCard(Card)
+ * -    addCard()
  *
  * @author  BassaniRiccardo
  */
@@ -25,10 +31,13 @@ public class WeaponSquare extends Square {
      * @param column        the column of the square.
      * @param color         the color of the square.
      * @param weapons       the weapons in the square.
+     * @throws              IllegalArgumentException
      */
     public WeaponSquare(int id, int roomId, int row, int column, Color color, List<Weapon> weapons) {
+
         super(id, roomId, row, column, color);
         this.weapons = weapons;
+
     }
 
     /**
@@ -40,6 +49,7 @@ public class WeaponSquare extends Square {
      * @param row           the row of the square.
      * @param column        the column of the square.
      * @param color         the color of the square.
+     * @throws              IllegalArgumentException
      */
     public WeaponSquare(int id, int roomId, int row, int column, Color color) {
 
@@ -62,10 +72,14 @@ public class WeaponSquare extends Square {
      * Removes a weapon from the square
      *
      * @param weapon        the weapon to remove.
+     * @throws              NoMoreCardsException
      */
-    public Card removeCard(Card weapon) {
+    public Card removeCard(Card weapon) throws NoMoreCardsException {
+
+        if (weapons.isEmpty()) throw new NoMoreCardsException("Impossible to remove the card: the square does not contain weapons.");
 
         this.weapons.remove(weapon);
+
         return weapon;
 
     }
@@ -73,9 +87,14 @@ public class WeaponSquare extends Square {
 
     /**
      * Adds three weapons from the deck to the weapon square.
-     * It is called at the beginning of the game.
+     * It is called only at the beginning of the game, when all the squares are empty.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
      */
-    public void addAllCards() {
+    public void addAllCards() throws UnacceptableItemNumberException, NoMoreCardsException {
+
+        if (!weapons.isEmpty()) throw new UnacceptableItemNumberException("The square already contains three weapons.");
 
         for (int i = 0; i < 3; i++) {
             this.weapons.add((Weapon) Board.getInstance().getWeaponDeck().drawCard());
@@ -88,8 +107,12 @@ public class WeaponSquare extends Square {
      * Adds a weapon from the deck the to the weapon square.
      * It is called at the end of a turn if a collected weapon needs to be replaced.
      *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
      */
-    public void addCard()  {
+    public void addCard() throws UnacceptableItemNumberException, NoMoreCardsException {
+
+        if (weapons.size() >= 3) throw new UnacceptableItemNumberException("No weapons left in the deck.");
 
         this.weapons.add((Weapon)Board.getInstance().getWeaponDeck().drawCard());
 
@@ -101,9 +124,12 @@ public class WeaponSquare extends Square {
      * It is called when a player discards one of his weapons.
      *
      * @param weapon        the discarded weapon.
+     * @throws              UnacceptableItemNumberException
      */
 
-    public void addCard(Weapon weapon)  {
+    public void addCard(Weapon weapon) throws UnacceptableItemNumberException {
+
+        if (weapons.size() >= 3) throw new UnacceptableItemNumberException("The square already contains three weapons.");
 
         this.weapons.add(weapon);
 

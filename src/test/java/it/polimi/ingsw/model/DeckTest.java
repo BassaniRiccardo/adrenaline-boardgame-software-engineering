@@ -70,7 +70,7 @@ public class DeckTest {
      * Tests the method drawCard() for a deck of powerUps.
      */
     @Test
-    public void drawCardPowerUp() {
+    public void drawCardPowerUp() throws NoMoreCardsException {
 
         //creates an new empty deck of ammo tiles
         Deck powerUpDeck = new Deck();
@@ -103,6 +103,24 @@ public class DeckTest {
 
     }
 
+    /**
+     * Tests the method drawCard() for a deck of powerUps, when an exception should be thrown since the deck is empty.
+     */
+    @Test(expected = NoMoreCardsException.class)
+
+    public void drawCardPowerUpEmptyDeck() throws NoMoreCardsException {
+
+        //creates an new empty deck of power ups
+        Deck powerUpDeck = new Deck();
+
+        //draws a card
+        Card drawn = powerUpDeck.drawCard();
+
+        //checks that the size of the deck is still 0
+        assertEquals(0, powerUpDeck.getDrawable().size());
+
+    }
+
 
     /**
      * Tests the method drawCard() for a deck of power ups, drawing multiple cards.
@@ -110,7 +128,7 @@ public class DeckTest {
      * The tested deck is configured as a real deck, containing all the power up cards of the game.
      */
     @Test
-    public void drawMultiplePowerUpsFromRealDeck() {
+    public void drawMultiplePowerUpsFromRealDeck() throws NoMoreCardsException {
 
         //creates the board with the decks.
         BoardConfigurer.getInstance().configureMap(1);

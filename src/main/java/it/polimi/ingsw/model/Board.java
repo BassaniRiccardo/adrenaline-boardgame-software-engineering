@@ -536,4 +536,27 @@ public class Board {
     }
 
 
+    //TODO
+    //implement these
+
+    /**
+     * Returns squares in a certain room
+     *
+     * @param id                      room's id
+     * @return                        list of squares in given room
+     */
+    public List<Square> getSquaresInRoom(int id){
+        return new ArrayList<>();
+    }
+
+
+    /**
+     * Returns all squares in the map.
+     *
+     * @return                        a list of all squares
+     */
+    public List<Square> getAllSquares(){
+        return new ArrayList<>();
+    }
+
 }

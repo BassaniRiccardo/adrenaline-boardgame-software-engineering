@@ -14,7 +14,7 @@ interface DestinationFinder{
     /**
      * Returns an ArrayList containing Square objects which can be
      * selected as a destination by the player.
-     * The second parameter is not always used.
+     * @requires !isEmpty(targets)
      *
      * @param  shooter  the Player who is taking action in this turn
      * @param  targets the ArrayList of players selected as targets by the current player

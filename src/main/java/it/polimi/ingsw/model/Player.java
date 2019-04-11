@@ -40,6 +40,7 @@ public class Player {
     private List<Player> marks;
 
     private Square position;
+    private Square previousPosition;
 
     private List<Weapon> weaponList;
     private List<PowerUp> powerUpList;
@@ -74,6 +75,7 @@ public class Player {
         this.marks = new ArrayList<>();
 
         this.position = null;
+        this.previousPosition = null;
 
         this.weaponList = new ArrayList<>();
         this.powerUpList = new ArrayList<>();
@@ -125,6 +127,8 @@ public class Player {
 
     public Square getPosition(){return position;}
 
+    public Square getPreviousPosition(){return previousPosition;}
+
     public List<Player> getMainTargets(){return mainTargets;}
 
     public List<Player> getOptionalTargets(){return optionalTargets;}
@@ -138,6 +142,7 @@ public class Player {
 
 
     public void setPosition(Square square) {
+        previousPosition = position;
         this.position = square;
         square.addPlayer(this);
     }

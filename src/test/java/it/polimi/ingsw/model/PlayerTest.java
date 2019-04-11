@@ -735,7 +735,7 @@ public class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    public void rewardKillers() {
+    public void rewardKillers() throws NotAvailableAttributeException {
 
         BoardConfigurer.getInstance().configurePlayerOptions(3);
 
@@ -762,7 +762,7 @@ public class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    public void rewardKillersManyShooters1() {
+    public void rewardKillersManyShooters1() throws NotAvailableAttributeException {
 
         BoardConfigurer.getInstance().configurePlayerOptions(5);
 
@@ -798,7 +798,7 @@ public class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    public void rewardKillersManyShooters2() {
+    public void rewardKillersManyShooters2() throws NotAvailableAttributeException{
 
         BoardConfigurer.getInstance().configurePlayerOptions(5);
 

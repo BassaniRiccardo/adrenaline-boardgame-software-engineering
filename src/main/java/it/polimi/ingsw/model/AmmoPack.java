@@ -23,8 +23,14 @@ public class AmmoPack {
      * @param r     amount of red ammo.
      * @param b     amount of yellow ammo.
      * @param y     amount of blue ammo.
+     *
+     * @throws      IllegalArgumentException
      */
     public AmmoPack(int r, int b, int y) {
+
+        if (r<0 || r>3 || b<0 || b>3 || y<0 || y>3 ){
+            throw new IllegalArgumentException("An ammo pack must contain between 0 and 3 ammo for each color.");
+        }
         this.redAmmo = r;
         this.blueAmmo = b;
         this.yellowAmmo = y;
@@ -71,9 +77,13 @@ public class AmmoPack {
      * Subtracts the amount of ammo of an ammo pack.
      *
      * @param aP        AmmoPack subtracted.
+     * @throws          IllegalArgumentException
      */
-    public void subAmmoPack(AmmoPack aP){
+    public void subAmmoPack(AmmoPack aP) {
 
+        if (aP.getBlueAmmo()>blueAmmo || aP.getRedAmmo()>redAmmo || aP.getYellowAmmo()>yellowAmmo) {
+            throw new IllegalArgumentException("Not enough ammo to execute the subtraction");
+        }
         this.redAmmo -= aP.redAmmo;
         this.blueAmmo -= aP.blueAmmo;
         this.yellowAmmo -= aP.yellowAmmo;

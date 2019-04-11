@@ -49,7 +49,7 @@ public class Weapon implements Card {
         this.fullCost = fullCost;
         this.reducedCost = reducedCost;
         this.holder = null;
-        this.fireModeList = (ArrayList<FireMode>)fireModeList;
+        this.fireModeList = fireModeList;
         this.currentFireMode = null;
         this.mainTargets = new ArrayList<>();
         this.optionalTargets = new ArrayList<>();
@@ -110,7 +110,7 @@ public class Weapon implements Card {
 
 
     public void setMainTargets(List<Player> mainTargets) {
-        this.mainTargets = (ArrayList<Player>)mainTargets;
+        this.mainTargets = mainTargets;
     }
 
     public void setOptionalTargets(List<Player> optionalTargets) {

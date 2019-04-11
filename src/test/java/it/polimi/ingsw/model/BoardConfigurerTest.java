@@ -18,7 +18,7 @@ public class BoardConfigurerTest {
      * Simulates a predefined scenario with the method simulateScenario().
      */
     @Before
-    public void setup() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void setup() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
 
         BoardConfigurer.getInstance().simulateScenario();
     }
@@ -90,7 +90,7 @@ public class BoardConfigurerTest {
      * Tests if the killshot track is correctly set.
      */
     @Test
-    public void simulateScenarioKillShotTrack() {
+    public void simulateScenarioKillShotTrack() throws NotAvailableAttributeException{
 
         assertEquals(8, Board.getInstance().getKillShotTrack().getSkullsLeft());
 

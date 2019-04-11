@@ -30,7 +30,7 @@ public class KillShotTrack {
      */
     public KillShotTrack(int skullsNumber) {
 
-        if (skullsNumber<5 || skullsNumber > 8) throw new IllegalArgumentException("The number of skulls must be between 5 and 8");
+        if (skullsNumber > 8) throw new IllegalArgumentException("The number of skulls can not be higher than 8.");
 
         this.skullsLeft = skullsNumber;
         this.killers = new ArrayList<>();

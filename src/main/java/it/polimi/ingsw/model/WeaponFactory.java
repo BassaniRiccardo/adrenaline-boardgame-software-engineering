@@ -14,6 +14,10 @@ import static it.polimi.ingsw.model.Color.*;
  * @author  marcobaga
  */
 
+//TODO filter the players in order not to include the shooter in the target list.
+// necessary since now getVisible include the shooter square.
+// Look at the SonarLint issues.
+
 public class WeaponFactory {
 
     /**
@@ -444,7 +448,7 @@ public class WeaponFactory {
                 fireModeList = new ArrayList<>(1);
 
                 effect = createEffect(3, 0);
-                targetFinder = p -> Board.getInstance().getAllSquares().stream()
+                targetFinder = p -> Board.getInstance().getMap().stream()
                         .filter(x -> !Board.getInstance().getVisible(p.getPosition()).contains(x))
                         .map(x -> x.getPlayers())
                         .flatMap(x -> x.stream())

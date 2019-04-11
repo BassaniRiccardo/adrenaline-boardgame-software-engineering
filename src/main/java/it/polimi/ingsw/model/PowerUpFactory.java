@@ -9,7 +9,9 @@ import java.util.List;
  * @author  marcobaga
  */
 
-public class PowerUpFactory {
+//TODO Add a private constructor....SonarLint
+
+public class PowerUpFactory  {
 
     /**
      *Creates a PowerUp object according to its name
@@ -18,18 +20,18 @@ public class PowerUpFactory {
      * @param  color        the color of the powerup
      * @return      the PowerUp object created
      */
-    public static PowerUp createPowerUp(PowerUp.PowerUpName powerUpName, Color color){
+    public static PowerUp createPowerUp(PowerUp.PowerUpName powerUpName, Color color) {
 
         Effect effect;
         AmmoPack cost;
         DestinationFinder destinationFinder;
         TargetFinder targetFinder;
 
-        switch (powerUpName){
+        switch (powerUpName) {
             case TARGETING_SCOPE:
                 cost = new AmmoPack(0,0,0);
                 effect = (shooter, target, destination)-> target.sufferDamage(1, shooter);
-                targetFinder = (p) -> { List<Player> temp = Board.getInstance().getPlayers();
+                targetFinder = p -> { List<Player> temp = Board.getInstance().getPlayers();
                                         List<List<Player>> targets = new ArrayList<>();
                                         for(Player pla : temp){
                                             if (pla.isJustDamaged()){
@@ -46,7 +48,7 @@ public class PowerUpFactory {
             default:
                 cost = new AmmoPack(0,0,0);
                 effect = (shooter, target, destination)-> target.sufferDamage(1, shooter);
-                targetFinder = (p) -> { List<Player> temp = Board.getInstance().getPlayers();
+                targetFinder = p -> { List<Player> temp = Board.getInstance().getPlayers();
                     List<List<Player>> targets = new ArrayList<>();
                     for(Player pla : temp){
                         if (pla.isJustDamaged()){

@@ -102,7 +102,7 @@ public class FireMode implements Targeted {
      * @param  targets the ArrayList of already selected targets
      * @return      the set of possible destination Square objects
      */
-    public List<Square> findDestinations(List<Player> targets)throws NullPointerException{
+    public List<Square> findDestinations(List<Player> targets) {
         if(weapon.getHolder()==null||targets==null){
             throw new NullPointerException();
         }

@@ -1,3 +1,5 @@
+//TODO load data from JSON/XML
+
 package it.polimi.ingsw.model;
 
 import java.util.ArrayList;

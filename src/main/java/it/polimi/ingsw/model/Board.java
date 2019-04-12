@@ -26,6 +26,7 @@ public class Board {
     //depend on the game settings, set by BoardConfigurer
     private List<Player> players;
     private int playerNumber;
+    private Player currentPlayer;
 
     //set by BoardConfigurer
     private Deck weaponDeck;
@@ -48,6 +49,7 @@ public class Board {
 
         this.players = new ArrayList<>();
         this.playerNumber = 0;
+        this.currentPlayer = null;
 
         this.weaponDeck = new Deck();
         this.powerUpDeck = new Deck();
@@ -146,6 +148,15 @@ public class Board {
         return killShotTrack;
     }
 
+    /**
+     * Getter for currentPlayer.
+     *
+     * @return      the current player.
+     */
+    public Player getCurrentPlayer(){
+        return currentPlayer;
+    }
+
 
     /**
      * Setter for map.
@@ -236,6 +247,13 @@ public class Board {
     public void setKillShotTrack(KillShotTrack killShotTrack) {
         this.killShotTrack = killShotTrack;
     }
+
+    /**
+     * Setter for killShotTrack.
+     *
+     * @param currentPlayer   the value to assign to killShotTrack.
+     */
+    public void setCurrentPlayer(Player currentPlayer){this.currentPlayer= currentPlayer;}
 
 
     /**
@@ -548,15 +566,4 @@ public class Board {
     public List<Square> getSquaresInRoom(int id){
         return new ArrayList<>();
     }
-
-
-    /**
-     * Returns all squares in the map.
-     *
-     * @return                        a list of all squares
-     */
-    public List<Square> getAllSquares(){
-        return new ArrayList<>();
-    }
-
 }

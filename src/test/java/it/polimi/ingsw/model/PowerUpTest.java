@@ -1,5 +1,6 @@
-package it.polimi.ingsw.model;
+//TODO test three remaining powerups
 
+package it.polimi.ingsw.model;
 
 import java.util.List;
 
@@ -13,8 +14,13 @@ public class PowerUpTest {
     @Test
     public void isAvailable() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).drawPowerUp();
-        PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
+        PowerUp p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
+            p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        }
+        p.setHolder(Board.getInstance().getPlayers().get(0));
+        Board.getInstance().getPlayers().get(0).getPowerUpList().add(p);
+        p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
         Board.getInstance().getPlayers().get(1).setJustDamaged(true);
         assertTrue(p.isAvailable());
     }
@@ -25,8 +31,13 @@ public class PowerUpTest {
     @Test
     public void isAvailable2() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(4).drawPowerUp();
-        PowerUp p = Board.getInstance().getPlayers().get(4).getPowerUpList().get(0);
+        PowerUp p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
+            p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        }
+        p.setHolder(Board.getInstance().getPlayers().get(4));
+        Board.getInstance().getPlayers().get(4).getPowerUpList().add(p);
+        p = Board.getInstance().getPlayers().get(4).getPowerUpList().get(0);
         assertFalse(p.isAvailable());
     }
 
@@ -36,8 +47,13 @@ public class PowerUpTest {
     @Test
     public void isAvailable3() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).drawPowerUp();
-        PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
+        PowerUp p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
+            p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        }
+        p.setHolder(Board.getInstance().getPlayers().get(0));
+        Board.getInstance().getPlayers().get(0).getPowerUpList().add(p);
+        p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
         assertFalse(p.isAvailable());
     }
 
@@ -47,9 +63,14 @@ public class PowerUpTest {
     @Test
     public void applyEffects() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).drawPowerUp();
-        PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
-        p.applyEffects(Board.getInstance().getPlayers(), null);
+        PowerUp p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
+            p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        }
+        p.setHolder(Board.getInstance().getPlayers().get(0));
+        Board.getInstance().getPlayers().get(0).getPowerUpList().add(p);
+        p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
+        p.applyEffects(Board.getInstance().getPlayers(), p.getHolder().getPosition());
         assertTrue(Board.getInstance().getPlayers().get(1).isJustDamaged());
     }
 
@@ -59,8 +80,13 @@ public class PowerUpTest {
     @Test
     public void findTargets() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).drawPowerUp();
-        PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
+        PowerUp p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
+            p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        }
+        p.setHolder(Board.getInstance().getPlayers().get(0));
+        Board.getInstance().getPlayers().get(0).getPowerUpList().add(p);
+        p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
         Board.getInstance().getPlayers().get(1).setJustDamaged(true);
         assertFalse(p.findTargets().isEmpty());
         List<Player> ap = p.findTargets().get(0);
@@ -73,8 +99,13 @@ public class PowerUpTest {
     @Test
     public void findTargets2() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).drawPowerUp();
-        PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
+        PowerUp p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
+            p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        }
+        p.setHolder(Board.getInstance().getPlayers().get(0));
+        Board.getInstance().getPlayers().get(0).getPowerUpList().add(p);
+        p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
         assertTrue(p.findTargets().isEmpty());
     }
 
@@ -84,8 +115,13 @@ public class PowerUpTest {
     @Test
     public void findDestinations() throws UnacceptableItemNumberException, NoMoreCardsException {
         BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).drawPowerUp();
-        PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
+        PowerUp p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
+            p = (PowerUp) Board.getInstance().getPowerUpDeck().drawCard();
+        }
+        p.setHolder(Board.getInstance().getPlayers().get(0));
+        Board.getInstance().getPlayers().get(0).getPowerUpList().add(p);
+        p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
         assertTrue(p.findDestinations(Board.getInstance().getPlayers())==null);
     }
 }

@@ -1,3 +1,5 @@
+//TODO add a flag to each firemode signaling whether it can be used before and/or after the main firemode
+
 package it.polimi.ingsw.model;
 import java.util.List;
 

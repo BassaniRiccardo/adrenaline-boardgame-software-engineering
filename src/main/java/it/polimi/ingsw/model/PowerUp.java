@@ -125,7 +125,7 @@ public class PowerUp implements Targeted, Card {
      * @return      true if and only if  this powerup cna be used
      */
     public boolean isAvailable(){
-        return !(findTargets().isEmpty())&&holder.hasEnoughAmmo(cost);
+        return !(findTargets().isEmpty())&&!(name==PowerUpName.TARGETING_SCOPE&&holder.getAmmopack().equals(new AmmoPack(0,0,0)));
     }
 
 }

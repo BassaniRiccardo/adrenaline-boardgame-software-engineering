@@ -1,3 +1,9 @@
+//TODO check whether this factory and Board methods share the same logic (eg. does getVisible return the shooter's square?)
+//TODO reformat this class (check the commented section)
+//TODO check whether MainTargets can be a single Player instead of an Array
+//TODO check whether returning a List ofPlayers instead of an ArrayList can cause issues
+//TODO load data from JSON/XML
+
 package it.polimi.ingsw.model;
 
 import java.util.ArrayList;
@@ -444,7 +450,7 @@ public class WeaponFactory {
                 fireModeList = new ArrayList<>(1);
 
                 effect = createEffect(3, 0);
-                targetFinder = p -> Board.getInstance().getAllSquares().stream()
+                targetFinder = p -> Board.getInstance().getMap().stream()
                         .filter(x -> !Board.getInstance().getVisible(p.getPosition()).contains(x))
                         .map(x -> x.getPlayers())
                         .flatMap(x -> x.stream())

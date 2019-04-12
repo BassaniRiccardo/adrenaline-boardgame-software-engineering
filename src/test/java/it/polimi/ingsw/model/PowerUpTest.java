@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+
 public class PowerUpTest {
 
     /**
@@ -47,9 +49,12 @@ public class PowerUpTest {
     @Test
     public void applyEffects() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).drawPowerUp();
+        Player player = Board.getInstance().getPlayers().get(0);
+        player.drawPowerUp();
         PowerUp p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
-        p.applyEffects(Board.getInstance().getPlayers(), null);
+        List otherPlayers = Board.getInstance().getPlayers();
+        otherPlayers.remove(player);
+        p.applyEffects(otherPlayers, null);
         assertTrue(Board.getInstance().getPlayers().get(1).isJustDamaged());
     }
 

@@ -9,6 +9,9 @@ import java.util.List;
  *
  * @author  marcobaga
  */
+
+//TODO throw exception instead of returning a null value
+
 public class Weapon implements Card {
 
     public enum WeaponName{

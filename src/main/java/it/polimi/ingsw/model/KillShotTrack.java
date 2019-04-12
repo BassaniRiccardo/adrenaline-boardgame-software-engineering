@@ -84,7 +84,7 @@ public class KillShotTrack {
      * @param overkill      whether the killer overkilled the opponent
      * @throws              UnacceptableItemNumberException
      */
-    public void registerKill(Player killer, Player dead, boolean overkill) throws UnacceptableItemNumberException {
+    public void registerKill(Player killer, Player dead, boolean overkill) throws UnacceptableItemNumberException, WrongTimeException {
 
         if (killer.equals(dead))    throw new IllegalArgumentException("The killer and the dead can not be the same person,");
         killers.add(killer);

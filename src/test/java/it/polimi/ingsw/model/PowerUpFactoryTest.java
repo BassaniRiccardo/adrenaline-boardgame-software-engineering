@@ -3,6 +3,8 @@ package it.polimi.ingsw.model;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+//TODO try and catch exceptions when the return value is null
+
 public class PowerUpFactoryTest {
 
     /**
@@ -18,7 +20,9 @@ public class PowerUpFactoryTest {
         assertFalse(p.getEffect()==null);
         assertFalse(p.getTargetFinder()==null);
         assertFalse(p.getDestinationFinder()==null);
-        assertTrue(p.getHolder() == null);
+        try {
+            p.getHolder();
+        } catch (NotAvailableAttributeException e){}
         assertTrue(p.getColor() == Color.BLUE);
     }
 }

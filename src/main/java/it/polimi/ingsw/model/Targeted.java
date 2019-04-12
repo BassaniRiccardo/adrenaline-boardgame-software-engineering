@@ -9,6 +9,9 @@ import java.util.List;
  *
  * @author  marcobaga
  */
+
+//TODO overloading
+
 public interface Targeted {
 
     void applyEffects(List<Player> targets, Square destination);

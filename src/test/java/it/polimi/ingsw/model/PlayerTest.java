@@ -166,7 +166,7 @@ public class PlayerTest {
      * Tests drawPowerUp().
      */
     @Test
-    public void drawPowerUp() throws NoMoreCardsException {
+    public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -187,7 +187,7 @@ public class PlayerTest {
      * Tests drawPowerUp(), drawing 2 power ups.
      */
     @Test
-    public void drawPowerUpMultiple() throws NoMoreCardsException {
+    public void drawPowerUpMultiple() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -220,7 +220,7 @@ public class PlayerTest {
      * Tests discardPowerUp()
      */
     @Test
-    public void discardPowerUp() throws NoMoreCardsException {
+    public void discardPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -289,7 +289,7 @@ public class PlayerTest {
      * Tests addWeapon()
      */
     @Test
-    public void addWeapon() {
+    public void addWeapon() throws UnacceptableItemNumberException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -310,7 +310,7 @@ public class PlayerTest {
      * Tests addWeapon()
      */
     @Test
-    public void addWeaponMultiple() {
+    public void addWeaponMultiple() throws UnacceptableItemNumberException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -335,7 +335,7 @@ public class PlayerTest {
      * Tests discardWeapon()
      */
     @Test
-    public void discardWeapon() {
+    public void discardWeapon()  throws UnacceptableItemNumberException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
@@ -360,10 +360,13 @@ public class PlayerTest {
      * Tests updateAwards()
      */
     @Test
-    public void updateAwards() {
+    public void updateAwards() throws WrongTimeException {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
+
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER));
 
         //calls updateAwards
         player.updateAwards();
@@ -402,11 +405,11 @@ public class PlayerTest {
      * Tests useAsAmmo()
      */
     @Test
-    public void useAsAmmo() throws NoMoreCardsException {
+    public void useAsAmmo() throws NoMoreCardsException, UnacceptableItemNumberException {
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET);
 
-        //draws a poerUp
+        //draws a powerUp
         player.drawPowerUp();
 
         //save the powerUp
@@ -735,7 +738,7 @@ public class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    public void rewardKillers() throws NotAvailableAttributeException {
+    public void rewardKillers() throws WrongTimeException {
 
         BoardConfigurer.getInstance().configurePlayerOptions(3);
 
@@ -762,7 +765,7 @@ public class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    public void rewardKillersManyShooters1() throws NotAvailableAttributeException {
+    public void rewardKillersManyShooters1() throws WrongTimeException {
 
         BoardConfigurer.getInstance().configurePlayerOptions(5);
 
@@ -798,7 +801,7 @@ public class PlayerTest {
      * Tests rewardKillers()
      */
     @Test
-    public void rewardKillersManyShooters2() throws NotAvailableAttributeException{
+    public void rewardKillersManyShooters2() throws WrongTimeException{
 
         BoardConfigurer.getInstance().configurePlayerOptions(5);
 
@@ -809,7 +812,9 @@ public class PlayerTest {
         Player shooter4 = Board.getInstance().getPlayers().get(4);
 
         //simulates 2 deaths of the player
+        player.sufferDamage(11,shooter1);
         player.updateAwards();
+        player.sufferDamage(11,shooter1);
         player.updateAwards();
 
         //adds damages
@@ -940,6 +945,5 @@ public class PlayerTest {
                 player.getActionList().get(2).equals(new Action(1, false, true, false)) &&
                 player.getActionList().size() == 3);
     }
-
 
 }

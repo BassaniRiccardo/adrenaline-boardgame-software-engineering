@@ -16,9 +16,9 @@ interface DestinationFinder{
      * selected as a destination by the player.
      * @requires !isEmpty(targets)
      *
-     * @param  shooter  the Player who is taking action in this turn
-     * @param  targets the ArrayList of players selected as targets by the current player
-     * @return      the set of possible destination Square objects
+     * @param  shooter      the Player who is taking action in this turn
+     * @param  targets      the ArrayList of players selected as targets by the current player
+     * @return              the set of possible destination Square objects
      */
     List<Square> find(Player shooter, List<Player> targets);
 }

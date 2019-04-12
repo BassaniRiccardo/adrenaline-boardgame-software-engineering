@@ -17,6 +17,7 @@ import static it.polimi.ingsw.model.Color.*;
 //TODO filter the players in order not to include the shooter in the target list.
 // necessary since now getVisible include the shooter square.
 // Look at the SonarLint issues.
+// Throw NotAvailableArgumentException.
 
 public class WeaponFactory {
 
@@ -26,7 +27,7 @@ public class WeaponFactory {
      * @param  weaponName  the name of the weapon to be created
      * @return      the Weapon object created
      */
-    public static Weapon createWeapon(Weapon.WeaponName weaponName){
+    public static Weapon createWeapon(Weapon.WeaponName weaponName)     {
 
         Color color;
         AmmoPack fullCost;
@@ -80,6 +81,7 @@ public class WeaponFactory {
                 targetFinder = p -> Board.getInstance().getVisible(p.getPosition()).stream()
                         .map(x -> x.getPlayers())
                         .flatMap(x -> x.stream())
+                        .filter( x -> x != p)
                         .distinct()
                         .map(x -> Arrays.asList(x))
                         .collect(Collectors.toList());

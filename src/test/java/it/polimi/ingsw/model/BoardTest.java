@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static it.polimi.ingsw.model.Player.HeroName.*;
+import static it.polimi.ingsw.model.Color.*;
 import static org.junit.Assert.*;
 
 /**
@@ -34,7 +34,7 @@ public class BoardTest {
      * Tests the method getPlayerInside(), covering all the instructions.
      */
     @Test
-    public void getPlayersInside() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void getPlayersInside() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
         //declares the array the method is expected to return
         ArrayList<Player> expected = new ArrayList<>();
@@ -123,10 +123,10 @@ public class BoardTest {
 
 
     /**
-     * Tests the method getVisibleFrom(), covering all the instructions.
+     * Tests the method getVisible(), covering all the instructions.
      */
     @Test
-    public void getVisibleFrom() {
+    public void getVisible() {
 
         //declares the array the method is expected to return
         ArrayList<Square> expected = new ArrayList<>();
@@ -140,6 +140,7 @@ public class BoardTest {
         // squares in the same room: red room
         expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
         expected.add(Board.getInstance().getMap().get(4));      //map[2][2]
+        expected.add(Board.getInstance().getMap().get(5));      //map[2][3]
         //squares in the same room of one of the adjacent squares: yellow room
         expected.add(Board.getInstance().getMap().get(6));      //map[2][4]
         expected.add(Board.getInstance().getMap().get(9));      //map[3][4]
@@ -147,21 +148,27 @@ public class BoardTest {
         assertEquals(expected, Board.getInstance().getVisible(Board.getInstance().getMap().get(5)));
     }
 
-
     /**
-     * Tests the method getSquaresInSameRoom(), covering all the instructions.
+     * Tests the method getInRoom(), covering all the instructions.
      */
     @Test
-    public void getSquaresInSameRoom() {
+    public void getSquaresInRoom() {
 
         //declares the array the method is expected to return
         ArrayList<Square> expected = new ArrayList<>();
 
-        //map.get(0) == map[1][1], blue room: all instructions covered
-        expected.add(Board.getInstance().getMap().get(1));      //map[1][2]
-        expected.add(Board.getInstance().getMap().get(2));      //map[1][3]
-        assertEquals(expected, Board.getInstance().getSquaresInSameRoom(Board.getInstance().getMap().get(0)));
+        //map.get(5) == map[2][3], red room: all instructions covered
+
+        // squares in the same room: red room
+        expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
+        expected.add(Board.getInstance().getMap().get(4));      //map[2][2]
+        expected.add(Board.getInstance().getMap().get(5));      //map[2][3]
+
+        assertEquals(expected, Board.getInstance().getSquaresInRoom(2));
     }
+
+
+
 
 
     /**
@@ -322,5 +329,151 @@ public class BoardTest {
 
     }
 
+    /**
+     * Tests the method getDistance(), when an exception should be thrown since a square does not belong to the map.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void getDistanceBadArguments() {
+
+        AmmoSquare externalSquare = new AmmoSquare(15,2,3,4, RED);
+        int dist = Board.getInstance().getDistance(Board.getInstance().getMap().get(0), externalSquare);
+
+    }
+
+    /**
+     * Tests the method setLeftWalls(), when a bad parameter is entered.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setLeftWallsBadArgument() {
+
+        boolean[][] walls = {{true,true,true,true},{false,false,false,false}};
+        Board.getInstance().setLeftWalls(walls);
+    }
+
+    /**
+     * Tests the method setTopWalls(), when a bad parameter is entered.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setTopWallsBadArgument() {
+
+        boolean[][] walls = {{true,true,true,true},{false,false,false,false}, {false, true, false,false,false}};
+        Board.getInstance().setTopWalls(walls);
+    }
+
+
+    /**
+     * Tests the method setSpawnPoints(), when a bad parameter is entered: less than three swap points.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setSpawnPointsOnlyOne() {
+
+        List spawnPoints = new ArrayList<>();
+        spawnPoints.add(new WeaponSquare(1,1,1,1,RED));
+        Board.getInstance().setSpawnPoints(spawnPoints);
+    }
+
+    /**
+     * Tests the method setSpawnPoints(), when a bad parameter is entered: a color different from red, blue, green.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setSpawnPointsWrongColors() {
+
+        List spawnPoints = new ArrayList<>();
+        spawnPoints.add(new WeaponSquare(1,1,1,1,RED));
+        spawnPoints.add(new WeaponSquare(2,2,2,2,GREEN));
+        spawnPoints.add(new WeaponSquare(3,3,3,3,BLUE));
+        Board.getInstance().setSpawnPoints(spawnPoints);
+    }
+
+    /**
+     * Tests the method setSpawnPoints(), when a bad parameter is entered: two swap points have the same color.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setSpawnPointsNotDistinctColors() {
+
+        List spawnPoints = new ArrayList<>();
+        spawnPoints.add(new WeaponSquare(1,1,1,1,RED));
+        spawnPoints.add(new WeaponSquare(2,2,2,2,BLUE));
+        spawnPoints.add(new WeaponSquare(3,3,3,3,BLUE));
+        Board.getInstance().setSpawnPoints(spawnPoints);
+    }
+
+    /**
+     * Tests the method setSpawnPoints(), when a bad parameter is entered: two swap points are in the same room.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setSpawnPointsNotDistinctRooms() {
+
+        List spawnPoints = new ArrayList<>();
+        spawnPoints.add(new WeaponSquare(1,1,1,1,RED));
+        spawnPoints.add(new WeaponSquare(2,2,2,2,BLUE));
+        spawnPoints.add(new WeaponSquare(3,2,3,3,YELLOW));
+        Board.getInstance().setSpawnPoints(spawnPoints);
+    }
+
+    /**
+     * Tests the method setPlayers(), when a bad parameter is entered: player number not between 3 and 5.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setPlayersWrongNumber() {
+
+        List players = new ArrayList<>();
+        players.add(new Player(1, Player.HeroName.BANSHEE));
+        Board.getInstance().setPlayers(players);
+    }
+
+    /**
+     * Tests the method setWeaponDeck(), when a bad parameter is entered: not 21 drawable cards.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setWeaponDeckWrongNumberOfCards() {
+
+        Deck weaponDeck = new Deck();
+        weaponDeck.addCard(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+        Board.getInstance().setWeaponDeck(weaponDeck);
+    }
+
+    /**
+     * Tests the method setPowerUpDeck(), when a bad parameter is entered: not 24 drawable cards.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setPowerUpDeckWrongNumberOfCards() {
+
+        Deck powerUpDeck = new Deck();
+        for (int i = 0; i< 50; i++) powerUpDeck.addCard(PowerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, RED));
+        Board.getInstance().setPowerUpDeck(powerUpDeck);
+    }
+
+    /**
+     * Tests the method setAmmoDeck(), when a bad parameter is entered: not 0 discarded cards.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setAmmoDeckNotEmptyDiscards() {
+
+        Deck ammoDeck = new Deck();
+        for (int i = 0; i < 36; i++) ammoDeck.addCard(new AmmoTile(false, new AmmoPack(0,1,2)));
+        ammoDeck.addDiscardedCard(new AmmoTile(true,new AmmoPack(1,0,2)));
+        Board.getInstance().setWeaponDeck(ammoDeck);
+    }
+
+    /**
+     * Tests the method setKillShotTrack(), when a bad parameter is entered: less than 5 skulls.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setKillShotTrack() {
+
+        Board.getInstance().setKillShotTrack(new KillShotTrack(3));
+    }
+
+    /**
+     * Tests the method setMap(), when a bad parameter is entered: less than 10 squares.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void setMap() {
+
+        List<Square> map = new ArrayList<>();
+        map.add(new AmmoSquare(1,1,1,1,GREEN));
+        Board.getInstance().setMap(map);
+    }
 
 }

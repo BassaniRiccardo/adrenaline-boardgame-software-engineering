@@ -3,6 +3,7 @@ package it.polimi.ingsw.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Collections.indexOfSubList;
 import static java.util.Collections.shuffle;
 
 /**
@@ -102,8 +103,9 @@ public class Deck {
     /**
      * Regenerates the deck, by shuffling the discarded cards and adding them to the drawable cards.
      */
-    public void regenerate(){
+    public void regenerate() throws WrongTimeException{
 
+        if (!drawable.isEmpty()) throw new WrongTimeException("The deck can be regenerated only if empty.");
         shuffle(discarded);
         drawable =  new ArrayList<>(discarded);
         discarded.clear();

@@ -191,7 +191,7 @@ public class DeckTest {
      * Tests the method regenerate() for a deck of ammo tiles.
      */
     @Test
-    public void regenerateAmmoTile() {
+    public void regenerateAmmoTile() throws WrongTimeException {
 
         //creates a new deck of ammo tiles and adds two cards to the deck as discarded cards
         Deck ammoTileDeck = new Deck();
@@ -218,7 +218,7 @@ public class DeckTest {
      * Tests the method regenerate() for a deck of power ups.
      */
     @Test
-    public void regeneratePowerUpRealDeck() {
+    public void regeneratePowerUpRealDeck() throws WrongTimeException{
 
         //The deck contains 2 copies of all the combinations of color(3 possible colors) and type of power up
         int numberOfColor = 3;
@@ -247,5 +247,39 @@ public class DeckTest {
 
         //checks that all the cards are drawable
         assertEquals(PowerUp.PowerUpName.values().length*numberOfColor*numberOfCopy, powerUpDeck.getDrawable().size());
+    }
+
+    /**
+     * Tests the method regenerate() for a deck of power up, when an exception should be thrown since the deck is not empty.
+     */
+    @Test(expected = WrongTimeException.class)
+    public void regeneratePowerUpRealDeckNotEmpty() throws WrongTimeException{
+
+        //The deck contains 2 copies of all the combinations of color(3 possible colors) and type of power up
+        int numberOfColor = 3;
+        int numberOfCopy = 2;
+
+        //creates the board with the decks.
+        BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configureDecks();
+        Deck powerUpDeck = Board.getInstance().getPowerUpDeck();
+
+        //checks that the deck contains all the power ups as drawable cards
+        assertEquals(PowerUp.PowerUpName.values().length*numberOfColor*numberOfCopy, powerUpDeck.getDrawable().size());
+
+        //discards one card
+        Card drawn = powerUpDeck.getDrawable().remove(0);
+        powerUpDeck.getDiscarded().add(drawn);
+
+        //checks that there still are 23 drawable cards
+        assertEquals(23, powerUpDeck.getDrawable().size());
+
+        //tries to regenerate the deck
+        powerUpDeck.regenerate();
+
+        //checks that there are still 23 discarded cards, no cards have been added
+        assertEquals(23, powerUpDeck.getDrawable().size());
+
+
     }
 }

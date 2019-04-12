@@ -56,7 +56,7 @@ public class KillShotTrackTest {
      *
      */
     @Test
-    public void registerStandardKill() throws UnacceptableItemNumberException {
+    public void registerStandardKill() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -64,6 +64,7 @@ public class KillShotTrackTest {
         Player dead = Board.getInstance().getPlayers().get(1);
 
         //registers the standard kill
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
 
         //checks that the number of occurrences of the killer in the killers list is incremented by 1
@@ -87,20 +88,23 @@ public class KillShotTrackTest {
      * @throws  UnacceptableItemNumberException
      */
     @Test
-    public void registerMultipleStandardKills() throws UnacceptableItemNumberException{
+    public void registerMultipleStandardKills() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException{
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
         Player killer = Board.getInstance().getPlayers().get(0);
         Player dead = Board.getInstance().getPlayers().get(1);
-
         //registers 4 kills and checks that the points given for the death of the dead player have been updated
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
         assertEquals(6, dead.getPointsToGive());
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
         assertEquals(4, dead.getPointsToGive());
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
         assertEquals(2, dead.getPointsToGive());
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
         assertEquals(1, dead.getPointsToGive());
 
@@ -129,7 +133,7 @@ public class KillShotTrackTest {
      * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerOverkill() throws UnacceptableItemNumberException{
+    public void registerOverkill() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException{
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -137,6 +141,7 @@ public class KillShotTrackTest {
         Player dead = Board.getInstance().getPlayers().get(1);
 
         //registers the overkill
+        dead.sufferDamage(12, killer);
         killShotTrack.registerKill(killer, dead, true);
 
         //checks that the number of occurrences of the killer in the killers list is incremented by 2
@@ -163,7 +168,7 @@ public class KillShotTrackTest {
      * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenSkullsAbsentFrenzy() throws UnacceptableItemNumberException {
+    public void registerKillWhenSkullsAbsentFrenzy() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -202,7 +207,7 @@ public class KillShotTrackTest {
      * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenSkullsAbsentFinalTurn() throws UnacceptableItemNumberException {
+    public void registerKillWhenSkullsAbsentFinalTurn() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //initializes the killShotTrack, a killer and a dead
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -236,7 +241,7 @@ public class KillShotTrackTest {
      * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenTheKillerListIsNotEmpty() throws UnacceptableItemNumberException {
+    public void registerKillWhenTheKillerListIsNotEmpty() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //initializes the killShotTrack, a killer, a dead and another player
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -253,6 +258,7 @@ public class KillShotTrackTest {
         killShotTrack.removeSkulls(3);
 
         //registers the standard kill
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
 
         //checks that the number of occurrences of the killer in the killers list is incremented by 1 and
@@ -273,7 +279,7 @@ public class KillShotTrackTest {
      * Tests the method rewardKillers() in the event that every player killed a different number of opponents.
      */
     @Test
-    public void rewardKillersWithDistinctNumberOfKills() {
+    public void rewardKillersWithDistinctNumberOfKills() throws NotAvailableAttributeException {
 
         //initializes the killShotTrack and five players, with 0 points
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -322,7 +328,7 @@ public class KillShotTrackTest {
      * Tests the method rewardKillers() in the event that every player killed the same number of opponents.
      */
     @Test
-    public void awardKillersWithSameNumberOfKills() {
+    public void awardKillersWithSameNumberOfKills() throws NotAvailableAttributeException {
 
         //initializes the killShotTrack and five players, with 0 points
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -357,7 +363,7 @@ public class KillShotTrackTest {
      * his first opponent after everyone else had killed someone.
      */
     @Test
-    public void awardKillerWhenTheLastKillerHasTheHighestNumberOfKills() {
+    public void awardKillerWhenTheLastKillerHasTheHighestNumberOfKills() throws NotAvailableAttributeException{
 
         //initializes the killShotTrack and five players, with 0 points
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
@@ -392,7 +398,7 @@ public class KillShotTrackTest {
      * Tests the method rewardKillers() in the event that some players did not kill anyone.
      */
     @Test
-    public void awardKillersWhenSomePlayersWithNoKills() {
+    public void awardKillersWhenSomePlayersWithNoKills() throws NotAvailableAttributeException{
 
         //initializes the killShotTrack and five players, with 0 points
         KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();

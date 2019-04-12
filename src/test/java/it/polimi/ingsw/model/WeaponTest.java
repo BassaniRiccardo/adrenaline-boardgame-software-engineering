@@ -3,6 +3,7 @@ package it.polimi.ingsw.model;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -12,7 +13,7 @@ public class WeaponTest {
      * Tests listAvailableFireModes() when all firemodes are available
      */
     @Test
-    public void listAvailableFireModes() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void listAvailableFireModes() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -29,7 +30,7 @@ public class WeaponTest {
      * Tests listAvailableFireModes() when the player has no ammo and only the main firemode is available
      */
     @Test
-    public void listAvailableFireModes2() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void listAvailableFireModes2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -47,7 +48,7 @@ public class WeaponTest {
      * can only hit targets that are contained by mainTargets, which is empty by default)
      */
     @Test
-    public void listAvailableFireModes3() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void listAvailableFireModes3() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -63,14 +64,14 @@ public class WeaponTest {
      * Tests listAvailableFireModes() when no firemodes are available
      */
     @Test
-    public void listAvailableFireModes4() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void listAvailableFireModes4() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Board b = Board.getInstance();
         b.getPlayers().get(4).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         Weapon w = b.getPlayers().get(4).getWeaponList().get(0);
-        b.getPlayers().get(4).addAmmoPack(new AmmoPack(0,0,0));
-        ArrayList<FireMode> f = (ArrayList<FireMode>)w.listAvailableFireModes();
-        assertTrue(f.size() == 0);
+       // b.getPlayers().get(4).addAmmoPack(new AmmoPack(0,0,0));
+        List<FireMode> f = w.listAvailableFireModes();
+        assertEquals(0, f.size());
     }
 
     /**

@@ -24,7 +24,7 @@ public class SquareTest {
      * @throws IllegalArgumentException
      */
     @Test
-    public void addPlayerAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void addPlayerAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
         //Simulate a scenario, select an ammo square and a player
         BoardConfigurer.getInstance().simulateScenario();
@@ -50,7 +50,7 @@ public class SquareTest {
      * @throws IllegalArgumentException
      */
     @Test(expected = IllegalArgumentException.class)
-    public void addPlayerAlreadyPresentAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void addPlayerAlreadyPresentAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
         //Simulate a scenario, select an ammo square and a player
         BoardConfigurer.getInstance().simulateScenario();

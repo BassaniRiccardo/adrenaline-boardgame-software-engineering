@@ -1,6 +1,5 @@
 package it.polimi.ingsw.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -10,6 +9,9 @@ import java.util.List;
  *
  * @author  marcobaga
  */
+
+//TODO overloading
+
 public interface Targeted {
 
     void applyEffects(List<Player> targets, Square destination);

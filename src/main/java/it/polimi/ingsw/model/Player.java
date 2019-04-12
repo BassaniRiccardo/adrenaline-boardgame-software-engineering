@@ -18,6 +18,12 @@ import static it.polimi.ingsw.model.Color.*;
  * @author  davidealde
  */
 
+//TODO complete the exception: can a player hold 4 weapons while choosing which  one he wants to discard?
+// I'd say yes, because the square does not have the space to contain 4 weapons, while the player hand does.
+// Whether including the exception here or in the controller depends on the presence of variables indicating the state of the game:
+// endOfTheTurn(killShotTrack), Rebirth, discardingWeapon...and their visibility to the model.
+// Exception in getPosition(), getPreviousPosition() to enable after having thrown the exception in WeaponFactory, PowerUpFactory...
+
 public class Player {
 
     public enum HeroName {
@@ -125,9 +131,15 @@ public class Player {
 
     public boolean isJustDamaged(){return justDamaged;}
 
-    public Square getPosition(){return position;}
+    public Square getPosition() {
 
-    public Square getPreviousPosition(){return previousPosition;}
+//        if (position == null) throw new NotAvailableAttributeException("The player is not on the board.");
+        return position;}
+
+    public Square getPreviousPosition()  {
+
+//        if (previousPosition == null) throw new NotAvailableAttributeException("The player was not on the board.");
+        return previousPosition;}
 
     public List<Player> getMainTargets(){return mainTargets;}
 
@@ -138,16 +150,20 @@ public class Player {
 
     /**
      * Setters
+     *
      */
 
 
     public void setPosition(Square square) {
+        if (!Board.getInstance().getMap().contains(square)) throw new IllegalArgumentException("The player must be located in a square that belongs to the board.");
         previousPosition = position;
         this.position = square;
         square.addPlayer(this);
     }
 
-    public void setPointsToGive(int pointsToGive) {this.pointsToGive = pointsToGive;}
+    public void setPointsToGive(int p) {
+        if (!(p==8 || p==6 || p==4 || p==2 || p==1)) throw new IllegalArgumentException("Not valid number of points.");
+        this.pointsToGive = p;}
 
     public void setStatusFrenzy(Status status){this.status=status;}
 
@@ -164,6 +180,9 @@ public class Player {
      * @param shooter        player who shoot
      */
     public void sufferDamage(int amount, Player shooter) {
+
+        if (amount < 1) throw new IllegalArgumentException("Not valid amount of damage");
+        if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
 
         justDamaged = true;
 
@@ -203,6 +222,9 @@ public class Player {
      */
     public void addMarks(int number, Player shooter){
 
+        if (number < 1) throw new IllegalArgumentException("Not valid number of marks");
+        if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
+
         for (int i = 0; i< number; i++){
             if (frequency(marks, shooter) < 3){
                 marks.add(shooter);
@@ -217,7 +239,11 @@ public class Player {
      *
      * @param addedWeapon           weapon added.
      */
-    public void addWeapon(Weapon addedWeapon) {
+    public void addWeapon(Weapon addedWeapon) throws UnacceptableItemNumberException{
+
+        if (this.weaponList.size()>=4) throw new UnacceptableItemNumberException("A player can hold up to 3 weapons; 4 are allowed while choosing which one to discard.");
+        //this can not stay here; the controller must decide if the player can draw the fourth card
+//      if (this.weaponList.size()>=3) throw new UnacceptableItemNumberException("4 weapons are allowed only while choosing which one to discard.");
         addedWeapon.setHolder(this);
         weaponList.add(addedWeapon);
     }
@@ -235,7 +261,7 @@ public class Player {
      * Collects a weapon.
      *
      */
-    public void collect(Card collectedCard) throws NoMoreCardsException {
+    public void collect(Card collectedCard) throws NoMoreCardsException, UnacceptableItemNumberException {
 
         position.removeCard(collectedCard);
 
@@ -254,8 +280,11 @@ public class Player {
     /**
      * Draws a random power up from the deck of power ups and adds it at the player power ups list.
      */
-    public void drawPowerUp() throws NoMoreCardsException {
+    public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
 
+        if (this.powerUpList.size()>=4) throw new UnacceptableItemNumberException("A player can hold up to 3 power ups; 4 are allowed in the process of rebirth");
+        //this can not stay here; the controller must decide if the player can draw the fourth card
+ //     if (this.powerUpList.size()>=3) throw new UnacceptableItemNumberException("4 power ups are allowed only in the process of rebirth.");
         PowerUp p = (PowerUp)Board.getInstance().getPowerUpDeck().drawCard();
         p.setHolder(this);
         powerUpList.add(p);
@@ -269,6 +298,7 @@ public class Player {
      * @param removedWeapon         the removed weapon.
      */
     public void discardWeapon(Card removedWeapon) {
+        if (!weaponList.contains(removedWeapon)) throw new IllegalArgumentException("The player does not own this weapon");
         weaponList.remove(removedWeapon);
     }
 
@@ -279,6 +309,8 @@ public class Player {
      * @param removedPowerUp        the removed power up.
      */
     public void discardPowerUp(Card removedPowerUp) {
+
+        if (!powerUpList.contains(removedPowerUp)) throw  new IllegalArgumentException("The player does not own this powerup.");
         powerUpList.remove(removedPowerUp);
     }
 
@@ -300,6 +332,7 @@ public class Player {
      * Removes ammo from the player ammo pack.
      *
      * @param usedAmmo        the used ammo.
+     * @throws      IllegalArgumentException
      */
     public void useAmmo(AmmoPack usedAmmo) {
         this.ammoPack.subAmmoPack(usedAmmo);
@@ -310,8 +343,10 @@ public class Player {
      * Discards a power up to gain an ammo of the same color of the power up.
      *
      * @param p                     the discarded power up.
+     * @throws      IllegalArgumentException
      */
     public void useAsAmmo(PowerUp p) {
+
         this.discardPowerUp(p);
         if (p.getColor() == RED) {
             ammoPack.addAmmoPack(new AmmoPack(1, 0, 0));
@@ -329,19 +364,24 @@ public class Player {
      *
      * @param target         player added to the main targets.
      */
-    public void addMainTarget(Player target) {this.mainTargets.add(target); }
+    public void addMainTarget(Player target) {
+        if (this==target) throw new IllegalArgumentException("The player can not be in the list of his own targets.");
+        this.mainTargets.add(target); }
 
 
     /**
      * Updates the points the player will give to his killers the next time he'll die.
+     * It also set the player damages to zero.
      * Called after the death of the player.
      */
-    public void updateAwards() {
+    public void updateAwards() throws WrongTimeException{
 
+        if (!this.isDead()) throw new WrongTimeException("The points given for a death are updated only after a player dies.");
         if (pointsToGive!=1){
             if (pointsToGive==2) pointsToGive-= 1;
             else pointsToGive -= 2;
         }
+        this.damages.clear();
     }
 
 
@@ -350,8 +390,9 @@ public class Player {
      * and on the number of the player previous death.
      * Called when the player dies.
      */
-    public void rewardKillers() {
+    public void rewardKillers() throws WrongTimeException{
 
+        if(!this.isDead()) throw new WrongTimeException("The killers are rewarded only when the player dies.");
         //firstblood
         damages.get(0).addPoints(1);
 
@@ -394,8 +435,11 @@ public class Player {
      * Increases player points.
      *
      * @param points          points earned.
+     * @throws      IllegalArgumentException
      */
     public void addPoints(int points) {
+
+        if (points<0) throw new IllegalArgumentException("Points can not be subtracted.");
         this.points += points;
     }
 

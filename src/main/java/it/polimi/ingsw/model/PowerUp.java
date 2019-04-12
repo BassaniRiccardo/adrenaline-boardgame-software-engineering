@@ -7,6 +7,9 @@ import java.util.List;
  *
  * @author  marcobaga
  */
+
+//TODO It may be better to remove the null argument  (overloading for applyEffects).
+
 public class PowerUp implements Targeted, Card {
 
     public enum PowerUpName{
@@ -71,7 +74,8 @@ public class PowerUp implements Targeted, Card {
         return name;
     }
 
-    public Player getHolder() {
+    public Player getHolder() throws NotAvailableAttributeException {
+        if (holder==null) throw new NotAvailableAttributeException("This power up does not have an holder.");
         return holder;
     }
 
@@ -88,8 +92,10 @@ public class PowerUp implements Targeted, Card {
      * @param  playerList  the ArrayList of players being targeted
      * @param  destination the Square players are moved to, if relevant
      */
-    public void applyEffects(List<Player> playerList, Square destination){
+    public void applyEffects(List<Player> playerList, Square destination) {
 
+        if (!Board.getInstance().getPlayers().containsAll(playerList)) throw new IllegalArgumentException("The effects can be applied only on players on the board.");
+        if (!(Board.getInstance().getMap().contains(destination) || destination == null)) throw new IllegalArgumentException("The players can be moved only in squares that belong to the board.");
         for(Player p : playerList){
             effect.apply(holder, p, destination);
         }
@@ -115,6 +121,8 @@ public class PowerUp implements Targeted, Card {
      * @return      the set of possible destination Square objects
      */
     public List<Square> findDestinations(List<Player> targets){
+
+        if (!Board.getInstance().getPlayers().containsAll(targets)) throw new IllegalArgumentException("Only on players on the board can be moved.");
         return destinationFinder.find(holder, targets);
     }
 

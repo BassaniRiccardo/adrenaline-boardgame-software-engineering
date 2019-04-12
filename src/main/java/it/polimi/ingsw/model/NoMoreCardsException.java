@@ -2,7 +2,7 @@ package it.polimi.ingsw.model;
 
 public class NoMoreCardsException extends Exception{
 
-        NoMoreCardsException(){};
+        NoMoreCardsException(){}
 
         NoMoreCardsException(String str)
         {

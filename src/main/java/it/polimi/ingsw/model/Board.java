@@ -2,6 +2,8 @@ package it.polimi.ingsw.model;
 
 import java.util.*;
 
+import static it.polimi.ingsw.model.Color.*;
+
 /**
  * Represents the game board, made of a map with walls.
  * Only one instance of the board is allowed.
@@ -19,13 +21,12 @@ public class Board {
 
     //depend on the map_id, set by BoardConfigurer
     private List<Square> map;
-    private boolean[][] leftWall;
-    private boolean[][] topWall;
+    private boolean[][] leftWalls;
+    private boolean[][] topWalls;
     private List<WeaponSquare> spawnPoints;
 
     //depend on the game settings, set by BoardConfigurer
     private List<Player> players;
-    private int playerNumber;
     private Player currentPlayer;
 
     //set by BoardConfigurer
@@ -42,20 +43,19 @@ public class Board {
      */
     private Board() {
 
-        this.map = null;
-        this.topWall = null;
-        this.leftWall = null;
+        this.map = new ArrayList<>();
+        this.topWalls = null;
+        this.leftWalls = null;
         this.spawnPoints = new ArrayList<>();
 
         this.players = new ArrayList<>();
-        this.playerNumber = 0;
         this.currentPlayer = null;
 
         this.weaponDeck = new Deck();
         this.powerUpDeck = new Deck();
         this.ammoDeck = new Deck();
 
-        this.killShotTrack =null;
+        this.killShotTrack = new KillShotTrack(0);
 
     }
 
@@ -81,11 +81,13 @@ public class Board {
      *
      * @return      the map.
      */
-    public List<Square> getMap() { return map;  }
+    public List<Square> getMap() {
+        return map;
+    }
 
 
     /**
-     * Getter for a map.
+     * Getter for spawnPoints.
      *
      * @return      the spawn points.
      */
@@ -109,7 +111,7 @@ public class Board {
      * @return      the number of players on the board.
      */
     public int getPlayerNumber() {
-        return playerNumber;
+        return players.size();
     }
 
     /**
@@ -144,7 +146,10 @@ public class Board {
      *
      * @return      the killshot track.
      */
-    public KillShotTrack getKillShotTrack() {
+    public KillShotTrack getKillShotTrack() throws NotAvailableAttributeException{
+        if (killShotTrack == null){
+            throw new NotAvailableAttributeException ("Impossible to return the killshot track: the board has not been initialized yet.");
+        }
         return killShotTrack;
     }
 
@@ -164,25 +169,36 @@ public class Board {
      * @param map   the value to assign to map.
      */
     public void setMap(List<Square> map) {
+        if (map.size() < 10 || map.size() > 12){
+            throw new IllegalArgumentException ("The map must contain between 10 and 12 sqares");
+        }
         this.map = map;
     }
 
     /**
-     * Setter for leftWall.
+     * Setter for leftWalls.
      *
-     * @param leftWall   the value to assign to leftWall.
+     * @param leftWalls   the value to assign to leftWalls.
+     * @throws          IllegalArgumentException
      */
-    public void setLeftWall(boolean[][] leftWall) {
-        this.leftWall = leftWall;
+    public void setLeftWalls(boolean[][] leftWalls) {
+        if (leftWalls.length!=3 || leftWalls[0].length !=4 || leftWalls[1].length !=4 || leftWalls[2].length !=4){
+            throw new IllegalArgumentException ("The matrix of left walls must be of dimension 3x4");
+        }
+        this.leftWalls = leftWalls;
     }
 
     /**
-     * Setter for topWall.
+     * Setter for topWalls.
      *
-     * @param topWall   the value to assign to topWall.
+     * @param topWalls   the value to assign to topWalls.
+     * @throws          IllegalArgumentException
      */
-    public void setTopWall(boolean[][] topWall) {
-        this.topWall = topWall;
+    public void setTopWalls(boolean[][] topWalls) {
+        if (topWalls.length!=3 || topWalls[0].length !=4 || topWalls[1].length !=4 || topWalls[2].length !=4){
+            throw new IllegalArgumentException ("The matrix of top walls must be of dimension 3x4");
+        }
+        this.topWalls = topWalls;
     }
 
     /**
@@ -191,6 +207,26 @@ public class Board {
      * @param spawnPoints       the value to assign to spawnPoints.
      */
     public void setSpawnPoints(List<WeaponSquare> spawnPoints) {
+        if (spawnPoints.size() != 3){
+            throw new IllegalArgumentException ("There must be three spawn points");
+        }
+        if (spawnPoints.get(0).getColor() != RED && spawnPoints.get(0).getColor() != BLUE && spawnPoints.get(0).getColor() != YELLOW ||
+            spawnPoints.get(1).getColor() != RED && spawnPoints.get(1).getColor() != BLUE && spawnPoints.get(1).getColor() != YELLOW ||
+            spawnPoints.get(2).getColor() != RED && spawnPoints.get(2).getColor() != BLUE && spawnPoints.get(2).getColor() != YELLOW ){
+             throw new IllegalArgumentException("The spawn points must be red, blue or yellow");
+        }
+        if (spawnPoints.get(0).getColor()==spawnPoints.get(1).getColor() ||
+            spawnPoints.get(0).getColor()==spawnPoints.get(2).getColor() ||
+            spawnPoints.get(1).getColor()==spawnPoints.get(2).getColor()){
+            throw new IllegalArgumentException ("The spawn points must be of distinct colors");
+
+        }
+        if (spawnPoints.get(0).getRoomId()==spawnPoints.get(1).getRoomId() ||
+                spawnPoints.get(0).getRoomId()==spawnPoints.get(2).getRoomId() ||
+                spawnPoints.get(1).getRoomId()==spawnPoints.get(2).getRoomId()){
+            throw new IllegalArgumentException ("The spawn points must be in distinct rooms");
+
+        }
         this.spawnPoints = spawnPoints;
     }
 
@@ -200,16 +236,11 @@ public class Board {
      * @param players   the value to assign to players.
      */
     public void setPlayers(List<Player> players) {
-        this.players = players;
-    }
 
-    /**
-     * Setter for playerNumber.
-     *
-     * @param playerNumber   the value to assign to playerNumber.
-     */
-    public void setPlayerNumber(int playerNumber) {
-        this.playerNumber = playerNumber;
+        if (players.size() < 3 || players.size() > 5){
+            throw new IllegalArgumentException ("The number of players must be between 3 and 5");
+        }
+        this.players = players;
     }
 
     /**
@@ -218,6 +249,9 @@ public class Board {
      * @param weaponDeck   the value to assign to weaponDeck.
      */
     public void setWeaponDeck(Deck weaponDeck) {
+        if (weaponDeck.getDrawable().size() != 21 || !weaponDeck.getDiscarded().isEmpty()){
+            throw new IllegalArgumentException ("The weapon deck must contain 21 drawable cards and 0 discards at the beginning of the game");
+        }
         this.weaponDeck = weaponDeck;
     }
 
@@ -227,6 +261,9 @@ public class Board {
      * @param powerUpDeck   the value to assign to powerUpDeck.
      */
     public void setPowerUpDeck(Deck powerUpDeck) {
+        if (powerUpDeck.getDrawable().size() != 24 || !powerUpDeck.getDiscarded().isEmpty()){
+            throw new IllegalArgumentException ("The power up deck must contain 24 drawable cards and 0 discards at the beginning of the game");
+        }
         this.powerUpDeck = powerUpDeck;
     }
 
@@ -236,6 +273,9 @@ public class Board {
      * @param ammoDeck   the value to assign to ammoDeck.
      */
     public void setAmmoDeck(Deck ammoDeck) {
+        if (ammoDeck.getDrawable().size() != 36 || !ammoDeck.getDiscarded().isEmpty()){
+            throw new IllegalArgumentException ("The ammo tile deck must contain 36 drawable cards and 0 discards at the beginning of the game");
+        }
         this.ammoDeck = ammoDeck;
     }
 
@@ -243,8 +283,12 @@ public class Board {
      * Setter for killShotTrack.
      *
      * @param killShotTrack   the value to assign to killShotTrack.
+     * @throws                IllegalArgumentException
      */
     public void setKillShotTrack(KillShotTrack killShotTrack) {
+        if (killShotTrack.getSkullsLeft() < 5 || killShotTrack.getSkullsLeft() > 8){
+            throw new IllegalArgumentException ("The number of skulls on the killshot track must be between 5 and 8");
+        }
         this.killShotTrack = killShotTrack;
     }
 
@@ -287,10 +331,10 @@ public class Board {
             Square s1 = squareIt.next();
             c = s1.getColumn();
             r = s1.getRow();
-            if     (r == sr - 1 && c == sc && !topWall[sr-1][sc-1]    ||            //top
-                    r == sr + 1 && c == sc && !topWall[r-1][c-1]  ||                //down
-                    r == sr && c == sc + 1 && !leftWall[r-1][c-1]   ||              //right
-                    r == sr && c == sc - 1 && !leftWall[sr-1][sc-1]) {              //left
+            if     (r == sr - 1 && c == sc && !topWalls[sr-1][sc-1]    ||            //top
+                    r == sr + 1 && c == sc && !topWalls[r-1][c-1]  ||                //down
+                    r == sr && c == sc + 1 && !leftWalls[r-1][c-1]   ||              //right
+                    r == sr && c == sc - 1 && !leftWalls[sr-1][sc-1]) {              //left
                 adjacent.add(s1);
             }
         }
@@ -324,7 +368,7 @@ public class Board {
 
     /**
      * Returns the square visible from the starting square.
-     * The starting square is excluded.
+     * The starting square is included.
      *
      * @param s             the starting square.
      * @return              the visible squares.
@@ -333,14 +377,12 @@ public class Board {
 
         List<Square> visible = new ArrayList<>();
         for (Square s1 : map) {
-            if (!s.equals(s1)) {
-                if (getSquaresInSameRoom(s).contains(s1)) {
-                    visible.add(s1);
-                } else {
-                    for (Square adj : getAdjacent(s)) {
-                        if (getSquaresInSameRoom(s1).contains(adj) || s1.getId() == adj.getId()) {
-                            visible.add(s1);
-                        }
+            if (getSquaresInRoom(s.getRoomId()).contains(s1)) {
+                visible.add(s1);
+            } else {
+                for (Square adj : getAdjacent(s)) {
+                    if (getSquaresInRoom(s1.getRoomId()).contains(adj) || s1.getId() == adj.getId()) {
+                        visible.add(s1);
                     }
                 }
             }
@@ -351,23 +393,26 @@ public class Board {
 
 
     /**
-     * Returns the squares in the same room of the starting square.
-     * The starting square is excluded.
+     * Returns the squares in the specified room.
      *
-     * @param s         the starting square.
-     * @return          the squares in the same room.
+     * @param roomId    the id of the room.
+     * @return          the squares in the room.
+     * @throws          IllegalArgumentException
      */
-    public List<Square> getSquaresInSameRoom (Square s){
+    public List<Square> getSquaresInRoom (int roomId){
 
-        List<Square> sameRoom = new ArrayList<>();
+        if ( roomId < 1 || Board.getInstance().getMap().size() - roomId < 6) {
+            throw new IllegalArgumentException("This map does not contain so many rooms");
+        }
+        List<Square> inRoom = new ArrayList<>();
         Iterator<Square> squareIt = map.iterator();
         while (squareIt.hasNext()) {
             Square s1 = squareIt.next();
-            if (s.getRoomId() == s1.getRoomId() &&!s.equals(s1)) {
-                sameRoom.add(s1);
+            if (s1.getRoomId() == roomId) {
+                inRoom.add(s1);
             }
         }
-        return sameRoom;
+        return inRoom;
 
     }
 
@@ -437,8 +482,13 @@ public class Board {
      * @param start         the starting square.
      * @param dest          the destination square.
      * @return              the distance in steps.
+     * @throws              IllegalArgumentException
      */
     public int getDistance(Square start, Square dest) {
+
+        if (!Board.getInstance().getMap().contains(start) || !Board.getInstance().getMap().contains(dest)){
+            throw new IllegalArgumentException("The squares must belong to the board.");
+        }
 
         List<List<Square>> levels = new ArrayList<>(6);
 
@@ -493,8 +543,8 @@ public class Board {
      */
     private boolean inLineTop(int startRow, int startCol, int destRow, int destCol){
 
-        return ( destCol == startCol && (destRow == startRow - 1 && !topWall[startRow-1][startCol-1]||
-                destRow == startRow - 2 && !topWall[startRow-1][startCol-1] && !topWall[startRow-1-1][startCol-1]));
+        return ( destCol == startCol && (destRow == startRow - 1 && !topWalls[startRow-1][startCol-1]||
+                destRow == startRow - 2 && !topWalls[startRow-1][startCol-1] && !topWalls[startRow-1-1][startCol-1]));
 
     }
 
@@ -510,8 +560,8 @@ public class Board {
      */
     private boolean inLineDown(int startRow, int startCol, int destRow, int destCol){
 
-        return ( destCol == startCol && (destRow == startRow + 1 && !topWall[destRow-1][destCol-1] ||
-                destRow == startRow + 2 && !topWall[destRow-1][destCol-1] && !topWall[destRow-1-1][startCol-1]));
+        return ( destCol == startCol && (destRow == startRow + 1 && !topWalls[destRow-1][destCol-1] ||
+                destRow == startRow + 2 && !topWalls[destRow-1][destCol-1] && !topWalls[destRow-1-1][startCol-1]));
 
     }
 
@@ -527,10 +577,10 @@ public class Board {
      */
     private boolean inLineLeft(int startRow, int startCol, int destRow, int destCol){
 
-        return ( destRow == startRow && (destCol == startCol - 1 && !leftWall[destRow-1][startCol-1] ||
-                destCol ==startCol - 2 && !leftWall[destRow-1][startCol-1] && !leftWall[destRow-1][startCol-1-1] ||
-                destCol == startCol - 3 && !leftWall[destRow-1][startCol-1] && !leftWall[destRow-1][startCol-1-1]
-                        && !leftWall[destRow-1][startCol-2-1] ));
+        return ( destRow == startRow && (destCol == startCol - 1 && !leftWalls[destRow-1][startCol-1] ||
+                destCol ==startCol - 2 && !leftWalls[destRow-1][startCol-1] && !leftWalls[destRow-1][startCol-1-1] ||
+                destCol == startCol - 3 && !leftWalls[destRow-1][startCol-1] && !leftWalls[destRow-1][startCol-1-1]
+                        && !leftWalls[destRow-1][startCol-2-1] ));
 
     }
 
@@ -544,26 +594,11 @@ public class Board {
      * @return                        true if the squares are in line.
      *                                false otherwise.
      */
-    private boolean inLineRight(int startRow, int startCol, int destRow, int destCol){
+    private boolean inLineRight(int startRow, int startCol, int destRow, int destCol) {
 
-        return ( destRow == startRow && (destCol == startCol + 1 && !leftWall[destRow-1][destCol-1] ||
-                destCol == startCol + 2 && !leftWall[destRow-1][destCol-1] && !leftWall[destRow-1][destCol-1-1] ||
-                destCol == startCol + 3 && !leftWall[destRow-1][destCol-1] &&
-                        !leftWall[destRow-1][destCol-1-1] && !leftWall[destRow-1][destCol-2-1]));
-
-    }
-
-
-    //TODO
-    //implement these
-
-    /**
-     * Returns squares in a certain room
-     *
-     * @param id                      room's id
-     * @return                        list of squares in given room
-     */
-    public List<Square> getSquaresInRoom(int id){
-        return new ArrayList<>();
+        return (destRow == startRow && (destCol == startCol + 1 && !leftWalls[destRow - 1][destCol - 1] ||
+                destCol == startCol + 2 && !leftWalls[destRow - 1][destCol - 1] && !leftWalls[destRow - 1][destCol - 1 - 1] ||
+                destCol == startCol + 3 && !leftWalls[destRow - 1][destCol - 1] &&
+                        !leftWalls[destRow - 1][destCol - 1 - 1] && !leftWalls[destRow - 1][destCol - 2 - 1]));
     }
 }

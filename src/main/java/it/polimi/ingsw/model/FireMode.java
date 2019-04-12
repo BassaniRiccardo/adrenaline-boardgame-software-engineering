@@ -37,6 +37,7 @@ public class FireMode implements Targeted {
      */
     public FireMode(FireModeName name, int targetNumber, AmmoPack cost, DestinationFinder destinationFinder, TargetFinder targetFinder, Effect effect){
 
+        if (targetNumber < 1) throw new IllegalArgumentException("A firemode must have at least one target.");
         this.name = name;
         this.maxTargets = targetNumber;
         this.cost = cost;
@@ -72,13 +73,13 @@ public class FireMode implements Targeted {
     /**
      *Applies the effects of this firemode to targets chosen.
      *
-     * @param  targets  the ArrayList of players being targeted
-     * @param  destination the Square players are moved to, if relevant
+     * @param  targets           the ArrayList of players being targeted
+     * @param  destination       the Square players are moved to, if relevant
      */
     public void applyEffects(List<Player> targets, Square destination){
 
-        if(targets == null){
-            throw new IllegalArgumentException();
+        if(targets == null || targets.isEmpty()){
+            throw new IllegalArgumentException("A target is necessary for the effects to be applied.");
         }
         for(Player p : targets){
             effect.apply(weapon.getHolder(), p, destination);
@@ -88,25 +89,26 @@ public class FireMode implements Targeted {
     }
 
     /**
-     *Finds players that can be chosen as targets
+     * Finds players that can be chosen as targets.
      *
      * @return      an ArrayList containing sets of targets to be chosen, each saved as an ArrayList
      */
     public List<List<Player>> findTargets(){
 
+        if (weapon.getHolder() == null) throw new NullPointerException("The weapon must have a holder");
         return targetFinder.find(weapon.getHolder());
 
     }
 
     /**
-     *Finds Squares that can be chosen as destination. if relevant
+     * Finds Squares that can be chosen as destination, if relevant
      *
-     * @param  targets the ArrayList of already selected targets
-     * @return      the set of possible destination Square objects
+     * @param  targets  the ArrayList of already selected targets
+     * @return          the set of possible destination Square objects
      */
-    public List<Square> findDestinations(List<Player> targets)throws NullPointerException{
-        if(weapon.getHolder()==null||targets==null){
-            throw new NullPointerException();
+    public List<Square> findDestinations(List<Player> targets) {
+        if(weapon.getHolder() == null || targets == null){
+            throw new NullPointerException("The weapon must have a holder and the firemode must have some targets.");
         }
         return destinationFinder.find(weapon.getHolder(), targets);
     }

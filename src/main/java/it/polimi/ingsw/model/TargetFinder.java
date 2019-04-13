@@ -8,8 +8,8 @@ import java.util.List;
  * @author  marcobaga
  */
 
-interface TargetFinder{
+interface TargetFinder {
 
-    List<List<Player>> find(Player shooter);
+    List<List<Player>> find(Player shooter) throws NotAvailableAttributeException;
 
 }

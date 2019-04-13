@@ -17,7 +17,7 @@ interface Effect{
      * @param  target       the Player the effect is applied on
      * @param  destination  the Square players are moved to, if relevant
      */
-    void apply(Player shooter, Player target, Square destination);
+    void apply(Player shooter, Player target, Square destination) throws NotAvailableAttributeException;
 
 
 }

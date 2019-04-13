@@ -10,18 +10,18 @@ import java.util.List;
  * @author  marcobaga
  */
 
-//TODO overloading
+//TODO overloading?
 
 public interface Targeted {
 
-    void applyEffects(List<Player> targets, Square destination);
+    void applyEffects(List<Player> targets, Square destination) throws NotAvailableAttributeException;
 
-    List<List<Player>> findTargets();
+    List<List<Player>> findTargets() throws NotAvailableAttributeException;
 
-    List<Square> findDestinations(List<Player> targets);
+    List<Square> findDestinations(List<Player> targets) throws NotAvailableAttributeException;
 
-    boolean isAvailable();
+    boolean isAvailable() throws NotAvailableAttributeException;
 
-    AmmoPack getCost();
+    AmmoPack getCost() ;
 
 }

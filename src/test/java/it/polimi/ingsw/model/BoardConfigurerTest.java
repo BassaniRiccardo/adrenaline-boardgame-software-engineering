@@ -50,7 +50,7 @@ public class BoardConfigurerTest {
      * Tests if the players are effectively located to the board.
      */
     @Test
-    public void simulateScenarioPlayers() {
+    public void simulateScenarioPlayers() throws NotAvailableAttributeException {
 
         assertEquals(5, Board.getInstance().getPlayers().size());
         for (Player  p: Board.getInstance().getPlayers()){

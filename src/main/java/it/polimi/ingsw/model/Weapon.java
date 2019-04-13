@@ -78,13 +78,16 @@ public class Weapon implements Card {
         return reducedCost;
     }
 
-    public Player getHolder() {
+    public Player getHolder() throws NotAvailableAttributeException {
+        if (holder == null) throw new NotAvailableAttributeException("This weapon does not have an holder.");
         return holder;
     }
 
     public List<FireMode> getFireModeList() { return fireModeList; }
 
-    public FireMode getCurrentFireMode() {
+    public FireMode getCurrentFireMode() throws NotAvailableAttributeException {
+        if (currentFireMode == null) throw new NotAvailableAttributeException("This weapon does not have a set firemode.");
+
         return currentFireMode;
     }
 
@@ -104,7 +107,12 @@ public class Weapon implements Card {
     public void setLoaded(boolean loaded) { this.loaded = loaded; }
 
     public void setHolder(Player holder) {
+        if (!Board.getInstance().getPlayers().contains(holder)) throw new IllegalArgumentException("Only a player on the map can hold a weapon.");
         this.holder = holder;
+    }
+
+    public void removeHolder(){
+        this.holder = null;
     }
 
     public void setCurrentFireMode(FireMode currentFireMode) {
@@ -113,10 +121,12 @@ public class Weapon implements Card {
 
 
     public void setMainTargets(List<Player> mainTargets) {
+        if(!Board.getInstance().getPlayers().containsAll(mainTargets)) throw new IllegalArgumentException("The targets must belong to the board.");
         this.mainTargets = mainTargets;
     }
 
     public void setOptionalTargets(List<Player> optionalTargets) {
+        if(!Board.getInstance().getPlayers().containsAll(optionalTargets)) throw new IllegalArgumentException("The targets must belong to the board.");
         this.optionalTargets = optionalTargets;
     }
 
@@ -126,7 +136,7 @@ public class Weapon implements Card {
      *
      * @return      the list of available firemodes
      */
-    public List<FireMode> listAvailableFireModes(){
+    public List<FireMode> listAvailableFireModes() throws NotAvailableAttributeException{
 
         List<FireMode> available = new ArrayList<>();
         for (FireMode f : fireModeList) {

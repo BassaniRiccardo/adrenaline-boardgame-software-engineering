@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
  */
 
 //TODO Add a private constructor....SonarLint
-// throw exceptions if necessary
 
 public class PowerUpFactory  {
 

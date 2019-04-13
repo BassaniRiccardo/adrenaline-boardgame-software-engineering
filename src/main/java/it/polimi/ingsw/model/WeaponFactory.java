@@ -8,7 +8,6 @@ package it.polimi.ingsw.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.*;
 
@@ -23,7 +22,6 @@ import static it.polimi.ingsw.model.Color.*;
 //TODO filter the players in order not to include the shooter in the target list.
 // necessary since now getVisible include the shooter square.
 // Look at the SonarLint issues.
-// Throw NotAvailableArgumentException.
 
 public class WeaponFactory {
 
@@ -33,7 +31,7 @@ public class WeaponFactory {
      * @param  weaponName  the name of the weapon to be created
      * @return      the Weapon object created
      */
-    public static Weapon createWeapon(Weapon.WeaponName weaponName)     {
+    public static Weapon createWeapon(Weapon.WeaponName weaponName) {
 
         Color color;
         AmmoPack fullCost;
@@ -85,7 +83,7 @@ public class WeaponFactory {
 
                 effect = createEffect(1, 1);
                 targetFinder = p -> Board.getInstance().getVisible(p.getPosition()).stream()
-                        .map(x -> x.getPlayers())
+                        .map(Square::getPlayers)
                         .flatMap(x -> x.stream())
                         .filter( x -> x != p)
                         .distinct()
@@ -267,7 +265,8 @@ public class WeaponFactory {
                         .map(x -> x.getPlayers())
                         .flatMap(x -> x.stream())
                         .distinct()
-                        .filter(x -> Board.getInstance().getDistance(x.getPosition(), p.getPosition()) >= 2)
+                        .filter(x -> { try { return Board.getInstance().getDistance(x.getPosition(), p.getPosition()) >= 2;} catch (NotAvailableAttributeException e) {throw new IllegalArgumentException("Some players do not have a position.");}
+                        })
                         .map(x -> Arrays.asList(x))
                         .collect(Collectors.toList());
                 destinationFinder = (p, t) -> null;
@@ -331,7 +330,7 @@ public class WeaponFactory {
                 };
                 destinationFinder = (p, t) -> Board.getInstance().getVisible(p.getPosition()).stream()
                         .distinct()
-                        .filter(x -> (t.isEmpty() ? true : Board.getInstance().getVisible(t.get(0).getPosition()).contains(x)))
+                        .filter(x -> {try { return (t.isEmpty() ? true : Board.getInstance().getVisible(t.get(0).getPosition()).contains(x));} catch (NotAvailableAttributeException e) {throw new IllegalArgumentException("some players does not have a position");} })
                         .collect(Collectors.toList());
                 fireMode = new FireMode(FireMode.FireModeName.MAIN, 1, new AmmoPack(0, 0, 0), destinationFinder, targetFinder, effect);
                 fireModeList.add(fireMode);
@@ -377,8 +376,8 @@ public class WeaponFactory {
                             .collect(Collectors.toList());
                 };
                 destinationFinder = (p, t) -> Board.getInstance().getReachable(t.get(0).getPosition(), 1).stream()
-                        .filter(x -> Board.getInstance().getVisible(p.getPosition()).contains(x))
-                        .filter(x -> !x.equals(p.getPosition()))
+                        .filter(x -> { try { return Board.getInstance().getVisible(p.getPosition()).contains(x); } catch (NotAvailableAttributeException e) {throw new IllegalArgumentException("Some players do not have a position.");}})
+                        .filter(x -> { try { return !x.equals(p.getPosition());} catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
                         .distinct()
                         .collect(Collectors.toList());
                 fireMode = new FireMode(FireMode.FireModeName.MAIN, 1, new AmmoPack(0, 0, 0), destinationFinder, targetFinder, effect);
@@ -404,7 +403,7 @@ public class WeaponFactory {
                     res.addAll(lp);
                     return res;
                 };
-                destinationFinder = (p, t) -> p.getMainTargets().isEmpty() ? new ArrayList<Square>() : Stream.of(p.getMainTargets().get(0).getPosition()).collect(Collectors.toList());
+                destinationFinder = (p, t) -> p.getMainTargets().isEmpty() ? new ArrayList<>() : Stream.of(p.getMainTargets().get(0).getPosition()).collect(Collectors.toList());
                 fireMode = new FireMode(FireMode.FireModeName.OPTION1, 1, new AmmoPack(1, 0, 0), destinationFinder, targetFinder, effect);
                 fireModeList.add(fireMode);
                 break;
@@ -457,7 +456,7 @@ public class WeaponFactory {
 
                 effect = createEffect(3, 0);
                 targetFinder = p -> Board.getInstance().getMap().stream()
-                        .filter(x -> !Board.getInstance().getVisible(p.getPosition()).contains(x))
+                        .filter(x -> { try { return !Board.getInstance().getVisible(p.getPosition()).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
                         .map(x -> x.getPlayers())
                         .flatMap(x -> x.stream())
                         .distinct()
@@ -519,15 +518,15 @@ public class WeaponFactory {
                     List<List<Player>> targets = new ArrayList<>();
                     for (String s : new ArrayList<String>(Arrays.asList("right", "left", "up", "down"))) {
                         List<List<Player>> close = Board.getInstance().getSquaresInLine(p.getPosition(), s).stream()
-                                .filter(x -> Board.getInstance().getReachable(p.getPosition(), 1).contains(x))
+                                .filter(x -> { try { return Board.getInstance().getReachable(p.getPosition(), 1).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
                                 .map(x -> x.getPlayers())
                                 .flatMap(x -> x.stream())
                                 .distinct()
                                 .map(x -> Arrays.asList(x))
                                 .collect(Collectors.toList());
                         List<List<Player>> far = Board.getInstance().getSquaresInLine(p.getPosition(), s).stream()
-                                .filter(x -> Board.getInstance().getReachable(p.getPosition(), 2).contains(x))
-                                .filter(x -> !Board.getInstance().getReachable(p.getPosition(), 1).contains(x))
+                                .filter(x -> { try { return Board.getInstance().getReachable(p.getPosition(), 2).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
+                                .filter(x -> { try { return !Board.getInstance().getReachable(p.getPosition(), 1).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
                                 .map(x -> x.getPlayers())
                                 .flatMap(x -> x.stream())
                                 .distinct()
@@ -550,17 +549,17 @@ public class WeaponFactory {
                 };
                 targetFinder = p -> {
                     List<List<Player>> targets = new ArrayList<>();
-                    for (String s : new ArrayList<String>(Arrays.asList("right", "left", "up", "down"))) {
+                    for (String s : new ArrayList<>(Arrays.asList("right", "left", "up", "down"))) {
                         List<List<Player>> close = Board.getInstance().getSquaresInLine(p.getPosition(), s).stream()
-                                .filter(x -> Board.getInstance().getReachable(p.getPosition(), 1).contains(x))
+                                .filter(x -> { try { return Board.getInstance().getReachable(p.getPosition(), 1).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
                                 .map(x -> x.getPlayers())
                                 .flatMap(x -> x.stream())
                                 .distinct()
                                 .map(x -> Arrays.asList(x))
                                 .collect(Collectors.toList());
                         List<List<Player>> far = Board.getInstance().getSquaresInLine(p.getPosition(), s).stream()
-                                .filter(x -> Board.getInstance().getReachable(p.getPosition(), 2).contains(x))
-                                .filter(x -> !Board.getInstance().getReachable(p.getPosition(), 1).contains(x))
+                                .filter(x -> { try { return Board.getInstance().getReachable(p.getPosition(), 2).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
+                                .filter(x -> { try { return!Board.getInstance().getReachable(p.getPosition(), 1).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
                                 .map(x -> x.getPlayers())
                                 .flatMap(x -> x.stream())
                                 .distinct()
@@ -619,7 +618,7 @@ public class WeaponFactory {
                     target.setPosition(destination);
                 };
                 targetFinder = p -> Board.getInstance().getVisible(p.getPosition()).stream()
-                        .filter(x -> !x.equals(p.getPosition()))
+                        .filter(x -> { try { return!x.equals(p.getPosition()); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
                         .map(x -> x.getPlayers())
                         .flatMap(x -> x.stream())
                         .distinct()
@@ -829,28 +828,28 @@ public class WeaponFactory {
                 };
                 targetFinder = p -> {
                     List<List<Player>> targets = new ArrayList<>();
-                    for (String s : new ArrayList<String>(Arrays.asList("right", "left", "up", "down"))) {
-                        List<List<Player>> close = Board.getInstance().getSquaresInLineIgnoringWalls(p.getPosition(), s)
-                                .stream()
-                                .filter(x -> Board.getInstance().getReachable(p.getPosition(), 1).contains(x))
-                                .map(x -> x.getPlayers())
-                                .flatMap(x -> x.stream())
-                                .distinct()
-                                .map(x -> Arrays.asList(x))
-                                .collect(Collectors.toList());
-                        List<List<Player>> far = Board.getInstance().getSquaresInLineIgnoringWalls(p.getPosition(), s)
-                                .stream()
-                                .filter(x -> Board.getInstance().getReachable(p.getPosition(), 2).contains(x))
-                                .filter(x -> !Board.getInstance().getReachable(p.getPosition(), 1).contains(x))
-                                .map(x -> x.getPlayers())
-                                .flatMap(x -> x.stream())
-                                .distinct()
-                                .map(x -> Arrays.asList(x))
-                                .collect(Collectors.toList());
-                        targets.addAll(close);
-                        targets.addAll(far);
-                        targets.addAll(cartesian(close, far));
-                    }
+                      for (String s : new ArrayList<>(Arrays.asList("right", "left", "up", "down"))) {
+                          List<List<Player>> close = Board.getInstance().getSquaresInLineIgnoringWalls(p.getPosition(), s)
+                                  .stream()
+                                  .filter(x ->{ try { return Board.getInstance().getReachable(p.getPosition(), 1).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
+                                  .map(x -> x.getPlayers())
+                                  .flatMap(x -> x.stream())
+                                  .distinct()
+                                  .map(x -> Arrays.asList(x))
+                                  .collect(Collectors.toList());
+                          List<List<Player>> far = Board.getInstance().getSquaresInLineIgnoringWalls(p.getPosition(), s)
+                                  .stream()
+                                  .filter(x -> { try { return Board.getInstance().getReachable(p.getPosition(), 2).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
+                                  .filter(x -> { try { return!Board.getInstance().getReachable(p.getPosition(), 1).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
+                                  .map(x -> x.getPlayers())
+                                  .flatMap(x -> x.stream())
+                                  .distinct()
+                                  .map(x -> Arrays.asList(x))
+                                  .collect(Collectors.toList());
+                          targets.addAll(close);
+                          targets.addAll(far);
+                          targets.addAll(cartesian(close, far));
+                      }
                     return targets;
                 };
                 destinationFinder = (p, t) -> {
@@ -861,7 +860,7 @@ public class WeaponFactory {
                     }
                     List<Square> res = new ArrayList<>();
                     res.add(t.get(0).getPosition());
-                    for (String s : new ArrayList<String>(Arrays.asList("right", "left", "up", "down"))) {
+                    for (String s : new ArrayList<>(Arrays.asList("right", "left", "up", "down"))) {
                         if (Board.getInstance().getSquaresInLine(p.getPosition(), s).contains(t.get(0).getPosition())) {
                             for (Square sq : Board.getInstance().getSquaresInLine(p.getPosition(), s)) {
                                 if (Board.getInstance().getDistance(sq, p.getPosition()) == 2) {
@@ -890,9 +889,9 @@ public class WeaponFactory {
                     List<List<Player>> targets = new ArrayList<>();
                     List<List<List<Player>>> directionalTargets = new ArrayList<>();
 
-                    for (String s : new ArrayList<String>(Arrays.asList("right", "left", "up", "down"))) {
+                    for (String s : new ArrayList<>(Arrays.asList("right", "left", "up", "down"))) {
                         directionalTargets.add(Board.getInstance().getReachable(p.getPosition(), 1).stream()
-                                .filter(x -> Board.getInstance().getSquaresInLine(p.getPosition(), s).contains(x))
+                                .filter(x -> { try { return Board.getInstance().getSquaresInLine(p.getPosition(), s).contains(x); } catch (NotAvailableAttributeException e) { throw new IllegalArgumentException("Some players do not have a position.");}})
                                 .map(x -> x.getPlayers())
                                 .flatMap(x -> x.stream())
                                 .distinct()

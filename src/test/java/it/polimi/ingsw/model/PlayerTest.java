@@ -95,9 +95,9 @@ public class PlayerTest {
         Player player = Board.getInstance().getPlayers().get(0);
 
         //checks that the player has no ammo
-        assertEquals(0, player.getAmmopack().getBlueAmmo());
-        assertEquals(0, player.getAmmopack().getRedAmmo());
-        assertEquals(0, player.getAmmopack().getYellowAmmo());
+        assertEquals(0, player.getAmmoPack().getBlueAmmo());
+        assertEquals(0, player.getAmmoPack().getRedAmmo());
+        assertEquals(0, player.getAmmoPack().getYellowAmmo());
 
         assertNotNull(((AmmoSquare) player.getPosition()).getAmmoTile());
 
@@ -105,8 +105,8 @@ public class PlayerTest {
         player.collect(((AmmoSquare)player.getPosition()).getAmmoTile());
 
         //checks that the player has some ammo
-        assertFalse(player.getAmmopack().getBlueAmmo()==0 && player.getAmmopack().getRedAmmo()==0 &&
-                    player.getAmmopack().getYellowAmmo()==0 );
+        assertFalse(player.getAmmoPack().getBlueAmmo()==0 && player.getAmmoPack().getRedAmmo()==0 &&
+                    player.getAmmoPack().getYellowAmmo()==0 );
 
         //checks that the ammo square does not have an ammo tile anymore: exception thrown
         ((AmmoSquare) player.getPosition()).getAmmoTile();
@@ -145,13 +145,13 @@ public class PlayerTest {
         }
 
         //checks that the first player has some ammo
-        assertFalse(player1.getAmmopack().getBlueAmmo()==0 && player1.getAmmopack().getRedAmmo()==0 &&
-                player1.getAmmopack().getYellowAmmo()==0 );
+        assertFalse(player1.getAmmoPack().getBlueAmmo()==0 && player1.getAmmoPack().getRedAmmo()==0 &&
+                player1.getAmmoPack().getYellowAmmo()==0 );
 
         //checks that the second player has no ammo
-        assertEquals(0, player2.getAmmopack().getBlueAmmo());
-        assertEquals(0, player2.getAmmopack().getRedAmmo());
-        assertEquals(0, player2.getAmmopack().getYellowAmmo());
+        assertEquals(0, player2.getAmmoPack().getBlueAmmo());
+        assertEquals(0, player2.getAmmoPack().getRedAmmo());
+        assertEquals(0, player2.getAmmoPack().getYellowAmmo());
 
         //checks that the square has no ammo left
         try{
@@ -289,10 +289,13 @@ public class PlayerTest {
      * Tests addWeapon()
      */
     @Test
-    public void addWeapon() throws UnacceptableItemNumberException {
+    public void addWeapon() throws UnacceptableItemNumberException, NoMoreCardsException {
+
+        //simulates a scenario
+        BoardConfigurer.getInstance().simulateScenario();
 
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = Board.getInstance().getPlayers().get(0);
 
         //instantiates a weapon
         Weapon weapon = WeaponFactory.createWeapon(Weapon.WeaponName.THOR);
@@ -310,10 +313,13 @@ public class PlayerTest {
      * Tests addWeapon()
      */
     @Test
-    public void addWeaponMultiple() throws UnacceptableItemNumberException {
+    public void addWeaponMultiple() throws UnacceptableItemNumberException, NoMoreCardsException {
+
+        //simulates a scenario
+        BoardConfigurer.getInstance().simulateScenario();
 
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = Board.getInstance().getPlayers().get(2);
 
         //instantiates 2 weapons
         Weapon weapon1 = WeaponFactory.createWeapon(Weapon.WeaponName.THOR);
@@ -323,7 +329,7 @@ public class PlayerTest {
         player.addWeapon(weapon1);
         player.addWeapon(weapon2);
 
-        //checks that weaponsList contains only the rights wepons
+        //checks that weaponsList contains only the rights weapons
         assertTrue(player.getWeaponList().contains(weapon1) &&
                 player.getWeaponList().contains(weapon2) &&
                 player.getWeaponList().size() == 2);
@@ -335,10 +341,13 @@ public class PlayerTest {
      * Tests discardWeapon()
      */
     @Test
-    public void discardWeapon()  throws UnacceptableItemNumberException {
+    public void discardWeapon()  throws UnacceptableItemNumberException, NoMoreCardsException {
+
+        //simulates a scenario
+        BoardConfigurer.getInstance().simulateScenario();
 
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = Board.getInstance().getPlayers().get(3);
 
         //instantiates 2 weapons
         Weapon weapon1 = WeaponFactory.createWeapon(Weapon.WeaponName.THOR);
@@ -426,11 +435,11 @@ public class PlayerTest {
 
         //checks that myAmmoPack contains only the ammo of the right color
         if (color == RED) {
-            assertTrue(player.getAmmopack().getRedAmmo() == 1 && player.getAmmopack().getYellowAmmo() == 0 && player.getAmmopack().getBlueAmmo() == 0);
+            assertTrue(player.getAmmoPack().getRedAmmo() == 1 && player.getAmmoPack().getYellowAmmo() == 0 && player.getAmmoPack().getBlueAmmo() == 0);
         } else if (color == YELLOW) {
-            assertTrue(player.getAmmopack().getRedAmmo() == 0 && player.getAmmopack().getYellowAmmo() == 1 && player.getAmmopack().getBlueAmmo() == 0);
+            assertTrue(player.getAmmoPack().getRedAmmo() == 0 && player.getAmmoPack().getYellowAmmo() == 1 && player.getAmmoPack().getBlueAmmo() == 0);
         } else {
-            assertTrue(player.getAmmopack().getRedAmmo() == 0 && player.getAmmopack().getYellowAmmo() == 0 && player.getAmmopack().getBlueAmmo() == 1);
+            assertTrue(player.getAmmoPack().getRedAmmo() == 0 && player.getAmmoPack().getYellowAmmo() == 0 && player.getAmmoPack().getBlueAmmo() == 1);
         }
 
     }
@@ -452,7 +461,7 @@ public class PlayerTest {
         player.addAmmoPack(ammoPack);
 
         //checks that myAmmoPacks contains the right amount of ammos of every color
-        assertTrue(player.getAmmopack().getRedAmmo() == 1 && player.getAmmopack().getBlueAmmo() == 2 && player.getAmmopack().getYellowAmmo() == 3);
+        assertTrue(player.getAmmoPack().getRedAmmo() == 1 && player.getAmmoPack().getBlueAmmo() == 2 && player.getAmmoPack().getYellowAmmo() == 3);
     }
 
 
@@ -475,7 +484,7 @@ public class PlayerTest {
         player.useAmmo(ammoPack2);
 
         //checks that myAmmoPacks contains the right amount of ammos of every color
-        assertTrue(player.getAmmopack().getRedAmmo() == 0 && player.getAmmopack().getBlueAmmo() == 1 && player.getAmmopack().getYellowAmmo() == 1);
+        assertTrue(player.getAmmoPack().getRedAmmo() == 0 && player.getAmmoPack().getBlueAmmo() == 1 && player.getAmmoPack().getYellowAmmo() == 1);
     }
 
 

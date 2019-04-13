@@ -20,5 +20,5 @@ interface DestinationFinder{
      * @param  targets      the ArrayList of players selected as targets by the current player
      * @return              the set of possible destination Square objects
      */
-    List<Square> find(Player shooter, List<Player> targets);
+    List<Square> find(Player shooter, List<Player> targets) throws NotAvailableAttributeException;
 }

@@ -23,12 +23,15 @@ public class WeaponFactoryTest {
         assertTrue(w.getReducedCost().getRedAmmo()==0);
         assertTrue(w.getReducedCost().getBlueAmmo()==1);
         assertTrue(w.getReducedCost().getYellowAmmo()==0);
-        assertTrue(w.getHolder()==null);
+        try {
+            w.getHolder();
+        }catch (NotAvailableAttributeException e){}
         assertFalse(w.isLoaded());
         assertTrue(w.getMainTargets().isEmpty());
         assertTrue(w.getOptionalTargets().isEmpty());
-        assertTrue(w.getHolder()==null);
-
+        try{
+            w.getHolder();
+        }catch (NotAvailableAttributeException e){}
         FireMode f = w.getFireModeList().get(0);
         assertTrue(f.getName() == FireMode.FireModeName.MAIN);
         assertTrue(f.getMaxTargets()==1);

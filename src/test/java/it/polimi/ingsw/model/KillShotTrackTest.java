@@ -182,6 +182,7 @@ public class KillShotTrackTest {
         dead.setPointsToGive(2);
 
         //registers the standard kill
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
 
         //checks that the number of occurrences of the killer in the killers list is incremented by 1
@@ -218,6 +219,7 @@ public class KillShotTrackTest {
         killShotTrack.removeSkulls(8);
 
         //registers the standard kill
+        dead.sufferDamage(11,killer);
         killShotTrack.registerKill(killer, dead, false);
 
         //checks that the number of occurrences of the killer in the killers list is incremented by 1

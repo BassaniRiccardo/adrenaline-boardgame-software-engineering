@@ -18,11 +18,12 @@ import static it.polimi.ingsw.model.Color.*;
  * @author  davidealde
  */
 
-//TODO complete the exception: can a player hold 4 weapons while choosing which  one he wants to discard?
+//TODO
+// Complete the exception: can a player hold 4 weapons while choosing which  one he wants to discard?
 // I'd say yes, because the square does not have the space to contain 4 weapons, while the player hand does.
 // Whether including the exception here or in the controller depends on the presence of variables indicating the state of the game:
 // endOfTheTurn(killShotTrack), Rebirth, discardingWeapon...and their visibility to the model.
-// Exception in getPosition(), getPreviousPosition() to enable after having thrown the exception in WeaponFactory, PowerUpFactory...
+// Look at the comments at line 246, 287/
 
 public class Player {
 
@@ -125,20 +126,19 @@ public class Player {
 
     public boolean isDead() {return dead;}
 
-    public AmmoPack getAmmopack(){return ammoPack;}
+    public AmmoPack getAmmoPack(){return ammoPack;}
 
     public int getPointsToGive() {return pointsToGive;}
 
     public boolean isJustDamaged(){return justDamaged;}
 
-    public Square getPosition() {
-
-//        if (position == null) throw new NotAvailableAttributeException("The player is not on the board.");
+    public Square getPosition() throws NotAvailableAttributeException {
+        if (position == null) throw new NotAvailableAttributeException("The player is not on the board.");
         return position;}
 
-    public Square getPreviousPosition()  {
+    public Square getPreviousPosition() throws NotAvailableAttributeException  {
 
-//        if (previousPosition == null) throw new NotAvailableAttributeException("The player was not on the board.");
+        if (previousPosition == null) throw new NotAvailableAttributeException("The player was not on the board.");
         return previousPosition;}
 
     public List<Player> getMainTargets(){return mainTargets;}

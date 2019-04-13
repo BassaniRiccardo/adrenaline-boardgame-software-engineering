@@ -76,7 +76,7 @@ public class FireMode implements Targeted {
      * @param  targets           the ArrayList of players being targeted
      * @param  destination       the Square players are moved to, if relevant
      */
-    public void applyEffects(List<Player> targets, Square destination){
+    public void applyEffects(List<Player> targets, Square destination) throws NotAvailableAttributeException{
 
         if(targets == null || targets.isEmpty()){
             throw new IllegalArgumentException("A target is necessary for the effects to be applied.");
@@ -93,9 +93,8 @@ public class FireMode implements Targeted {
      *
      * @return      an ArrayList containing sets of targets to be chosen, each saved as an ArrayList
      */
-    public List<List<Player>> findTargets(){
+    public List<List<Player>> findTargets() throws NotAvailableAttributeException{
 
-        if (weapon.getHolder() == null) throw new NullPointerException("The weapon must have a holder");
         return targetFinder.find(weapon.getHolder());
 
     }
@@ -106,9 +105,9 @@ public class FireMode implements Targeted {
      * @param  targets  the ArrayList of already selected targets
      * @return          the set of possible destination Square objects
      */
-    public List<Square> findDestinations(List<Player> targets) {
-        if(weapon.getHolder() == null || targets == null){
-            throw new NullPointerException("The weapon must have a holder and the firemode must have some targets.");
+    public List<Square> findDestinations(List<Player> targets) throws NotAvailableAttributeException{
+        if(targets == null){
+            throw new NullPointerException("The firemode must have some targets.");
         }
         return destinationFinder.find(weapon.getHolder(), targets);
     }
@@ -118,7 +117,7 @@ public class FireMode implements Targeted {
      *
      * @return      true is this FireMode can be used
      */
-    public boolean isAvailable() {
+    public boolean isAvailable()throws NotAvailableAttributeException {
         return !(findTargets().isEmpty());
     }
 

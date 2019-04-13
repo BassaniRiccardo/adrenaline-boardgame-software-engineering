@@ -86,6 +86,7 @@ public class KillShotTrack {
      */
     public void registerKill(Player killer, Player dead, boolean overkill) throws UnacceptableItemNumberException, WrongTimeException {
 
+        if (!dead.isDead())         throw new WrongTimeException("A kill can be registered only when a player dies.");
         if (killer.equals(dead))    throw new IllegalArgumentException("The killer and the dead can not be the same person,");
         killers.add(killer);
         if (overkill){
@@ -104,7 +105,7 @@ public class KillShotTrack {
      * The first gets 8 points, the second 6, the third 4, the fourth 2 and the fifth 1.
      * In the event of a tie, the player who got the earlier killshot wins the tie.
      */
-    public void rewardKillers(){
+    public void rewardKillers() {
 
         //asks the board for the players
         List<Player> playersToReward = Board.getInstance().getPlayers();

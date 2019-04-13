@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model;
 
+import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -11,7 +12,7 @@ public class FireModeTest {
      * Checks that a firemode is created correctly and available
      */
     @Test
-    public void isAvailable() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void isAvailable() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Player p = Board.getInstance().getPlayers().get(0);
         p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -26,7 +27,7 @@ public class FireModeTest {
      * Checks that a firemode is created correctly and not available
      */
     @Test
-    public void isAvailable2() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void isAvailable2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Player p = Board.getInstance().getPlayers().get(4);
         p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -41,7 +42,7 @@ public class FireModeTest {
      * Checks that the firemode applies its effect
      */
     @Test
-    public void applyEffects() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void applyEffects() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Player p = Board.getInstance().getPlayers().get(4);
         p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -58,7 +59,7 @@ public class FireModeTest {
      * Checks that targets are selected correctly when there are some
      */
     @Test
-    public void findTargets() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void findTargets() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         FireMode f = Board.getInstance().getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
@@ -71,7 +72,7 @@ public class FireModeTest {
      * Checks that targets are not selected when none is visible
      */
     @Test
-    public void findTargets2() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void findTargets2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Board.getInstance().getPlayers().get(4).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         FireMode f = Board.getInstance().getPlayers().get(4).getWeaponList().get(0).getFireModeList().get(0);
@@ -94,13 +95,13 @@ public class FireModeTest {
     /**
      * Checks that destinationFinder is working correctly (Note: the only weapon implemented so far always returns null as intended)
      */
-    @Test(expected = NullPointerException.class)
-    public void findDestinationsBadArguments() throws UnacceptableItemNumberException, NoMoreCardsException {
+    @Test(expected = NotAvailableAttributeException.class)
+    public void findDestinationsBadArguments() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         BoardConfigurer.getInstance().simulateScenario();
         Weapon weapon = WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         Board.getInstance().getPlayers().get(0).addWeapon(weapon);
         FireMode f = Board.getInstance().getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
-        weapon.setHolder(null);
+        weapon.removeHolder();
         f.findDestinations(Board.getInstance().getPlayers());
     }
 

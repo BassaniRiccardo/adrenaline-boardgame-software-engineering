@@ -347,7 +347,7 @@ public class Board {
 
     /**
      * Returns the squares reachable from the starting square with the specified number of steps.
-     * The starting square is excluded.
+     * The starting square is included.
      *
      * @param s             the starting square.
      * @param steps         the number of steps that can be taken.
@@ -359,7 +359,7 @@ public class Board {
         Iterator<Square> squareIt = map.iterator();
         while (squareIt.hasNext()){
             Square s1 = squareIt.next();
-            if (!s.equals(s1) && getDistance(s,s1) <= steps) {
+            if (getDistance(s,s1) <= steps) {
                 reachable.add(s1);
             }
         }

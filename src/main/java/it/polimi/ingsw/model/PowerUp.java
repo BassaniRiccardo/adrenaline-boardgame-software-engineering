@@ -92,7 +92,7 @@ public class PowerUp implements Targeted, Card {
      * @param  playerList  the ArrayList of players being targeted
      * @param  destination the Square players are moved to, if relevant
      */
-    public void applyEffects(List<Player> playerList, Square destination) {
+    public void applyEffects(List<Player> playerList, Square destination) throws NotAvailableAttributeException{
 
         if (!Board.getInstance().getPlayers().containsAll(playerList)) throw new IllegalArgumentException("The effects can be applied only on players on the board.");
         if (!(Board.getInstance().getMap().contains(destination) || destination == null)) throw new IllegalArgumentException("The players can be moved only in squares that belong to the board.");
@@ -107,7 +107,7 @@ public class PowerUp implements Targeted, Card {
      *
      * @return      an ArrayList containing sets of targets to be chosen, each saved as an ArrayList
      */
-    public List<List<Player>> findTargets(){
+    public List<List<Player>> findTargets() throws NotAvailableAttributeException{
         return targetFinder.find(holder);
     }
 
@@ -118,7 +118,7 @@ public class PowerUp implements Targeted, Card {
      * @param  targets the ArrayList of already selected targets
      * @return      the set of possible destination Square objects
      */
-    public List<Square> findDestinations(List<Player> targets){
+    public List<Square> findDestinations(List<Player> targets) throws NotAvailableAttributeException{
 
         if (!Board.getInstance().getPlayers().containsAll(targets)) throw new IllegalArgumentException("Only on players on the board can be moved.");
         return destinationFinder.find(holder, targets);
@@ -130,8 +130,9 @@ public class PowerUp implements Targeted, Card {
      *
      * @return      true if and only if  this powerup cna be used
      */
-    public boolean isAvailable(){
-        return !(findTargets().isEmpty())&&!(name==PowerUpName.TARGETING_SCOPE&&holder.getAmmopack().equals(new AmmoPack(0,0,0)));
+    public boolean isAvailable() throws NotAvailableAttributeException{
+        return !(findTargets().isEmpty())&&!(name==PowerUpName.TARGETING_SCOPE&&holder.getAmmoPack().equals(new AmmoPack(0,0,0)));
+
     }
 
 }

@@ -16,7 +16,6 @@ import static it.polimi.ingsw.model.Board.Direction;
  */
 
 //TODO Add a private constructor....SonarLint
-// throw exceptions if necessary
 
 public class PowerUpFactory  {
 

@@ -171,7 +171,7 @@ public class WeaponSquare extends Square {
     @Override
     public int hashCode() {
 
-        int result = 0;
+        int result;
         result = getId();
         return result;
 

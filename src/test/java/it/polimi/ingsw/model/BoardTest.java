@@ -112,6 +112,7 @@ public class BoardTest {
         ArrayList<Square> expected = new ArrayList<>();
 
         //map.get(0): map[1][1]: all instructions covered
+        expected.add(Board.getInstance().getMap().get(0));      //map[1][1]
         expected.add(Board.getInstance().getMap().get(1));      //map[1][2]
         expected.add(Board.getInstance().getMap().get(2));      //map[1][3]
         expected.add(Board.getInstance().getMap().get(3));      //map[2][1]

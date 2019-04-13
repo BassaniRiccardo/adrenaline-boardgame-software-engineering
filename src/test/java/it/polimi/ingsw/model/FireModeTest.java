@@ -88,7 +88,7 @@ public class FireModeTest {
         FireMode f = Board.getInstance().getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
         assertFalse(f.findTargets().isEmpty());
         List<Player> ap = f.findTargets().get(0);
-        assertNull(f.findDestinations(ap));
+        assertTrue(f.findDestinations(ap).isEmpty());
     }
 
     /**

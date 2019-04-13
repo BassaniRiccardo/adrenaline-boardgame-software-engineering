@@ -100,9 +100,7 @@ public class PowerUp implements Targeted, Card {
             effect.apply(holder, p, destination);
         }
         holder.useAmmo(cost);
-
     }
-
 
     /**
      *Finds players that can be chosen as targets

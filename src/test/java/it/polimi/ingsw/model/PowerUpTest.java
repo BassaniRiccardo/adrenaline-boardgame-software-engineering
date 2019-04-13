@@ -125,6 +125,6 @@ public class PowerUpTest {
         p.setHolder(Board.getInstance().getPlayers().get(0));
         Board.getInstance().getPlayers().get(0).getPowerUpList().add(p);
         p = Board.getInstance().getPlayers().get(0).getPowerUpList().get(0);
-        assertTrue(p.findDestinations(Board.getInstance().getPlayers())==null);
+        assertTrue(p.findDestinations(Board.getInstance().getPlayers()).isEmpty());
     }
 }

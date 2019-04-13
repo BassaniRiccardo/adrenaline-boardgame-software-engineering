@@ -6,7 +6,7 @@ package it.polimi.ingsw.model;
  * @author  marcobaga
  */
 
-//TODO overloading
+//TODO empty interface Effect, extend it by having different implementation of apply (2 or 3 parameters)
 
 interface Effect{
 
@@ -18,6 +18,5 @@ interface Effect{
      * @param  destination  the Square players are moved to, if relevant
      */
     void apply(Player shooter, Player target, Square destination);
-
 
 }

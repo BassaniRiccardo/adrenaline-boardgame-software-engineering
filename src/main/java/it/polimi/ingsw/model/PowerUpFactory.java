@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.model.Board.Direction;
+
 /**
  * Factory class to create a power up.
  *
@@ -34,13 +36,14 @@ public class PowerUpFactory  {
 
         switch (powerUpName) {
             case TARGETING_SCOPE:
+
                 effect = (shooter, target, destination)-> target.sufferDamage(1, shooter);
                 targetFinder = (p) -> Board.getInstance().getPlayers().stream()
                         .filter(x->x.isJustDamaged())
                         .distinct()
                         .map(x -> Arrays.asList(x))
                         .collect(Collectors.toList());
-                destinationFinder = (p, t) -> null;
+                destinationFinder = (p, t) -> new ArrayList<>();
                 break;
 
             case NEWTON:
@@ -57,8 +60,8 @@ public class PowerUpFactory  {
                     List<Square> res = new ArrayList<>();
                     Square center = t.get(0).getPosition();
                     res.add(center);
-                    for (String s : new ArrayList<String>(Arrays.asList("right", "left", "up", "down"))) {
-                        res.addAll(Board.getInstance().getSquaresInLine(center, s).stream()
+                    for (Direction d : Direction.values()) {
+                        res.addAll(Board.getInstance().getSquaresInLine(center, d).stream()
                                 .filter(x->Board.getInstance().getDistance(center, x)<3)
                                 .collect(Collectors.toList()));
                     }
@@ -69,11 +72,11 @@ public class PowerUpFactory  {
             case TAGBACK_GRENADE:
                 effect = (shooter, target, destination)-> target.addMarks(1, shooter);
                 targetFinder = (p) -> p.isJustDamaged()? new ArrayList<>():Arrays.asList(Arrays.asList(Board.getInstance().getCurrentPlayer()));
-                destinationFinder = (p, t) -> null;
+                destinationFinder = (p, t) -> new ArrayList<>();
                 break;
 
             case TELEPORTER:
-                effect = (shooter, target, destination)-> shooter.setPosition(destination);
+                effect = (shooter, target, destination)-> target.setPosition(destination);
                 targetFinder = (p) -> Arrays.asList(Arrays.asList(p));
                 destinationFinder = (p, t) -> Board.getInstance().getMap();
                 break;

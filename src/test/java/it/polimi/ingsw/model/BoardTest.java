@@ -179,7 +179,7 @@ public class BoardTest {
     public void getSquaresInLineEmpty() {
 
         //map.get(4): map[2][2]
-        assertTrue(Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), "top").isEmpty());
+        assertTrue(Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), Board.Direction.UP).isEmpty());
     }
 
 
@@ -196,25 +196,25 @@ public class BoardTest {
 
         //down
         expected.add(Board.getInstance().getMap().get(7));      //map[3][2]
-        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), "down"));
+        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), Board.Direction.DOWN));
         expected.clear();
 
         //left
         expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
-        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), "left"));
+        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), Board.Direction.LEFT));
         expected.clear();
 
         //right
         expected.add(Board.getInstance().getMap().get(5));      //map[2][3]
         expected.add(Board.getInstance().getMap().get(6));      //map[2][4]
-        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), "right"));
+        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), Board.Direction.RIGHT));
         expected.clear();
 
         //map.get(3): map[2][1]
 
         //top
         expected.add(Board.getInstance().getMap().get(0));      //map[2][3]
-        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(3), "top"));
+        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(3), Board.Direction.UP));
     }
 
 
@@ -226,7 +226,7 @@ public class BoardTest {
     public void getSquaresInLineIgnoringWallsEmpty() {
 
         //map.get(0): map[1][1]
-        assertTrue(Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(0), "top").isEmpty());
+        assertTrue(Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(0), Board.Direction.UP).isEmpty());
 
     }
 
@@ -244,23 +244,23 @@ public class BoardTest {
 
         //top
         expected.add(Board.getInstance().getMap().get(2));      //map[1][3]
-        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), "top"));
+        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), Board.Direction.UP));
         expected.clear();
 
         //down
         expected.add(Board.getInstance().getMap().get(8));      //map[3][2]
-        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), "down"));
+        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), Board.Direction.DOWN));
         expected.clear();
 
         //left
         expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
         expected.add(Board.getInstance().getMap().get(4));      //map[2][2]
-        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), "left"));
+        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), Board.Direction.LEFT));
         expected.clear();
 
         //right
         expected.add(Board.getInstance().getMap().get(6));      //map[2][4]
-        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), "right"));
+        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), Board.Direction.RIGHT));
     }
 
 

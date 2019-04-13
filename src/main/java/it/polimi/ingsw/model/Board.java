@@ -16,6 +16,8 @@ import static it.polimi.ingsw.model.Color.*;
 
 public class Board {
 
+    public enum Direction {RIGHT, LEFT, UP, DOWN}
+
     //the unique instance of Board
     private static Board instance = null;
 
@@ -425,7 +427,7 @@ public class Board {
      * @param direction         the direction.
      * @return                  the squares reachable moving in the specified direction.
      */
-    public List<Square> getSquaresInLine(Square s, String direction){
+    public List<Square> getSquaresInLine(Square s, Direction direction){
 
         ArrayList<Square> squaresInLine = new ArrayList<>();
         int sr = s.getRow();
@@ -435,10 +437,10 @@ public class Board {
             Square s1 = squareIt.next();
             int r = s1.getRow();
             int c = s1.getColumn();
-            if ( (direction.equals("top")   && inLineTop  (sr, sc, r, c))    ||
-                 (direction.equals("down")  && inLineDown (sr, sc, r, c))    ||
-                 (direction.equals("left")  && inLineLeft (sr, sc, r, c))    ||
-                 (direction.equals("right") && inLineRight(sr, sc, r, c))     )
+            if ( (direction==Direction.UP   && inLineTop  (sr, sc, r, c))    ||
+                 (direction==Direction.DOWN  && inLineDown (sr, sc, r, c))    ||
+                 (direction==Direction.LEFT && inLineLeft (sr, sc, r, c))    ||
+                 (direction==Direction.RIGHT && inLineRight(sr, sc, r, c))     )
             {
                 squaresInLine.add(s1);
             }
@@ -456,7 +458,7 @@ public class Board {
      * @param direction         the movement direction.
      * @return                  the squares reachable moving in the specified direction, ignoring walls.
      */
-    public List<Square> getSquaresInLineIgnoringWalls(Square s, String direction){
+    public List<Square> getSquaresInLineIgnoringWalls(Square s, Direction direction){
 
         ArrayList<Square> squaresInLineThroughWall = new ArrayList<>();
         Iterator<Square> squareIt = map.iterator();
@@ -466,8 +468,8 @@ public class Board {
             Square s1 = squareIt.next();
             int r = s1.getRow();
             int c = s1.getColumn();
-            if ((direction.equals("top") && r < sr && c == sc) || (direction.equals("down") && r > sr && c == sc) ||
-            (direction.equals("right") && r == sr && c > sc) || (direction.equals("left") && r == sr && c < sc)){
+            if ((direction==Direction.UP && r < sr && c == sc) || (direction==Direction.DOWN && r > sr && c == sc) ||
+            (direction==Direction.RIGHT && r == sr && c > sc) || (direction==Direction.LEFT && r == sr && c < sc)){
                 squaresInLineThroughWall.add(s1);
             }
         }

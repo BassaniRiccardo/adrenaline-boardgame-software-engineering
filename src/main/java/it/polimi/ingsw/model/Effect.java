@@ -6,8 +6,6 @@ package it.polimi.ingsw.model;
  * @author  marcobaga
  */
 
-//TODO empty interface Effect, extend it by having different implementation of apply (2 or 3 parameters)
-
 interface Effect{
 
     /**

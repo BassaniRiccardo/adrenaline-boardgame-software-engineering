@@ -3,7 +3,6 @@ package it.polimi.ingsw.model;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-//TODO
 //This class needs more in-depth testing once it has been fully implemented: only the first weapon has been tested so far
 public class WeaponFactoryTest {
 

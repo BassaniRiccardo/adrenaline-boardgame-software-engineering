@@ -8,8 +8,6 @@ import java.util.List;
  * @author  marcobaga
  */
 
-//TODO It may be better to remove the null argument  (overloading for applyEffects).
-
 public class PowerUp implements Targeted, Card {
 
     public enum PowerUpName{

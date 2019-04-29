@@ -1,4 +1,3 @@
-//TODO check whether this factory and Board methods share the same logic (eg. does getVisible return the shooter's square?) for destinations and the second part of targets
 //TODO check whether returning a List of Players instead of an ArrayList can cause issues
 //TODO load data from JSON/XML: NB: loading data solves the cognitive complexity problem
 //      every "getter" should read a JSON or XML file importing the hashmap instead of creating it. Check out serializable interfaces.

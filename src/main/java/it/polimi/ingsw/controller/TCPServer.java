@@ -30,13 +30,13 @@ public class TCPServer implements Runnable {
             return;
         }
 
-        System.out.println("Server ready");
+        System.out.println("TCPServer ready");
 
         while (true){
             try{
                 Socket socket = serverSocket.accept();
                 executor.submit(new TCPPlayerController(socket));
-                System.out.println("Accepted new connection");
+                System.out.println("Accepted new connection, passed it to TCPPlayerController");
             } catch(IOException e) {
                 break;
             }

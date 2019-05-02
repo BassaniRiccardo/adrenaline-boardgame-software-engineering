@@ -14,7 +14,6 @@ public class TCPPlayerController extends PlayerController implements Runnable{
     private Socket socket;
     private List<String> incoming;
     private List<String> outgoing;
-    private String name;
 
     public TCPPlayerController(Socket socket){
         this.socket = socket;
@@ -26,10 +25,12 @@ public class TCPPlayerController extends PlayerController implements Runnable{
         try {
             Scanner in = new Scanner(socket.getInputStream());
             PrintWriter out = new PrintWriter(socket.getOutputStream());
+            System.out.println("TCPPlayerController running, starting login procedures");
             out.println("Select a name");
             out.flush();
-            while(!in.hasNextLine()) {}
+            System.out.println("Name request sent");
             name = in.nextLine();
+            System.out.println("Name received: " + name);
             while(!ServerMain.getInstance().login(name, this)){
                 if(ServerMain.getInstance().canResume(name)){
                     out.println("Do you want to resume?");
@@ -50,6 +51,9 @@ public class TCPPlayerController extends PlayerController implements Runnable{
                 while(!in.hasNextLine()) {}
                 name = in.nextLine();
             }
+            out.println("Name accepted.");
+
+            out.flush();
             while(!suspended){
                 if (in.hasNextLine()) {
                     incoming.add(in.nextLine());

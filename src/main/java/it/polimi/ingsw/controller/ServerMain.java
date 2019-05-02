@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 //TODO: finish implementing
 //TODO: check that multithreading does not cause issues
@@ -31,6 +30,7 @@ public class ServerMain {
     private ServerMain(){
         waitingPlayers = new ArrayList<>();
         selectedPlayers = new ArrayList<>();
+        players = new ArrayList<>();
         currentGames = new ArrayList<>();
         server = null;
         scanner = new Scanner(System.in);
@@ -44,46 +44,46 @@ public class ServerMain {
         return instance;
     }
 
-    public void main(){
+    public static void main(String[] args){
 
-        getInstance();
+        ServerMain  sm = getInstance();
 
         System.out.println("Main method started");
 
-        timer = new MatchmakingTimer(60);
+        sm.timer = new MatchmakingTimer(60);
 
         ExecutorService executor = Executors.newCachedThreadPool(); //can it be used?
-        server = new TCPServer(1234, this);
-        executor.submit(server);
+        sm.server = new TCPServer(5000, sm);
+        executor.submit(sm.server);
 
         System.out.println("TCPServer running, press q to quit");
 
-        timer.reset();
+        sm.timer.reset();
 
         while (true){
-            if(scanner.hasNextLine()){
-                if(scanner.nextLine()=="q") {
+            if(sm.scanner.hasNextLine()){
+                if(sm.scanner.nextLine()=="q") {
                     break;
                 }
                 else{
                     System.out.println("Press q to quit");
                 }
             }//might throw exception
-            if(waitingPlayers.size()>4||(timer.isOver()&&waitingPlayers.size()>2)){
-                selectedPlayers.clear();
-                for (int i = 0; i<waitingPlayers.size()&&i<5; i++){
-                    selectedPlayers.add(waitingPlayers.get(i));
+            if(sm.waitingPlayers.size()>4||(sm.timer.isOver()&&sm.waitingPlayers.size()>2)){
+                sm.selectedPlayers.clear();
+                for (int i = 0; i<sm.waitingPlayers.size()&&i<5; i++){
+                    sm.selectedPlayers.add(sm.waitingPlayers.get(i));
                 }
-                System.out.println("Starting a" + selectedPlayers.size() + "-player game");
-                GameEngine current = new GameEngine(selectedPlayers);
+                System.out.println("Starting a" + sm.selectedPlayers.size() + "-player game");
+                GameEngine current = new GameEngine(sm.selectedPlayers);
                 executor.submit(current);
-                currentGames.add(current);
+                sm.currentGames.add(current);
                 System.out.println("Game started");
-                waitingPlayers.removeAll(selectedPlayers); //toglie i primi n
-            }else if (waitingPlayers.size()<3){
-                timer.stop();
-            } else if (waitingPlayers.size()>2 && !timer.isRunning()) {
-                timer.start();
+                sm.waitingPlayers.removeAll(sm.selectedPlayers); //toglie i primi n
+            }else if (sm.waitingPlayers.size()<3){
+                sm.timer.stop();
+            } else if (sm.waitingPlayers.size()>2 && !sm.timer.isRunning()) {
+                sm.timer.start();
             }
         }
     }
@@ -97,11 +97,17 @@ public class ServerMain {
     }
 
     public boolean login(String name, PlayerController p){      //this method needs to be synchronized most likely
-        if(players.stream().filter(x->x.getName().equals(name)).collect(Collectors.toList()).isEmpty()){
-            addPlayer(p);
-            return true;
+        System.out.println("Someone is attempting to login" + name + p);
+        for(PlayerController pc : players){
+            if(pc.getName()==name){
+                System.out.println("Login unsuccessful");
+                return false;
+            }
         }
-        return false;
+        System.out.println("Login should be successful");
+        addPlayer(p);
+        System.out.println("Login successful");
+        return true;
     }
 
     public static boolean login(String name){

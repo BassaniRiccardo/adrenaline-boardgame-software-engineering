@@ -1,10 +1,15 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.Board;
+import it.polimi.ingsw.controller.ModelTranslator;
+import it.polimi.ingsw.model.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
+
+import static it.polimi.ingsw.model.Player.HeroName.*;
 
 
 //TODO: finish implementing
@@ -42,12 +47,30 @@ public class GameEngine implements Runnable{
     }
 
     public void setup(){
-        List<String> HeroList = new ArrayList<>();
+        HashMap<Player.HeroName, PlayerController> statues = new HashMap();
+        List<Integer> mapVotes = new ArrayList<>();
+        List<Integer> skullVotes = new ArrayList<>();
+        List<Player.HeroName> chosenHeroes = new ArrayList<>();
+        List<Player.HeroName> HeroList = new ArrayList<Player.HeroName>();
+        HeroList.add(D_STRUCT_OR);
+        HeroList.add(BANSHEE);
+        HeroList.add(DOZER);
+        HeroList.add(VIOLET);
+        HeroList.add(SPROG);
+
         for (PlayerController p : players) {
-            p.send("what hero do you want?");
-            //sethero
+/*           p.send("What board?");
+            p.send("How many skulls?");
+            p.send("What hero in hero list?");
+            mapVotes.add(p.receive());
+            skullVotes.add(p.receive());
+            Player.HeroName name = p.receive();
+            statues.put(name, p);
+            HeroList.remove(name);
+            chosenHeroes.add(name);*/
         }
-        //configure board
+        //creagitteboard
+        //bind players
     }
 
     public void resolve(){

@@ -6,7 +6,7 @@ import it.polimi.ingsw.model.Player;
 
 public abstract class PlayerController{ //oggetto remoto
     GameEngine game;
-    String playerName;
+    String name;
     boolean suspended;
     Player model;
 
@@ -36,11 +36,11 @@ public abstract class PlayerController{ //oggetto remoto
 
 
     public String getName() {
-        return playerName;
+        return name;
     }
 
     public void setPlayerName(String playerName) {
-        this.playerName = playerName;
+        this.name = playerName;
     }
 
     public boolean isSuspended() {

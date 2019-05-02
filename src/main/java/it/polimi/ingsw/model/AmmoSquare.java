@@ -13,9 +13,10 @@ public class AmmoSquare extends Square  {
     private AmmoTile ammoTile;
 
     /**
-     * Constructs an AmmoSquare with an id, a room id, a row, a column, a color and an ammo tile.
+     * Constructs an AmmoSquare with a reference to the game board, an id, a room id, a row, a column, a color and an ammo tile.
      * Invokes the constructor of Square.
      *
+     * @param board         the board the square belongs to.
      * @param id            the id of the square.
      * @param roomId        the id of the room the square is in.
      * @param row           the row of the square.
@@ -24,9 +25,9 @@ public class AmmoSquare extends Square  {
      * @param ammoTile      the ammo tile in the square.
      * @throws              IllegalArgumentException
      */
-    public AmmoSquare(int id, int roomId, int row, int column, Color color, AmmoTile ammoTile) {
+    public AmmoSquare(Board board, int id, int roomId, int row, int column, Color color, AmmoTile ammoTile) {
 
-        super(id, roomId, row, column, color);
+        super(board, id, roomId, row, column, color);
         this.ammoTile = ammoTile;
 
     }
@@ -42,9 +43,9 @@ public class AmmoSquare extends Square  {
      * @param color         the color of the square.
      * @throws              IllegalArgumentException
      */
-    public AmmoSquare(int id, int roomId, int row, int column, Color color) {
+    public AmmoSquare(Board board, int id, int roomId, int row, int column, Color color) {
 
-        super(id, roomId, row, column, color);
+        super(board, id, roomId, row, column, color);
         this.ammoTile = null;
 
     }
@@ -90,7 +91,19 @@ public class AmmoSquare extends Square  {
 
         if (ammoTile!=null)  throw new UnacceptableItemNumberException("The square already contains an ammo tile.");
 
-        this.ammoTile = (AmmoTile) Board.getInstance().getAmmoDeck().drawCard();
+        this.ammoTile = (AmmoTile) this.getBoard().getAmmoDeck().drawCard();
+
+    }
+
+    /**
+     * Getter for ammoTile.
+     *
+     * @return      the ammo tile in the square.
+     */
+    public boolean hasAmmoTile() {
+
+        if (ammoTile==null) return false;
+        return true;
 
     }
 

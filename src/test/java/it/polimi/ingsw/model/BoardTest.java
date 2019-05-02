@@ -10,7 +10,7 @@ import static it.polimi.ingsw.model.Color.*;
 import static org.junit.Assert.*;
 
 /**
- * Tests all methods of the class Board, covering all the instructions.
+ * Tests all methods of the class Board.
  * The position of the squares in the map is shown using the notation map[row][column]
  * for a better readability.
  */
@@ -25,13 +25,13 @@ public class BoardTest {
     public void setup(){
 
         //creates the board and configures the map
-        BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
     }
 
 
     /**
-     * Tests the method getPlayerInside(), covering all the instructions.
+     * Tests the method getPlayerInside().
      */
     @Test
     public void getPlayersInside() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
@@ -40,94 +40,101 @@ public class BoardTest {
         ArrayList<Player> expected = new ArrayList<>();
 
         //simulates a scenario
-        BoardConfigurer.getInstance().simulateScenario();
+        Board board = BoardConfigurer.getInstance().simulateScenario();
 
         //selects two player and a square; p1 is already in the square
-        Player p1 = Board.getInstance().getPlayers().get(0);
-        Player p2 = Board.getInstance().getPlayers().get(1);
-        AmmoSquare ammoSquare = (AmmoSquare)Board.getInstance().getMap().get(0);
+        Player p1 = board.getPlayers().get(0);
+        Player p2 = board.getPlayers().get(1);
+        AmmoSquare ammoSquare = (AmmoSquare)board.getMap().get(0);
 
         //checks that p1 is in the square
         expected.add(p1);
-        assertEquals(expected, Board.getInstance().getPlayersInside(Board.getInstance().getMap().get(0)));
+        assertEquals(expected, board.getPlayersInside(board.getMap().get(0)));
 
         //adds p2 to the square
         p2.setPosition(ammoSquare);
         expected.add(p2);
 
         //checks that the square contains p1 the added players, p2
-        assertEquals(expected, Board.getInstance().getPlayersInside(Board.getInstance().getMap().get(0)));
+        assertEquals(expected, board.getPlayersInside(board.getMap().get(0)));
 
         //remove all the players from the square
-        Board.getInstance().getMap().get(0).removePlayer(p1);
-        Board.getInstance().getMap().get(0).removePlayer(p2);
+        board.getMap().get(0).removePlayer(p1);
+        board.getMap().get(0).removePlayer(p2);
 
         //checks that the square does not contain the removed players
-        assertTrue(Board.getInstance().getPlayersInside(Board.getInstance().getMap().get(0)).isEmpty());
+        assertTrue(board.getPlayersInside(board.getMap().get(0)).isEmpty());
 
     }
 
 
     /**
-     * Tests the method getAdjacentTest(), covering all the instructions.
+     * Tests the method getAdjacentTest().
      */
     @Test
     public void getAdjacent() {
+
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
         //declares the array the method is expected to return
         ArrayList<Square> expected = new ArrayList<>();
 
         //map.get(1) == map[1][2]: if right, if left covered
-        expected.add(Board.getInstance().getMap().get(0));      //map[1][1]
-        expected.add(Board.getInstance().getMap().get(2));      //map[1][3]
-        assertEquals(expected, Board.getInstance().getAdjacent(Board.getInstance().getMap().get(1)));
+        expected.add(board1.getMap().get(0));      //map[1][1]
+        expected.add(board1.getMap().get(2));      //map[1][3]
+        assertEquals(expected, board1.getAdjacent(board1.getMap().get(1)));
         expected.clear();
 
         //map.get(3) == map[2][1]: if top covered
-        expected.add(Board.getInstance().getMap().get(0));     //map[1][1]
-        expected.add(Board.getInstance().getMap().get(4));     //map[2][2]
-        assertEquals(expected, Board.getInstance().getAdjacent(Board.getInstance().getMap().get(3)));
+        expected.add(board1.getMap().get(0));     //map[1][1]
+        expected.add(board1.getMap().get(4));     //map[2][2]
+        assertEquals(expected, board1.getAdjacent(board1.getMap().get(3)));
         expected.clear();
 
         //map.get(4) == map[2][2]: if down covered
-        expected.add(Board.getInstance().getMap().get(3));     //map[2[1]
-        expected.add(Board.getInstance().getMap().get(5));     //map[2][3]
-        expected.add(Board.getInstance().getMap().get(7));     //map[3][2]
-        assertEquals(expected, Board.getInstance().getAdjacent(Board.getInstance().getMap().get(4)));
+        expected.add(board1.getMap().get(3));     //map[2[1]
+        expected.add(board1.getMap().get(5));     //map[2][3]
+        expected.add(board1.getMap().get(7));     //map[3][2]
+        assertEquals(expected, board1.getAdjacent(board1.getMap().get(4)));
         expected.clear();
 
         //explicitly shows that walls are considered, since map[2][2] is not adjacent to map[1][2]
-        assertFalse(Board.getInstance().getAdjacent(Board.getInstance().getMap().get(4)).contains(Board.getInstance().getMap().get(1)));
+        assertFalse(board1.getAdjacent(board1.getMap().get(4)).contains(board1.getMap().get(1)));
 
     }
 
 
     /**
-     * Tests the method getReachable(), covering all the instructions.
+     * Tests the method getReachable().
      */
     @Test
     public void getReachable() {
+
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
         //declares the array the method is expected to return
         ArrayList<Square> expected = new ArrayList<>();
 
         //map.get(0): map[1][1]: all instructions covered
-        expected.add(Board.getInstance().getMap().get(0));      //map[1][1]
-        expected.add(Board.getInstance().getMap().get(1));      //map[1][2]
-        expected.add(Board.getInstance().getMap().get(2));      //map[1][3]
-        expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
-        expected.add(Board.getInstance().getMap().get(4));      //map[2][2]
-        expected.add(Board.getInstance().getMap().get(5));      //map[2][3]
-        expected.add(Board.getInstance().getMap().get(7));      //map[3][2]
-        assertEquals(expected, Board.getInstance().getReachable(Board.getInstance().getMap().get(0), 3));
+
+        expected.add(board1.getMap().get(0));      //map[1][2]
+        expected.add(board1.getMap().get(1));      //map[1][2]
+        expected.add(board1.getMap().get(2));      //map[1][3]
+        expected.add(board1.getMap().get(3));      //map[2][1]
+        expected.add(board1.getMap().get(4));      //map[2][2]
+        expected.add(board1.getMap().get(5));      //map[2][3]
+        expected.add(board1.getMap().get(7));      //map[3][2]
+        assertEquals(expected, board1.getReachable(board1.getMap().get(0), 3));
     }
 
 
     /**
-     * Tests the method getVisible(), covering all the instructions.
+     * Tests the method getVisible().
      */
     @Test
     public void getVisible() {
+
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
         //declares the array the method is expected to return
         ArrayList<Square> expected = new ArrayList<>();
@@ -135,25 +142,27 @@ public class BoardTest {
         //map.get(5) == map[2][3], red room: all instructions covered
 
         //squares in the same room of one of the adjacent squares: blue room
-        expected.add(Board.getInstance().getMap().get(0));      //map[1][1]
-        expected.add(Board.getInstance().getMap().get(1));      //map[1][2]
-        expected.add(Board.getInstance().getMap().get(2));      //map[1][3]
+        expected.add(board1.getMap().get(0));      //map[1][1]
+        expected.add(board1.getMap().get(1));      //map[1][2]
+        expected.add(board1.getMap().get(2));      //map[1][3]
         // squares in the same room: red room
-        expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
-        expected.add(Board.getInstance().getMap().get(4));      //map[2][2]
-        expected.add(Board.getInstance().getMap().get(5));      //map[2][3]
+        expected.add(board1.getMap().get(3));      //map[2][1]
+        expected.add(board1.getMap().get(4));      //map[2][2]
+        expected.add(board1.getMap().get(5));      //map[2][3]
         //squares in the same room of one of the adjacent squares: yellow room
-        expected.add(Board.getInstance().getMap().get(6));      //map[2][4]
-        expected.add(Board.getInstance().getMap().get(9));      //map[3][4]
+        expected.add(board1.getMap().get(6));      //map[2][4]
+        expected.add(board1.getMap().get(9));      //map[3][4]
 
-        assertEquals(expected, Board.getInstance().getVisible(Board.getInstance().getMap().get(5)));
+        assertEquals(expected, board1.getVisible(board1.getMap().get(5)));
     }
 
     /**
-     * Tests the method getInRoom(), covering all the instructions.
+     * Tests the method getInRoom().
      */
     @Test
     public void getSquaresInRoom() {
+
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
         //declares the array the method is expected to return
         ArrayList<Square> expected = new ArrayList<>();
@@ -161,11 +170,11 @@ public class BoardTest {
         //map.get(5) == map[2][3], red room: all instructions covered
 
         // squares in the same room: red room
-        expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
-        expected.add(Board.getInstance().getMap().get(4));      //map[2][2]
-        expected.add(Board.getInstance().getMap().get(5));      //map[2][3]
+        expected.add(board1.getMap().get(3));      //map[2][1]
+        expected.add(board1.getMap().get(4));      //map[2][2]
+        expected.add(board1.getMap().get(5));      //map[2][3]
 
-        assertEquals(expected, Board.getInstance().getSquaresInRoom(2));
+        assertEquals(expected, board1.getSquaresInRoom(2));
     }
 
 
@@ -179,16 +188,21 @@ public class BoardTest {
     @Test
     public void getSquaresInLineEmpty() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //map.get(4): map[2][2]
-        assertTrue(Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), Board.Direction.UP).isEmpty());
+        assertTrue(board1.getSquaresInLine(board1.getMap().get(4), Board.Direction.UP).isEmpty());
+
     }
 
 
     /**
-     * Tests the method getSquaresInLine(), covering all the directions, therefore all the instructions.
+     * Tests the method getSquaresInLine(), covering all the directions.
      */
     @Test
     public void getSquaresInLineCoveringAllDirections() {
+
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
         //declares the array the method is expected to return
         ArrayList<Square> expected = new ArrayList<>();
@@ -196,26 +210,26 @@ public class BoardTest {
         // map.get(4): map[2][2]
 
         //down
-        expected.add(Board.getInstance().getMap().get(7));      //map[3][2]
-        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), Board.Direction.DOWN));
+        expected.add(board1.getMap().get(7));      //map[3][2]
+        assertEquals(expected, board1.getSquaresInLine(board1.getMap().get(4), Board.Direction.DOWN));
         expected.clear();
 
         //left
-        expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
-        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), Board.Direction.LEFT));
+        expected.add(board1.getMap().get(3));      //map[2][1]
+        assertEquals(expected, board1.getSquaresInLine(board1.getMap().get(4), Board.Direction.LEFT));
         expected.clear();
 
         //right
-        expected.add(Board.getInstance().getMap().get(5));      //map[2][3]
-        expected.add(Board.getInstance().getMap().get(6));      //map[2][4]
-        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(4), Board.Direction.RIGHT));
+        expected.add(board1.getMap().get(5));      //map[2][3]
+        expected.add(board1.getMap().get(6));      //map[2][4]
+        assertEquals(expected, board1.getSquaresInLine(board1.getMap().get(4), Board.Direction.RIGHT));
         expected.clear();
 
         //map.get(3): map[2][1]
 
         //top
-        expected.add(Board.getInstance().getMap().get(0));      //map[2][3]
-        assertEquals(expected, Board.getInstance().getSquaresInLine(Board.getInstance().getMap().get(3), Board.Direction.UP));
+        expected.add(board1.getMap().get(0));      //map[2][3]
+        assertEquals(expected, board1.getSquaresInLine(board1.getMap().get(3), Board.Direction.UP));
     }
 
 
@@ -226,17 +240,21 @@ public class BoardTest {
     @Test
     public void getSquaresInLineIgnoringWallsEmpty() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //map.get(0): map[1][1]
-        assertTrue(Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(0), Board.Direction.UP).isEmpty());
+        assertTrue(board1.getSquaresInLineIgnoringWalls(board1.getMap().get(0), Board.Direction.UP).isEmpty());
 
     }
 
 
     /**
-     * Tests the method getSquaresInLineIgnoringWalls(), covering all the directions, therefore all the instructions.
+     * Tests the method getSquaresInLineIgnoringWalls(), covering all the directions.
      */
     @Test
     public void getSquaresInLineIgnoringWallsCoveringAllDirections() {
+
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
         //declares the array the method is expected to return
         List<Square> expected = new ArrayList<>();
@@ -244,24 +262,24 @@ public class BoardTest {
         //map.get(5): map[2][3]
 
         //top
-        expected.add(Board.getInstance().getMap().get(2));      //map[1][3]
-        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), Board.Direction.UP));
+        expected.add(board1.getMap().get(2));      //map[1][3]
+        assertEquals(expected, board1.getSquaresInLineIgnoringWalls(board1.getMap().get(5), Board.Direction.UP));
         expected.clear();
 
         //down
-        expected.add(Board.getInstance().getMap().get(8));      //map[3][2]
-        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), Board.Direction.DOWN));
+        expected.add(board1.getMap().get(8));      //map[3][2]
+        assertEquals(expected, board1.getSquaresInLineIgnoringWalls(board1.getMap().get(5), Board.Direction.DOWN));
         expected.clear();
 
         //left
-        expected.add(Board.getInstance().getMap().get(3));      //map[2][1]
-        expected.add(Board.getInstance().getMap().get(4));      //map[2][2]
-        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), Board.Direction.LEFT));
+        expected.add(board1.getMap().get(3));      //map[2][1]
+        expected.add(board1.getMap().get(4));      //map[2][2]
+        assertEquals(expected, board1.getSquaresInLineIgnoringWalls(board1.getMap().get(5), Board.Direction.LEFT));
         expected.clear();
 
         //right
-        expected.add(Board.getInstance().getMap().get(6));      //map[2][4]
-        assertEquals(expected, Board.getInstance().getSquaresInLineIgnoringWalls(Board.getInstance().getMap().get(5), Board.Direction.RIGHT));
+        expected.add(board1.getMap().get(6));      //map[2][4]
+        assertEquals(expected, board1.getSquaresInLineIgnoringWalls(board1.getMap().get(5), Board.Direction.RIGHT));
     }
 
 
@@ -271,7 +289,9 @@ public class BoardTest {
     @Test
     public void getDistanceSameSquare() {
 
-        assertEquals(0, Board.getInstance().getDistance(Board.getInstance().getMap().get(6), Board.getInstance().getMap().get(6)));
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
+        assertEquals(0, board1.getDistance(board1.getMap().get(6), board1.getMap().get(6)));
 
     }
 
@@ -282,7 +302,9 @@ public class BoardTest {
     @Test
     public void getDistanceAdjacentSquares() {
 
-        assertEquals(1, Board.getInstance().getDistance(Board.getInstance().getMap().get(0), Board.getInstance().getMap().get(1) ));
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
+        assertEquals(1, board1.getDistance(board1.getMap().get(0), board1.getMap().get(1) ));
 
     }
 
@@ -293,7 +315,9 @@ public class BoardTest {
     @Test
     public void getDistanceSquaresDividedByWall() {
 
-        assertEquals(3, Board.getInstance().getDistance(Board.getInstance().getMap().get(1), Board.getInstance().getMap().get(4) ));
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
+        assertEquals(3, board1.getDistance(board1.getMap().get(1), board1.getMap().get(4) ));
 
     }
 
@@ -304,7 +328,9 @@ public class BoardTest {
     @Test
     public void getDistanceOppositeSquares() {
 
-        assertEquals(5, Board.getInstance().getDistance(Board.getInstance().getMap().get(0), Board.getInstance().getMap().get(9) ));
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
+        assertEquals(5, board1.getDistance(board1.getMap().get(0), board1.getMap().get(9) ));
 
     }
 
@@ -315,7 +341,9 @@ public class BoardTest {
     @Test
     public void getDistanceFourSquaresInLine() {
 
-        assertEquals(3, Board.getInstance().getDistance(Board.getInstance().getMap().get(3), Board.getInstance().getMap().get(6) ));
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
+        assertEquals(3, board1.getDistance(board1.getMap().get(3), board1.getMap().get(6) ));
 
     }
 
@@ -325,8 +353,10 @@ public class BoardTest {
     @Test
     public void getDistanceCoveringAllDistances() {
 
-        assertEquals(2, Board.getInstance().getDistance(Board.getInstance().getMap().get(0), Board.getInstance().getMap().get(2) ));
-        assertEquals(4, Board.getInstance().getDistance(Board.getInstance().getMap().get(1), Board.getInstance().getMap().get(7) ));
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
+        assertEquals(2, board1.getDistance(board1.getMap().get(0), board1.getMap().get(2) ));
+        assertEquals(4, board1.getDistance(board1.getMap().get(1), board1.getMap().get(7) ));
 
     }
 
@@ -336,8 +366,10 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void getDistanceBadArguments() {
 
-        AmmoSquare externalSquare = new AmmoSquare(15,2,3,4, RED);
-        int dist = Board.getInstance().getDistance(Board.getInstance().getMap().get(0), externalSquare);
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
+        AmmoSquare externalSquare = new AmmoSquare(board1, 15,2,3,4, RED);
+        int dist = board1.getDistance(board1.getMap().get(0), externalSquare);
 
     }
 
@@ -347,8 +379,10 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setLeftWallsBadArgument() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         boolean[][] walls = {{true,true,true,true},{false,false,false,false}};
-        Board.getInstance().setLeftWalls(walls);
+        board1.setLeftWalls(walls);
     }
 
     /**
@@ -357,8 +391,10 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setTopWallsBadArgument() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         boolean[][] walls = {{true,true,true,true},{false,false,false,false}, {false, true, false,false,false}};
-        Board.getInstance().setTopWalls(walls);
+        board1.setTopWalls(walls);
     }
 
 
@@ -368,9 +404,11 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setSpawnPointsOnlyOne() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         List spawnPoints = new ArrayList<>();
-        spawnPoints.add(new WeaponSquare(1,1,1,1,RED));
-        Board.getInstance().setSpawnPoints(spawnPoints);
+        spawnPoints.add(new WeaponSquare(board1, 1,1,1,1,RED));
+        board1.setSpawnPoints(spawnPoints);
     }
 
     /**
@@ -379,11 +417,13 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setSpawnPointsWrongColors() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         List spawnPoints = new ArrayList<>();
-        spawnPoints.add(new WeaponSquare(1,1,1,1,RED));
-        spawnPoints.add(new WeaponSquare(2,2,2,2,GREEN));
-        spawnPoints.add(new WeaponSquare(3,3,3,3,BLUE));
-        Board.getInstance().setSpawnPoints(spawnPoints);
+        spawnPoints.add(new WeaponSquare(board1, 1,1,1,1,RED));
+        spawnPoints.add(new WeaponSquare(board1, 2,2,2,2,GREEN));
+        spawnPoints.add(new WeaponSquare(board1, 3,3,3,3,BLUE));
+        board1.setSpawnPoints(spawnPoints);
     }
 
     /**
@@ -392,11 +432,13 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setSpawnPointsNotDistinctColors() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         List spawnPoints = new ArrayList<>();
-        spawnPoints.add(new WeaponSquare(1,1,1,1,RED));
-        spawnPoints.add(new WeaponSquare(2,2,2,2,BLUE));
-        spawnPoints.add(new WeaponSquare(3,3,3,3,BLUE));
-        Board.getInstance().setSpawnPoints(spawnPoints);
+        spawnPoints.add(new WeaponSquare(board1,1,1,1,1,RED));
+        spawnPoints.add(new WeaponSquare(board1, 2,2,2,2,BLUE));
+        spawnPoints.add(new WeaponSquare(board1, 3,3,3,3,BLUE));
+        board1.setSpawnPoints(spawnPoints);
     }
 
     /**
@@ -405,11 +447,13 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setSpawnPointsNotDistinctRooms() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         List spawnPoints = new ArrayList<>();
-        spawnPoints.add(new WeaponSquare(1,1,1,1,RED));
-        spawnPoints.add(new WeaponSquare(2,2,2,2,BLUE));
-        spawnPoints.add(new WeaponSquare(3,2,3,3,YELLOW));
-        Board.getInstance().setSpawnPoints(spawnPoints);
+        spawnPoints.add(new WeaponSquare(board1,1,1,1,1,RED));
+        spawnPoints.add(new WeaponSquare(board1, 2,2,2,2,BLUE));
+        spawnPoints.add(new WeaponSquare(board1, 3,2,3,3,YELLOW));
+        board1.setSpawnPoints(spawnPoints);
     }
 
     /**
@@ -418,9 +462,11 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setPlayersWrongNumber() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         List players = new ArrayList<>();
-        players.add(new Player(1, Player.HeroName.BANSHEE));
-        Board.getInstance().setPlayers(players);
+        players.add(new Player(1, Player.HeroName.BANSHEE, board1));
+        board1.setPlayers(players);
     }
 
     /**
@@ -429,9 +475,12 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setWeaponDeckWrongNumberOfCards() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
+
         Deck weaponDeck = new Deck();
-        weaponDeck.addCard(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
-        Board.getInstance().setWeaponDeck(weaponDeck);
+        weaponDeck.addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+        board1.setWeaponDeck(weaponDeck);
     }
 
     /**
@@ -440,9 +489,12 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setPowerUpDeckWrongNumberOfCards() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        PowerUpFactory powerUpFactory = new PowerUpFactory(board1);
+
         Deck powerUpDeck = new Deck();
-        for (int i = 0; i< 50; i++) powerUpDeck.addCard(PowerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, RED));
-        Board.getInstance().setPowerUpDeck(powerUpDeck);
+        for (int i = 0; i< 50; i++) powerUpDeck.addCard(powerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, RED));
+        board1.setPowerUpDeck(powerUpDeck);
     }
 
     /**
@@ -451,10 +503,12 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setAmmoDeckNotEmptyDiscards() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         Deck ammoDeck = new Deck();
         for (int i = 0; i < 36; i++) ammoDeck.addCard(new AmmoTile(false, new AmmoPack(0,1,2)));
         ammoDeck.addDiscardedCard(new AmmoTile(true,new AmmoPack(1,0,2)));
-        Board.getInstance().setWeaponDeck(ammoDeck);
+        board1.setWeaponDeck(ammoDeck);
     }
 
     /**
@@ -463,7 +517,9 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setKillShotTrack() {
 
-        Board.getInstance().setKillShotTrack(new KillShotTrack(3));
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
+        board1.setKillShotTrack(new KillShotTrack(3, board1));
     }
 
     /**
@@ -472,9 +528,11 @@ public class BoardTest {
     @Test(expected = IllegalArgumentException.class)
     public void setMap() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         List<Square> map = new ArrayList<>();
-        map.add(new AmmoSquare(1,1,1,1,GREEN));
-        Board.getInstance().setMap(map);
+        map.add(new AmmoSquare(board1,1,1,1,1,GREEN));
+        board1.setMap(map);
     }
 
 }

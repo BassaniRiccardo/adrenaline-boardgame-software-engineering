@@ -14,6 +14,7 @@ import java.util.*;
 
 public abstract class Square {
 
+    private final Board board;
     private final int id;
     private final int roomId;
     private final int row;
@@ -25,14 +26,22 @@ public abstract class Square {
      * Constructor for the abstract class Square.
      * This constructor is never really used but it is invoked by the constructors of Square subclasses.
      *
+     * @param board         the board hte square is in.
+     * @param id            the square id.
+     * @param roomId        the square room id.
+     * @param row           the square row.
+     * @param column        the square column.
+     * @param color         the square color.
+     *
      * @throws IllegalFormatCodePointException
      */
-    public Square(int id, int roomId, int row, int column, Color color) {
+    public Square(Board board, int id, int roomId, int row, int column, Color color) {
 
         if(id<0 || id>11 || roomId<1 || roomId>6 || row<1 || row>4 || column<1 || column>4){
-            throw new IllegalArgumentException("Bad parameters for the constructor of AmmoSquare");
+            throw new IllegalArgumentException("Bad parameters for the constructor of Square");
         }
 
+        this.board = board;
         this.id = id;
         this.roomId = roomId;
         this.row = row;
@@ -95,6 +104,14 @@ public abstract class Square {
         return players;
     }
 
+    /**
+     * Getter for board.
+     *
+     * @return      the board the square is in.
+     */
+    public Board getBoard() {
+        return board;
+    }
 
     /**
      * Returns true if the square contains the player
@@ -116,7 +133,7 @@ public abstract class Square {
     public void addPlayer(Player p) {
 
         if (containsPlayer(p)) throw new IllegalArgumentException("The square already contains the player");
-        if (!Board.getInstance().getPlayers().contains(p)) throw new IllegalArgumentException("Only players of the Board can be added to the Square");
+        if (!this.board.getPlayers().contains(p)) throw new IllegalArgumentException("Only players of the Board can be added to the Square");
         this.players.add(p);
     }
 

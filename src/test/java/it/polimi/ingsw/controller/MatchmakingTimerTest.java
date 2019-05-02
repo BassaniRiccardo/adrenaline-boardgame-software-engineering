@@ -57,39 +57,4 @@ public class MatchmakingTimerTest {
         assertFalse(m.isOver());
     }
 
-
-    @Test
-    public void reset() {
-        MatchmakingTimer m = new MatchmakingTimer(3000000);
-        assertFalse(m.isOver());
-        assertFalse(m.isRunning());
-        m.start();
-        assertTrue(m.isRunning());
-        assertFalse(m.isOver());
-        try {
-            TimeUnit.SECONDS.sleep(4);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        assertTrue(m.isRunning());
-        assertTrue(m.isOver());
-        m.reset();
-        assertTrue(m.isRunning());
-        assertFalse(m.isOver());
-        try {
-            TimeUnit.SECONDS.sleep(4);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        assertTrue(m.isRunning());
-        assertTrue(m.isOver());
-        m.stop();
-        try {
-            TimeUnit.SECONDS.sleep(4);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        assertFalse(m.isRunning());
-        assertFalse(m.isOver());
-    }
 }

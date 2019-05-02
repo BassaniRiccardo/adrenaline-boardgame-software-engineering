@@ -11,7 +11,7 @@ import static it.polimi.ingsw.model.Weapon.WeaponName.*;
 import static org.junit.Assert.*;
 
 /**
- * Tests all methods of the class Deck, covering all the instructions.
+ * Tests all methods of the class Deck.
  * The methods are tested interchangeably with decks of weapon, ammoTile, powerUps.
  */
 
@@ -23,11 +23,14 @@ public class DeckTest {
     @Test
     public void addCardWeapon() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
+
         //creates an new empty deck of weapons
         Deck weaponsDeck = new Deck();
 
         //creates a new weapon
-        Card lockRifle = WeaponFactory.createWeapon(LOCK_RIFLE);
+        Card lockRifle = weaponFactory.createWeapon(LOCK_RIFLE);
 
         //checks that the deck does not contain the created weapon
         assertFalse((weaponsDeck.getDrawable()).contains(lockRifle));
@@ -72,12 +75,15 @@ public class DeckTest {
     @Test
     public void drawCardPowerUp() throws NoMoreCardsException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        PowerUpFactory powerUpFactory = new PowerUpFactory(board1);
+
         //creates an new empty deck of ammo tiles
         Deck powerUpDeck = new Deck();
 
         //creates two power ups and adds them to the deck
-        PowerUp powerUp1 = PowerUpFactory.createPowerUp(TELEPORTER, BLUE);
-        PowerUp powerUp2 = PowerUpFactory.createPowerUp(TAGBACK_GRENADE, YELLOW);
+        PowerUp powerUp1 = powerUpFactory.createPowerUp(TELEPORTER, BLUE);
+        PowerUp powerUp2 = powerUpFactory.createPowerUp(TAGBACK_GRENADE, YELLOW);
         powerUpDeck.getDrawable().add(powerUp1);
         powerUpDeck.getDrawable().add(powerUp2);
 
@@ -131,11 +137,11 @@ public class DeckTest {
     public void drawMultiplePowerUpsFromRealDeck() throws NoMoreCardsException {
 
         //creates the board with the decks.
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configureDecks(board1);
 
         //create a copy of the deck of power ups
-        Deck powerUpDeck = Board.getInstance().getPowerUpDeck();
+        Deck powerUpDeck = board1.getPowerUpDeck();
         Deck oldPowerUpDeck = new Deck();
         oldPowerUpDeck.getDrawable().addAll(powerUpDeck.getDrawable());
 
@@ -167,9 +173,9 @@ public class DeckTest {
     public void shuffleRealDeckPowerUp() {
 
         //creates the board with the decks.
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
-        Deck powerUpDeck = Board.getInstance().getPowerUpDeck();
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configureDecks(board1);
+        Deck powerUpDeck = board1.getPowerUpDeck();
 
         //creates a deck with the same drawable cards of the deck of power ups
         Deck oldPowerUpDeck = new Deck();
@@ -225,9 +231,9 @@ public class DeckTest {
         int numberOfCopy = 2;
 
         //creates the board with the decks.
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
-        Deck powerUpDeck = Board.getInstance().getPowerUpDeck();
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configureDecks(board1);
+        Deck powerUpDeck = board1.getPowerUpDeck();
 
         //checks that the deck contains all the power ups as drawable cards
         assertEquals(PowerUp.PowerUpName.values().length*numberOfColor*numberOfCopy, powerUpDeck.getDrawable().size());
@@ -260,9 +266,9 @@ public class DeckTest {
         int numberOfCopy = 2;
 
         //creates the board with the decks.
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
-        Deck powerUpDeck = Board.getInstance().getPowerUpDeck();
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configureDecks(board1);
+        Deck powerUpDeck = board1.getPowerUpDeck();
 
         //checks that the deck contains all the power ups as drawable cards
         assertEquals(PowerUp.PowerUpName.values().length*numberOfColor*numberOfCopy, powerUpDeck.getDrawable().size());

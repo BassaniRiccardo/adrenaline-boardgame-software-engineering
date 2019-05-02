@@ -7,7 +7,7 @@ import static it.polimi.ingsw.model.Weapon.WeaponName.*;
 import static org.junit.Assert.*;
 
 /**
- * Tests all methods of the class WeaponSquare, covering all the instructions apart from the first constructor.
+ * Tests all methods of the class WeaponSquare.
  * The method shared with the class AmmoSquare are tested in SquareTest.
  *
  * @author BassaniRiccardo
@@ -25,13 +25,16 @@ public class WeaponSquareTest {
     @Test
     public void removeWeapon() throws NoMoreCardsException, UnacceptableItemNumberException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
+
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
+        WeaponSquare weaponSquare = new WeaponSquare(board1, 1, 1, 1, 1, RED);
 
         //creates three weapons and adds them to the list of weapons
-        Weapon lockRifle = WeaponFactory.createWeapon(LOCK_RIFLE);
-        Weapon electroscythe = WeaponFactory.createWeapon(ELECTROSCYTHE);
-        Weapon tractorBeam = WeaponFactory.createWeapon(TRACTOR_BEAM);
+        Weapon lockRifle = weaponFactory.createWeapon(LOCK_RIFLE);
+        Weapon electroscythe = weaponFactory.createWeapon(ELECTROSCYTHE);
+        Weapon tractorBeam = weaponFactory.createWeapon(TRACTOR_BEAM);
         weaponSquare.addCard(lockRifle);
         weaponSquare.addCard(electroscythe);
         weaponSquare.addCard(tractorBeam);
@@ -53,11 +56,14 @@ public class WeaponSquareTest {
 
     public void removeWeaponEmptySquare() throws NoMoreCardsException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
+
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
+        WeaponSquare weaponSquare = new WeaponSquare(board1, 1, 1, 1, 1, RED);
 
         //creates the weapons that the player wants to collect
-        Weapon electroscythe = WeaponFactory.createWeapon(ELECTROSCYTHE);
+        Weapon electroscythe = weaponFactory.createWeapon(ELECTROSCYTHE);
 
         //tries to remove the weapon from the weapon square
         weaponSquare.removeCard(electroscythe);
@@ -77,13 +83,16 @@ public class WeaponSquareTest {
     @Test
     public void addSingleWeapon() throws UnacceptableItemNumberException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
+
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
+        WeaponSquare weaponSquare = new WeaponSquare(board1, 1, 1, 1, 1, RED);
 
         //creates three weapons and adds two of them to the list of weapons
-        Weapon lockRifle = WeaponFactory.createWeapon(LOCK_RIFLE);
-        Weapon electroscythe = WeaponFactory.createWeapon(ELECTROSCYTHE);
-        Weapon tractorBeam = WeaponFactory.createWeapon(TRACTOR_BEAM);
+        Weapon lockRifle = weaponFactory.createWeapon(LOCK_RIFLE);
+        Weapon electroscythe = weaponFactory.createWeapon(ELECTROSCYTHE);
+        Weapon tractorBeam = weaponFactory.createWeapon(TRACTOR_BEAM);
         weaponSquare.addCard(lockRifle);
         weaponSquare.addCard(tractorBeam);
 
@@ -108,15 +117,17 @@ public class WeaponSquareTest {
     public void addSingleWeaponFromDeck() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //configures the map and the decks
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
+
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
+        BoardConfigurer.getInstance().configureDecks(board1);
 
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = Board.getInstance().getSpawnPoints().get(0);
+        WeaponSquare weaponSquare = board1.getSpawnPoints().get(0);
 
         //creates two weapons and adds them to the list of weapons
-        Weapon lockRifle = WeaponFactory.createWeapon(LOCK_RIFLE);
-        Weapon tractorBeam = WeaponFactory.createWeapon(TRACTOR_BEAM);
+        Weapon lockRifle = weaponFactory.createWeapon(LOCK_RIFLE);
+        Weapon tractorBeam = weaponFactory.createWeapon(TRACTOR_BEAM);
         weaponSquare.addCard(lockRifle);
         weaponSquare.addCard(tractorBeam);
 
@@ -124,7 +135,7 @@ public class WeaponSquareTest {
         assertEquals(2, weaponSquare.getWeapons().size());
 
         //adds the first weapon of the weapon deck to the weapon square
-        Weapon drawn = (Weapon) Board.getInstance().getWeaponDeck().getDrawable().get(0);
+        Weapon drawn = (Weapon) board1.getWeaponDeck().getDrawable().get(0);
         try {
             weaponSquare.addCard();
         }
@@ -150,16 +161,17 @@ public class WeaponSquareTest {
     public void addSingleWeaponFromDeckFullSquare() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //configures the map and the decks
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
+        BoardConfigurer.getInstance().configureDecks(board1);
 
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = Board.getInstance().getSpawnPoints().get(0);
+        WeaponSquare weaponSquare = board1.getSpawnPoints().get(0);
 
         //creates three weapons and adds them to the list of weapons
-        Weapon lockRifle = WeaponFactory.createWeapon(LOCK_RIFLE);
-        Weapon tractorBeam = WeaponFactory.createWeapon(TRACTOR_BEAM);
-        Weapon rocketLauncher = WeaponFactory.createWeapon(ROCKET_LAUNCHER);
+        Weapon lockRifle = weaponFactory.createWeapon(LOCK_RIFLE);
+        Weapon tractorBeam = weaponFactory.createWeapon(TRACTOR_BEAM);
+        Weapon rocketLauncher = weaponFactory.createWeapon(ROCKET_LAUNCHER);
         weaponSquare.addCard(lockRifle);
         weaponSquare.addCard(tractorBeam);
         weaponSquare.addCard(rocketLauncher);
@@ -168,7 +180,7 @@ public class WeaponSquareTest {
         assertEquals(3, weaponSquare.getWeapons().size());
 
         //adds the first weapon of the weapon deck to the weapon square
-        Weapon drawn = (Weapon) Board.getInstance().getWeaponDeck().getDrawable().get(0);
+        Weapon drawn = (Weapon) board1.getWeaponDeck().getDrawable().get(0);
         weaponSquare.addCard();
 
         //checks that the square contains three weapons and that the added weapon has been drawn from the deck
@@ -187,20 +199,22 @@ public class WeaponSquareTest {
     @Test
     public void addStartingWeaponsFromDeck() throws UnacceptableItemNumberException, NoMoreCardsException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
         //configures the map and the decks
         BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
+        BoardConfigurer.getInstance().configureDecks(board1);
 
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = Board.getInstance().getSpawnPoints().get(0);
+        WeaponSquare weaponSquare = board1.getSpawnPoints().get(0);
 
         //checks that the square contains no weapons
         assertEquals(0, weaponSquare.getWeapons().size());
 
         //adds three weapons from the deck to the weapon square
-        Weapon drawn1 = (Weapon) Board.getInstance().getWeaponDeck().getDrawable().get(0);
-        Weapon drawn2 = (Weapon) Board.getInstance().getWeaponDeck().getDrawable().get(1);
-        Weapon drawn3 = (Weapon) Board.getInstance().getWeaponDeck().getDrawable().get(2);
+        Weapon drawn1 = (Weapon) board1.getWeaponDeck().getDrawable().get(0);
+        Weapon drawn2 = (Weapon) board1.getWeaponDeck().getDrawable().get(1);
+        Weapon drawn3 = (Weapon) board1.getWeaponDeck().getDrawable().get(2);
         weaponSquare.addAllCards();
 
         //checks that the square contains three weapons and that they have been correctly drawn from the deck
@@ -221,15 +235,18 @@ public class WeaponSquareTest {
     @Test(expected = UnacceptableItemNumberException.class)
     public void addStartingWeaponsFromDeckNotSetup() throws UnacceptableItemNumberException, NoMoreCardsException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        WeaponFactory weaponFactory = new WeaponFactory(board1);
+
         //configures the map and the decks
         BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
+        BoardConfigurer.getInstance().configureDecks(board1);
 
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = Board.getInstance().getSpawnPoints().get(0);
+        WeaponSquare weaponSquare = board1.getSpawnPoints().get(0);
 
         //adds a weapon to the square
-        Weapon weapon = WeaponFactory.createWeapon(POWER_GLOVE);
+        Weapon weapon = weaponFactory.createWeapon(POWER_GLOVE);
         weaponSquare.getWeapons().add(weapon);
 
         //adds three weapons from the deck to the weapon square
@@ -242,23 +259,24 @@ public class WeaponSquareTest {
 
 
     /**
-     * Tests the method equals(), covering all the instructions.
+     * Tests the method equals().
      */
     @Test
     public void equalsOverride() {
 
+
         //creates two identical weapon squares
         //since the id identifies the square, the other fields are set equals too
         //the method equals() only checks the id
-        WeaponSquare weaponSquare1 = new WeaponSquare(2, 1, 1, 1, RED);
-        WeaponSquare weaponSquare2 = new WeaponSquare(2, 1, 1, 1, RED);
+        WeaponSquare weaponSquare1 = new WeaponSquare(new Board(), 2, 1, 1, 1, RED);
+        WeaponSquare weaponSquare2 = new WeaponSquare(new Board(), 2, 1, 1, 1, RED);
         assertTrue(weaponSquare1.equals(weaponSquare2));
 
     }
 
 
     /**
-     * Tests the method hashCode(), covering all the instructions.
+     * Tests the method hashCode().
      */
     @Test
     public void hashCodeOverride() {
@@ -266,8 +284,8 @@ public class WeaponSquareTest {
         //creates two identical weapon squares
         //since the id identifies the square, the other fields are set equals too
         //the method equals() only checks the id
-        WeaponSquare weaponSquare1 = new WeaponSquare(2, 1, 1, 1, RED);
-        WeaponSquare weaponSquare2 = new WeaponSquare(2, 1, 1, 1, RED);
+        WeaponSquare weaponSquare1 = new WeaponSquare(new Board(), 2, 1, 1, 1, RED);
+        WeaponSquare weaponSquare2 = new WeaponSquare(new Board(), 2, 1, 1, 1, RED);
         assertEquals(weaponSquare1.hashCode(), weaponSquare2.hashCode());
 
     }

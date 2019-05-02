@@ -27,6 +27,7 @@ import static it.polimi.ingsw.model.Color.*;
 
 public class Player {
 
+
     public enum HeroName {
         D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG
     }
@@ -48,6 +49,7 @@ public class Player {
 
     private Square position;
     private Square previousPosition;
+    private Board board;
 
     private List<Weapon> weaponList;
     private List<PowerUp> powerUpList;
@@ -61,22 +63,25 @@ public class Player {
     private boolean justDamaged;
     private boolean overkilled;
 
+    private boolean inTheGame;
 
 
     /**
-     * Constructs a player with an id and a name.
+     * Constructs a player with an id, a name and a reference to the game board.
      *
      * @param id               the player's id
      * @param name             the player's name
+     * @param board            the board the player is in
      */
-    public Player(int id, HeroName name) {
+    public Player(int id, HeroName name, Board board) {
 
         this.id = id;
         this.name = name;
+        this.board = board;
         this.status = Status.BASIC;
-        this.points=0;
-        this.dead=false;
-        this.flipped =false;
+        this.points = 0;
+        this.dead = false;
+        this.flipped = false;
 
         this.damages = new ArrayList<>();
         this.marks = new ArrayList<>();
@@ -95,6 +100,8 @@ public class Player {
         this.pointsToGive=8;
         this.justDamaged=false;
         this.overkilled = false;
+
+        this.inTheGame = false;
 
     }
 
@@ -147,6 +154,9 @@ public class Player {
 
     public boolean isOverkilled(){return overkilled;}
 
+    public boolean isInTheGame(){ return inTheGame;}
+
+    public Board getBoard() {return board; }
 
     /**
      * Setters
@@ -155,7 +165,7 @@ public class Player {
 
 
     public void setPosition(Square square) {
-        if (!Board.getInstance().getMap().contains(square)) throw new IllegalArgumentException("The player must be located in a square that belongs to the board.");
+        if (!this.board.getMap().contains(square)) throw new IllegalArgumentException("The player must be located in a square that belongs to the board.");
         previousPosition = position;
         this.position = square;
         square.addPlayer(this);
@@ -170,6 +180,8 @@ public class Player {
     public void setJustDamaged(boolean justDamaged){this.justDamaged = justDamaged;}
 
     public void setFlipped(boolean flipped){this.flipped = flipped;}
+
+    public void setInTheGame(boolean inTheGame) {this.inTheGame = inTheGame;  }
 
 
     /**
@@ -265,7 +277,7 @@ public class Player {
 
         position.removeCard(collectedCard);
 
-        if (Board.getInstance().getSpawnPoints().contains(position)){
+        if (this.board.getSpawnPoints().contains(position)){
             addWeapon((Weapon)collectedCard);
         }
         else {
@@ -278,14 +290,14 @@ public class Player {
 
 
     /**
-     * Draws a random power up from the deck of power ups and adds it at the player power ups list.
+     * Draws a random power up from the deck of power ups and adds it to the player power ups list.
      */
     public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         if (this.powerUpList.size()>=4) throw new UnacceptableItemNumberException("A player can hold up to 3 power ups; 4 are allowed in the process of rebirth");
         //this can not stay here; the controller must decide if the player can draw the fourth card
  //     if (this.powerUpList.size()>=3) throw new UnacceptableItemNumberException("4 power ups are allowed only in the process of rebirth.");
-        PowerUp p = (PowerUp)Board.getInstance().getPowerUpDeck().drawCard();
+        PowerUp p = (PowerUp)this.board.getPowerUpDeck().drawCard();
         p.setHolder(this);
         powerUpList.add(p);
 
@@ -358,6 +370,38 @@ public class Player {
 
     }
 
+    /**
+     * Returns the weapons that the player can reload, considering his ammo and the weapon status.
+     *
+     * @return          the list of the weapons the the player can reload.
+     */
+    public List<Weapon> getReloadableWeapons(){
+        List<Weapon> reloadable = new ArrayList<>();
+        for (Weapon w: weaponList){
+            if (!w.isLoaded() && this.hasEnoughAmmo(w.getFullCost())){
+                reloadable.add(w);
+            }
+        }
+        return reloadable;
+    }
+
+    /**
+     * Returns the weapons that the player can use.
+     *
+     * @return          the list of the weapons the the player can use.
+     */
+    public List<Weapon> getLoadedWeapons(){
+        List<Weapon> loaded = new ArrayList<>();
+        for (Weapon w: weaponList){
+            if (w.isLoaded()){
+                loaded.add(w);
+            }
+        }
+        return loaded;
+    }
+
+
+
 
     /**
      * Adds a player to the main targets.
@@ -370,7 +414,7 @@ public class Player {
 
 
     /**
-     * Updates the points the player will give to his killers the next time he'll die.
+     * Updates the points the player will give to his killers the next time he will die.
      * It also set the player damages to zero.
      * Called after the death of the player.
      */
@@ -389,6 +433,7 @@ public class Player {
      * Gives point to the killers based on the number of damages every player did
      * and on the number of the player previous death.
      * Called when the player dies.
+     * Sets to zero the player damages.
      */
     public void rewardKillers() throws WrongTimeException{
 
@@ -397,7 +442,7 @@ public class Player {
         damages.get(0).addPoints(1);
 
         //asks the board for the players
-        List<Player> playersToReward = Board.getInstance().getPlayers();
+        List<Player> playersToReward = this.board.getPlayers();
 
         //properly orders the playersToReward
         sort(playersToReward, (p1, p2) -> {
@@ -427,7 +472,7 @@ public class Player {
             }
         }
         pointsToGive = nextPointsToGive;
-
+        damages.clear();
     }
 
 

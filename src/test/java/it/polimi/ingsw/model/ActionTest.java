@@ -32,7 +32,7 @@ public class ActionTest {
 
         //Instantiates an Action and a Player
         Action a1=new Action(1,true,false,false);
-        Player p1=new Player(1, Player.HeroName.VIOLET);
+        Player p1=new Player(1, Player.HeroName.VIOLET, new Board());
 
         //Checks that an Action it's not equal to a Player
         assertFalse(a1.equals(p1));

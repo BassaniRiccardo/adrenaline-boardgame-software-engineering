@@ -32,19 +32,21 @@ public class Weapon implements Card {
     private FireMode currentFireMode;
     private List<Player> mainTargets;
     private List<Player> optionalTargets;
+    private Board board;
 
 
     /**
      * Constructs a weapon with the weapon name, the weapon color, the cost to reload the weapon after it is been used,
-     * the cost to reload the weapon after it is been collected and the list of the weapon firemodes.
+     * the cost to reload the weapon after it is been collected, the list of the weapon firemodes and a reference to the game board..
      *
      * @param weaponName        the weapon name.
      * @param color             the weapon color.
      * @param fullCost          the cost to reload the weapon after it is been used.
      * @param reducedCost       the cost to reload the weapon after it is been collected.
      * @param fireModeList      the list of firemodes.
+     * @param board `           the board of the game.
      */
-    public Weapon(WeaponName weaponName, Color color, AmmoPack fullCost, AmmoPack reducedCost, List<FireMode> fireModeList) {
+    public Weapon(WeaponName weaponName, Color color, AmmoPack fullCost, AmmoPack reducedCost, List<FireMode> fireModeList, Board board) {
 
         this.weaponName = weaponName;
         this.loaded = false;
@@ -56,6 +58,7 @@ public class Weapon implements Card {
         this.currentFireMode = null;
         this.mainTargets = new ArrayList<>();
         this.optionalTargets = new ArrayList<>();
+        this.board = board;
 
     }
 
@@ -107,7 +110,7 @@ public class Weapon implements Card {
     public void setLoaded(boolean loaded) { this.loaded = loaded; }
 
     public void setHolder(Player holder) {
-        if (!Board.getInstance().getPlayers().contains(holder)) throw new IllegalArgumentException("Only a player on the map can hold a weapon.");
+        if (!this.board.getPlayers().contains(holder)) throw new IllegalArgumentException("Only a player on the map can hold a weapon.");
         this.holder = holder;
     }
 
@@ -121,12 +124,12 @@ public class Weapon implements Card {
 
 
     public void setMainTargets(List<Player> mainTargets) {
-        if(!Board.getInstance().getPlayers().containsAll(mainTargets)) throw new IllegalArgumentException("The targets must belong to the board.");
+        if(!this.board.getPlayers().containsAll(mainTargets)) throw new IllegalArgumentException("The targets must belong to the board.");
         this.mainTargets = mainTargets;
     }
 
     public void setOptionalTargets(List<Player> optionalTargets) {
-        if(!Board.getInstance().getPlayers().containsAll(optionalTargets)) throw new IllegalArgumentException("The targets must belong to the board.");
+        if(!this.board.getPlayers().containsAll(optionalTargets)) throw new IllegalArgumentException("The targets must belong to the board.");
         this.optionalTargets = optionalTargets;
     }
 
@@ -150,17 +153,13 @@ public class Weapon implements Card {
 
 
     /**
-     *Reloads the current weapon
-     *
-     * @return      true if and only if the weapon was not already loaded
+     *Reloads the current weapon.
      */
-    public boolean reload(){
+    public void reload() throws NotAvailableAttributeException, WrongTimeException {
 
-        if (loaded){
-            return false;
-        }
+        if (loaded){ throw new WrongTimeException("A weapon can be reloaded only if unloaded.");}
         this.loaded = true;
-        return true;
+        this.getHolder().getAmmoPack().subAmmoPack(this.fullCost);
 
     }
 

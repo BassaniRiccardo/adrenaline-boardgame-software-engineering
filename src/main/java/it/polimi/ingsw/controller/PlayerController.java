@@ -1,22 +1,25 @@
 package it.polimi.ingsw.controller;
 import it.polimi.ingsw.model.Player;
 
+import java.util.List;
+
 //TODO: finish implementing
 //it might be agood idea to hold a list of messages and a flag telling if they have been answered. maybe answer can hold the question's id?
 
 public abstract class PlayerController{ //oggetto remoto
-    GameEngine game;
-    String playerName;
-    boolean suspended;
-    Player model;
+
+    private GameEngine game;
+    private String playerName;
+    private boolean suspended;
+    private Player player;
 
 
-    public void send(String in){
-        //method to be called by GameController to ask the player to make a choice, providing the options
+    public void send(String message, List<String> options){
+        //method to be called by GameController to ask the player to make a choice, providing the options.
     }
 
     public String receive (){
-        //method called by gamecontroller to retrieve the answer to said question
+        //method called by game controller to retrieve the answer to said question
         return new String();
     }
 
@@ -39,6 +42,13 @@ public abstract class PlayerController{ //oggetto remoto
         return playerName;
     }
 
+
+    public GameEngine getGame() { return game;  }
+
+    public String getPlayerName() {return playerName; }
+
+    public Player getPlayer() {return player; }
+
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
@@ -58,4 +68,5 @@ public abstract class PlayerController{ //oggetto remoto
     public void sendModel(){
         //this method is used for updating the client's view
     }
+
 }

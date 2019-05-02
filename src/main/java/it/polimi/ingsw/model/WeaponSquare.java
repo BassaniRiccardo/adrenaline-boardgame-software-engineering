@@ -21,10 +21,12 @@ public class WeaponSquare extends Square {
     private List<Weapon> weapons;
 
 
+
     /**
-     * Constructs a WeaponSquare with the id, the room id, the row, the column, the color and the weapons.
+     * Constructs a WeaponSquare with a reference to the game board, an id, a room id, a row, a column, a color and some weapons.
      * Invokes the constructor of Square.
      *
+     * @param board         the board the square belongs to.
      * @param id            the id of the square.
      * @param roomId        the id of the room the square is in.
      * @param row           the row of the square.
@@ -33,9 +35,9 @@ public class WeaponSquare extends Square {
      * @param weapons       the weapons in the square.
      * @throws              IllegalArgumentException
      */
-    public WeaponSquare(int id, int roomId, int row, int column, Color color, List<Weapon> weapons) {
+    public WeaponSquare(Board board, int id, int roomId, int row, int column, Color color, List<Weapon> weapons) {
 
-        super(id, roomId, row, column, color);
+        super(board, id, roomId, row, column, color);
         this.weapons = weapons;
 
     }
@@ -51,9 +53,9 @@ public class WeaponSquare extends Square {
      * @param color         the color of the square.
      * @throws              IllegalArgumentException
      */
-    public WeaponSquare(int id, int roomId, int row, int column, Color color) {
+    public WeaponSquare(Board board, int id, int roomId, int row, int column, Color color) {
 
-        super(id, roomId, row, column, color);
+        super(board, id, roomId, row, column, color);
         this.weapons = new ArrayList<>();
 
     }
@@ -97,7 +99,7 @@ public class WeaponSquare extends Square {
         if (!weapons.isEmpty()) throw new UnacceptableItemNumberException("The square already contains three weapons.");
 
         for (int i = 0; i < 3; i++) {
-            this.weapons.add((Weapon) Board.getInstance().getWeaponDeck().drawCard());
+            this.weapons.add((Weapon) this.getBoard().getWeaponDeck().drawCard());
         }
 
     }
@@ -114,7 +116,7 @@ public class WeaponSquare extends Square {
 
         if (weapons.size() >= 3) throw new UnacceptableItemNumberException("No weapons left in the deck.");
 
-        this.weapons.add((Weapon)Board.getInstance().getWeaponDeck().drawCard());
+        this.weapons.add((Weapon)this.getBoard().getWeaponDeck().drawCard());
 
     }
 

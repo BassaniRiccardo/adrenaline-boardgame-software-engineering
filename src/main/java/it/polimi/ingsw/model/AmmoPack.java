@@ -1,8 +1,7 @@
 package it.polimi.ingsw.model;
 
 /**
- * Represents the quantity of ammos that every player own and the amount of ammo
- * involved in every operation involving ammo.
+ * Represents a package of ammo of the three colors.
  * Contains as attributes the number of the 3 kinds of ammo.
  * Contains methods that add and subtract the ammo of an AmmoPack to another.
  * Every player owns an AmmoPack that represents his reserve of ammo.

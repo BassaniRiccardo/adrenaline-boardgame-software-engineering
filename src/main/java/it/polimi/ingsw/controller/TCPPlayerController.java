@@ -50,7 +50,7 @@ public class TCPPlayerController extends PlayerController implements Runnable{
                 while(!in.hasNextLine()) {}
                 name = in.nextLine();
             }
-            while(!suspended){
+            while(!isSuspended()){
                 if (in.hasNextLine()) {
                     incoming.add(in.nextLine());
                 }
@@ -63,7 +63,7 @@ public class TCPPlayerController extends PlayerController implements Runnable{
     }
 
     @Override
-    public void send(String in) {
+    public void send(String in, List<String> options) {
         outgoing.add(in);
     }
 

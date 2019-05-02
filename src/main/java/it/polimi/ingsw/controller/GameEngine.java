@@ -21,8 +21,11 @@ public class GameEngine implements Runnable{
 
     //this method requires players to contain between 3 and 5 players
     public void run(){
+
         setup();
+
         ExecutorService executor = Executors.newCachedThreadPool(); //can it be used?
+
         while (!gameOver){
 
             Future future = executor.submit(new TurnManager(board, currentPlayer, players));
@@ -44,7 +47,7 @@ public class GameEngine implements Runnable{
     public void setup(){
         List<String> HeroList = new ArrayList<>();
         for (PlayerController p : players) {
-            p.send("what hero do you want?");
+            p.send("what hero do you want?", null);
             //sethero
         }
         //configure board

@@ -8,11 +8,13 @@ import static org.junit.Assert.*;
 public class PowerUpFactoryTest {
 
     /**
-     * Creates the first powerup and checks that it is initialized correctly
+     * Creates the first power up and checks that it is initialized correctly
      */
     @Test
     public void createPowerUp() {
-        PowerUp p = PowerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, Color.BLUE);
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        PowerUpFactory powerUpFactory = new PowerUpFactory(board1);
+        PowerUp p = powerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, Color.BLUE);
         assertTrue(p.getName() == PowerUp.PowerUpName.TARGETING_SCOPE);
         assertTrue(p.getCost().getRedAmmo()==0);
         assertTrue(p.getCost().getBlueAmmo()==0);

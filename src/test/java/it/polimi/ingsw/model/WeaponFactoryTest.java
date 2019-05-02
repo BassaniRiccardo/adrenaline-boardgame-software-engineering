@@ -10,8 +10,10 @@ public class WeaponFactoryTest {
      * Creates the first weapon and checks that it is initialized correctly
      */
     @Test
-    public void createWeapon() {
-        Weapon w = WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+    public void createWeapon() throws NoMoreCardsException, UnacceptableItemNumberException {
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         assertTrue(w.getWeaponName() == Weapon.WeaponName.LOCK_RIFLE);
 
         assertTrue(w.getFullCost().getRedAmmo()==0);

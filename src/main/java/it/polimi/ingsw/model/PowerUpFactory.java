@@ -46,7 +46,7 @@ public class PowerUpFactory  {
             case TARGETING_SCOPE:
 
                 effect = (shooter, target, destination)-> target.sufferDamage(1, shooter);
-                targetFinder = (p) -> board.getPlayers().stream()
+                targetFinder = p -> board.getPlayers().stream()
                         .filter(x->x.isJustDamaged())
                         .distinct()
                         .map(x -> Arrays.asList(x))
@@ -56,7 +56,7 @@ public class PowerUpFactory  {
 
             case NEWTON:
                 effect = (shooter, target, destination)-> target.setPosition(destination);
-                targetFinder = (p) -> board.getPlayers().stream()
+                targetFinder = p -> board.getActivePlayers().stream()
                         .filter(x->!x.equals(p))
                         .distinct()
                         .map(x -> Arrays.asList(x))
@@ -79,19 +79,19 @@ public class PowerUpFactory  {
 
             case TAGBACK_GRENADE:
                 effect = (shooter, target, destination)-> target.addMarks(1, shooter);
-                targetFinder = (p) -> p.isJustDamaged()? new ArrayList<>():Arrays.asList(Arrays.asList(board.getCurrentPlayer()));
+                targetFinder = p -> p.isJustDamaged()? new ArrayList<>():Arrays.asList(Arrays.asList(board.getCurrentPlayer()));
                 destinationFinder = (p, t) -> new ArrayList<>();
                 break;
 
             case TELEPORTER:
                 effect = (shooter, target, destination)-> target.setPosition(destination);
-                targetFinder = (p) -> Arrays.asList(Arrays.asList(p));
+                targetFinder = p -> Arrays.asList(Arrays.asList(p));
                 destinationFinder = (p, t) -> board.getMap();
                 break;
 
             default:
                 effect = (shooter, target, destination)-> shooter.setPosition(destination);
-                targetFinder = (p) -> Arrays.asList(Arrays.asList(p));
+                targetFinder = p -> Arrays.asList(Arrays.asList(p));
                 destinationFinder = (p, t) -> board.getMap();
                 break;
         }

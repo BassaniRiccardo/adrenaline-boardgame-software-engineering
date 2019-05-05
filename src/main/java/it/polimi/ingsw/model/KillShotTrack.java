@@ -98,6 +98,11 @@ public class KillShotTrack {
         if (skullsLeft != 0) {
             dead.updateAwards();
             removeSkulls(1);
+            System.out.println("Skulls left: " + skullsLeft + ".");
+        }
+        else {
+            dead.setDead(false);
+            dead.getDamages().clear();
         }
 
     }
@@ -106,7 +111,7 @@ public class KillShotTrack {
     /**
      * Rewards the players who killed at least one opponent, in accordance with the number of opponents killed.
      * The first gets 8 points, the second 6, the third 4, the fourth 2 and the fifth 1.
-     * In the event of a tie, the player who got the earlier kill shot wins the tie.
+     * In the event of a draw, the player who got the earlier kill shot wins the draw.
      */
     public void rewardKillers() {
 
@@ -132,6 +137,8 @@ public class KillShotTrack {
             Player p = playerToAwardIt.next();
             if (killers.contains(p)){
                 p.addPoints(pointsToGive);
+                System.out.println("Player " + p.getId() + " gains " + pointsToGive + " points.");
+
             }
             if (pointsToGive==2) pointsToGive-= 1;
             else pointsToGive -= 2;

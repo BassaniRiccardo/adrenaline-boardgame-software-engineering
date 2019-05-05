@@ -403,11 +403,17 @@ public class PlayerTest {
         //checks that pointsToGive is 6
         assertEquals(6,player.getPointsToGive());
 
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
+
         //calls updateAwards
         player.updateAwards();
 
         //checks that pointsToGive is 4
         assertEquals(4,player.getPointsToGive());
+
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
 
         //calls updateAwards
         player.updateAwards();
@@ -415,11 +421,17 @@ public class PlayerTest {
         //checks that pointsToGive is 2
         assertEquals(2,player.getPointsToGive());
 
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
+
         //calls updateAwards
         player.updateAwards();
 
         //checks that pointsToGive is 1
         assertEquals(1,player.getPointsToGive());
+
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
 
         //calls updateAwards
         player.updateAwards();
@@ -934,7 +946,7 @@ public class PlayerTest {
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //set the status FRENZY_1
-        player.setStatusFrenzy(Player.Status.FRENZY_1);
+        player.setStatus(Player.Status.FRENZY_1);
 
         //calls refreshActionList
         player.refreshActionList();
@@ -959,7 +971,7 @@ public class PlayerTest {
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //set the status FRENZY_2
-        player.setStatusFrenzy(Player.Status.FRENZY_2);
+        player.setStatus(Player.Status.FRENZY_2);
 
         //calls refreshActionList
         player.refreshActionList();
@@ -1020,6 +1032,16 @@ public class PlayerTest {
                 player.getActionList().get(1).equals(new Action(2, true, false, false)) &&
                 player.getActionList().get(2).equals(new Action(1, false, true, false)) &&
                 player.getActionList().size() == 3);
+    }
+
+    /**
+     * Tests the method toString() of the enumeration HeroName.
+     */
+    @Test
+    public void heroNameToString(){
+        Player.HeroName heroName = Player.HeroName.BANSHEE;
+        assertEquals("Banshee", heroName.toString());
+
     }
 
 }

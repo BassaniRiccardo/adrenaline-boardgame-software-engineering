@@ -89,4 +89,28 @@ public class WeaponTest {
         w.reload();
         assertTrue(w.isLoaded());
     }
+
+    /**
+     * Tests the method toString() of the enumeration WeaponName.
+     */
+    @Test
+    public void heroNameToString(){
+
+        Weapon.WeaponName weaponName = Weapon.WeaponName.LOCK_RIFLE;
+        assertEquals("Lock rifle", weaponName.toString());
+
+    }
+
+    /**
+     * Tests the method toString() of the class Weapon.
+     */
+    @Test
+    public void weaponToString(){
+
+        WeaponFactory weaponFactory = new WeaponFactory(new Board());
+        Weapon weapon = weaponFactory.createWeapon(Weapon.WeaponName.ELECTROSCYTHE);
+
+        assertEquals("Electroscythe", weapon.toString());
+
+    }
 }

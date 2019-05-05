@@ -51,7 +51,7 @@ public class BoardConfigurer {
      * @param type      the type of map, to be chosen between 1,2,3,4.
      * @return          the configured board.
      */
-    public Board configureMap(int type) {
+    public static Board configureMap(int type) {
 
         Board board = new Board();
 
@@ -193,7 +193,7 @@ public class BoardConfigurer {
      * @param playerNumber         the number of player.
      * @param board                 the board the players must be added to.
      */
-    public void configurePlayerOptions(int playerNumber, Board board){
+    public static void configurePlayerOptions(int playerNumber, Board board){
 
         //set players
         int i = 1;
@@ -215,7 +215,7 @@ public class BoardConfigurer {
      *
      * @param board                 the board the decks must be added to.
      */
-    public void configureDecks(Board board){
+    public static void configureDecks(Board board){
 
         //configures the weapons deck
         WeaponFactory weaponFactory = new WeaponFactory(board);
@@ -271,7 +271,7 @@ public class BoardConfigurer {
      *
      * @param board                 the board the ammo tiles and the weapons must be added to.
      */
-    public void setAmmoTilesAndWeapons(Board board) throws UnacceptableItemNumberException, NoMoreCardsException {
+    public static void setAmmoTilesAndWeapons(Board board) throws UnacceptableItemNumberException, NoMoreCardsException {
 
         Iterator<Square> squareIt = board.getMap().iterator();
         while (squareIt.hasNext()){
@@ -288,7 +288,7 @@ public class BoardConfigurer {
      * @param skullNumber          the number of skulls to add to the track.
      * @param board                the board the kill shot track must be added to.
      */
-    public void configureKillShotTrack(int skullNumber, Board board){
+    public static void configureKillShotTrack(int skullNumber, Board board){
 
         board.setKillShotTrack(new KillShotTrack(skullNumber, board));
 
@@ -303,7 +303,7 @@ public class BoardConfigurer {
      *
      * @return      the board of the created scenario.
      */
-    public Board simulateScenario() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public static Board simulateScenario() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //sets the board components
         Board board = configureMap(4);

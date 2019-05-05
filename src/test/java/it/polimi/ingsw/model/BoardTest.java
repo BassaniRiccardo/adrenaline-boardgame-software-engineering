@@ -457,7 +457,7 @@ public class BoardTest {
     }
 
     /**
-     * Tests the method setPlayers(), when a bad parameter is entered: player number not between 3 and 5.
+     * Tests the method setPlayer(), when a bad parameter is entered: player number not between 3 and 5.
      */
     @Test(expected = IllegalArgumentException.class)
     public void setPlayersWrongNumber() {

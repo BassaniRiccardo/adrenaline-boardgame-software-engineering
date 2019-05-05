@@ -100,6 +100,7 @@ public class KillShotTrackTest {
 
         //register the fifth kill and
         //checks that the points given for the death of the dead player have not been update to 0
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
         assertEquals(1, dead.getPointsToGive());
 

@@ -2,11 +2,8 @@ package it.polimi.ingsw.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.Iterator;
-
 import static java.util.Collections.*;
-
 import static it.polimi.ingsw.model.Color.*;
 
 
@@ -27,9 +24,15 @@ import static it.polimi.ingsw.model.Color.*;
 
 public class Player {
 
-
     public enum HeroName {
-        D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG
+
+        D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG;
+
+        @Override
+        public String toString(){
+            return (this.name().substring(0,1) + this.name().toLowerCase().substring(1));
+        }
+
     }
 
     public enum Status {
@@ -63,7 +66,7 @@ public class Player {
     private boolean justDamaged;
     private boolean overkilled;
 
-    private boolean inTheGame;
+    private boolean inGame;
 
 
     /**
@@ -101,7 +104,9 @@ public class Player {
         this.justDamaged=false;
         this.overkilled = false;
 
-        this.inTheGame = false;
+        this.inGame = false;
+
+        refreshActionList();
 
     }
 
@@ -154,7 +159,7 @@ public class Player {
 
     public boolean isOverkilled(){return overkilled;}
 
-    public boolean isInTheGame(){ return inTheGame;}
+    public boolean isInGame(){ return inGame;}
 
     public Board getBoard() {return board; }
 
@@ -165,7 +170,11 @@ public class Player {
 
 
     public void setPosition(Square square) {
+
         if (!this.board.getMap().contains(square)) throw new IllegalArgumentException("The player must be located in a square that belongs to the board.");
+        if (this.position!=null){
+            this.position.removePlayer(this);
+        }
         previousPosition = position;
         this.position = square;
         square.addPlayer(this);
@@ -173,15 +182,20 @@ public class Player {
 
     public void setPointsToGive(int p) {
         if (!(p==8 || p==6 || p==4 || p==2 || p==1)) throw new IllegalArgumentException("Not valid number of points.");
-        this.pointsToGive = p;}
+        this.pointsToGive = p;
+    }
 
-    public void setStatusFrenzy(Status status){this.status=status;}
+    public void setPoints(int points) { this.points = points;}
+
+    public void setStatus(Status status){this.status=status;}
 
     public void setJustDamaged(boolean justDamaged){this.justDamaged = justDamaged;}
 
     public void setFlipped(boolean flipped){this.flipped = flipped;}
 
-    public void setInTheGame(boolean inTheGame) {this.inTheGame = inTheGame;  }
+    public void setInGame(boolean inGame) {this.inGame = inGame;  }
+
+    public void setDead(boolean dead) {this.dead = dead;}
 
 
     /**
@@ -254,8 +268,6 @@ public class Player {
     public void addWeapon(Weapon addedWeapon) throws UnacceptableItemNumberException{
 
         if (this.weaponList.size()>=4) throw new UnacceptableItemNumberException("A player can hold up to 3 weapons; 4 are allowed while choosing which one to discard.");
-        //this can not stay here; the controller must decide if the player can draw the fourth card
-//      if (this.weaponList.size()>=3) throw new UnacceptableItemNumberException("4 weapons are allowed only while choosing which one to discard.");
         addedWeapon.setHolder(this);
         weaponList.add(addedWeapon);
     }
@@ -288,15 +300,17 @@ public class Player {
     }
 
 
-
     /**
      * Draws a random power up from the deck of power ups and adds it to the player power ups list.
      */
     public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         if (this.powerUpList.size()>=4) throw new UnacceptableItemNumberException("A player can hold up to 3 power ups; 4 are allowed in the process of rebirth");
-        //this can not stay here; the controller must decide if the player can draw the fourth card
- //     if (this.powerUpList.size()>=3) throw new UnacceptableItemNumberException("4 power ups are allowed only in the process of rebirth.");
+        if (this.board.getPowerUpDeck().getDrawable().isEmpty()){
+            try {
+                this.board.getPowerUpDeck().regenerate();
+            } catch (WrongTimeException e){ e.printStackTrace();}
+        }
         PowerUp p = (PowerUp)this.board.getPowerUpDeck().drawCard();
         p.setHolder(this);
         powerUpList.add(p);
@@ -324,6 +338,15 @@ public class Player {
 
         if (!powerUpList.contains(removedPowerUp)) throw  new IllegalArgumentException("The player does not own this powerup.");
         powerUpList.remove(removedPowerUp);
+        board.getPowerUpDeck().addDiscardedCard(removedPowerUp);
+    }
+
+
+    public boolean hasUsableTeleporterOrNewton() throws NotAvailableAttributeException {
+        for (PowerUp p : getPowerUpList()) {
+            if ((p.getName() == PowerUp.PowerUpName.NEWTON && !(p.findTargets().isEmpty()))|| p.getName() == PowerUp.PowerUpName.TELEPORTER) return true;
+        }
+        return false;
     }
 
 
@@ -426,6 +449,7 @@ public class Player {
             else pointsToGive -= 2;
         }
         this.damages.clear();
+        this.dead = false;
     }
 
 
@@ -433,13 +457,14 @@ public class Player {
      * Gives point to the killers based on the number of damages every player did
      * and on the number of the player previous death.
      * Called when the player dies.
-     * Sets to zero the player damages.
      */
     public void rewardKillers() throws WrongTimeException{
 
         if(!this.isDead()) throw new WrongTimeException("The killers are rewarded only when the player dies.");
         //firstblood
-        damages.get(0).addPoints(1);
+        if (!this.flipped) {
+            damages.get(0).addPoints(1);
+        }
 
         //asks the board for the players
         List<Player> playersToReward = this.board.getPlayers();
@@ -465,6 +490,9 @@ public class Player {
             Player p = playerToRewardIt.next();
             if (damages.contains(p)){
                 p.addPoints(pointsToGive);
+                int totalGivenPoints = pointsToGive;
+                if (damages.get(0) == p) totalGivenPoints++;
+                System.out.println("Player " + p.getId() + " gains " + totalGivenPoints + " points.");
             }
             if (pointsToGive != 1) {
                 if (pointsToGive == 2) pointsToGive -= 1;
@@ -472,7 +500,6 @@ public class Player {
             }
         }
         pointsToGive = nextPointsToGive;
-        damages.clear();
     }
 
 

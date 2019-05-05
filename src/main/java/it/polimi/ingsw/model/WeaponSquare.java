@@ -61,6 +61,17 @@ public class WeaponSquare extends Square {
     }
 
     /**
+     * Returns true if the weapon square does not contain a weapon.
+     *
+     * @return  true if the weapon square does not contain a weapon.
+     *          false otherwise.
+     */
+    @Override
+    public boolean isEmpty(){
+        return getWeapons().isEmpty();
+    }
+
+    /**
      * Getter for weapons.
      *
      * @return      the weapons in the square.

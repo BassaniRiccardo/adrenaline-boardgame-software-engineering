@@ -50,6 +50,17 @@ public class AmmoSquare extends Square  {
 
     }
 
+    /**
+     * Returns true if the ammo square does not contain an ammo tile.
+     *
+     * @return  true if the ammo square does not contain an ammo tile.
+     *          false otherwise.
+     */
+    @Override
+    public boolean isEmpty(){
+        return !hasAmmoTile();
+    }
+
 
     /**
      * Getter for ammoTile.
@@ -101,10 +112,7 @@ public class AmmoSquare extends Square  {
      * @return      the ammo tile in the square.
      */
     public boolean hasAmmoTile() {
-
-        if (ammoTile==null) return false;
-        return true;
-
+        return (ammoTile!=null);
     }
 
 

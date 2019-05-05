@@ -16,7 +16,7 @@ public class PowerUp implements Targeted, Card {
 
         @Override
         public String toString(){
-            return name().toLowerCase();
+            return (this.name().substring(0,1) + this.name().toLowerCase().substring(1)).replace('_', ' ');
         }
 
     }
@@ -145,7 +145,11 @@ public class PowerUp implements Targeted, Card {
 
     @Override
     public String toString(){
-        return (color.toString() + name.toString());
+        return (color.toString() + " " + name.toString().toLowerCase());
+    }
+
+    public String toStringLowerCase(){
+        return (color.toString().toLowerCase() + " " + name.toString().toLowerCase());
     }
 
 }

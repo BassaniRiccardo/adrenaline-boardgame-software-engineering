@@ -67,7 +67,7 @@ public class TCPPlayerController extends PlayerController implements Runnable{
         outgoing.add(in);
     }
 
-    @Override
+    //@Override
     public String receive() {
         while(incoming.isEmpty()){}
         return incoming.get(0);

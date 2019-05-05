@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 /**
  * Tests all the methods of the class Square that are identical in WeaponSquare and AmmoSquare.
  * Weapon squares and ammo squares are instantiated interchangeably.
+ * The method toString of Color is tested too.
  *
  * @author BassaniRiccardo
  */
@@ -42,31 +43,6 @@ public class SquareTest {
 
     }
 
-    /**
-     * Tests the method addPlayer(), when an exception should be throw since a the player is already on the square.
-     *
-     * @throws NoMoreCardsException
-     * @throws UnacceptableItemNumberException
-     * @throws IllegalArgumentException
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void addPlayerAlreadyPresentAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
-
-        //Simulate a scenario, select an ammo square and a player
-        Board b = BoardConfigurer.getInstance().simulateScenario();
-        AmmoSquare ammoSquare = (AmmoSquare) b.getMap().get(0);
-        Player p = b.getPlayers().get(0);
-
-        //checks that the ammo square contains the player
-        assertTrue(ammoSquare.getPlayers().contains(p));
-
-        //adds the player to the ammo square
-        p.setPosition(ammoSquare);
-
-        //checks that the ammo square contains the added player
-        assertTrue(ammoSquare.getPlayers().contains(p));
-
-    }
 
     /**
      * Tests the method removePlayer(), covering all the instructions apart form the  exception.
@@ -144,5 +120,33 @@ public class SquareTest {
         assertFalse(ammoSquare.containsPlayer(p));
 
     }
+
+
+    /**
+     * Tests the method isEmpty().
+     */
+    @Test
+    public void isEmpty(){
+
+        //creates a new ammo square with no ammo tiles and no players
+        AmmoSquare ammoSquare = new AmmoSquare(new Board(), 1, 1, 1, 1, RED);
+
+        assertTrue(ammoSquare.isEmpty());
+
+    }
+
+
+    /**
+     * Tests the method toString() of the enumeration Color.
+     * Test included in this class since Square and Color are strongly linked.
+     */
+    @Test
+    public void ColorToString(){
+
+        Color color = RED;
+        assertEquals("Red", color.toString());
+
+    }
+
 
 }

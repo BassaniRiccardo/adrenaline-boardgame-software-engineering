@@ -1,7 +1,5 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.model.Player;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -124,7 +122,7 @@ public class ServerMain {
         for (GameEngine g : currentGames) {
             for (PlayerController old : g.getPlayers()) {
                 if (old.getName().equals(name) && old.isSuspended()) {
-                    g.setPlayers(g.getPlayers().indexOf(old), p);
+                    g.setPlayer(g.getPlayers().indexOf(old), p);
                     return true;
                 }
             }

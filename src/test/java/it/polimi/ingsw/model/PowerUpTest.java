@@ -131,4 +131,28 @@ public class PowerUpTest {
         p = b.getPlayers().get(0).getPowerUpList().get(0);
         assertTrue(p.findDestinations(b.getPlayers()).isEmpty());
     }
+
+    /**
+     * Tests the method toString() of the enumeration PowerUpName.
+     */
+    @Test
+    public void powerUpNameToString(){
+        PowerUp.PowerUpName powerUpName = PowerUp.PowerUpName.NEWTON;
+        assertEquals("Newton", powerUpName.toString());
+
+    }
+
+    /**
+     * Tests the method toString() of the class PowerUp.
+     */
+    @Test
+    public void powerUpToString(){
+
+        PowerUpFactory powerUpFactory = new PowerUpFactory(new Board());
+        PowerUp powerUp = powerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, Color.YELLOW);
+
+        assertEquals("Yellow targeting scope", powerUp.toString());
+
+    }
+
 }

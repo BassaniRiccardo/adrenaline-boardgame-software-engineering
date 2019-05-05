@@ -88,6 +88,25 @@ public class Board {
         return players;
     }
 
+
+    /**
+     * Getter for players.
+     *
+     * @return      the players on the board.
+     */
+    public List<Player> getActivePlayers() {
+        List<Player> activePlayers = new ArrayList<>();
+        for (Player p: players){
+            if (p.isInGame()) activePlayers.add(p);
+        }
+        Collections.sort(activePlayers, (p1, p2) -> {
+            if (p1.getId() < p2.getId()) return -1;
+            else if (p1.getId() > p2.getId()) return 1;
+            return 0;
+        });
+        return activePlayers;
+    }
+
     /**
      * Getter for playerNumber.
      *

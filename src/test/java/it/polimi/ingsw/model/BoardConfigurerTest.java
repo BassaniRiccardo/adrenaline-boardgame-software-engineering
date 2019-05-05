@@ -105,6 +105,25 @@ public class BoardConfigurerTest {
         assertEquals(11, board3.getMap().size());
     }
 
+    /**
+     * Tests if all the ammo tiles are correctly set on the board.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     * @throws NotAvailableAttributeException
+     */
+    @Test
+    public void simulateScenarioSetAmmoTiles() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
+
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        for(Square s: b.getMap()){
+            if (!b.getSpawnPoints().contains(s)){
+                ((AmmoSquare)s).getAmmoTile();
+            }
+        }
+
+    }
+
 
 
 }

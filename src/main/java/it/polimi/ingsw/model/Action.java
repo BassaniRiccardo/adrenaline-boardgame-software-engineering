@@ -96,4 +96,32 @@ public final class Action {
 
     }
 
+
+    /**
+     * Returns a string representing the action.
+     *
+     * @return      a string representing an action.
+     */
+    @Override
+    public String toString(){
+
+        String description = "";
+
+        if (steps > 0){
+            description += " Move up to " + steps + " squares." ;
+        }
+        if (collect){
+            description += " Collect.";
+        }
+        if (reload){
+            description += " Reload.";
+        }
+        if (shoot){
+            description += " Shoot.";
+        }
+
+        return description;
+
+    }
+
 }

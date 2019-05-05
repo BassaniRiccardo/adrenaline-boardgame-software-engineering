@@ -131,8 +131,6 @@ public abstract class Square {
      * @param p     the player to add.
      */
     public void addPlayer(Player p) {
-
-        if (containsPlayer(p)) throw new IllegalArgumentException("The square already contains the player");
         if (!this.board.getPlayers().contains(p)) throw new IllegalArgumentException("Only players of the Board can be added to the Square");
         this.players.add(p);
     }
@@ -173,6 +171,15 @@ public abstract class Square {
 
 
     /**
+     * Abstract method which returns true if the square does not contain any item.
+     *
+     * @return      true if the square does not contain any item.
+     *              false otherwise.
+     */
+    public abstract boolean isEmpty();
+
+
+    /**
      * Returns true if the two squares have the same id.
      *
      * @param o the square to compare to the current square.
@@ -210,5 +217,17 @@ public abstract class Square {
         result = id;
         return result;
     }
+
+    /**
+     * Returns a string representing the square.
+     *
+     * @return      the description of the square.
+     */
+    @Override
+    public String toString(){
+        return "Square " + id;
+    }
+
+
 
 }

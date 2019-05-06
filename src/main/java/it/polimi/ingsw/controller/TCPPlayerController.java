@@ -5,14 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 //TODO: finish implementing
 //this is the class that both the gameengine and the client talk to. it is used as a "messenger" between the two
@@ -91,7 +86,7 @@ public class TCPPlayerController extends PlayerController{
     }
 
     @Override
-    public void send(String in) {
+    public void send(String in, List<String> options) {
         outgoing.add(in);
     }
 

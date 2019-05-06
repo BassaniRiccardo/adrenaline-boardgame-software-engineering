@@ -57,7 +57,6 @@ public class MatchmakingTimerTest {
         assertFalse(m.isOver());
     }
 
-
     @Test
     public void reset() {
         MatchmakingTimer m = new MatchmakingTimer(3);

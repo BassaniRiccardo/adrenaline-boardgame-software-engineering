@@ -7,7 +7,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 
-//TODO: fully implement this class
+//TODO: fully implement this class, add graphic functionality
 public class CLI implements UI{
 
     private Scanner in;

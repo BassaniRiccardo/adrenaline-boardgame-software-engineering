@@ -1,10 +1,10 @@
 package it.polimi.ingsw.model;
 
 /**
- * Represents the actions of the players
+ * Represents the actions of the players.
  * Every action is composed by some moves that can be 1 or more steps, and the possibility to collect, shoot or reload.
- * Every player has 2 or 3 actions available at the same time, depending of his status.
- * Contains an override of equals useful for the tests.
+ * Every player has 2 or 3 actions available at the same time, depending on his status.
+ * Contains an override of equals.
  *
  * @author  davidealde
  */
@@ -93,6 +93,34 @@ public final class Action {
         if (reload) result += 795;
 
         return result;
+
+    }
+
+
+    /**
+     * Returns a string representing the action.
+     *
+     * @return      a string representing an action.
+     */
+    @Override
+    public String toString(){
+
+        String description = "";
+
+        if (steps > 0){
+            description += " Move up to " + steps + " squares." ;
+        }
+        if (collect){
+            description += " Collect.";
+        }
+        if (reload){
+            description += " Reload.";
+        }
+        if (shoot){
+            description += " Shoot.";
+        }
+
+        return description;
 
     }
 

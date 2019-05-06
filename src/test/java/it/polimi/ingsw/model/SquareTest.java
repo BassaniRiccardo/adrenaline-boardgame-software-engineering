@@ -7,8 +7,9 @@ import static it.polimi.ingsw.model.Player.HeroName.*;
 import static org.junit.Assert.*;
 
 /**
- * Tests all the methods of the class Square that are identical in WeaponSquare and AmmoSquare, covering all the instructions.
+ * Tests all the methods of the class Square that are identical in WeaponSquare and AmmoSquare.
  * Weapon squares and ammo squares are instantiated interchangeably.
+ * The method toString of Color is tested too.
  *
  * @author BassaniRiccardo
  */
@@ -27,9 +28,9 @@ public class SquareTest {
     public void addPlayerAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
         //Simulate a scenario, select an ammo square and a player
-        BoardConfigurer.getInstance().simulateScenario();
-        AmmoSquare ammoSquare = (AmmoSquare) Board.getInstance().getMap().get(1);
-        Player p = Board.getInstance().getPlayers().get(0);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        AmmoSquare ammoSquare = (AmmoSquare) b.getMap().get(1);
+        Player p = b.getPlayers().get(0);
 
         //checks that the ammo square does not contains the player
         assertFalse(ammoSquare.getPlayers().contains(p));
@@ -42,31 +43,6 @@ public class SquareTest {
 
     }
 
-    /**
-     * Tests the method addPlayer(), when an exception should be throw since a the player is already on the square.
-     *
-     * @throws NoMoreCardsException
-     * @throws UnacceptableItemNumberException
-     * @throws IllegalArgumentException
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void addPlayerAlreadyPresentAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
-
-        //Simulate a scenario, select an ammo square and a player
-        BoardConfigurer.getInstance().simulateScenario();
-        AmmoSquare ammoSquare = (AmmoSquare) Board.getInstance().getMap().get(0);
-        Player p = Board.getInstance().getPlayers().get(0);
-
-        //checks that the ammo square contains the player
-        assertTrue(ammoSquare.getPlayers().contains(p));
-
-        //adds the player to the ammo square
-        p.setPosition(ammoSquare);
-
-        //checks that the ammo square contains the added player
-        assertTrue(ammoSquare.getPlayers().contains(p));
-
-    }
 
     /**
      * Tests the method removePlayer(), covering all the instructions apart form the  exception.
@@ -77,10 +53,10 @@ public class SquareTest {
     public void removePlayerWeaponSquare() {
 
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
+        WeaponSquare weaponSquare = new WeaponSquare(new Board(), 1, 1, 1, 1, RED);
 
         //adds a player to the weapon square
-        Player p = new Player(3, VIOLET);
+        Player p = new Player(3, VIOLET, new Board());
         weaponSquare.getPlayers().add(p);
 
         //checks that the weapon square contains the removed player
@@ -104,10 +80,10 @@ public class SquareTest {
     public void removePlayerNotInWeaponSquare()  {
 
         //creates a new weapon square with no weapons
-        WeaponSquare weaponSquare = new WeaponSquare(1, 1, 1, 1, RED);
+        WeaponSquare weaponSquare = new WeaponSquare(new Board(), 1, 1, 1, 1, RED);
 
         //creates a new player
-        Player p = new Player(3, VIOLET);
+        Player p = new Player(3, VIOLET, new Board());
 
         //checks that the weapon square does not contain the removed player
         assertFalse(weaponSquare.getPlayers().contains(p));
@@ -128,10 +104,10 @@ public class SquareTest {
     public void containsPlayerAmmoSquare() {
 
         //creates a new ammo square with no ammo tiles and no players
-        AmmoSquare ammoSquare = new AmmoSquare(1, 1, 1, 1, RED);
+        AmmoSquare ammoSquare = new AmmoSquare(new Board(), 1, 1, 1, 1, RED);
 
         //adds a player to the ammo square
-        Player p = new Player(2, DOZER);
+        Player p = new Player(2, DOZER, new Board());
         ammoSquare.getPlayers().add(p);
 
         //checks that the ammo square contains the added player
@@ -144,5 +120,33 @@ public class SquareTest {
         assertFalse(ammoSquare.containsPlayer(p));
 
     }
+
+
+    /**
+     * Tests the method isEmpty().
+     */
+    @Test
+    public void isEmpty(){
+
+        //creates a new ammo square with no ammo tiles and no players
+        AmmoSquare ammoSquare = new AmmoSquare(new Board(), 1, 1, 1, 1, RED);
+
+        assertTrue(ammoSquare.isEmpty());
+
+    }
+
+
+    /**
+     * Tests the method toString() of the enumeration Color.
+     * Test included in this class since Square and Color are strongly linked.
+     */
+    @Test
+    public void ColorToString(){
+
+        Color color = RED;
+        assertEquals("Red", color.toString());
+
+    }
+
 
 }

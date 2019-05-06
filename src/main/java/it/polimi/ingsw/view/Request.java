@@ -2,7 +2,19 @@ package it.polimi.ingsw.view;
 
 import it.polimi.ingsw.network.Connection;
 
-//represents a request from the server (such as "choose your target anomgst these" or "update your model according to these modifications") or from System.in (such as close)
+/**
+ * Functional interface representing requests from server
+ *
+ * @author  marcobaga
+ */
 public interface Request {
+
+    /**
+     * Contains the behaviour the client must follow to fulfill the request
+     *
+     * @param clientMain    the target client
+     * @param ui            the client's ui
+     * @param connection    the client's connection
+     */
     void manage(ClientMain clientMain, UI ui, Connection connection);
 }

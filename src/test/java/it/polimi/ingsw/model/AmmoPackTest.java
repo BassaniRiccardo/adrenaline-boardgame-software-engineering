@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 /**
- * Tests all methods of the class AmmoPack, covering all the instructions.
+ * Tests all methods of the class AmmoPack.
  */
 
 public class AmmoPackTest {
@@ -58,7 +58,7 @@ public class AmmoPackTest {
         AmmoPack ammoPack2=new AmmoPack(1,2,2);
         AmmoPack ammoPack3=new AmmoPack(1,1,3);
 
-        //calls addAmmoPack
+        //calls addAmmoPack()
         ammoPack1.addAmmoPack(ammoPack2);
 
         //checks that ammoPack1 contains the right amount of ammo
@@ -69,7 +69,7 @@ public class AmmoPackTest {
         //calls AddAmmoPack
         ammoPack1.addAmmoPack(ammoPack3);
 
-        //checks that ammoPack1 contains the right amounts of ammo
+        //checks that ammoPack1 contains the right amount of ammo
         assertTrue(2==ammoPack1.getRedAmmo()&&
                 3==ammoPack1.getBlueAmmo()&&
                 3==ammoPack1.getYellowAmmo());

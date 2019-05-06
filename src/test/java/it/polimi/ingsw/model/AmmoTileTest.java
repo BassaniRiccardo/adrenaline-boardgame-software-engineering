@@ -1,7 +1,7 @@
 package it.polimi.ingsw.model;
 
 /**
- * Tests the class AmmoTile
+ * Tests all the methods of the class AmmoTile.
  *
  * @author  BassaniRiccardo
  */
@@ -44,8 +44,9 @@ public class AmmoTileTest {
     @Test(expected = NotAvailableAttributeException.class)
     public void setHolder() throws NotAvailableAttributeException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
         AmmoTile ammoTile = new AmmoTile(true, new AmmoPack(0,1,2));
-        ammoTile.setHolder(new Player(1, Player.HeroName.VIOLET ));
+        ammoTile.setHolder(new Player(1, Player.HeroName.VIOLET, board1 ));
     }
 
 }

@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 
 
 /**
- * Tests all methods of the class AmmoSquare, covering all the instructions.
+ * Tests all methods of the class AmmoSquare.
  * The method shared with the class WeaponSquare are tested in SquareTest.
  *
  * @author BassaniRiccardo
@@ -25,11 +25,13 @@ public class AmmoSquareTest {
     @Test(expected = NotAvailableAttributeException.class)
     public void removeAmmo() throws NoMoreCardsException, NotAvailableAttributeException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //creates a new ammo tile
         AmmoTile ammoTile = new AmmoTile(true, new AmmoPack(1,1,1));
 
         //creates a new ammo square with the created ammo tile and no players
-        AmmoSquare ammoSquare = new AmmoSquare(1, 1, 1, 1, RED, ammoTile);
+        AmmoSquare ammoSquare = new AmmoSquare(board1, 1, 1, 1, 1, RED, ammoTile);
 
         //checks that the ammo square contains the created ammo tile
         assertEquals(ammoTile, ammoSquare.getAmmoTile());
@@ -54,11 +56,13 @@ public class AmmoSquareTest {
     @Test
     public void removeAmmoEmptySquare() throws NoMoreCardsException, NotAvailableAttributeException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //creates a new ammo tile
         AmmoTile ammoTile = new AmmoTile(true, new AmmoPack(1,1,1));
 
         //creates a new ammo square with the created ammo tile and no players
-        AmmoSquare ammoSquare = new AmmoSquare(1, 1, 1, 1, RED, ammoTile);
+        AmmoSquare ammoSquare = new AmmoSquare(board1, 1, 1, 1, 1, RED, ammoTile);
 
         //checks that the ammo square contains the created ammo tile
         assertEquals(ammoTile, ammoSquare.getAmmoTile());
@@ -91,13 +95,13 @@ public class AmmoSquareTest {
     public void addAmmo() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
 
         //initializes board
-        BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.getInstance().simulateScenario();
 
         //creates a new ammo square with no ammo tiles and no players
-        AmmoSquare ammoSquare = new AmmoSquare(1, 1, 1, 1, RED);
+        AmmoSquare ammoSquare = new AmmoSquare(b, 1, 1, 1, 1, RED);
 
         //adds an ammo tile to the ammo square
-        AmmoTile drawn = (AmmoTile)Board.getInstance().getAmmoDeck().getDrawable().get(0);
+        AmmoTile drawn = (AmmoTile)b.getAmmoDeck().getDrawable().get(0);
         ammoSquare.addAllCards();
 
         //checks that the ammo square contains the added ammo tile
@@ -115,13 +119,13 @@ public class AmmoSquareTest {
     public void addAmmoFullSquare() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
 
         //initializes board
-        BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.getInstance().simulateScenario();
 
         //creates a new ammo square with no ammo tiles and no players
-        AmmoSquare ammoSquare = new AmmoSquare(1, 1, 1, 1, RED);
+        AmmoSquare ammoSquare = new AmmoSquare(b, 1, 1, 1, 1, RED);
 
         //adds an ammo tile to the ammo square
-        AmmoTile drawn = (AmmoTile)Board.getInstance().getAmmoDeck().getDrawable().get(0);
+        AmmoTile drawn = (AmmoTile)b.getAmmoDeck().getDrawable().get(0);
         ammoSquare.addAllCards();
 
         //tries to add another ammo tile
@@ -133,7 +137,7 @@ public class AmmoSquareTest {
 
 
     /**
-     * Tests the method equals(), covering all the instructions.
+     * Tests the method equals().
      */
     @Test
     public void equalsOverride() {
@@ -141,14 +145,15 @@ public class AmmoSquareTest {
         //creates two identical ammoSquares
         //since the id identifies the square, the other fields are set equals too
         //the method equals() only checks the id
-        AmmoSquare ammoSquare1 = new AmmoSquare(1, 1, 1, 1, RED);
-        AmmoSquare ammoSquare2 = new AmmoSquare(1, 1, 1, 1, RED);
+        Board b = BoardConfigurer.getInstance().configureMap(1);
+        AmmoSquare ammoSquare1 = new AmmoSquare(b, 1, 1, 1, 1, RED);
+        AmmoSquare ammoSquare2 = new AmmoSquare(b, 1, 1, 1, 1, RED);
         assertTrue(ammoSquare1.equals(ammoSquare2));
 
     }
 
     /**
-     * Tests the method hashCode(), covering all the instructions.
+     * Tests the method hashCode().
      */
     @Test
     public void hashCodeOverride() {
@@ -156,8 +161,9 @@ public class AmmoSquareTest {
         //creates two identical ammoSquares
         //since the id identifies the square, the other fields are set equals too
         //the method equals() only checks the id
-        AmmoSquare ammoSquare1 = new AmmoSquare(1, 1, 1, 1, RED);
-        AmmoSquare ammoSquare2 = new AmmoSquare(1, 1, 1, 1, RED);
+        Board b = BoardConfigurer.getInstance().configureMap(1);
+        AmmoSquare ammoSquare1 = new AmmoSquare(b, 1, 1, 1, 1, RED);
+        AmmoSquare ammoSquare2 = new AmmoSquare(b, 1, 1, 1, 1, RED);
         assertEquals(ammoSquare1.hashCode(), ammoSquare2.hashCode());
 
     }

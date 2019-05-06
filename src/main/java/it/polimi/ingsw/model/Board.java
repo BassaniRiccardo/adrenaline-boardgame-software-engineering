@@ -6,9 +6,9 @@ import static it.polimi.ingsw.model.Color.*;
 
 /**
  * Represents the game board, made of a map with walls.
- * Only one instance of the board is allowed.
+ * Every game has a specific game board.
  * Contains the players and information about the players.
- * Contains a deck of weapons, a deck of ammo tiles, a deck of power ups and a killshot track.
+ * Contains a deck of weapons, a deck of ammo tiles, a deck of power ups and a kill shot track.
  * Provides information about the relations between the squares in the map.
  *
  * @author  BassaniRiccardo
@@ -17,9 +17,6 @@ import static it.polimi.ingsw.model.Color.*;
 public class Board {
 
     public enum Direction {RIGHT, LEFT, UP, DOWN}
-
-    //the unique instance of Board
-    private static Board instance = null;
 
     //depend on the map_id, set by BoardConfigurer
     private List<Square> map;
@@ -41,9 +38,9 @@ public class Board {
 
 
     /**
-     * Constructs a board with no map, walls, players, weapons, nor killshot track.
+     * Constructs a board with no map, walls, players, weapons, nor kill shot track.
      */
-    private Board() {
+    public Board() {
 
         this.map = new ArrayList<>();
         this.topWalls = null;
@@ -57,23 +54,7 @@ public class Board {
         this.powerUpDeck = new Deck();
         this.ammoDeck = new Deck();
 
-        this.killShotTrack = new KillShotTrack(0);
-
-    }
-
-
-    /**
-     * Returns the unique instance of the board.
-     * If not already existing, it calls Board private constructor.
-     *
-     * @return      the unique instance of the board.
-     */
-    public static Board getInstance() {
-
-        if (instance == null){
-            instance = new Board();
-        }
-        return instance;
+        this.killShotTrack = new KillShotTrack(0, this);
 
     }
 
@@ -105,6 +86,25 @@ public class Board {
      */
     public List<Player> getPlayers() {
         return players;
+    }
+
+
+    /**
+     * Getter for players.
+     *
+     * @return      the players on the board.
+     */
+    public List<Player> getActivePlayers() {
+        List<Player> activePlayers = new ArrayList<>();
+        for (Player p: players){
+            if (p.isInGame()) activePlayers.add(p);
+        }
+        Collections.sort(activePlayers, (p1, p2) -> {
+            if (p1.getId() < p2.getId()) return -1;
+            else if (p1.getId() > p2.getId()) return 1;
+            return 0;
+        });
+        return activePlayers;
     }
 
     /**
@@ -146,11 +146,11 @@ public class Board {
     /**
      * Getter for killShotTrack.
      *
-     * @return      the killshot track.
+     * @return      the kill shot track.
      */
     public KillShotTrack getKillShotTrack() throws NotAvailableAttributeException{
         if (killShotTrack == null){
-            throw new NotAvailableAttributeException ("Impossible to return the killshot track: the board has not been initialized yet.");
+            throw new NotAvailableAttributeException ("Impossible to return the kill shot track: the board has not been initialized yet.");
         }
         return killShotTrack;
     }
@@ -172,7 +172,7 @@ public class Board {
      */
     public void setMap(List<Square> map) {
         if (map.size() < 10 || map.size() > 12){
-            throw new IllegalArgumentException ("The map must contain between 10 and 12 sqares");
+            throw new IllegalArgumentException ("The map must contain between 10 and 12 squares");
         }
         this.map = map;
     }
@@ -289,7 +289,7 @@ public class Board {
      */
     public void setKillShotTrack(KillShotTrack killShotTrack) {
         if (killShotTrack.getSkullsLeft() < 5 || killShotTrack.getSkullsLeft() > 8){
-            throw new IllegalArgumentException ("The number of skulls on the killshot track must be between 5 and 8");
+            throw new IllegalArgumentException ("The number of skulls on the kill shot track must be between 5 and 8");
         }
         this.killShotTrack = killShotTrack;
     }
@@ -403,7 +403,7 @@ public class Board {
      */
     public List<Square> getSquaresInRoom (int roomId){
 
-        if ( roomId < 1 || Board.getInstance().getMap().size() - roomId < 6) {
+        if ( roomId < 1 ||this.getMap().size() - roomId < 6) {
             throw new IllegalArgumentException("This map does not contain so many rooms");
         }
         List<Square> inRoom = new ArrayList<>();
@@ -488,7 +488,7 @@ public class Board {
      */
     public int getDistance(Square start, Square dest) {
 
-        if (!Board.getInstance().getMap().contains(start) || !Board.getInstance().getMap().contains(dest)){
+        if (!this.getMap().contains(start) || !this.getMap().contains(dest)){
             throw new IllegalArgumentException("The squares must belong to the board.");
         }
 

@@ -19,14 +19,23 @@ import static it.polimi.ingsw.model.Board.Direction;
 
 public class PowerUpFactory  {
 
+    private Board board;
+
+    /**
+     * Constructs a PowerUpFactory with a reference to the game board
+     *
+     * @param board         the board of the game
+     */
+    public PowerUpFactory(Board board){this.board = board;}
+
     /**
      *Creates a PowerUp object according to its name
      *
-     * @param  powerUpName  the name of the powerup to be created
-     * @param  color        the color of the powerup
+     * @param  powerUpName  the name of the power up to be created
+     * @param  color        the color of the power up
      * @return      the PowerUp object created
      */
-    public static PowerUp createPowerUp(PowerUp.PowerUpName powerUpName, Color color) {
+    public PowerUp createPowerUp(PowerUp.PowerUpName powerUpName, Color color) {
 
         Effect effect;
         AmmoPack cost = new AmmoPack(0,0,0);
@@ -37,7 +46,7 @@ public class PowerUpFactory  {
             case TARGETING_SCOPE:
 
                 effect = (shooter, target, destination)-> target.sufferDamage(1, shooter);
-                targetFinder = (p) -> Board.getInstance().getPlayers().stream()
+                targetFinder = p -> board.getPlayers().stream()
                         .filter(x->x.isJustDamaged())
                         .distinct()
                         .map(x -> Arrays.asList(x))
@@ -47,7 +56,7 @@ public class PowerUpFactory  {
 
             case NEWTON:
                 effect = (shooter, target, destination)-> target.setPosition(destination);
-                targetFinder = (p) -> Board.getInstance().getPlayers().stream()
+                targetFinder = p -> board.getActivePlayers().stream()
                         .filter(x->!x.equals(p))
                         .distinct()
                         .map(x -> Arrays.asList(x))
@@ -60,8 +69,8 @@ public class PowerUpFactory  {
                     Square center = t.get(0).getPosition();
                     res.add(center);
                     for (Direction d : Direction.values()) {
-                        res.addAll(Board.getInstance().getSquaresInLine(center, d).stream()
-                                .filter(x->Board.getInstance().getDistance(center, x)<3)
+                        res.addAll(board.getSquaresInLine(center, d).stream()
+                                .filter(x->board.getDistance(center, x)<3)
                                 .collect(Collectors.toList()));
                     }
                     return res;
@@ -70,22 +79,22 @@ public class PowerUpFactory  {
 
             case TAGBACK_GRENADE:
                 effect = (shooter, target, destination)-> target.addMarks(1, shooter);
-                targetFinder = (p) -> p.isJustDamaged()? new ArrayList<>():Arrays.asList(Arrays.asList(Board.getInstance().getCurrentPlayer()));
+                targetFinder = p -> p.isJustDamaged()? new ArrayList<>():Arrays.asList(Arrays.asList(board.getCurrentPlayer()));
                 destinationFinder = (p, t) -> new ArrayList<>();
                 break;
 
             case TELEPORTER:
                 effect = (shooter, target, destination)-> target.setPosition(destination);
-                targetFinder = (p) -> Arrays.asList(Arrays.asList(p));
-                destinationFinder = (p, t) -> Board.getInstance().getMap();
+                targetFinder = p -> Arrays.asList(Arrays.asList(p));
+                destinationFinder = (p, t) -> board.getMap();
                 break;
 
             default:
                 effect = (shooter, target, destination)-> shooter.setPosition(destination);
-                targetFinder = (p) -> Arrays.asList(Arrays.asList(p));
-                destinationFinder = (p, t) -> Board.getInstance().getMap();
+                targetFinder = p -> Arrays.asList(Arrays.asList(p));
+                destinationFinder = (p, t) -> board.getMap();
                 break;
         }
-        return new PowerUp(powerUpName, cost, destinationFinder, targetFinder, effect, color);
+        return new PowerUp(powerUpName, cost, destinationFinder, targetFinder, effect, color, board);
     }
 }

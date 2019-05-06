@@ -8,7 +8,7 @@ import java.util.List;
 import static java.util.Collections.*;
 
 /**
- * Represents the killshot track of the board.
+ * Represents the kill shot track of the board.
  * Registers the kills memorizing the killer for each kill.
  * Rewards the killers at the end of the game.
  *
@@ -20,20 +20,23 @@ public class KillShotTrack {
 
     private int skullsLeft;
     private List<Player> killers;
+    private Board board;
 
 
     /**
-     * Constructs a killshot track with the number of skulls to add to the track.
+     * Constructs a kill shot track with the number of skulls to add to the track and a reference to the board.
      *
      * @param skullsNumber  the number of skulls to add to the track.
+     * @param board         the board the kill shot track is in.
      * @throws              IllegalArgumentException
      */
-    public KillShotTrack(int skullsNumber) {
+    public KillShotTrack(int skullsNumber, Board board) {
 
         if (skullsNumber > 8) throw new IllegalArgumentException("The number of skulls can not be higher than 8.");
 
         this.skullsLeft = skullsNumber;
         this.killers = new ArrayList<>();
+        this.board = board;
 
     }
 
@@ -95,6 +98,11 @@ public class KillShotTrack {
         if (skullsLeft != 0) {
             dead.updateAwards();
             removeSkulls(1);
+            System.out.println("Skulls left: " + skullsLeft + ".");
+        }
+        else {
+            dead.setDead(false);
+            dead.getDamages().clear();
         }
 
     }
@@ -103,12 +111,12 @@ public class KillShotTrack {
     /**
      * Rewards the players who killed at least one opponent, in accordance with the number of opponents killed.
      * The first gets 8 points, the second 6, the third 4, the fourth 2 and the fifth 1.
-     * In the event of a tie, the player who got the earlier killshot wins the tie.
+     * In the event of a draw, the player who got the earlier kill shot wins the draw.
      */
     public void rewardKillers() {
 
         //asks the board for the players
-        List<Player> playersToReward = Board.getInstance().getPlayers();
+        List<Player> playersToReward = this.board.getPlayers();
 
         //properly orders the playersToReward
         Collections.sort(playersToReward, (p1,p2) -> {
@@ -129,6 +137,8 @@ public class KillShotTrack {
             Player p = playerToAwardIt.next();
             if (killers.contains(p)){
                 p.addPoints(pointsToGive);
+                System.out.println("Player " + p.getId() + " gains " + pointsToGive + " points.");
+
             }
             if (pointsToGive==2) pointsToGive-= 1;
             else pointsToGive -= 2;

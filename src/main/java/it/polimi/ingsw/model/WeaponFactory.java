@@ -21,12 +21,15 @@ import static it.polimi.ingsw.model.Board.Direction;
 
 public class WeaponFactory {
 
+
+    private Board board;
     /**
-     *Private constructor
+     * Constructs a weapon factory with a reference to the game board.
      *
+     * @param board         the board of the game.
      * @return      a WeaponFactory
      */
-    private WeaponFactory(){}
+    public WeaponFactory(Board board){this.board = board;}
 
     /**
      *Creates a Weapon object according to its name
@@ -34,7 +37,7 @@ public class WeaponFactory {
      * @param  weaponName  the name of the weapon to be created
      * @return      the Weapon object created
      */
-    public static Weapon createWeapon(Weapon.WeaponName weaponName) {
+    public Weapon createWeapon(Weapon.WeaponName weaponName) {
 
         FireMode fireMode;
         TargetFinder targetFinder;
@@ -60,7 +63,7 @@ public class WeaponFactory {
             fireModeList.add(fireMode);
         }
 
-        Weapon weapon = new Weapon(weaponName, color, fullCost, reducedCost, fireModeList);
+        Weapon weapon = new Weapon(weaponName, color, fullCost, reducedCost, fireModeList, board);
 
         for (FireMode f : fireModeList) {
             f.setWeapon(weapon);
@@ -154,7 +157,7 @@ public class WeaponFactory {
         }
     }
 
-    private static Effect getEffect(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    private Effect getEffect(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
         Map<Weapon.WeaponName, Map> fireModeMap = new EnumMap<>(Weapon.WeaponName.class);
 
         Map<FireMode.FireModeName, Effect> effectMap = new EnumMap<>(FireMode.FireModeName.class);
@@ -223,18 +226,18 @@ public class WeaponFactory {
         effectMap = new EnumMap<>(FireMode.FireModeName.class);
         effectMap.put(MAIN, ((shooter, target, destination) -> {
             target.sufferDamage(1, shooter);
-            Board.getInstance().getPlayersInside(target.getPosition()).forEach(x -> x.addMarks(1, shooter));
+            board.getPlayersInside(target.getPosition()).forEach(x -> x.addMarks(1, shooter));
         }));
         effectMap.put(SECONDARY, ((shooter, target, destination) -> {
             target.sufferDamage(1, shooter);
-            Board.getInstance().getPlayersInside(target.getPosition()).forEach(x -> x.addMarks(2, shooter));
+            board.getPlayersInside(target.getPosition()).forEach(x -> x.addMarks(2, shooter));
         }));
         fireModeMap.put(HELLION, effectMap);
 
         effectMap = new EnumMap<>(FireMode.FireModeName.class);
         effectMap.put(MAIN, createEffect(1,0));
         effectMap.put(SECONDARY, ((shooter, target, destination) -> {
-            if (Board.getInstance().getReachable(shooter.getPosition(), 1).contains(target.getPosition())) {
+            if (board.getReachable(shooter.getPosition(), 1).contains(target.getPosition())) {
                 target.sufferDamage(2, shooter);
             } else target.sufferDamage(1, shooter);
         }));
@@ -309,19 +312,19 @@ public class WeaponFactory {
         return (Effect)fireModeMap.get(weaponName).get(fireModeName);
     }
 
-    private static TargetFinder getTargetFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    private TargetFinder getTargetFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
         Map<Weapon.WeaponName, Map> fireModeMap = new EnumMap<>(Weapon.WeaponName.class);
 
 
         Map<FireMode.FireModeName, TargetFinder> targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(MAIN, p -> board.getVisible(p.getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
                 .filter( x -> !x.equals(p))
                 .map(Arrays::asList)
                 .collect(Collectors.toList()));
-        targetMap.put(OPTION1, p -> (Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(OPTION1, p -> (board.getVisible(p.getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -334,7 +337,7 @@ public class WeaponFactory {
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
         targetMap.put(MAIN, p -> {
-            List<List<Player>> res = Board.getInstance().getVisible(p.getPosition()).stream()
+            List<List<Player>> res = board.getVisible(p.getPosition()).stream()
                     .map(Square::getPlayers)
                     .flatMap(x -> x.stream())
                     .distinct()
@@ -356,7 +359,7 @@ public class WeaponFactory {
                     .filter(x -> !p.getOptionalTargets().contains(x))
                     .map(Arrays::asList)
                     .collect(Collectors.toList());
-            List<List<Player>> others = Board.getInstance().getVisible(p.getPosition()).stream()
+            List<List<Player>> others = board.getVisible(p.getPosition()).stream()
                     .map(Square::getPlayers)
                     .flatMap(x->x.stream())
                     .distinct()
@@ -372,7 +375,7 @@ public class WeaponFactory {
 
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(MAIN, p -> board.getVisible(p.getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -380,7 +383,7 @@ public class WeaponFactory {
                 .map(Arrays::asList)
                 .collect(Collectors.toList()));
         targetMap.put(OPTION1, p -> (p.getMainTargets().isEmpty()) ?
-                new ArrayList<>() : Board.getInstance().getVisible(p.getMainTargets().get(0).getPosition()).stream()
+                new ArrayList<>() : board.getVisible(p.getMainTargets().get(0).getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -389,7 +392,8 @@ public class WeaponFactory {
                 .map(Arrays::asList)
                 .collect(Collectors.toList()));
         targetMap.put(OPTION2, p -> (p.getMainTargets().isEmpty()||p.getOptionalTargets().isEmpty()) ?
-                new ArrayList<>() : Board.getInstance().getVisible(p.getOptionalTargets().get(0).getPosition()).stream()
+                new ArrayList<>() : board
+                .getVisible(p.getOptionalTargets().get(0).getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -401,7 +405,7 @@ public class WeaponFactory {
 
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(MAIN, p -> board.getVisible(p.getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -418,14 +422,14 @@ public class WeaponFactory {
 
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(MAIN, p -> board.getVisible(p.getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
                 .filter(x -> !x.equals(p))
                 .filter(x -> {
                     try {
-                        return Board.getInstance().getDistance(x.getPosition(), p.getPosition()) >= 2;
+                        return board.getDistance(x.getPosition(), p.getPosition()) >= 2;
                     } catch (NotAvailableAttributeException e) {
                         throw new IllegalArgumentException("Some players do not have a position.");
                     }
@@ -449,10 +453,10 @@ public class WeaponFactory {
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
         targetMap.put(MAIN, p -> {
-            List<Square> l = Board.getInstance().getVisible(p.getPosition());
+            List<Square> l = board.getVisible(p.getPosition());
             List<Square> temp = new ArrayList<>();
             for (Square s : l) {
-                temp.addAll(Board.getInstance().getReachable(s, 2));
+                temp.addAll(board.getReachable(s, 2));
             }
             l.addAll(temp);
             return l.stream()
@@ -464,7 +468,7 @@ public class WeaponFactory {
                     .map(Arrays::asList)
                     .collect(Collectors.toList());
         });
-        targetMap.put(SECONDARY, p -> Board.getInstance().getReachable(p.getPosition(), 2).stream()
+        targetMap.put(SECONDARY, p -> board.getReachable(p.getPosition(), 2).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -477,10 +481,10 @@ public class WeaponFactory {
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
         targetMap.put(MAIN, p -> {
-            List<Square> l = Board.getInstance().getVisible(p.getPosition());
+            List<Square> l = board.getVisible(p.getPosition());
             List<Square> temp = new ArrayList<>();
             for (Square s : l) {
-                temp.addAll(Board.getInstance().getReachable(s, 1));
+                temp.addAll(board.getReachable(s, 1));
             }
             l.addAll(temp);
             return l.stream()
@@ -495,7 +499,7 @@ public class WeaponFactory {
             if (p.getMainTargets().isEmpty()) {
                 return new ArrayList<>();
             }
-            List<List<Player>> lp = Board.getInstance().getReachable(p.getMainTargets().get(0).getPosition(), 1).stream()
+            List<List<Player>> lp = board.getReachable(p.getMainTargets().get(0).getPosition(), 1).stream()
                     .map(Square::getPlayers)
                     .flatMap(x -> x.stream())
                     .distinct()
@@ -512,7 +516,7 @@ public class WeaponFactory {
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
         targetMap.put(MAIN, p -> {
-            List<List<Square>> roomList = Board.getInstance().getVisible(p.getPosition()).stream()
+            List<List<Square>> roomList = board.getVisible(p.getPosition()).stream()
                     .map(Square::getRoomId)
                     .distinct()
                     .filter(x -> {
@@ -522,7 +526,7 @@ public class WeaponFactory {
                             throw new IllegalArgumentException("Some players do not have a position.");
                         }
                     })
-                    .map(x -> Board.getInstance().getSquaresInRoom(x))
+                    .map(x -> board.getSquaresInRoom(x))
                     .collect(Collectors.toList());
             List<List<Player>> res = new ArrayList<>();
             List<Player> temp = new ArrayList<>();
@@ -535,7 +539,7 @@ public class WeaponFactory {
             }
             return res;
         });
-        targetMap.put(SECONDARY, p -> Board.getInstance().getReachable(p.getPosition(), 1).stream()
+        targetMap.put(SECONDARY, p -> board.getReachable(p.getPosition(), 1).stream()
                 .filter(x -> {
                     try {
                         return !x.equals(p.getPosition());
@@ -549,10 +553,10 @@ public class WeaponFactory {
 
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getMap().stream()
+        targetMap.put(MAIN, p -> board.getMap().stream()
                 .filter(x -> {
                     try {
-                        return !Board.getInstance().getVisible(p.getPosition()).contains(x);
+                        return !board.getVisible(p.getPosition()).contains(x);
                     } catch (NotAvailableAttributeException e) {
                         throw new IllegalArgumentException("Some players do not have a position.");
                     }
@@ -567,14 +571,14 @@ public class WeaponFactory {
         fireModeMap.put(HEATSEEKER, targetMap);
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(MAIN, p -> board.getVisible(p.getPosition()).stream()
                 .filter(x -> !x.containsPlayer(p))
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
                 .map(Arrays::asList)
                 .collect(Collectors.toList()));
-        targetMap.put(SECONDARY, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(SECONDARY, p -> board.getVisible(p.getPosition()).stream()
                 .filter(x -> !x.containsPlayer(p))
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
@@ -587,10 +591,10 @@ public class WeaponFactory {
         targetMap.put(MAIN, p -> {
             List<List<Player>> targets = new ArrayList<>();
             for (Direction d : Direction.values()) {
-                List<List<Player>> close = Board.getInstance().getSquaresInLine(p.getPosition(), d).stream()
+                List<List<Player>> close = board.getSquaresInLine(p.getPosition(), d).stream()
                         .filter(x -> {
                             try {
-                                return Board.getInstance().getReachable(p.getPosition(), 1).contains(x);
+                                return board.getReachable(p.getPosition(), 1).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 throw new IllegalArgumentException("Some players do not have a position.");
                             }
@@ -600,10 +604,10 @@ public class WeaponFactory {
                         .distinct()
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-                List<List<Player>> far = Board.getInstance().getSquaresInLine(p.getPosition(), d).stream()
+                List<List<Player>> far = board.getSquaresInLine(p.getPosition(), d).stream()
                         .filter(x -> {
                             try {
-                                return Board.getInstance().getReachable(p.getPosition(), 2).contains(x)&&!Board.getInstance().getReachable(p.getPosition(), 1).contains(x);
+                                return board.getReachable(p.getPosition(), 2).contains(x)&&!board.getReachable(p.getPosition(), 1).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 throw new IllegalArgumentException("Some players do not have a position.");
                             }
@@ -622,10 +626,10 @@ public class WeaponFactory {
         targetMap.put(SECONDARY, p -> {
             List<List<Player>> targets = new ArrayList<>();
             for (Direction d : Direction.values()) {
-                List<List<Player>> close = Board.getInstance().getSquaresInLine(p.getPosition(), d).stream()
+                List<List<Player>> close = board.getSquaresInLine(p.getPosition(), d).stream()
                         .filter(x -> {
                             try {
-                                return !Board.getInstance().getReachable(p.getPosition(), 1).contains(x);
+                                return !board.getReachable(p.getPosition(), 1).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 throw new IllegalArgumentException("Some players do not have a position.");
                             }
@@ -635,10 +639,10 @@ public class WeaponFactory {
                         .distinct()
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-                List<List<Player>> far = Board.getInstance().getSquaresInLine(p.getPosition(), d).stream()
+                List<List<Player>> far = board.getSquaresInLine(p.getPosition(), d).stream()
                         .filter(x -> {
                             try {
-                                return Board.getInstance().getReachable(p.getPosition(), 2).contains(x)&&!Board.getInstance().getReachable(p.getPosition(), 1).contains(x);
+                                return board.getReachable(p.getPosition(), 2).contains(x)&&!board.getReachable(p.getPosition(), 1).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 throw new IllegalArgumentException("Some players do not have a position.");
                             }
@@ -657,7 +661,7 @@ public class WeaponFactory {
         fireModeMap.put(FLAMETHROWER, targetMap);
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(MAIN, p -> board.getVisible(p.getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -665,7 +669,7 @@ public class WeaponFactory {
                 .map(Arrays::asList)
                 .collect(Collectors.toList())
         );
-        targetMap.put(OPTION1, p -> {List<List<Player>> l = Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(OPTION1, p -> {List<List<Player>> l = board.getVisible(p.getPosition()).stream()
                 .map(Square::getPlayers)
                 .filter(x -> {
                     try {
@@ -681,7 +685,7 @@ public class WeaponFactory {
         fireModeMap.put(GRENADE_LAUNCHER, targetMap);
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(MAIN, p -> board.getVisible(p.getPosition()).stream()
                 .filter(x -> {
                     try {
                         return !x.equals(p.getPosition());
@@ -709,7 +713,7 @@ public class WeaponFactory {
         targetMap.put(MAIN, p -> {
             List<List<Player>> targets = new ArrayList<>();
             for (Direction d : Direction.values()){
-                List<List<Player>> single = Board.getInstance().getSquaresInLineIgnoringWalls(p.getPosition(), d)
+                List<List<Player>> single = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
                         .stream()
                         .map(Square::getPlayers)
                         .flatMap(x -> x.stream())
@@ -736,7 +740,7 @@ public class WeaponFactory {
             targets.addAll(close);
             targets.addAll(cartesian(close, close));
             for (Direction d : Direction.values()){
-                List<List<Player>> single = Board.getInstance().getSquaresInLineIgnoringWalls(p.getPosition(), d)
+                List<List<Player>> single = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
                         .stream()
                         .map(Square::getPlayers)
                         .flatMap(x -> x.stream())
@@ -768,7 +772,7 @@ public class WeaponFactory {
         fireModeMap.put(CYBERBLADE, targetMap);
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getVisible(p.getPosition()).stream()
+        targetMap.put(MAIN, p -> board.getVisible(p.getPosition()).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -778,7 +782,7 @@ public class WeaponFactory {
         );
         targetMap.put(SECONDARY, p -> {
             List<List<Player>> targets = new ArrayList<>();
-            List<List<Player>> single = Board.getInstance().getVisible(p.getPosition()).stream()
+            List<List<Player>> single = board.getVisible(p.getPosition()).stream()
                     .map(Square::getPlayers)
                     .flatMap(x -> x.stream())
                     .distinct()
@@ -798,7 +802,7 @@ public class WeaponFactory {
                 .filter(x -> !x.equals(p))
                 .map(Arrays::asList)
                 .collect(Collectors.toList()));
-        targetMap.put(SECONDARY, p -> Board.getInstance().getReachable(p.getPosition(), 1).stream()
+        targetMap.put(SECONDARY, p -> board.getReachable(p.getPosition(), 1).stream()
                 .filter(x -> {
                     try {
                         return !x.equals(p.getPosition());
@@ -814,7 +818,7 @@ public class WeaponFactory {
         fireModeMap.put(SHOTGUN, targetMap);
 
         targetMap = new EnumMap<>(FireMode.FireModeName.class);
-        targetMap.put(MAIN, p -> Board.getInstance().getReachable(p.getPosition(), 1).stream()
+        targetMap.put(MAIN, p -> board.getReachable(p.getPosition(), 1).stream()
                 .filter(x -> {
                     try {
                         return !x.equals(p.getPosition());
@@ -830,11 +834,11 @@ public class WeaponFactory {
         targetMap.put(SECONDARY, p -> {
             List<List<Player>> targets = new ArrayList<>();
             for (Direction d : Direction.values()){
-                List<List<Player>> close = Board.getInstance().getSquaresInLineIgnoringWalls(p.getPosition(), d)
+                List<List<Player>> close = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
                         .stream()
                         .filter(x -> {
                             try {
-                                return Board.getInstance().getReachable(p.getPosition(), 1).contains(x);
+                                return board.getReachable(p.getPosition(), 1).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 throw new IllegalArgumentException("Some players do not have a position.");
                             }
@@ -844,18 +848,18 @@ public class WeaponFactory {
                         .distinct()
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-                List<List<Player>> far = Board.getInstance().getSquaresInLineIgnoringWalls(p.getPosition(), d)
+                List<List<Player>> far = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
                         .stream()
                         .filter(x -> {
                             try {
-                                return Board.getInstance().getReachable(p.getPosition(), 2).contains(x);
+                                return board.getReachable(p.getPosition(), 2).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 throw new IllegalArgumentException("Some players do not have a position.");
                             }
                         })
                         .filter(x -> {
                             try {
-                                return !Board.getInstance().getReachable(p.getPosition(), 1).contains(x);
+                                return !board.getReachable(p.getPosition(), 1).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 throw new IllegalArgumentException("Some players do not have a position.");
                             }
@@ -881,10 +885,10 @@ public class WeaponFactory {
             List<List<List<Player>>> directionalTargets = new ArrayList<>();
 
             for (Direction d : Direction.values()){
-                directionalTargets.add(Board.getInstance().getReachable(p.getPosition(), 1).stream()
+                directionalTargets.add(board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> {
                             try {
-                                return Board.getInstance().getSquaresInLine(p.getPosition(), d).contains(x);
+                                return board.getSquaresInLine(p.getPosition(), d).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 throw new IllegalArgumentException("Some players do not have a position.");
                             }
@@ -906,7 +910,7 @@ public class WeaponFactory {
             }
             return targets;
         });
-        targetMap.put(SECONDARY, p -> Arrays.asList(Board.getInstance().getReachable(p.getPosition(), 1).stream()
+        targetMap.put(SECONDARY, p -> Arrays.asList(board.getReachable(p.getPosition(), 1).stream()
                 .map(Square::getPlayers)
                 .flatMap(x -> x.stream())
                 .distinct()
@@ -931,7 +935,7 @@ public class WeaponFactory {
         return (TargetFinder) fireModeMap.get(weaponName).get(fireModeName);
     }
 
-    private static DestinationFinder getDestinationFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    private DestinationFinder getDestinationFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
         Map<Weapon.WeaponName, Map> fireModeMap = new EnumMap<>(Weapon.WeaponName.class);
 
 
@@ -954,7 +958,7 @@ public class WeaponFactory {
 
         destinationMap = new EnumMap<>(FireMode.FireModeName.class);
         destinationMap.put(MAIN, (p, t) -> new ArrayList<>());
-        destinationMap.put(OPTION1, (p, t) -> {List<Square > l = Board.getInstance().getReachable(p.getPosition(), 2); l.remove(p.getPosition()); return l;});
+        destinationMap.put(OPTION1, (p, t) -> {List<Square > l = board.getReachable(p.getPosition(), 2); l.remove(p.getPosition()); return l;});
         destinationMap.put(OPTION2, (p, t) -> new ArrayList<>());
         fireModeMap.put(PLASMA_GUN, destinationMap);
 
@@ -968,11 +972,11 @@ public class WeaponFactory {
         fireModeMap.put(ELECTROSCYTHE, destinationMap);
 
         destinationMap = new EnumMap<>(FireMode.FireModeName.class);
-        destinationMap.put(MAIN, (p, t) -> Board.getInstance().getVisible(p.getPosition()).stream()
+        destinationMap.put(MAIN, (p, t) -> board.getVisible(p.getPosition()).stream()
                 .distinct()
                 .filter(x -> {
                     try {
-                        return t.isEmpty()||Board.getInstance().getVisible(t.get(0).getPosition()).contains(x);
+                        return t.isEmpty()||board.getVisible(t.get(0).getPosition()).contains(x);
                     } catch (NotAvailableAttributeException e) {
                         throw new IllegalArgumentException("Some players do not have a position.");
                     }
@@ -983,10 +987,10 @@ public class WeaponFactory {
         fireModeMap.put(TRACTOR_BEAM, destinationMap);
 
         destinationMap = new EnumMap<>(FireMode.FireModeName.class);
-        destinationMap.put(MAIN, (p, t) -> Board.getInstance().getVisible(p.getPosition()).stream()
+        destinationMap.put(MAIN, (p, t) -> board.getVisible(p.getPosition()).stream()
                 .filter(x -> {
                     try {
-                        return t.isEmpty()||Board.getInstance().getReachable(t.get(0).getPosition(), 1).contains(x);
+                        return t.isEmpty()||board.getReachable(t.get(0).getPosition(), 1).contains(x);
                     } catch (NotAvailableAttributeException e) {
                         throw new IllegalArgumentException("Some players do not have a position.");
                     }
@@ -1024,13 +1028,13 @@ public class WeaponFactory {
         fireModeMap.put(FLAMETHROWER, destinationMap);
 
         destinationMap = new EnumMap<>(FireMode.FireModeName.class);
-        destinationMap.put(MAIN, (p, t) -> t.isEmpty() ? new ArrayList<>() : Board.getInstance().getReachable(t.get(0).getPosition(), 1));
+        destinationMap.put(MAIN, (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), 1));
         destinationMap.put(OPTION1, (p, t) -> new ArrayList<>());
         fireModeMap.put(GRENADE_LAUNCHER, destinationMap);
 
         destinationMap = new EnumMap<>(FireMode.FireModeName.class);
-        destinationMap.put(MAIN, (p, t) -> t.isEmpty() ? new ArrayList<>() : Board.getInstance().getReachable(t.get(0).getPosition(), 1));
-        destinationMap.put(OPTION1, (p, t) -> {List<Square > l = Board.getInstance().getReachable(p.getPosition(), 2); l.remove(p.getPosition()); return l;});
+        destinationMap.put(MAIN, (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), 1));
+        destinationMap.put(OPTION1, (p, t) -> {List<Square > l = board.getReachable(p.getPosition(), 2); l.remove(p.getPosition()); return l;});
         destinationMap.put(OPTION2, (p, t) -> new ArrayList<>());
         fireModeMap.put(ROCKET_LAUNCHER, destinationMap);
 
@@ -1041,7 +1045,7 @@ public class WeaponFactory {
 
         destinationMap = new EnumMap<>(FireMode.FireModeName.class);
         destinationMap.put(MAIN, (p, t) -> new ArrayList<>());
-        destinationMap.put(OPTION1, (p, t) -> {List<Square > l = Board.getInstance().getReachable(p.getPosition(), 1); l.remove(p.getPosition()); return l;});
+        destinationMap.put(OPTION1, (p, t) -> {List<Square > l = board.getReachable(p.getPosition(), 1); l.remove(p.getPosition()); return l;});
         destinationMap.put(OPTION2, (p, t) -> new ArrayList<>());
         fireModeMap.put(CYBERBLADE, destinationMap);
 
@@ -1051,7 +1055,7 @@ public class WeaponFactory {
         fireModeMap.put(ZX2, destinationMap);
 
         destinationMap = new EnumMap<>(FireMode.FireModeName.class);
-        destinationMap.put(MAIN, (p, t) -> Board.getInstance().getReachable(p.getPosition(), 1));
+        destinationMap.put(MAIN, (p, t) -> board.getReachable(p.getPosition(), 1));
         destinationMap.put(SECONDARY, (p, t) -> new ArrayList<>());
         fireModeMap.put(SHOTGUN, destinationMap);
 
@@ -1059,16 +1063,16 @@ public class WeaponFactory {
         destinationMap.put(MAIN, (p, t) -> t.isEmpty() ? new ArrayList<>(): Arrays.asList(t.get(0).getPosition()));
         destinationMap.put(SECONDARY, (p, t) -> {
             for (Player temp : t) {
-                if (Board.getInstance().getDistance(p.getPosition(), temp.getPosition()) > 1) {
+                if (board.getDistance(p.getPosition(), temp.getPosition()) > 1) {
                     return Arrays.asList(temp.getPosition());
                 }
             }
             List<Square> res = new ArrayList<>();
             res.add(t.get(0).getPosition());
             for (Direction d : Direction.values()){
-                if (Board.getInstance().getSquaresInLine(p.getPosition(), d).contains(t.get(0).getPosition())) {
-                    for (Square sq : Board.getInstance().getSquaresInLine(p.getPosition(), d)) {
-                        if (Board.getInstance().getDistance(sq, p.getPosition()) == 2) {
+                if (board.getSquaresInLine(p.getPosition(), d).contains(t.get(0).getPosition())) {
+                    for (Square sq : board.getSquaresInLine(p.getPosition(), d)) {
+                        if (board.getDistance(sq, p.getPosition()) == 2) {
                             res.add(sq);
                         }
                     }
@@ -1092,8 +1096,8 @@ public class WeaponFactory {
             Square center = p.getPosition();
             res.add(center);
             for (Direction d : Direction.values()){
-                res.addAll(Board.getInstance().getSquaresInLine(center, d).stream()
-                        .filter(x->Board.getInstance().getDistance(center, x)<3)
+                res.addAll(board.getSquaresInLine(center, d).stream()
+                        .filter(x->board.getDistance(center, x)<3)
                         .collect(Collectors.toList()));
             }
             return res;

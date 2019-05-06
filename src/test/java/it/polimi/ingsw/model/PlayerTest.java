@@ -10,7 +10,7 @@ import static java.util.Collections.*;
 import static it.polimi.ingsw.model.Color.*;
 
 /**
- * Tests all methods of the class Player, covering all the instructions.
+ * Tests all methods of the class Player.
  */
 
 public class PlayerTest {
@@ -18,8 +18,8 @@ public class PlayerTest {
     @Before
     public void setup() {
 
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks();
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configureDecks(board1);
     }
 
 
@@ -29,9 +29,11 @@ public class PlayerTest {
     @Test
     public void addMarks() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the player who takes damage and two shooters
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //adds 2 marks from shooter
         player.addMarks(2, shooter);
@@ -47,10 +49,12 @@ public class PlayerTest {
     @Test
     public void addMarksMultipleShooters() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the player who takes damage and two shooters
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter1 = new Player(2, Player.HeroName.D_STRUCT_OR);
-        Player shooter2 = new Player(3, Player.HeroName.DOZER);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter1 = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
+        Player shooter2 = new Player(3, Player.HeroName.DOZER, board1);
 
         //adds 1 marks from shooter1 and 1 from shooter2
         player.addMarks(1, shooter1);
@@ -70,9 +74,11 @@ public class PlayerTest {
     @Test
     public void addMarksMaximum3() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the player who takes damage and two shooters
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //adds 3 marks from shooter
         player.addMarks(4, shooter);
@@ -89,10 +95,10 @@ public class PlayerTest {
     public void collectAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
         //simulates a scenario, all the squares are filled
-        BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.getInstance().simulateScenario();
 
         //a player with no ammo pack
-        Player player = Board.getInstance().getPlayers().get(0);
+        Player player = b.getPlayers().get(0);
 
         //checks that the player has no ammo
         assertEquals(0, player.getAmmoPack().getBlueAmmo());
@@ -120,11 +126,11 @@ public class PlayerTest {
     public void collectNoAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
         //simulates a scenario, all the squares are filled
-        BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.getInstance().simulateScenario();
 
         //a player with no ammo pack
-        Player player1 = Board.getInstance().getPlayers().get(0);
-        Player player2 = Board.getInstance().getPlayers().get(1);
+        Player player1 = b.getPlayers().get(0);
+        Player player2 = b.getPlayers().get(1);
 
         //checks there is a ammo tile in the square
         assertNotNull(((AmmoSquare) player1.getPosition()).getAmmoTile());
@@ -168,8 +174,10 @@ public class PlayerTest {
     @Test
     public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
 
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, b);
 
 
         //checks that poweruplist size is 0
@@ -189,8 +197,10 @@ public class PlayerTest {
     @Test
     public void drawPowerUpMultiple() throws NoMoreCardsException, UnacceptableItemNumberException {
 
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, b);
 
 
         //checks that poweruplist size is 0
@@ -222,8 +232,10 @@ public class PlayerTest {
     @Test
     public void discardPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
 
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, b);
 
         //draws 2 times
         player.drawPowerUp();
@@ -250,8 +262,10 @@ public class PlayerTest {
     @Test
     public void addPoints() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //adds 2 point
         player.addPoints(2);
@@ -268,8 +282,10 @@ public class PlayerTest {
     @Test
     public void addPointsMultiple() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //adds 1 point
         player.addPoints(1);
@@ -292,13 +308,14 @@ public class PlayerTest {
     public void addWeapon() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //simulates a scenario
-        BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
 
         //instantiates the player
-        Player player = Board.getInstance().getPlayers().get(0);
+        Player player = b.getPlayers().get(0);
 
         //instantiates a weapon
-        Weapon weapon = WeaponFactory.createWeapon(Weapon.WeaponName.THOR);
+        Weapon weapon = weaponFactory.createWeapon(Weapon.WeaponName.THOR);
 
         //adds weapon
         player.addWeapon(weapon);
@@ -316,14 +333,14 @@ public class PlayerTest {
     public void addWeaponMultiple() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //simulates a scenario
-        BoardConfigurer.getInstance().simulateScenario();
-
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
         //instantiates the player
-        Player player = Board.getInstance().getPlayers().get(2);
+        Player player = b.getPlayers().get(2);
 
         //instantiates 2 weapons
-        Weapon weapon1 = WeaponFactory.createWeapon(Weapon.WeaponName.THOR);
-        Weapon weapon2 = WeaponFactory.createWeapon(Weapon.WeaponName.SHOTGUN);
+        Weapon weapon1 = weaponFactory.createWeapon(Weapon.WeaponName.THOR);
+        Weapon weapon2 = weaponFactory.createWeapon(Weapon.WeaponName.SHOTGUN);
 
         //adds weapons
         player.addWeapon(weapon1);
@@ -344,14 +361,15 @@ public class PlayerTest {
     public void discardWeapon()  throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //simulates a scenario
-        BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
 
         //instantiates the player
-        Player player = Board.getInstance().getPlayers().get(3);
+        Player player = b.getPlayers().get(3);
 
         //instantiates 2 weapons
-        Weapon weapon1 = WeaponFactory.createWeapon(Weapon.WeaponName.THOR);
-        Weapon weapon2 = WeaponFactory.createWeapon(Weapon.WeaponName.SHOTGUN);
+        Weapon weapon1 = weaponFactory.createWeapon(Weapon.WeaponName.THOR);
+        Weapon weapon2 = weaponFactory.createWeapon(Weapon.WeaponName.SHOTGUN);
 
         //adds weapons
         player.addWeapon(weapon1);
@@ -371,11 +389,13 @@ public class PlayerTest {
     @Test
     public void updateAwards() throws WrongTimeException {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //kills the player
-        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER));
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
 
         //calls updateAwards
         player.updateAwards();
@@ -383,11 +403,17 @@ public class PlayerTest {
         //checks that pointsToGive is 6
         assertEquals(6,player.getPointsToGive());
 
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
+
         //calls updateAwards
         player.updateAwards();
 
         //checks that pointsToGive is 4
         assertEquals(4,player.getPointsToGive());
+
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
 
         //calls updateAwards
         player.updateAwards();
@@ -395,11 +421,17 @@ public class PlayerTest {
         //checks that pointsToGive is 2
         assertEquals(2,player.getPointsToGive());
 
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
+
         //calls updateAwards
         player.updateAwards();
 
         //checks that pointsToGive is 1
         assertEquals(1,player.getPointsToGive());
+
+        //kills the player
+        player.sufferDamage(11, new Player (2, Player.HeroName.DOZER, board1));
 
         //calls updateAwards
         player.updateAwards();
@@ -415,8 +447,11 @@ public class PlayerTest {
      */
     @Test
     public void useAsAmmo() throws NoMoreCardsException, UnacceptableItemNumberException {
+
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, b);
 
         //draws a powerUp
         player.drawPowerUp();
@@ -451,8 +486,10 @@ public class PlayerTest {
     @Test
     public void addAmmoPackPlayer() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //instantiates an AmmoPack
         AmmoPack ammoPack = new AmmoPack(1, 2, 3);
@@ -470,8 +507,11 @@ public class PlayerTest {
      */
     @Test
     public void useAmmo() {
+
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //instantiates 2 AmmoPacks
         AmmoPack ammoPack1 = new AmmoPack(1, 2, 3);
@@ -494,9 +534,11 @@ public class PlayerTest {
     @Test
     public void sufferDamage() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(2, shooter);
@@ -515,10 +557,12 @@ public class PlayerTest {
     @Test
     public void sufferDamageMultipleShooters() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter1 = new Player(2, Player.HeroName.D_STRUCT_OR);
-        Player shooter2 = new Player(3, Player.HeroName.DOZER);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter1 = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
+        Player shooter2 = new Player(3, Player.HeroName.DOZER, board1);
 
         //calls sufferDamage
         player.sufferDamage(1, shooter1);
@@ -539,9 +583,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageJustDamaged() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(1, shooter);
@@ -558,9 +604,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageNotOverkilled() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(1, shooter);
@@ -577,9 +625,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageNotDead() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(1, shooter);
@@ -596,9 +646,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageStatus1() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(1, shooter);
@@ -614,9 +666,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageStatus2() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
 
         //calls sufferDamage
@@ -634,9 +688,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageStatus3() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(7, shooter);
@@ -653,9 +709,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageAndMarks() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //adds marks
         player.addMarks(3, shooter);
@@ -675,9 +733,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageDeath() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(11, shooter);
@@ -694,9 +754,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageOverkilled() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(12, shooter);
@@ -712,9 +774,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageMarksToOverkiller() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(12, shooter);
@@ -730,9 +794,11 @@ public class PlayerTest {
     @Test
     public void sufferDamageMax12Dmgs() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //calls sufferDamage
         player.sufferDamage(13, shooter);
@@ -749,12 +815,13 @@ public class PlayerTest {
     @Test
     public void rewardKillers() throws WrongTimeException {
 
-        BoardConfigurer.getInstance().configurePlayerOptions(3);
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configurePlayerOptions(3, board1);
 
         //instantiates the players
-        Player player1 = Board.getInstance().getPlayers().get(0);
-        Player shooter = Board.getInstance().getPlayers().get(1);
-        Player player2 = Board.getInstance().getPlayers().get(2);
+        Player player1 = board1.getPlayers().get(0);
+        Player shooter = board1.getPlayers().get(1);
+        Player player2 = board1.getPlayers().get(2);
 
 
         //puts a damage from shooter in damages of player
@@ -776,15 +843,16 @@ public class PlayerTest {
     @Test
     public void rewardKillersManyShooters1() throws WrongTimeException {
 
-        BoardConfigurer.getInstance().configurePlayerOptions(5);
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configurePlayerOptions(5, board1);
 
         //initializes the killShotTrack and five players, with 0 points
 
-        Player player = Board.getInstance().getPlayers().get(0);
-        Player shooter1 = Board.getInstance().getPlayers().get(1);
-        Player shooter2 = Board.getInstance().getPlayers().get(2);
-        Player shooter3 = Board.getInstance().getPlayers().get(3);
-        Player shooter4 = Board.getInstance().getPlayers().get(4);
+        Player player = board1.getPlayers().get(0);
+        Player shooter1 = board1.getPlayers().get(1);
+        Player shooter2 = board1.getPlayers().get(2);
+        Player shooter3 = board1.getPlayers().get(3);
+        Player shooter4 = board1.getPlayers().get(4);
 
 
 
@@ -812,13 +880,14 @@ public class PlayerTest {
     @Test
     public void rewardKillersManyShooters2() throws WrongTimeException{
 
-        BoardConfigurer.getInstance().configurePlayerOptions(5);
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        BoardConfigurer.getInstance().configurePlayerOptions(5, board1);
 
-        Player player = Board.getInstance().getPlayers().get(0);
-        Player shooter1 = Board.getInstance().getPlayers().get(1);
-        Player shooter2 = Board.getInstance().getPlayers().get(2);
-        Player shooter3 = Board.getInstance().getPlayers().get(3);
-        Player shooter4 = Board.getInstance().getPlayers().get(4);
+        Player player = board1.getPlayers().get(0);
+        Player shooter1 = board1.getPlayers().get(1);
+        Player shooter2 = board1.getPlayers().get(2);
+        Player shooter3 = board1.getPlayers().get(3);
+        Player shooter4 = board1.getPlayers().get(4);
 
         //simulates 2 deaths of the player
         player.sufferDamage(11,shooter1);
@@ -849,8 +918,10 @@ public class PlayerTest {
     @Test
     public void refreshActionListBASIC() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //calls refreshActionList
         player.refreshActionList();
@@ -869,11 +940,13 @@ public class PlayerTest {
     @Test
     public void refreshActionListFRENZY_1() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //set the status FRENZY_1
-        player.setStatusFrenzy(Player.Status.FRENZY_1);
+        player.setStatus(Player.Status.FRENZY_1);
 
         //calls refreshActionList
         player.refreshActionList();
@@ -892,11 +965,13 @@ public class PlayerTest {
     @Test
     public void refreshActionListFRENZY_2() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
 
         //set the status FRENZY_2
-        player.setStatusFrenzy(Player.Status.FRENZY_2);
+        player.setStatus(Player.Status.FRENZY_2);
 
         //calls refreshActionList
         player.refreshActionList();
@@ -914,9 +989,11 @@ public class PlayerTest {
     @Test
     public void refreshActionListADRENALINE_1() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //set the status ADRENALINE_1
         player.sufferDamage(3, shooter);
@@ -938,9 +1015,11 @@ public class PlayerTest {
     @Test
     public void refreshActionListADRENALINE_2() {
 
+        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+
         //instantiates the players
-        Player player = new Player(1, Player.HeroName.VIOLET);
-        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR);
+        Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        Player shooter = new Player(2, Player.HeroName.D_STRUCT_OR, board1);
 
         //set the status ADRENALINE_2
         player.sufferDamage(6, shooter);
@@ -953,6 +1032,16 @@ public class PlayerTest {
                 player.getActionList().get(1).equals(new Action(2, true, false, false)) &&
                 player.getActionList().get(2).equals(new Action(1, false, true, false)) &&
                 player.getActionList().size() == 3);
+    }
+
+    /**
+     * Tests the method toString() of the enumeration HeroName.
+     */
+    @Test
+    public void heroNameToString(){
+        Player.HeroName heroName = Player.HeroName.BANSHEE;
+        assertEquals("Banshee", heroName.toString());
+
     }
 
 }

@@ -1,8 +1,8 @@
 package it.polimi.ingsw.model;
 
 /**
- * Represents an ammo tile, containing an ammo pack and.
- * Shows if a power up can be drawn since displayed on the ammo tile.
+ * Represents an ammo tile, containing an ammo pack, and
+ * shows if a power up can be drawn since displayed on the ammo tile.
  *
  * @author  davidealde
  */

@@ -11,7 +11,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
-//TODO: implement this
+//TODO: implement shutdown, handle exceptions properly, test
 
 public class RMIConnection implements Connection {
 

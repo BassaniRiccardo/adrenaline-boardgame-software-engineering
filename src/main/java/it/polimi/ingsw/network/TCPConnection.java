@@ -11,6 +11,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
+//TODO: in-depth testing
 public class TCPConnection implements Connection {
 
     private ClientMain clientMain;

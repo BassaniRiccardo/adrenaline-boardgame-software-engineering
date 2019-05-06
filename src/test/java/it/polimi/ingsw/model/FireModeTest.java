@@ -13,9 +13,11 @@ public class FireModeTest {
      */
     @Test
     public void isAvailable() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        BoardConfigurer.getInstance().simulateScenario();
-        Player p = Board.getInstance().getPlayers().get(0);
-        p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Player p = b.getPlayers().get(0);
+        p.addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         FireMode f = p.getWeaponList().get(0).getFireModeList().get(0);
         assertTrue(f.getName()== FireMode.FireModeName.MAIN);
         assertTrue(p.getWeaponList().get(0).getFireModeList().get(1).getName() == FireMode.FireModeName.OPTION1);
@@ -28,9 +30,10 @@ public class FireModeTest {
      */
     @Test
     public void isAvailable2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        BoardConfigurer.getInstance().simulateScenario();
-        Player p = Board.getInstance().getPlayers().get(4);
-        p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Player p = b.getPlayers().get(4);
+        p.addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         FireMode f = p.getWeaponList().get(0).getFireModeList().get(0);
         assertTrue(f.getName() == FireMode.FireModeName.MAIN);
         assertTrue(p.getWeaponList().get(0).getFireModeList().get(1).getName() == FireMode.FireModeName.OPTION1);
@@ -43,15 +46,16 @@ public class FireModeTest {
      */
     @Test
     public void applyEffects() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        BoardConfigurer.getInstance().simulateScenario();
-        Player p = Board.getInstance().getPlayers().get(4);
-        p.addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Player p = b.getPlayers().get(4);
+        p.addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         FireMode f = p.getWeaponList().get(0).getFireModeList().get(0);
-        List otherPlayers = Board.getInstance().getPlayers();
+        List otherPlayers = b.getPlayers();
         otherPlayers.remove(p);
         f.applyEffects(otherPlayers, null);
         for (int i = 1; i<4;i++){
-            assertTrue(Board.getInstance().getPlayers().get(i).isJustDamaged());
+            assertTrue(b.getPlayers().get(i).isJustDamaged());
         }
     }
 
@@ -60,12 +64,13 @@ public class FireModeTest {
      */
     @Test
     public void findTargets() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
-        FireMode f = Board.getInstance().getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        b.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+        FireMode f = b.getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
         assertFalse(f.findTargets().isEmpty());
         List<Player> ap = f.findTargets().get(0);
-        assertTrue(ap.contains(Board.getInstance().getPlayers().get(1)));
+        assertTrue(ap.contains(b.getPlayers().get(1)));
     }
 
     /**
@@ -73,9 +78,10 @@ public class FireModeTest {
      */
     @Test
     public void findTargets2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(4).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
-        FireMode f = Board.getInstance().getPlayers().get(4).getWeaponList().get(0).getFireModeList().get(0);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        b.getPlayers().get(4).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+        FireMode f = b.getPlayers().get(4).getWeaponList().get(0).getFireModeList().get(0);
         assertTrue(f.findTargets().isEmpty());
     }
 
@@ -84,9 +90,10 @@ public class FireModeTest {
      */
     @Test
     public void findDestinations() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        BoardConfigurer.getInstance().simulateScenario();
-        Board.getInstance().getPlayers().get(0).addWeapon(WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
-        FireMode f = Board.getInstance().getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        b.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+        FireMode f = b.getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
         assertFalse(f.findTargets().isEmpty());
         List<Player> ap = f.findTargets().get(0);
         assertTrue(f.findDestinations(ap).isEmpty());
@@ -97,12 +104,13 @@ public class FireModeTest {
      */
     @Test(expected = NotAvailableAttributeException.class)
     public void findDestinationsBadArguments() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        BoardConfigurer.getInstance().simulateScenario();
-        Weapon weapon = WeaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
-        Board.getInstance().getPlayers().get(0).addWeapon(weapon);
-        FireMode f = Board.getInstance().getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon weapon = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+        b.getPlayers().get(0).addWeapon(weapon);
+        FireMode f = b.getPlayers().get(0).getWeaponList().get(0).getFireModeList().get(0);
         weapon.removeHolder();
-        f.findDestinations(Board.getInstance().getPlayers());
+        f.findDestinations(b.getPlayers());
     }
 
 }

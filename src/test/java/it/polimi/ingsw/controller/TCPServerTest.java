@@ -3,9 +3,8 @@ package it.polimi.ingsw.controller;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-//TODO: add more tests once a client has bee implemented
+//TODO: add more tests once a client has been implemented
 public class TCPServerTest {
-
 
     @Test
     public void setupTest(){

@@ -8,23 +8,11 @@ import java.util.Collections;
 import static org.junit.Assert.*;
 
 /**
- * Tests all methods of the class KillShotTrack, covering all the instructions.
+ * Tests all methods of the class KillShotTrack.
  */
 
 public class KillShotTrackTest {
 
-
-    /**
-     * Constructs a killShotTrack with 8 skulls.
-     * Constructs 5 players.
-     */
-    @Before
-    public void setup(){
-
-        BoardConfigurer.getInstance().configureKillShotTrack(8);
-        BoardConfigurer.getInstance().configurePlayerOptions(5);
-
-    }
 
     /**
      * Tests that an exception is thrown in the constructor of KillShotTrack
@@ -34,7 +22,7 @@ public class KillShotTrackTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void constructorParameters() throws IllegalArgumentException {
-        new KillShotTrack(21);
+        new KillShotTrack(21, new Board());
     }
 
     /**
@@ -44,7 +32,7 @@ public class KillShotTrackTest {
      */
     @Test(expected = UnacceptableItemNumberException.class)
     public void removeSkulls() throws UnacceptableItemNumberException {
-        KillShotTrack killShotTrack = new KillShotTrack(6);
+        KillShotTrack killShotTrack = new KillShotTrack(6, new Board());
         killShotTrack.removeSkulls(11);
     }
 
@@ -56,12 +44,13 @@ public class KillShotTrackTest {
      *
      */
     @Test
-    public void registerStandardKill() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
+    public void registerStandardKill() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //initializes the killShotTrack, a killer and a dead
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player killer = Board.getInstance().getPlayers().get(0);
-        Player dead = Board.getInstance().getPlayers().get(1);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player killer = b.getPlayers().get(0);
+        Player dead = b.getPlayers().get(1);
 
         //registers the standard kill
         dead.sufferDamage(11, killer);
@@ -88,12 +77,13 @@ public class KillShotTrackTest {
      * @throws  UnacceptableItemNumberException
      */
     @Test
-    public void registerMultipleStandardKills() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException{
+    public void registerMultipleStandardKills() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException{
 
         //initializes the killShotTrack, a killer and a dead
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player killer = Board.getInstance().getPlayers().get(0);
-        Player dead = Board.getInstance().getPlayers().get(1);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player killer = b.getPlayers().get(0);
+        Player dead = b.getPlayers().get(1);
         //registers 4 kills and checks that the points given for the death of the dead player have been updated
         dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
@@ -110,6 +100,7 @@ public class KillShotTrackTest {
 
         //register the fifth kill and
         //checks that the points given for the death of the dead player have not been update to 0
+        dead.sufferDamage(11, killer);
         killShotTrack.registerKill(killer, dead, false);
         assertEquals(1, dead.getPointsToGive());
 
@@ -133,12 +124,13 @@ public class KillShotTrackTest {
      * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerOverkill() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException{
+    public void registerOverkill() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException{
 
         //initializes the killShotTrack, a killer and a dead
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player killer = Board.getInstance().getPlayers().get(0);
-        Player dead = Board.getInstance().getPlayers().get(1);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player killer = b.getPlayers().get(0);
+        Player dead = b.getPlayers().get(1);
 
         //registers the overkill
         dead.sufferDamage(12, killer);
@@ -168,12 +160,13 @@ public class KillShotTrackTest {
      * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenSkullsAbsentFrenzy() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
+    public void registerKillWhenSkullsAbsentFrenzy() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //initializes the killShotTrack, a killer and a dead
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player killer = Board.getInstance().getPlayers().get(0);
-        Player dead = Board.getInstance().getPlayers().get(1);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player killer = b.getPlayers().get(0);
+        Player dead = b.getPlayers().get(1);
 
         //removes all the skulls
         killShotTrack.removeSkulls(8);
@@ -208,12 +201,13 @@ public class KillShotTrackTest {
      * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenSkullsAbsentFinalTurn() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
+    public void registerKillWhenSkullsAbsentFinalTurn() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //initializes the killShotTrack, a killer and a dead
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player killer = Board.getInstance().getPlayers().get(0);
-        Player dead = Board.getInstance().getPlayers().get(1);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player killer = b.getPlayers().get(0);
+        Player dead = b.getPlayers().get(1);
 
         //removes all the skulls
         killShotTrack.removeSkulls(8);
@@ -243,13 +237,14 @@ public class KillShotTrackTest {
      * @throws UnacceptableItemNumberException
      */
     @Test
-    public void registerKillWhenTheKillerListIsNotEmpty() throws UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
+    public void registerKillWhenTheKillerListIsNotEmpty() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //initializes the killShotTrack, a killer, a dead and another player
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player killer = Board.getInstance().getPlayers().get(0);
-        Player dead = Board.getInstance().getPlayers().get(1);
-        Player otherPlayer = Board.getInstance().getPlayers().get(2);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player killer = b.getPlayers().get(0);
+        Player dead = b.getPlayers().get(1);
+        Player otherPlayer = b.getPlayers().get(2);
 
         //insert some old killers in the killer list
         killShotTrack.getKillers().add(otherPlayer);
@@ -281,15 +276,16 @@ public class KillShotTrackTest {
      * Tests the method rewardKillers() in the event that every player killed a different number of opponents.
      */
     @Test
-    public void rewardKillersWithDistinctNumberOfKills() throws NotAvailableAttributeException {
+    public void rewardKillersWithDistinctNumberOfKills() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
         //initializes the killShotTrack and five players, with 0 points
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player p1 = Board.getInstance().getPlayers().get(0);
-        Player p2 = Board.getInstance().getPlayers().get(1);
-        Player p3 = Board.getInstance().getPlayers().get(2);
-        Player p4 = Board.getInstance().getPlayers().get(3);
-        Player p5 = Board.getInstance().getPlayers().get(4);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player p1 = b.getPlayers().get(0);
+        Player p2 = b.getPlayers().get(1);
+        Player p3 = b.getPlayers().get(2);
+        Player p4 = b.getPlayers().get(3);
+        Player p5 = b.getPlayers().get(4);
 
         //insert players in the killer list several times
 
@@ -330,15 +326,16 @@ public class KillShotTrackTest {
      * Tests the method rewardKillers() in the event that every player killed the same number of opponents.
      */
     @Test
-    public void awardKillersWithSameNumberOfKills() throws NotAvailableAttributeException {
+    public void awardKillersWithSameNumberOfKills() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
         //initializes the killShotTrack and five players, with 0 points
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player p1 = Board.getInstance().getPlayers().get(0);
-        Player p2 = Board.getInstance().getPlayers().get(1);
-        Player p3 = Board.getInstance().getPlayers().get(2);
-        Player p4 = Board.getInstance().getPlayers().get(3);
-        Player p5 = Board.getInstance().getPlayers().get(4);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player p1 = b.getPlayers().get(0);
+        Player p2 = b.getPlayers().get(1);
+        Player p3 = b.getPlayers().get(2);
+        Player p4 = b.getPlayers().get(3);
+        Player p5 = b.getPlayers().get(4);
 
         //inserts every player in the killer list exactly one time
         killShotTrack.getKillers().add(p1);
@@ -365,15 +362,16 @@ public class KillShotTrackTest {
      * his first opponent after everyone else had killed someone.
      */
     @Test
-    public void awardKillerWhenTheLastKillerHasTheHighestNumberOfKills() throws NotAvailableAttributeException{
+    public void awardKillerWhenTheLastKillerHasTheHighestNumberOfKills() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException{
 
         //initializes the killShotTrack and five players, with 0 points
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player p1 = Board.getInstance().getPlayers().get(0);
-        Player p2 = Board.getInstance().getPlayers().get(1);
-        Player p3 = Board.getInstance().getPlayers().get(2);
-        Player p4 = Board.getInstance().getPlayers().get(3);
-        Player p5 = Board.getInstance().getPlayers().get(4);
+        Board board1 = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  board1.getKillShotTrack();
+        Player p1 = board1.getPlayers().get(0);
+        Player p2 = board1.getPlayers().get(1);
+        Player p3 = board1.getPlayers().get(2);
+        Player p4 = board1.getPlayers().get(3);
+        Player p5 = board1.getPlayers().get(4);
 
         //inserts players in the killer list several times
         killShotTrack.getKillers().add(p1);
@@ -400,15 +398,16 @@ public class KillShotTrackTest {
      * Tests the method rewardKillers() in the event that some players did not kill anyone.
      */
     @Test
-    public void awardKillersWhenSomePlayersWithNoKills() throws NotAvailableAttributeException{
+    public void awardKillersWhenSomePlayersWithNoKills() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException{
 
         //initializes the killShotTrack and five players, with 0 points
-        KillShotTrack killShotTrack =  Board.getInstance().getKillShotTrack();
-        Player p1 = Board.getInstance().getPlayers().get(0);
-        Player p2 = Board.getInstance().getPlayers().get(1);
-        Player p3 = Board.getInstance().getPlayers().get(2);
-        Player p4 = Board.getInstance().getPlayers().get(3);
-        Player p5 = Board.getInstance().getPlayers().get(4);
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        KillShotTrack killShotTrack =  b.getKillShotTrack();
+        Player p1 = b.getPlayers().get(0);
+        Player p2 = b.getPlayers().get(1);
+        Player p3 = b.getPlayers().get(2);
+        Player p4 = b.getPlayers().get(3);
+        Player p5 = b.getPlayers().get(4);
 
         //inserts players in the killer list several times
         killShotTrack.getKillers().add(p1);

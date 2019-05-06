@@ -4,43 +4,25 @@ import it.polimi.ingsw.model.Player;
 //TODO: finish implementing
 //it might be agood idea to hold a list of messages and a flag telling if they have been answered. maybe answer can hold the question's id?
 
-public abstract class PlayerController{ //oggetto remoto
+public abstract class PlayerController implements Runnable{ //oggetto remoto
     GameEngine game;
     String name;
     boolean suspended;
     Player model;
 
+    public void run(){}
 
-    public void send(String in){
-        //method to be called by GameController to ask the player to make a choice, providing the options
-    }
+    public void refresh(){}
+
+    public void send(String in){}
 
     public String receive (){
-        //method called by gamecontroller to retrieve the answer to said question
-        return new String();
+        return null;
     }
-
-    public String receive (int timeout){
-        //method called by gamecontroller to retrieve the answer to said question
-        //needs to check if the answer is valid ( or maybe input validation can be left to the client so that not more than 1 message need to be sent
-        return new String();
-    }
-
-
-    //these next methods are remote and can be called by the client to retrieve the qeustions and provide answers
-    public String getQuestion(){        //remote method
-        return new String();
-    }
-
-    public void setAnswer(String answer){   }
 
 
     public String getName() {
         return name;
-    }
-
-    public void setPlayerName(String playerName) {
-        this.name = playerName;
     }
 
     public boolean isSuspended() {
@@ -49,13 +31,7 @@ public abstract class PlayerController{ //oggetto remoto
 
     public void suspend() {
         this.suspended = true;
-    }
-
-    public void unsuspend() {
-        this.suspended = false;
-    }
-
-    public void sendModel(){
-        //this method is used for updating the client's view
+        ServerMain.getInstance().removeIfWaiting(this);
+        System.out.println("Player " + name + " was suspended");
     }
 }

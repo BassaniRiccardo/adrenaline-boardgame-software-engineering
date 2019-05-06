@@ -34,7 +34,7 @@ public class MatchmakingTimerTest {
 
     @Test
     public void stop() {
-        MatchmakingTimer m = new MatchmakingTimer(3000000);
+        MatchmakingTimer m = new MatchmakingTimer(3);
         assertFalse(m.isOver());
         assertFalse(m.isRunning());
         m.start();
@@ -60,7 +60,7 @@ public class MatchmakingTimerTest {
 
     @Test
     public void reset() {
-        MatchmakingTimer m = new MatchmakingTimer(3000000);
+        MatchmakingTimer m = new MatchmakingTimer(3);
         assertFalse(m.isOver());
         assertFalse(m.isRunning());
         m.start();

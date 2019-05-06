@@ -8,12 +8,6 @@ public class TCPServerTest {
 
 
     @Test
-    public void run() {
-        TCPServer s = new TCPServer(4000, ServerMain.getInstance());
-        s.run();
-    }
-
-    @Test
     public void setupTest(){
         TCPServer s = new TCPServer(4000, ServerMain.getInstance());
         assertEquals(s.getPort(), 4000);

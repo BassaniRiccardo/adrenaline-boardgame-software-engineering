@@ -1,45 +1,59 @@
 package it.polimi.ingsw.view;
 
+import it.polimi.ingsw.network.Connection;
+import it.polimi.ingsw.network.RMIConnection;
+import it.polimi.ingsw.network.TCPConnection;
+
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientMain {
 
-    private UI userInterface;
+    private UI ui;
     private Connection connection;
+    private ExecutorService executor;
+    //requests alter the player model. calling setters of the model generates a list of operations to revert the changes. if "reset move" is caleld, those changes are applied
+    //once the player confirms its move, updates are sent as a request to all other clients
 
-    public static void main(String[] args){
+    private ClientMain(){
+        executor = Executors.newCachedThreadPool();
+    }
 
-        ClientMain cm = new ClientMain();
+    public static void main(String[] args) {
+        ClientMain clientMain = new ClientMain();
+        clientMain.setup();
+        System.out.println("Setup finished");
+    }
 
+    private void setup(){
         Scanner in = new Scanner(System.in);
         System.out.println("Client avviato. Che interfaccia grafica vuoi utilizzare (GUI/CLI)?");
         String buff = in.nextLine();
-        if(buff=="GUI"){
-            cm.userInterface = new GUI();
-            System.out.println("GUI selezionata.");
-
+        if(buff.equals("GUI")){
+            ui = new GUI(this);
+            ui.display("GUI selezionata.");
         }
         else{
-            cm.userInterface = new CLI();
-            System.out.println("CLI selezionata.");
+            ui = new CLI(this);
+            ui.display("CLI selezionata.");
         }
+        executor.submit(ui);
 
-        System.out.println("Che tipo di connessione vuoi utilizzare? (Socket/RMI)");     //sostituito da userInterface.showMessage()
-        buff = in.nextLine();       //sostituito da userInterface.getInput()
-        if(buff=="RMI") {
-            //
+        ui.display("Che tipo di connessione vuoi utilizzare? (Socket/RMI)");
+        buff = ui.get();
+        if(buff.equals("RMI")){
+            connection = new RMIConnection(this);
+            ui.display("RMI selezionata.");
         } else {
-            cm.connection = new TCPConnection(cm);
+            connection = new TCPConnection(this);
+            ui.display("Socket selezionata.");
         }
-        cm.connection.connect();
+        executor.submit(connection);
     }
 
-
-    public void manage(String message){
-        System.out.println("ClientMain ha ricevuto un messaggio");
-        System.out.println(message);
-        Scanner in = new Scanner(System.in);
-        connection.send(in.nextLine());
-        System.out.println("ClientMain ha inoltrato il messaggio alla connessione");
+    public void handleRequest(Request request){
+        request.manage(this, ui, connection);
     }
+
 }

@@ -1,4 +1,7 @@
-package it.polimi.ingsw.view;
+package it.polimi.ingsw.network;
+
+import it.polimi.ingsw.view.ClientMain;
+import it.polimi.ingsw.view.RequestFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,31 +37,41 @@ public class TCPConnection implements Connection {
     public void send(String message){
         out.println(message);
         out.flush();
-        System.out.println("Answer sent by connection.");
+        System.out.println("TCPConnection: message sent");
     }
 
 
     @Override
     public void run() {
-
-        while(Thread.currentThread().isAlive())
-        try{
-            if (in.ready()) {
-                String message = in.readLine();
-                if(!message.equals("heartbeat")) {
+        while (Thread.currentThread().isAlive()) {
+            try {
+                if (in.ready()) {
+                    String message = in.readLine();
                     System.out.println("Receiving a message from the connection.");
                     clientMain.handleRequest(RequestFactory.toRequest(message));
                 }
+            } catch (IOException ex) {
+                System.out.println("TCPConnection: server disconnected, shutting down");
+                System.exit(0);
             }
-        }catch(IOException ex){}
-        try {
-            TimeUnit.MILLISECONDS.sleep(100);
-        }catch(InterruptedException ex){ex.printStackTrace();Thread.currentThread().interrupt();};
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException ex) {
+                System.out.println("Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
-    public void shutdown(){
-    try {
-        socket.close();
-    }catch(Exception ex){}
+    public void shutdown() {
+        try {
+            socket.close();
+        } catch (IOException ex) {
+            System.out.println("TCPConnection: socket was already closed");
+        }
+    }
+
+    public Socket getSocket() {
+        return socket;
     }
 }

@@ -1,19 +1,28 @@
 package it.polimi.ingsw.controller;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 //TODO: finish implementing
 //this is the class that both the gameengine and the client talk to. it is used as a "messenger" between the two
-public class TCPPlayerController extends PlayerController implements Runnable{
+public class TCPPlayerController extends PlayerController{
 
     private Socket socket;
     private List<String> incoming;
     private List<String> outgoing;
+    private BufferedReader in;
+    private PrintWriter out;
 
     public TCPPlayerController(Socket socket){
         this.socket = socket;
@@ -23,21 +32,22 @@ public class TCPPlayerController extends PlayerController implements Runnable{
 
     public void run (){
         try {
-            Scanner in = new Scanner(socket.getInputStream());
-            PrintWriter out = new PrintWriter(socket.getOutputStream());
+
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(socket.getOutputStream());
             System.out.println("TCPPlayerController running, starting login procedures");
             out.println("Select a name");
             out.flush();
             System.out.println("Name request sent");
-            name = in.nextLine();
+            name = in.readLine();
             System.out.println("Name received: " + name);
+
             while(!ServerMain.getInstance().login(name, this)){
                 if(ServerMain.getInstance().canResume(name)){
                     out.println("Do you want to resume?");
                     out.flush();
-                    while(!in.hasNextLine()) {}
-                    String ans = in.nextLine();
-                    if(ans == "yes") {
+                    String ans = in.readLine();
+                    if(ans.equals("yes")) {
                         if(ServerMain.getInstance().resume(name, this)){
                             break;
                         } else {
@@ -48,22 +58,36 @@ public class TCPPlayerController extends PlayerController implements Runnable{
                 }
                 out.println("Name already taken. Try another one");
                 out.flush();
-                while(!in.hasNextLine()) {}
-                name = in.nextLine();
+                name = in.readLine();
             }
             out.println("Name accepted.");
-
             out.flush();
-            while(!suspended){
-                if (in.hasNextLine()) {
-                    incoming.add(in.nextLine());
+            socket.setSoTimeout(100);
+
+        }catch (IOException e){ e.printStackTrace(); suspend();}
+    }
+
+    @Override
+    public void refresh() {
+        if(!suspended) {
+            try {
+                String message = in.readLine();
+                if (message == null) {
+                    suspend();
+                } else {
+                    incoming.add(message);
+                    System.out.println("TCPPlayerController just received a message");
                 }
-                if (!outgoing.isEmpty()) {
-                    out.println(outgoing.get(0));
-                    out.flush();
-                }
+            } catch (SocketTimeoutException ex) {
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                suspend();
             }
-        }catch (IOException e){ e.printStackTrace(); }
+            if (!outgoing.isEmpty()) {
+                out.println(outgoing.get(0));
+                out.flush();
+            }
+        }
     }
 
     @Override
@@ -75,17 +99,5 @@ public class TCPPlayerController extends PlayerController implements Runnable{
     public String receive() {
         while(incoming.isEmpty()){}
         return incoming.get(0);
-    }
-
-    @Override
-    public String getQuestion() {       //remote method
-        while(outgoing.isEmpty()){
-        }
-        return outgoing.get(0);
-    }
-
-    @Override
-    public void setAnswer(String answer) {      //remote method
-        incoming.add(answer);
     }
 }

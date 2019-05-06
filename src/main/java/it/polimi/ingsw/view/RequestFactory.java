@@ -1,4 +1,4 @@
 package it.polimi.ingsw.view;
 
-public class RMIConnection {
+public class RequestFactory {
 }

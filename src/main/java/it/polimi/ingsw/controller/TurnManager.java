@@ -328,7 +328,7 @@ public class TurnManager implements Runnable{
 
         for (Player p: board.getActivePlayers()) {
             if (p != currentPlayer) {
-                int damage = (new Random()).nextInt(4);
+                int damage = 1 + (new Random()).nextInt(3);
                 p.sufferDamage((damage), currentPlayer);
                 if (damage == 1) System.out.println("He does " + damage + " damage to Player " + p.getId() + ".");
                 else System.out.println("He does " + damage + " damages to Player " + p.getId() + ".");

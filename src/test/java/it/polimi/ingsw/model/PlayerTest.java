@@ -1,5 +1,16 @@
 package it.polimi.ingsw.model;
 
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.controller.WeaponFactory;
+import it.polimi.ingsw.model.board.Action;
+import it.polimi.ingsw.model.board.AmmoSquare;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.cards.*;
+import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
+import it.polimi.ingsw.model.exceptions.WrongTimeException;
 import org.junit.Test;
 import org.junit.Before;
 
@@ -7,7 +18,7 @@ import static org.junit.Assert.*;
 
 import static java.util.Collections.*;
 
-import static it.polimi.ingsw.model.Color.*;
+import static it.polimi.ingsw.model.cards.Color.*;
 
 /**
  * Tests all methods of the class Player.

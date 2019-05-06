@@ -1,5 +1,8 @@
 package it.polimi.ingsw.model;
 
+import it.polimi.ingsw.model.board.Action;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

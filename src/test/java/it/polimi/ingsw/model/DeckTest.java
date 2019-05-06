@@ -1,13 +1,24 @@
 package it.polimi.ingsw.model;
 
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.controller.PowerUpFactory;
+import it.polimi.ingsw.controller.WeaponFactory;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Deck;
+import it.polimi.ingsw.model.cards.AmmoPack;
+import it.polimi.ingsw.model.cards.AmmoTile;
+import it.polimi.ingsw.model.cards.Card;
+import it.polimi.ingsw.model.cards.PowerUp;
+import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
+import it.polimi.ingsw.model.exceptions.WrongTimeException;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static it.polimi.ingsw.model.Color.*;
-import static it.polimi.ingsw.model.PowerUp.PowerUpName.*;
-import static it.polimi.ingsw.model.Weapon.WeaponName.*;
+import static it.polimi.ingsw.model.cards.Color.*;
+import static it.polimi.ingsw.model.cards.PowerUp.PowerUpName.*;
+import static it.polimi.ingsw.model.cards.Weapon.WeaponName.*;
 import static org.junit.Assert.*;
 
 /**

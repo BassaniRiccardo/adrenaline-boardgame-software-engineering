@@ -1,9 +1,18 @@
 package it.polimi.ingsw.model;
 
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.model.board.AmmoSquare;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.board.WeaponSquare;
+import it.polimi.ingsw.model.cards.Color;
+import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import org.junit.Test;
 
-import static it.polimi.ingsw.model.Color.*;
-import static it.polimi.ingsw.model.Player.HeroName.*;
+import static it.polimi.ingsw.model.cards.Color.*;
+import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static org.junit.Assert.*;
 
 /**

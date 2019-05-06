@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model;
 
+import it.polimi.ingsw.model.cards.AmmoPack;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

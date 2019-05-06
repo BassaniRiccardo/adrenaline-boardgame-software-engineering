@@ -1,6 +1,14 @@
 package it.polimi.ingsw.model;
 
-import org.junit.Assert;
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.controller.WeaponFactory;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.cards.FireMode;
+import it.polimi.ingsw.model.cards.Weapon;
+import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

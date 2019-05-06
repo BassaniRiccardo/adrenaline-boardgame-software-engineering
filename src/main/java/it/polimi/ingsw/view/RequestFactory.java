@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view;
 
-import it.polimi.ingsw.network.Connection;
+import it.polimi.ingsw.network.client.Connection;
 
 //TODO: finish implementing
 

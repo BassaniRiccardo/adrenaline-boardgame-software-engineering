@@ -1,6 +1,13 @@
 package it.polimi.ingsw.model;
 
-import org.junit.Before;
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.KillShotTrack;
+import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
+import it.polimi.ingsw.model.exceptions.WrongTimeException;
 import org.junit.Test;
 
 import java.util.Collections;

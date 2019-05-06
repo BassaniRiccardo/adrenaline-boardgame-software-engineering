@@ -1,9 +1,16 @@
 package it.polimi.ingsw.model;
 
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.controller.WeaponFactory;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.WeaponSquare;
+import it.polimi.ingsw.model.cards.Weapon;
+import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
+import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import org.junit.Test;
 
-import static it.polimi.ingsw.model.Color.*;
-import static it.polimi.ingsw.model.Weapon.WeaponName.*;
+import static it.polimi.ingsw.model.cards.Color.*;
+import static it.polimi.ingsw.model.cards.Weapon.WeaponName.*;
 import static org.junit.Assert.*;
 
 /**

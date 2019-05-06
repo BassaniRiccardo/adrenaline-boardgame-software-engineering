@@ -1,5 +1,15 @@
 package it.polimi.ingsw.model;
 
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.controller.WeaponFactory;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.cards.AmmoPack;
+import it.polimi.ingsw.model.cards.FireMode;
+import it.polimi.ingsw.model.cards.Weapon;
+import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
+import it.polimi.ingsw.model.exceptions.WrongTimeException;
 import org.junit.Test;
 
 import java.util.ArrayList;

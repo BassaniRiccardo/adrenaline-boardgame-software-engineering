@@ -1,8 +1,8 @@
 package it.polimi.ingsw.view;
 
-import it.polimi.ingsw.network.Connection;
-import it.polimi.ingsw.network.RMIConnection;
-import it.polimi.ingsw.network.TCPConnection;
+import it.polimi.ingsw.network.client.Connection;
+import it.polimi.ingsw.network.client.RMIConnection;
+import it.polimi.ingsw.network.client.TCPConnection;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

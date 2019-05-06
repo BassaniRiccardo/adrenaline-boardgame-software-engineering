@@ -1,6 +1,8 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.model.NotAvailableAttributeException;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.network.server.PlayerController;
+import it.polimi.ingsw.network.server.TCPPlayerController;
 import org.junit.Test;
 
 import java.util.ArrayList;

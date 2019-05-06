@@ -1,5 +1,15 @@
 package it.polimi.ingsw.model;
 
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.model.board.AmmoSquare;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.board.Square;
+import it.polimi.ingsw.model.cards.PowerUp;
+import it.polimi.ingsw.model.cards.Weapon;
+import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -44,7 +54,7 @@ public class BoardConfigurerTest {
 
         Board b = BoardConfigurer.getInstance().simulateScenario();
         assertEquals(5, b.getPlayers().size());
-        for (Player  p: b.getPlayers()){
+        for (Player p: b.getPlayers()){
             assertNotNull(p.getPosition());
         }
 

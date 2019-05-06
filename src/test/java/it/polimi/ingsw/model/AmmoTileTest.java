@@ -6,6 +6,13 @@ package it.polimi.ingsw.model;
  * @author  BassaniRiccardo
  */
 
+import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.cards.AmmoPack;
+import it.polimi.ingsw.model.cards.AmmoTile;
+import it.polimi.ingsw.model.cards.Color;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import org.junit.Test;
 
 public class AmmoTileTest {

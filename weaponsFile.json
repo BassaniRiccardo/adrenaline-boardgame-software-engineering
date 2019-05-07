@@ -1,0 +1,720 @@
+[
+
+      {
+        "name": "LOCK_RIFLE",
+        "color": "blue",
+	    "costR": "0",
+	    "costB": "2",
+	    "costY": "0",
+        "type": "3",
+	    "modes":[
+
+			{"mode":"MAIN",
+			"dmg":"2",
+			"mark":"1",
+			"targetsN":"1",
+			"where":"sight1",
+			"move":"0",
+			"effect": "0"
+			},
+
+			{"mode":"OPTION1",
+			"costR":"1",
+			"costB":"0",
+			"costY":"0",
+			"dmg":"0",
+			"mark":"1",
+			"targetsN":"1",
+			"where":"sight1",
+			"move":"0",
+				"effect": "0"
+			}
+        ]
+      },
+
+      {
+        "name": "ELECTROSCYTHE",
+        "color": "blue",
+	    "costR": "0",
+    	"costB": "1",
+    	"costY": "0",
+        "type": "2",
+    	"modes":[
+
+		{"mode":"MAIN",
+		"dmg": "1",
+		"mark":"0",
+		"targetsN":"4",
+		"where":"here",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"2",
+		"mark":"0",
+		"costR": "1",
+		"costB": "1",
+		"costY": "0",
+		"targetsN":"4",
+		"where":"allHere",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	   },
+
+      {
+        "name": "MACHINE_GUN",
+        "color": "blue",
+       	"costR": "1",
+    	"costB": "1",
+    	"costY": "0",
+        "type": "4",
+    	"modes":[
+
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"0",
+		"targetsN":"2",
+		"where":"sight2",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"OPTION1",
+		"dmg":"1",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "1",
+		"targetsN":"1",
+		"move":"0",
+			"effect": "0",
+			"where":"previous1"
+		},
+
+		{"mode":"OPTION2",
+		"dmg":"2",
+		"mark":"0",
+		"costR": "0",
+		"costB": "1",
+		"costY": "0",
+		"targetsN":"1",
+		"newTargets":"1",
+		"newDmg":"1",
+		"move":"0",
+			"effect": "0",
+			"where":"previous2"
+		}
+		]
+	},
+
+      {
+        "name": "TRACTOR_BEAM",
+        "color": "blue",
+    	"costR": "0",
+    	"costB": "1",
+    	"costY": "0",
+        "type": "2",
+    	"modes":[
+
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"0",
+		"targetsN":"1",
+		"move":"2",
+		"where":"tractor1",
+		"whenMove":"before",
+			"effect": "moveDmg",
+			"moveType": "tractor1"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"3",
+		"mark":"0",
+		"costR": "1",
+		"costB": "0",
+		"costY": "1",
+		"targetsN":"1",
+		"move":"2",
+		"where":"tractor2",
+		"whenMove":"before",
+			"effect": "moveDmg",
+			"moveType": "tractor2"
+		}
+		]
+	},
+
+      {
+        "name": "THOR",
+        "color": "blue",
+	"costR": "1",
+	"costB": "1",
+	"costY": "0",
+        "type": "4",
+	"modes":[
+
+		{"mode":"MAIN",
+		"dmg":"2",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"sight1",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"OPTION1",
+		"dmg":"1",
+		"mark":"0",
+		"costR": "0",
+		"costB": "1",
+		"costY": "0",
+		"targetsN":"1",
+		"where":"chain1",
+		"move":"0",
+			"effect": "0"
+		},
+
+		{"mode":"OPTION2",
+		"dmg":"2",
+		"mark":"0",
+		"costR": "0",
+		"costB": "1",
+		"costY": "0",
+		"targetsN":"1",
+		"where":"chain2",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+      {
+        "name": "VORTEX_CANNON",
+        "color": "red",
+	"costR": "1",
+	"costB": "1",
+	"costY": "0",
+        "type": "3",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"2",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"vortex1",
+		"move":"1",
+		"whenMove":"before",
+			"effect": "moveDmg",
+			"moveType": "vortex1"
+      		},
+
+		{"mode":"OPTION1",
+		"dmg":"1",
+		"mark":"0",
+		"costR": "1",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"2",
+		"where":"vortex2",
+		"move":"1",
+		"whenMove":"before",
+			"effect": "moveDmg",
+			"moveType": "vortex2"
+		}
+		]
+	},
+
+      {
+        "name": "FURNACE",
+        "color": "red",
+	"costR": "1",
+	"costB": "1",
+	"costY": "0",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"0",
+		"targetsN":"4",
+		"where":"room",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"1",
+		"mark":"1",
+		"costR": "0",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"4",
+		"where":"1away",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+      	},
+
+      {
+        "name": "PLASMA_GUN",
+        "color": "blue",
+	"costR": "0",
+	"costB": "1",
+	"costY": "1",
+        "type": "4",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"2",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"sight1",
+		"move":"0",
+			"effect": "moveDmg"
+      		},
+
+		{"mode":"OPTION1",
+		"dmg":"0",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"1",
+		"whereMove":"anywhere",
+		"move":"2",
+			"effect": "0",
+			"where":"myself"
+		},
+
+		{"mode":"OPTION2",
+		"dmg":"1",
+		"mark":"0",
+		"costR": "0",
+		"costB": "1",
+		"costY": "0",
+		"targetsN":"1",
+		"where":"previous1",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+      {
+        "name": "HEATSEEKER",
+        "color": "red",
+	"costR": "2",
+	"costB": "0",
+	"costY": "1",
+        "type": "1",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"3",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"notSight",
+		"move":"0",
+			"effect": "0"
+      		}
+		]
+	},
+
+      {
+        "name": "WHISPER",
+        "color": "blue",
+	"costR": "0",
+	"costB": "2",
+	"costY": "1",
+        "type": "1",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"3",
+		"mark":"1",
+		"targetsN":"1",
+		"where":"2min",
+		"move":"0",
+			"effect": "0"
+      		}
+		]
+	},
+
+{
+        "name": "HELLION",
+        "color": "red",
+	"costR": "1",
+	"costB": "0",
+	"costY": "1",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"1",
+		"targetsN":"1",
+		"where":"1min",
+		"move":"0",
+			"effect": "hellion"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"0",
+		"mark":"2",
+		"costR": "1",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"1",
+		"where":"1min",
+		"move":"0",
+			"effect": "hellion"
+		}
+		]
+	},
+
+      {
+        "name": "FLAMETHROWER",
+        "color": "red",
+	"costR": "1",
+	"costB": "0",
+	"costY": "0",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"0",
+		"targetsN":"2",
+		"where":"2row",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"2",
+			"dmg2": "1",
+			"steps": "1",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "2",
+		"targetsN":"4",
+		"where":"2row",
+		"move":"0",
+			"effect": "flamethrower"
+		}
+		]
+	},
+
+      {
+        "name": "ZX2",
+        "color": "yellow",
+	"costR": "1",
+	"costB": "0",
+	"costY": "1",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"2",
+		"targetsN":"1",
+		"where":"sight",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"0",
+		"mark":"1",
+		"costR": "0",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"3",
+		"where":"sight3",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+      {
+        "name": "GRENADE_LAUNCHER",
+        "color": "red",
+	"costR": "1",
+	"costB": "0",
+	"costY": "0",
+        "type": "3",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"0",
+		"targetsN":"1",
+		"move":"1",
+		"whenMove":"after",
+			"effect": "dmgMove",
+			"where":"sight",
+			"moveType": "onHit"
+		},
+
+		{"mode":"OPTION1",
+		"dmg":"1",
+		"mark":"0",
+		"costR": "1",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"4",
+		"where":"allSquare",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+      {
+        "name": "SHOTGUN",
+        "color": "yellow",
+	"costR": "0",
+	"costB": "0",
+	"costY": "2",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"3",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"here",
+		"move":"1",
+      		"whenMove":"after",
+			"effect": "dmgMove",
+			"moveType": "onHit"
+		},
+
+		{"mode":"SECONDARY",
+		"dmg":"2",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"1",
+		"where":"1away",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+      {
+        "name": "ROCKET_LAUNCHER",
+        "color": "red",
+	"costR": "1",
+	"costB": "0",
+	"costY": "0",
+        "type": "4",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"2",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"1min",
+		"move":"1",
+		"whenMove":"after",
+			"effect": "dmgMove",
+			"moveType": "onHit"
+      		},
+
+		{"mode":"OPTION1",
+		"dmg":"0",
+		"mark":"0",
+		"costR": "0",
+		"costB": "1",
+		"costY": "0",
+		"targetsN":"1",
+		"where":"myself",
+		"move":"2",
+			"effect": "0"
+		},
+
+		{"mode":"OPTION2",
+		"dmg":"1",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "1",
+		"targetsN":"4",
+		"where":"previousSquare",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+      {
+        "name": "POWER_GLOVE",
+        "color": "yellow",
+	"costR": "0",
+	"costB": "1",
+	"costY": "1",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"2",
+		"targetsN":"1",
+		"where":"1away",
+		"move":"0",
+			"effect": "moveDmg",
+			"moveType": "dash1"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"2",
+		"mark":"1",
+		"costR": "0",
+		"costB": "1",
+		"costY": "0",
+		"targetsN":"2",
+		"where":"2steps",
+		"move":"0",
+			"effect": "moveDmg",
+			"moveType": "dash2"
+		}
+		]
+	},
+
+      {
+        "name": "RAILGUN",
+        "color": "yellow",
+	"costR": "0",
+	"costB": "1",
+	"costY": "2",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"3",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"cardinal1",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"2",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"2",
+		"where":"cardinal2",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+      {
+        "name": "SHOCKWAVE",
+        "color": "yellow",
+	"costR": "0",
+	"costB": "0",
+	"costY": "1",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"1",
+		"mark":"0",
+		"targetsN":"3",
+		"where":"1awayDifferent",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"1",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "1",
+		"targetsN":"4",
+		"where":"all1Away",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+
+
+      {
+        "name": "CYBERBLADE",
+        "color": "yellow",
+	"costR": "1",
+	"costB": "0",
+	"costY": "1",
+        "type": "4",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"2",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"here",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"OPTION1",
+		"dmg":"0",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"1",
+		"where":"myself",
+		"move":"1",
+			"effect": "moveDmg"
+		},
+
+		{"mode":"OPTION2",
+		"dmg":"2",
+		"mark":"0",
+		"costR": "0",
+		"costB": "0",
+		"costY": "1",
+		"targetsN":"1",
+		"where":"hereDifferent",
+		"move":"0",
+			"effect": "0"
+		}
+		]
+	},
+
+	{
+        "name": "SLEDGEHAMMER",
+        "color": "yellow",
+	"costR": "0",
+	"costB": "0",
+	"costY": "1",
+        "type": "2",
+	"modes":[
+		{"mode":"MAIN",
+		"dmg":"2",
+		"mark":"0",
+		"targetsN":"1",
+		"where":"here",
+		"move":"0",
+			"effect": "0"
+      		},
+
+		{"mode":"SECONDARY",
+		"dmg":"3",
+		"mark":"0",
+		"costR": "1",
+		"costB": "0",
+		"costY": "0",
+		"targetsN":"1",
+		"where":"here",
+		"move":"2",
+		"whenMove":"after",
+			"effect": "dmgMove",
+			"moveType": "push"
+		}
+		]
+	}
+]
+

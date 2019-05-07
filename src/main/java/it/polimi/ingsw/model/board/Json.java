@@ -20,11 +20,11 @@ import org.json.simple.parser.ParseException;
  *
  * @author  davidealde
  */
-public class modelDataReader {
+public class Json {
     /**
      * Constructor of a json class
      */
-    public modelDataReader() {
+    public Json() {
     }
 
     /**

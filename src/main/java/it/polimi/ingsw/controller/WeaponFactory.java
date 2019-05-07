@@ -8,10 +8,11 @@ import java.util.stream.*;
 
 import static it.polimi.ingsw.model.cards.Color.*;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
+import static it.polimi.ingsw.model.cards.Weapon.*;
 import static it.polimi.ingsw.model.board.Board.*;
 import com.google.common.annotations.VisibleForTesting;
 import it.polimi.ingsw.model.board.Board;
-import it.polimi.ingsw.model.board.modelDataReader;
+import it.polimi.ingsw.model.board.Json;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.cards.*;
@@ -91,7 +92,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     @VisibleForTesting
     public static Color getColor(Weapon.WeaponName weaponName) {
 
-        modelDataReader j = new modelDataReader();
+        Json j = new Json();
         String color = j.getColor(weaponName);
 
         if(color.equals("yellow")){
@@ -104,7 +105,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     @VisibleForTesting
     public static AmmoPack getFullCost(Weapon.WeaponName weaponName) {
 
-        modelDataReader j = new modelDataReader();
+        Json j = new Json();
         int r = Integer.parseInt(j.getFullCostRed(weaponName));
         int b = Integer.parseInt(j.getFullCostBlue(weaponName));
         int y = Integer.parseInt(j.getFullCostYellow(weaponName));
@@ -129,7 +130,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     @VisibleForTesting
     public static List<FireMode.FireModeName> getNameList(Weapon.WeaponName weaponName) {
 
-        modelDataReader j = new modelDataReader();
+        Json j = new Json();
         int type = Integer.parseInt(j.getNameList(weaponName));
         if (type==1) {
             return new ArrayList<>(Arrays.asList(MAIN));
@@ -154,7 +155,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     @VisibleForTesting
     public static Integer getTargetNumber (Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        modelDataReader j = new modelDataReader();
+        Json j = new Json();
         int number = Integer.parseInt(j.getTargetNumber(weaponName, fireModeName));
 
         return number;
@@ -166,7 +167,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
             return new AmmoPack(0,0,0);
         }
 
-        modelDataReader j = new modelDataReader();
+        Json j = new Json();
         int r = Integer.parseInt(j.getFireModeCostRed(weaponName, fireModeName));
         int b = Integer.parseInt(j.getFireModeCostBlue(weaponName, fireModeName));
         int y = Integer.parseInt(j.getFireModeCostYellow(weaponName, fireModeName));
@@ -177,7 +178,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     @VisibleForTesting
     public static Effect getEffect(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        modelDataReader j = new modelDataReader();
+        Json j = new Json();
         String eff= j.getEff(weaponName, fireModeName);
         int dmg = Integer.parseInt(j.getDmg(weaponName,fireModeName));
         int mark = Integer.parseInt(j.getMark(weaponName,fireModeName));
@@ -216,7 +217,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
     @VisibleForTesting
     public static TargetFinder getTargetFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
-        modelDataReader j = new modelDataReader();
+        Json j = new Json();
         String where = j.getWhere(weaponName, fireModeName);
         TargetFinder targetFinder;
         switch(where) {
@@ -668,7 +669,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     @VisibleForTesting
     public static DestinationFinder getDestinationFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        modelDataReader j = new modelDataReader();
+        Json j = new Json();
         int move = Integer.parseInt(j.getMove(weaponName,fireModeName));
         String where = j.getWhere(weaponName, fireModeName);
         DestinationFinder destinationFinder;

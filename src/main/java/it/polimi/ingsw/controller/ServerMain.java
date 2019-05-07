@@ -67,7 +67,7 @@ public class ServerMain {
      *
      * @param args  arguments
      */
-    public static void main(String[] args){
+    public static void main(String[] args){ //leggere da config ip e porta
         ServerMain  sm = getInstance();
         System.out.println("Main method started");
         sm.timer = new MatchmakingTimer(60);

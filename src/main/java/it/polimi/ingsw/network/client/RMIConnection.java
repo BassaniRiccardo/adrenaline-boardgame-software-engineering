@@ -23,11 +23,20 @@ public class RMIConnection implements Connection {
     public RMIConnection(ClientMain clientMain){
         this.clientMain = clientMain;
         try {
-            reg = LocateRegistry.getRegistry(null);
+            reg = LocateRegistry.getRegistry(1420);
             try {
                 serverStub = (RemoteServer) reg.lookup("RMIServer");
-                playerStub = (RemotePlayerController) reg.lookup(serverStub.getPlayerController());
+                String pcLookup = serverStub.getPlayerController();
+                System.out.println("Nome ricevuto per RMI: " + pcLookup);
+
+                System.out.print("RMI registry bindings: ");
+                String[] e = reg.list();
+                for (int i=0; i<e.length; i++)
+                    System.out.println(e[i]);
+
+                playerStub = (RemotePlayerController) reg.lookup(pcLookup);
             }catch(NotBoundException ex){
+                ex.printStackTrace();
                 System.out.println("Could not find stubs in registry");
             }
         }catch(RemoteException ex){System.out.println("RMI connection terminated");}
@@ -57,7 +66,10 @@ public class RMIConnection implements Connection {
     public void send(String message) {
         try {
             playerStub.answer(message);
-        }catch (RemoteException ex){}
+            System.out.println("answer sent");
+        }catch (RemoteException ex){
+            System.out.println("Issues with answering RMI messages");
+        }
     }
 
     @Override

@@ -23,7 +23,7 @@ public class TCPConnection implements Connection {
         this.clientMain = clientMain;
         System.out.println("Starting connection");
         try {
-            socket = new Socket("localhost", 5000);
+            socket = new Socket("192.168.43.244", 5000);
             System.out.println("Connected");
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream());

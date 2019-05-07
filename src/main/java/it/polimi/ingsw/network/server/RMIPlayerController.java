@@ -5,6 +5,7 @@ import it.polimi.ingsw.controller.ServerMain;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class RMIPlayerController extends PlayerController implements RemotePlayerController{
 
@@ -52,22 +53,26 @@ public class RMIPlayerController extends PlayerController implements RemotePlaye
 
     @Override
     public String receive() {
-        while(incoming.isEmpty()){}
-        return incoming.get(0);
+        while(incoming.isEmpty()){
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            }catch(InterruptedException ex){
+                ex.printStackTrace();
+            }
+        }
+        System.out.println("Incoming filled");
+        return incoming.remove(0);
     }
 
-    @Override
-    public void unreferenced() {
-        //client has disconnected, handle disconnection
-    }
 
     @Override
     public void answer(String message) throws RemoteException {
+        System.out.println("remote method called");
         incoming.add(message);
     }
 
     @Override
     public String getMessage() throws RemoteException {
-        return outgoing.get(0);
+        return outgoing.remove(0);
     }
 }

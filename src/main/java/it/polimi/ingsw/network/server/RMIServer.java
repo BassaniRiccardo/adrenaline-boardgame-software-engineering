@@ -8,6 +8,10 @@ import java.rmi.RemoteException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+//TODO: manage disconnections (graceful and not)
+//TODO: adapt class for connections from different hosts
+
+
 public class RMIServer implements RemoteServer {
 
     private ExecutorService executor;
@@ -20,27 +24,32 @@ public class RMIServer implements RemoteServer {
     }
 
     public void setup() {
-        RMIServer remoteServer = new RMIServer();
         try {
-            RemoteServer stub = (RemoteServer) UnicastRemoteObject.exportObject(remoteServer, 0); //check port
-            reg = LocateRegistry.getRegistry();
-                reg.bind("RMIServer", stub);
-                System.out.println("RMIServer ready");
-        }catch(RemoteException ex) {System.out.println("Failed to retrieve RMI register for server binding");
+            RemoteServer stub = (RemoteServer) UnicastRemoteObject.exportObject(this, 0); //check port
+            LocateRegistry.createRegistry(1420);
+            reg = LocateRegistry.getRegistry(1420); //cambiare con ip+porta
+            reg.bind("RMIServer", stub);
+            System.out.println("RMIServer ready");
+        }catch(RemoteException ex) {ex.printStackTrace(); System.out.println("Failed to retrieve RMI register for server binding");
         }catch (AlreadyBoundException ex) {System.out.println("RMI server binding failed");}
     }
 
     public synchronized String getPlayerController() { //maybe throw RemoteException
-        id++;
+        System.out.println("Server: inizio costruzione PlayerController con ID " + id);
         String remoteName = "PC"+id;
         RMIPlayerController rmiPlayerController = new RMIPlayerController(remoteName);
+        System.out.println("Creato nuovo PlayerController");
         try {
             RemotePlayerController stub = (RemotePlayerController) UnicastRemoteObject.exportObject(rmiPlayerController, 0);
-            reg.bind("remoteName", stub);
-        }catch(RemoteException ex) {System.out.println("Failed to retrieve RMI register for server binding");
+
+            System.out.println("creato Stub");
+            reg.bind(remoteName, stub);
+            System.out.println("RMIPC bound");
+        }catch(RemoteException ex) { ex.printStackTrace(); System.out.println("Failed to retrieve RMI register for server binding while creating PC");
         }catch (AlreadyBoundException ex) {System.out.println("RMI server binding failed");}
         executor.submit(rmiPlayerController);
         System.out.println("RMIPlayerController created");
+        id++;
         return remoteName;
     }
 }

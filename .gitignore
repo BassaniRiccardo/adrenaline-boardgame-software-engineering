@@ -33,4 +33,4 @@
 !src/
 !pom.xml
 !Deliverables/
-!weaponsFile.json
+!weaponsFile.modelDataReader

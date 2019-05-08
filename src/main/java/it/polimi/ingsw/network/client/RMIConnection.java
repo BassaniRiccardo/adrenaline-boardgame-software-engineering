@@ -10,6 +10,11 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //TODO: implement shutdown, handle exceptions properly, test
 
@@ -19,21 +24,16 @@ public class RMIConnection implements Connection {
     private RemoteServer serverStub;
     private RemotePlayerController playerStub;
     private Registry reg;
+    private static final Logger LOGGER = Logger.getLogger("clientLogger");
 
-    public RMIConnection(ClientMain clientMain){
+    public RMIConnection(ClientMain clientMain, String address, int port){
         this.clientMain = clientMain;
         try {
-            reg = LocateRegistry.getRegistry(1420);
+            reg = LocateRegistry.getRegistry(address, port);
             try {
                 serverStub = (RemoteServer) reg.lookup("RMIServer");
                 String pcLookup = serverStub.getPlayerController();
                 System.out.println("Nome ricevuto per RMI: " + pcLookup);
-
-                System.out.print("RMI registry bindings: ");
-                String[] e = reg.list();
-                for (int i=0; i<e.length; i++)
-                    System.out.println(e[i]);
-
                 playerStub = (RemotePlayerController) reg.lookup(pcLookup);
             }catch(NotBoundException ex){
                 ex.printStackTrace();

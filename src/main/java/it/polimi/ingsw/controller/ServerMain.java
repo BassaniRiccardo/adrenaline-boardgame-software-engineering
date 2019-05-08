@@ -4,18 +4,18 @@ import it.polimi.ingsw.network.server.PlayerController;
 import it.polimi.ingsw.network.server.RMIServer;
 import it.polimi.ingsw.network.server.TCPServer;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.*;
 
 //TODO: check synchronization
 //TODO: in depth testing
-//TODO: read config from file
+//FIX: if an rmi player disconnects, its name is kept locked
 
 /**
  * Main class that manages connections and matchmaking.
@@ -33,6 +33,10 @@ public class ServerMain {
     private RMIServer rmiServer;
     private MatchmakingTimer timer;
     private ExecutorService executor;
+    private BufferedReader in;
+    private boolean running;
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
+
 
     /**
      * Standard private constructor
@@ -67,61 +71,16 @@ public class ServerMain {
      *
      * @param args  arguments
      */
-    public static void main(String[] args){ //leggere da config ip e porta
+    public static void main(String[] args){
+
         ServerMain  sm = getInstance();
-        System.out.println("Main method started");
-        sm.timer = new MatchmakingTimer(60);
-
-        sm.tcpServer = new TCPServer(5000, sm);
-        sm.executor.submit(sm.tcpServer);
-
-        sm.rmiServer = new RMIServer();
-        sm.rmiServer.setup();
-
-        System.out.println("TCPServer and RMIServer running, press q to quit");
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        Boolean running = true;
-
-        sm.timer.reset();
-
-        while (running){
-            try{
-                if (in.ready()) {
-                    if(in.readLine().equals("q")){
-                        System.out.println("Quitting");
-                        running = false;
-                        sm.tcpServer.shutdown();
-                        //shutdwn rmiserver as well
-                    }else{
-                        System.out.println("Press q to quit");
-                    }
-                }
-            }catch(IOException e){
-                System.out.println("Cannot reach keyboard");
-            }
-            synchronized (sm) {
-                ///new part for refreshing connections
-                for (PlayerController p : new ArrayList<PlayerController>(sm.players)) {
-                    p.refresh();
-                }
-                ///
-                if (sm.waitingPlayers.size() > 4 || (sm.timer.isOver() && sm.waitingPlayers.size() > 2)) {
-                    sm.selectedPlayers.clear();
-                    for (int i = 0; i < sm.waitingPlayers.size() && i < 5; i++) {
-                        sm.selectedPlayers.add(sm.waitingPlayers.get(i));
-                    }
-                    System.out.println("Starting a" + sm.selectedPlayers.size() + "-player game");
-                    GameEngine current = new GameEngine(sm.selectedPlayers);
-                    sm.executor.submit(current);
-                    sm.currentGames.add(current);
-                    System.out.println("Game started");
-                    sm.waitingPlayers.removeAll(sm.selectedPlayers); //toglie i primi n
-                } else if (sm.waitingPlayers.size() < 3) {
-                    sm.timer.stop();
-                } else if (sm.waitingPlayers.size() > 2 && !sm.timer.isRunning()) {
-                    sm.timer.start();
-                }
+        sm.setup();
+        System.out.println("Setup completed, starting matchmaking, press q to quit");
+        while (sm.running){
+            sm.manageInput();
+            synchronized (instance) {
+                sm.refreshConnections();
+                sm.matchmaking();
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
@@ -132,6 +91,29 @@ public class ServerMain {
         }
         System.exit(0);
     }
+
+    private void setup(){
+        this.initializeLogger();
+        LOGGER.log(Level.INFO,"Main method started");
+        LOGGER.log(Level.FINE, "Logger initialized");
+
+        Properties prop = this.loadConfig();
+        LOGGER.log(Level.FINE, "Config read from file");
+
+        this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", "5000")), this);
+        this.executor.submit(this.tcpServer);
+        this.rmiServer = new RMIServer(Integer.parseInt(prop.getProperty("RMIPort", "1420")));
+        this.rmiServer.setup();
+        LOGGER.log(Level.FINE, "TCPServer and RMIServer running, press q to quit");
+
+        this.timer = new MatchmakingTimer(Integer.parseInt(prop.getProperty("matchmakingTime", "60")));
+        this.timer.reset();
+        LOGGER.log(Level.FINE, "MatchmakingTimer initialized");
+
+        this.in = new BufferedReader(new InputStreamReader(System.in));
+        this.running = true;
+    }
+
 
     /**
      * Removes a game from tracked ones.
@@ -159,7 +141,7 @@ public class ServerMain {
      * @param p             the player attempting to log in
      */
     public synchronized boolean login(String name, PlayerController p){      //this method needs to be synchronized most likely
-        System.out.println("Someone is attempting to login" + name + p);
+        LOGGER.log(Level.INFO, "Someone is attempting to login: {0}", p);
         for(PlayerController pc : players){
             if(pc.getName().equals(name)){
                 System.out.println("Login unsuccessful");
@@ -230,5 +212,66 @@ public class ServerMain {
      */
     public synchronized List<PlayerController> getPlayers() {
         return players;
+    }
+
+    public void initializeLogger(){
+        try {
+            FileHandler FILEHANDLER = new FileHandler("serverLog.txt");
+            FILEHANDLER.setLevel(Level.ALL);
+            FILEHANDLER.setFormatter(new SimpleFormatter());
+            LOGGER.addHandler(FILEHANDLER);
+        }catch (IOException ex){LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);}
+        LOGGER.setLevel(Level.ALL);
+    }
+
+    private Properties loadConfig(){
+        Properties prop = new Properties();
+        try (InputStream input = new FileInputStream("server.properties")) {
+            prop.load(input);
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "IOException while loading config", ex);
+        }
+        return prop;
+    }
+
+    private void manageInput(){
+        try{
+            if (in.ready()) {
+                if(in.readLine().equals("q")){
+                    System.out.println("Quitting");
+                    running = false;
+                    this.tcpServer.shutdown();
+                    //this.rmiServer.shutdown();
+                }else{
+                    System.out.println("Press q to quit");
+                }
+            }
+        }catch(IOException e){
+            LOGGER.log(Level.SEVERE, "IOException in main loop", e);
+        }
+    }
+
+    private void refreshConnections(){
+        for (PlayerController p : new ArrayList<>(this.players)) {
+            p.refresh();
+        }
+    }
+
+    private void matchmaking(){
+        if (waitingPlayers.size() > 4 || (timer.isOver() && waitingPlayers.size() > 2)) {
+            selectedPlayers.clear();
+            for (int i = 0; i < waitingPlayers.size() && i < 5; i++) {
+                selectedPlayers.add(waitingPlayers.get(i));
+            }
+            GameEngine current = new GameEngine(selectedPlayers);
+            executor.submit(current);
+            currentGames.add(current);
+            System.out.println("Game started with " + selectedPlayers.size() + " players");
+            waitingPlayers.removeAll(selectedPlayers); //toglie i primi n
+        } else if (waitingPlayers.size() < 3) {
+            timer.stop();
+        } else if (waitingPlayers.size() > 2 && !timer.isRunning()) {
+            timer.start();
+        }
     }
 }

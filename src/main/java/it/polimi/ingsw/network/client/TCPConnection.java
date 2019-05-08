@@ -19,11 +19,11 @@ public class TCPConnection implements Connection {
     private BufferedReader in;
     private PrintWriter out;
 
-    public TCPConnection(ClientMain clientMain){
+    public TCPConnection(ClientMain clientMain, String address, int port){
         this.clientMain = clientMain;
         System.out.println("Starting connection");
         try {
-            socket = new Socket("192.168.43.244", 5000);
+            socket = new Socket(address, port);
             System.out.println("Connected");
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream());

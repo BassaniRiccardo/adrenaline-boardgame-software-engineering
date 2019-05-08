@@ -159,6 +159,20 @@ public class Weapon implements Card {
 
     }
 
+    /**
+     *Checks if this weapon can fire (is loaded and valid targets)
+     *
+     * @return      true if shooting is possible, else false
+     */
+    public boolean canFire(){
+        try {
+            return !listAvailableFireModes().isEmpty();
+        }catch(NotAvailableAttributeException ex){
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
 
     /**
      *Reloads the current weapon.

@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit;
 public class RMIPlayerController extends PlayerController implements RemotePlayerController{
 
 //TODO: make this class anc TCPController inherit setup() from a common class
-    //check instances are not garbage collected
+//TODO:  an RMI player cannot try logging again if he picks a blocked name, but not always [BUG]
+//check instances are not garbage collected
 
     private final String remoteName;
     private List<String> incoming;
@@ -74,5 +75,10 @@ public class RMIPlayerController extends PlayerController implements RemotePlaye
     @Override
     public String getMessage() throws RemoteException {
         return outgoing.remove(0);
+    }
+
+    @Override
+    public void refresh(){
+        //implement
     }
 }

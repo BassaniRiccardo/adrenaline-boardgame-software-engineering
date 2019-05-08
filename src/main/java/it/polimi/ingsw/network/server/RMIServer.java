@@ -7,6 +7,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //TODO: manage disconnections (graceful and not)
 //TODO: adapt class for connections from different hosts
@@ -17,8 +19,11 @@ public class RMIServer implements RemoteServer {
     private ExecutorService executor;
     private Registry reg;
     private int id;
+    private int port;
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
-    public RMIServer(){
+    public RMIServer(int port){
+        this.port = port;
         id = 0;
         executor = Executors.newCachedThreadPool();
     }
@@ -26,8 +31,8 @@ public class RMIServer implements RemoteServer {
     public void setup() {
         try {
             RemoteServer stub = (RemoteServer) UnicastRemoteObject.exportObject(this, 0); //check port
-            LocateRegistry.createRegistry(1420);
-            reg = LocateRegistry.getRegistry(1420); //cambiare con ip+porta
+            LocateRegistry.createRegistry(port);
+            reg = LocateRegistry.getRegistry(port); //cambiare con ip+porta
             reg.bind("RMIServer", stub);
             System.out.println("RMIServer ready");
         }catch(RemoteException ex) {ex.printStackTrace(); System.out.println("Failed to retrieve RMI register for server binding");
@@ -51,5 +56,14 @@ public class RMIServer implements RemoteServer {
         System.out.println("RMIPlayerController created");
         id++;
         return remoteName;
+    }
+
+    public void shutdown(){
+        //also close TCP and RMI Player controllers
+        try {
+            reg.unbind("RMIServer");
+            UnicastRemoteObject.unexportObject(this, true);
+        }catch(Exception ex){ LOGGER.log(Level.SEVERE, "Caught while shuttind down RMIServer", ex);}
+
     }
 }

@@ -415,7 +415,7 @@ public class Player {
     }
 
     /**
-     * Returns the weapons that the player can use.
+     * Returns loaded weapons
      *
      * @return          the list of the weapons the the player can use.
      */
@@ -429,6 +429,20 @@ public class Player {
         return loaded;
     }
 
+    /**
+     * Returns the weapons that the player can use.
+     *
+     * @return          the list of the weapons the the player can use.
+     */
+    public List<Weapon> getAvailableWeapons(){
+        List<Weapon> available = new ArrayList<>();
+        for(Weapon w: weaponList){
+            if(w.canFire()){
+                available.add(w);
+            }
+        }
+        return available;
+    }
 
 
 

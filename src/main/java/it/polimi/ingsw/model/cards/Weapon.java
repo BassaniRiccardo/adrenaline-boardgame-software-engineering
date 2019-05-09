@@ -185,6 +185,12 @@ public class Weapon implements Card {
 
     }
 
+
+    /**
+     * Returns a string representing the weapon.
+     *
+     * @return      the description of the weapon.
+     */
     @Override
     public String toString(){
         return weaponName.toString();

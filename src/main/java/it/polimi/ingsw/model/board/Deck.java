@@ -11,7 +11,7 @@ import static java.util.Collections.shuffle;
 
 /**
  * Represents a generic deck of cards, made of drawable and discarded cards.
- * Allows to add cards to the drawable cards and to the discarded cards.
+ * Allows to addList cards to the drawable cards and to the discarded cards.
  * Allows to draw a card, shuffle the deck or regenerate it by shuffling
  * the discarded cards and adding them to the drawable cards.
  *
@@ -58,7 +58,7 @@ public class Deck {
     /**
      * Adds a card to the deck as a drawable card
      *
-     * @param card      the card to add.
+     * @param card      the card to addList.
      */
     public void addCard(Card card){
         drawable.add(card);
@@ -68,7 +68,7 @@ public class Deck {
     /**
      * Adds a card to the deck as a discarded card
      *
-     * @param card      the card to add.
+     * @param card      the card to addList.
      */
     public void addDiscardedCard(Card card){
         discarded.add(card);

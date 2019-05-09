@@ -1,5 +1,8 @@
 package it.polimi.ingsw.network.server;
 
+import com.google.gson.JsonObject;
+import it.polimi.ingsw.controller.ServerMain;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -67,4 +70,9 @@ public class TCPPlayerController extends PlayerController{
             }
         }
     }
+
+    @Override
+    public void send(JsonObject encodedMessage) { }
+
+
 }

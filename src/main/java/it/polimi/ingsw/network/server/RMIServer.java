@@ -42,6 +42,7 @@ public class RMIServer implements RemoteServer {
             RemoteServer stub = (RemoteServer) UnicastRemoteObject.exportObject(this, 0);
             LocateRegistry.createRegistry(port);
             reg = LocateRegistry.getRegistry(port);
+
             reg.bind("RMIServer", stub);
             LOGGER.log(Level.INFO, "RMIServer ready");
         }catch(RemoteException ex) {LOGGER.log(Level.SEVERE, "Failed to retrieve RMI register for server binding", ex); //try again?

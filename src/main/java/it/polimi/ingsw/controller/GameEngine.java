@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
+import static it.polimi.ingsw.controller.Encoder.encode;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 
@@ -85,7 +86,7 @@ public class GameEngine implements Runnable{
      * Adds a PlayerController to the game.
      *
      * @param index         the position of the new PlayerController in the PlayerController list.
-     * @param p             the player connection to add.
+     * @param p             the player connection to addList.
      */
     public void setPlayer(int index, PlayerController p) {
         this.players.set(index, p);     //this and other methods need to be synchronized
@@ -144,7 +145,7 @@ public class GameEngine implements Runnable{
         int no = 0;
         frenzyOptions.addAll(Arrays.asList("yes", "no"));
         for (PlayerController p: players){
-            p.send("Do you wan to play with the frenzy?", frenzyOptions);
+            p.send(encode("Do you wan to play with the frenzy?", frenzyOptions));
             if (p.receive(2, 10) == 1) yes++;
             else no++;
         }
@@ -152,6 +153,8 @@ public class GameEngine implements Runnable{
             frenzy=true;
             System.out.println("Frenzy active.");
         }
+        else  System.out.println("Frenzy not active.");
+
 
         setCurrentPlayer(players.get(0));
         System.out.println("\n");
@@ -164,14 +167,12 @@ public class GameEngine implements Runnable{
      */
     private void configureMap(){
 
-        int[] mapIDs = {1,2,3,4};
-
-        List<Integer> votes = new ArrayList<>();
-
-        votes.addAll(Arrays.asList(0,0,0,0));
+        //int[] mapIDs = {1,2,3,4};
+        List<Integer> mapIDs = new ArrayList<>(Arrays.asList(1,2,3,4));
+        List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
         for (PlayerController p : players) {
-            p.send("Vote for the map you want:", Encoder.encode(mapIDs));
+            p.send(encode("Vote for the map you want:", mapIDs));
             int vote = p.receive(4,10);
             votes.set(vote-1, votes.get(vote-1)+1);
         }
@@ -188,12 +189,11 @@ public class GameEngine implements Runnable{
      */
     private void configureKillShotTrack(){
 
-        int[] skullsOptions = {5,6,7,8};
-
+        List<Integer> skullsOptions = new ArrayList<>(Arrays.asList(5,6,7,8));
         int totalSkullNumber = 0;
 
         for (PlayerController p : players) {
-            p.send("How many skulls do you want?", Encoder.encode(skullsOptions));
+            p.send(encode("How many skulls do you want?", skullsOptions));
             int selected = p.receive(4, 10);
             totalSkullNumber = totalSkullNumber + selected + 4;
         }
@@ -213,14 +213,12 @@ public class GameEngine implements Runnable{
      */
     private void configurePlayers(){
 
-        List<Player.HeroName> heroList = new ArrayList<>();
-        heroList.addAll(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
-
+        List<Player.HeroName> heroList = new ArrayList<>(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
         int id = 1;
 
         for (PlayerController p : players) {
 
-            p.send("What hero do you want?", Encoder.encode(heroList));
+            p.send(encode("What hero do you want?", heroList));
             int selected = p.receive(heroList.size(), 10);
             Player.HeroName selectedName = heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
@@ -241,7 +239,6 @@ public class GameEngine implements Runnable{
     public PlayerController getNextPlayer(){   //must be robust for an empty list of player
 
         int ind = players.indexOf(currentPlayer);
-
         ind++ ;
 
         if (ind > players.size()-1)  {
@@ -249,12 +246,10 @@ public class GameEngine implements Runnable{
         }
 
         while(players.get(ind).isSuspended()){
-
             ind++;
             if(ind > players.size()-1){
                 ind = 0;
             }
-
         }
 
         return players.get(ind);
@@ -267,7 +262,8 @@ public class GameEngine implements Runnable{
      */
     public void resolve(){
 
-        System.out.println("The last skull has been removed. Points are added to the players according to the kill shot track.");
+        if (!frenzy) System.out.println("The last skull has been removed. Points are added to the players according to the kill shot track.");
+        else System.out.println("Frenzy ended. Points are added to the players according to the kill shot track.");
 
         killShotTrack.rewardKillers();
 

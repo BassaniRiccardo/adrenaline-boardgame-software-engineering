@@ -6,6 +6,7 @@ import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
+import it.polimi.ingsw.model.exceptions.WrongTimeException;
 
 /**
  * Extends the class Square.
@@ -108,6 +109,14 @@ public class AmmoSquare extends Square  {
     public void addAllCards() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         if (ammoTile!=null)  throw new UnacceptableItemNumberException("The square already contains an ammo tile.");
+
+        if (this.getBoard().getAmmoDeck().getDrawable().isEmpty()) {
+            try {
+                this.getBoard().getAmmoDeck().regenerate();
+            } catch (WrongTimeException e) {
+                e.printStackTrace();
+            }
+        }
 
         this.ammoTile = (AmmoTile) this.getBoard().getAmmoDeck().drawCard();
 

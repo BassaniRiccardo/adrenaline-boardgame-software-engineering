@@ -11,7 +11,7 @@ import java.util.*;
  * Represents an abstract square, that can be instantiated as a WeaponSquare (a square containing weapons)
  * or as an AmmoSquare (a square containing ammo tiles).
  * A square is identified by an id, it is placed in a room and it has a row, a column and a color.
- * It also contains a list of the players located in the square and it allows to add and remove a player
+ * It also contains a list of the players located in the square and it allows to addList and remove a player
  * and to check whether a particular player is in the square.
  *
  * @author  BassaniRiccardo
@@ -133,10 +133,10 @@ public abstract class Square {
     /**
      * Adds a player to the player list of the square.
      *
-     * @param p     the player to add.
+     * @param p     the player to addList.
      */
     public void addPlayer(Player p) {
-        if (!this.board.getPlayers().contains(p)) throw new IllegalArgumentException("Only players of the Board can be added to the Square");
+//        if (!this.board.getPlayers().contains(p)) throw new IllegalArgumentException("Only players of the Board can be added to the Square");
         this.players.add(p);
     }
 

@@ -131,7 +131,7 @@ public class WeaponSquare extends Square {
      */
     public void addCard() throws UnacceptableItemNumberException, NoMoreCardsException {
 
-        if (weapons.size() >= 3) throw new UnacceptableItemNumberException("No weapons left in the deck.");
+        if (weapons.size() >= 3) throw new UnacceptableItemNumberException("A weapon square can not contain mare than 3 weapons.");
 
         this.weapons.add((Weapon)this.getBoard().getWeaponDeck().drawCard());
 

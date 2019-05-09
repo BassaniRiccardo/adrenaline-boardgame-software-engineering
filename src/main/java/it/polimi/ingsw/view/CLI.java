@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-//TODO: fully implement this class, add graphic functionality
+//TODO: fully implement this class, addList graphic functionality
 public class CLI implements UI{
 
     private Scanner in;

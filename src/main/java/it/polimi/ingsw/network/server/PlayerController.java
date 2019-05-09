@@ -1,4 +1,5 @@
 package it.polimi.ingsw.network.server;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.controller.GameEngine;
 import it.polimi.ingsw.controller.ServerMain;
 import it.polimi.ingsw.model.board.Player;
@@ -82,16 +83,17 @@ public abstract class PlayerController implements Runnable{
     /**
      * Sends a message to the client containing a question and some options.
      *
-     * @param message           the text of the question.
-     * @param options           the available options.
+     * @param encodedMessage           the JsonObject to send to the client.
      */
-    public void send(String message, List<String> options){
+    public void send(JsonObject encodedMessage){
         //method to be called by GameController to ask the player to make a choice, providing the options.
-        System.out.println(message + "\n\n");
-        for (String s: options){
+        /*System.out.println(toSend.get(0) + "\n\n");
+        toSend.remove(toSend.get(0));
+        for (String s: toSend){
             System.out.println(s + "\t");
         }
         System.out.println("\n\n");
+        */
 
     }
 

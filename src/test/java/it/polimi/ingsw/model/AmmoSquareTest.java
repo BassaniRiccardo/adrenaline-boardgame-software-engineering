@@ -137,7 +137,7 @@ public class AmmoSquareTest {
         AmmoTile drawn = (AmmoTile)b.getAmmoDeck().getDrawable().get(0);
         ammoSquare.addAllCards();
 
-        //tries to add another ammo tile
+        //tries to addList another ammo tile
         ammoSquare.addAllCards();
 
         //checks that the ammo square contains the added ammo tile

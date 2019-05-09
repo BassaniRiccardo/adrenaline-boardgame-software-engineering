@@ -73,6 +73,7 @@ public class TurnManager implements Runnable{
 
         //Normal turn actions
         int actionsLeft = 2;
+        if (currentPlayer.getStatus()== Player.Status.FRENZY_2) actionsLeft--;
         while (actionsLeft > 0) {
 
             if (executeAction()) {
@@ -128,20 +129,20 @@ public class TurnManager implements Runnable{
      * Adds a player to the board, at the beginning of the game of after his death.
      * The player draws the specified number of powerups and is positioned on the powerup color spawn point.
      *
-     * @param player                the player to add to the board.
+     * @param player                the player to addList to the board.
      * @param powerUpToDraw         the number of powerups the player has to draw.
      */
     public void joinBoard(Player player, int powerUpToDraw) {
 
-        //draw two powerUps
+        //the user draws two powerups
         for (int i = 0; i < powerUpToDraw; i++) {
             try {
                 player.drawPowerUp();
             } catch (NoMoreCardsException | UnacceptableItemNumberException e) {e.printStackTrace();}
         }
 
-        //ASK: which one do you want to discard? (Display: player.getPowerUpList())
-        currentPlayerConnection.send("Which powerUp do you want to discard?", encode(player.getPowerUpList()) );
+        //asks the user which powerup he wants to discard
+        currentPlayerConnection.send(encode("Which powerUp do you want to discard?", player.getPowerUpList()) );
         int selected = currentPlayerConnection.receive(player.getPowerUpList().size(), 10);
         PowerUp discarded = player.getPowerUpList().get(selected-1);
 
@@ -179,27 +180,22 @@ public class TurnManager implements Runnable{
             canUSePowerUp = currentPlayer.hasUsableTeleporterOrNewton();
         }catch (NotAvailableAttributeException e){e.printStackTrace();}
 
-        List<String> options = encode(currentPlayer.getActionList());
-        if (canUSePowerUp){
-            options.add("Use Powerup");
-        }
-        if (!currentPlayer.getPowerUpList().isEmpty()){
-            options.add("Convert Powerup");
-        }
+        List<String> options = toStringList(currentPlayer.getAvailableActions());
 
-        currentPlayerConnection.send("What do you want to do?", options);
+        if (canUSePowerUp){ options.add("Use Powerup"); }
+        if (!currentPlayer.getPowerUpList().isEmpty()){ options.add("Convert Powerup"); }
+
+        currentPlayerConnection.send(encode("What do you want to do?", options));
 
         int selected = currentPlayerConnection.receive(options.size(), 10);
 
-        if (selected == currentPlayer.getActionList().size() + 1){
-            if (canUSePowerUp){
-                usePowerUp();
-            }
+        if (selected == currentPlayer.getAvailableActions().size() + 1){
+            if (canUSePowerUp){ usePowerUp(); }
             else convertPowerUp();
             return false;
         }
 
-        else if (selected == currentPlayer.getActionList().size() + 2){
+        else if (selected == currentPlayer.getAvailableActions().size() + 2){
             convertPowerUp();
             return false;
         }
@@ -226,11 +222,13 @@ public class TurnManager implements Runnable{
 
         while (possible && answer == 1) {
 
-            List<String> options = new ArrayList<>();
-            options.addAll(Arrays.asList("yes", "no"));
+            List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
-            currentPlayerConnection.send("Do you want to use a powerup?", options);
+            currentPlayerConnection.send(encode("Do you want to use a powerup?", options));
             answer = currentPlayerConnection.receive(2, 10);
+            if (answer == 2){
+                System.out.println("Player " + currentPlayer.getId() + " decides not to use a powerup." );
+            }
 
             if (answer == 1) {
 
@@ -247,7 +245,7 @@ public class TurnManager implements Runnable{
                 }
                 usablePowerUps.removeAll(toRemove);
 
-                currentPlayerConnection.send("Which powerup do you want to use?", encode(usablePowerUps));
+                currentPlayerConnection.send(encode("Which powerup do you want to use?", usablePowerUps));
                 int selected = currentPlayerConnection.receive(currentPlayer.getPowerUpList().size(), 10);
                 PowerUp powerUpToUse = currentPlayer.getPowerUpList().get(selected-1);
 
@@ -256,7 +254,7 @@ public class TurnManager implements Runnable{
                 if (powerUpToUse.getName() == PowerUp.PowerUpName.NEWTON) {
 
                     try{
-                        currentPlayerConnection.send("Who do you want to choose as a target?",  encode(powerUpToUse.findTargets()));
+                        currentPlayerConnection.send(encode("Who do you want to choose as a target?", powerUpToUse.findTargets()));
                         selected = currentPlayerConnection.receive(powerUpToUse.findTargets().size(), 10);
                         targets = powerUpToUse.findTargets().get(selected-1);
                         System.out.printf(" Player " + targets.get(0).getId());
@@ -266,7 +264,7 @@ public class TurnManager implements Runnable{
                 }
 
                 try {
-                    currentPlayerConnection.send("Choose a destination", encode(powerUpToUse.findDestinations(targets)));
+                    currentPlayerConnection.send(encode("Choose a destination", powerUpToUse.findDestinations(targets)));
                     selected = currentPlayerConnection.receive(powerUpToUse.findDestinations(targets).size(), 10);
                     Square destination = powerUpToUse.findDestinations(targets).get(selected - 1);
                     powerUpToUse.applyEffects(targets, destination);
@@ -296,23 +294,27 @@ public class TurnManager implements Runnable{
 
         while (!currentPlayer.getPowerUpList().isEmpty() && answer == 1) {
 
-            List<String> options = new ArrayList<>();
-            options.addAll(Arrays.asList("yes", "no"));
+            List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
-            currentPlayerConnection.send("Do you want to convert a powerup?", options);
+            currentPlayerConnection.send(encode("Do you want to convert a powerup?", options));
             answer = currentPlayerConnection.receive(2, 10);
+
+            if (answer == 2){
+                System.out.println("Player " + currentPlayer.getId() + " decides not to convert a powerup.");
+            }
 
             if (answer == 1) {
 
                 System.out.println("Player " + currentPlayer.getId() + " decides to convert a powerup.");
+
+                currentPlayerConnection.send(encode("Which powerup do you want to convert?", currentPlayer.getPowerUpList()));
+                int selected = currentPlayerConnection.receive(currentPlayer.getPowerUpList().size(), 10);
+                PowerUp powerUpToConvert = currentPlayer.getPowerUpList().get(selected - 1);
+                currentPlayer.useAsAmmo(powerUpToConvert);
+
+                System.out.println("Player " + currentPlayer.getId() + " converts a  " + powerUpToConvert.toStringLowerCase() + " into an ammo.");
             }
 
-            currentPlayerConnection.send("Which powerup do you want to convert?", encode(currentPlayer.getPowerUpList()));
-            int selected = currentPlayerConnection.receive(currentPlayer.getPowerUpList().size(), 10);
-            PowerUp powerUpToConvert = currentPlayer.getPowerUpList().get(selected - 1);
-            currentPlayer.useAsAmmo(powerUpToConvert);
-
-            System.out.println("Player " + currentPlayer.getId() + " converts a  " + powerUpToConvert.toStringLowerCase() + " into an ammo.");
         }
 
     }
@@ -354,7 +356,7 @@ public class TurnManager implements Runnable{
             List<FireMode> availableFiremodes = new ArrayList<>();
             for (FireMode f : shootingWeapon.getFireModeList()) {
                 try {
-                    if (f.isAvailable()) availableFiremodes.add(f);
+                    if (f.isAvailable()) availableFiremodes.addList(f);
                 } catch (NotAvailableAttributeException e) {
                     e.printStackTrace();
                 }
@@ -378,9 +380,9 @@ public class TurnManager implements Runnable{
         boolean none = false;
 
         while (!currentPlayer.getReloadableWeapons().isEmpty() && max > 0 && !none) {
-            List<String> options = encode(currentPlayer.getReloadableWeapons());
+            List<String> options = toStringList(currentPlayer.getReloadableWeapons());
             options.add("None");
-            currentPlayerConnection.send("Which weapon do you want to reload?", options);
+            currentPlayerConnection.send(encode("Which weapon do you want to reload?", options));
             int selected = currentPlayerConnection.receive(options.size(), 10);
             if (selected == currentPlayer.getReloadableWeapons().size() + 1){
                 none = true;
@@ -404,11 +406,17 @@ public class TurnManager implements Runnable{
      * If the weapon deck is empty, the collected weapons are not replaced.
      */
     private void replaceItems(){
+
         for (WeaponSquare s : board.getSpawnPoints()){
-            while (s.getWeapons().size() < 3){
-                try {
-                    s.addCard();
-                } catch (UnacceptableItemNumberException |NoMoreCardsException e){e.printStackTrace();}
+            if (!board.getWeaponDeck().getDrawable().isEmpty()) {
+                while (s.getWeapons().size() < 3) {
+                    try {
+                        s.addCard();
+                    } catch (UnacceptableItemNumberException | NoMoreCardsException e) {
+                        System.out.println("No more cards in the weapon deck. No new weapons will be introduced in the game.");
+
+                    }
+                }
             }
         }
 
@@ -426,7 +434,7 @@ public class TurnManager implements Runnable{
 
     public void executeActualAction(int selected){
 
-        Action action = currentPlayer.getActionList().get(selected-1);
+        Action action = currentPlayer.getAvailableActions().get(selected-1);
 
         System.out.println("Player " + currentPlayer.getId() + " chooses the action: " + action);
 
@@ -442,13 +450,19 @@ public class TurnManager implements Runnable{
                         if (square.isEmpty()){
                             toRemove.add(square);
                         }
+                        else if (board.getSpawnPoints().contains(square)){
+                            if (currentPlayer.getCollectibleWeapons((WeaponSquare)square).isEmpty()) toRemove.add(square);
+                        }
                     }
                     possibleDestinations.removeAll(toRemove);
 
                 }
-                List<String> destOptions = encode(possibleDestinations);
-                currentPlayerConnection.send("Where do you wanna move?", destOptions);
-                selected = currentPlayerConnection.receive(destOptions.size(), 10);
+                else if (action.isShoot()){
+                   // possibleDestinations = currentPlayer.getShootingSquares(action.getSteps());
+                }
+
+                currentPlayerConnection.send(encode ("Where do you wanna move?", possibleDestinations));
+                selected = currentPlayerConnection.receive(possibleDestinations.size(), 10);
                 Square dest = possibleDestinations.get(selected-1);
                 if (!dest.equals(currentPlayer.getPosition())){
                     currentPlayer.setPosition(dest);
@@ -461,11 +475,22 @@ public class TurnManager implements Runnable{
         try {
             if (action.isCollect()) {
                 if (board.getSpawnPoints().contains(currentPlayer.getPosition())) {
-                    currentPlayerConnection.send("Which weapon do you want to collect?", encode(((WeaponSquare)currentPlayer.getPosition()).getWeapons()));
-                    selected = currentPlayerConnection.receive((((WeaponSquare)currentPlayer.getPosition()).getWeapons()).size(), 10);
-                    Weapon collectedWeapon = ((WeaponSquare)currentPlayer.getPosition()).getWeapons().get(selected-1);
+                    List<Weapon> collectible = currentPlayer.getCollectibleWeapons((WeaponSquare)currentPlayer.getPosition());
+                    currentPlayerConnection.send(encode("Which weapon do you want to collect?", collectible ));
+                    selected = currentPlayerConnection.receive(collectible.size(), 10);
+                    Weapon collectedWeapon = (collectible.get(selected-1));
                     currentPlayer.collect(collectedWeapon);
                     System.out.println("Player " + currentPlayer.getId() + " collects  " + collectedWeapon + ".");
+                    if (currentPlayer.getWeaponList().size()>3){
+                        currentPlayerConnection.send(encode("Which weapon do you want to discard?", currentPlayer.getWeaponList()));
+                        selected = currentPlayerConnection.receive(currentPlayer.getWeaponList().size(), 10);
+                        Weapon discardedWeapon = currentPlayer.getWeaponList().get(selected-1);
+                        currentPlayer.discardWeapon(discardedWeapon);
+                        discardedWeapon.setLoaded(false);
+                        ((WeaponSquare) currentPlayer.getPosition()).addCard(discardedWeapon);
+                        System.out.println("Player " + currentPlayer.getId() + " discards  " + discardedWeapon + ".");
+
+                    }
 
                 } else {
                     AmmoTile toCollect = ((AmmoSquare) currentPlayer.getPosition()).getAmmoTile();

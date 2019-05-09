@@ -293,7 +293,7 @@ public class BoardConfigurer {
     /**
      * Configures the killShotTrack, depending on the number of skulls selected.
      *
-     * @param skullNumber          the number of skulls to add to the track.
+     * @param skullNumber          the number of skulls to addList to the track.
      * @param board                the board the kill shot track must be added to.
      */
     public static void configureKillShotTrack(int skullNumber, Board board){

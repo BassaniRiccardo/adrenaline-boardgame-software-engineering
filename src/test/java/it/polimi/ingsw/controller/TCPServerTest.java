@@ -4,7 +4,7 @@ import it.polimi.ingsw.network.server.TCPServer;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-//TODO: add more tests once a client has been implemented
+//TODO: addList more tests once a client has been implemented
 public class TCPServerTest {
 
     @Test

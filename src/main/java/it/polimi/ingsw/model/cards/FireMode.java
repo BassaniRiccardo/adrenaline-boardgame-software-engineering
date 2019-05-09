@@ -1,4 +1,4 @@
-//TODO add a flag to each firemode signaling whether it can be used before and/or after the main firemode
+//TODO addList a flag to each firemode signaling whether it can be used before and/or after the main firemode
 
 package it.polimi.ingsw.model.cards;
 import it.polimi.ingsw.model.board.Player;

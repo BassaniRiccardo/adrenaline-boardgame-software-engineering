@@ -3,7 +3,7 @@ package it.polimi.ingsw.model.cards;
 /**
  * Represents a package of ammo of the three colors.
  * Contains as attributes the number of the 3 kinds of ammo.
- * Contains methods that add and subtract the ammo of an AmmoPack to another.
+ * Contains methods that addList and subtract the ammo of an AmmoPack to another.
  * Every player owns an AmmoPack that represents his reserve of ammo.
  * Every player can have at maximum 3 ammo of the same color.
  *

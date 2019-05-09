@@ -27,9 +27,9 @@ public class KillShotTrack {
 
 
     /**
-     * Constructs a kill shot track with the number of skulls to add to the track and a reference to the board.
+     * Constructs a kill shot track with the number of skulls to addList to the track and a reference to the board.
      *
-     * @param skullsNumber  the number of skulls to add to the track.
+     * @param skullsNumber  the number of skulls to addList to the track.
      * @param board         the board the kill shot track is in.
      * @throws              IllegalArgumentException
      */

@@ -8,6 +8,11 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Server for TCP connections running on a separate thread and capable of accepting requests in a timely manner
+ *
+ * @author marcobaga
+ */
 public class TCPServer implements Runnable {
 
     private int port;
@@ -19,8 +24,10 @@ public class TCPServer implements Runnable {
         this.running = false;
     }
 
+    /**
+     * Loop accepting connections
+     */
     public void run(){
-
         running = true;
         ExecutorService executor = Executors.newCachedThreadPool();
         ServerSocket serverSocket;
@@ -41,6 +48,11 @@ public class TCPServer implements Runnable {
             //try again?
         }
     }
+
+    /**
+     * Getters and setters
+     *
+     */
 
     public int getPort() {  //only used for testing
         return port;

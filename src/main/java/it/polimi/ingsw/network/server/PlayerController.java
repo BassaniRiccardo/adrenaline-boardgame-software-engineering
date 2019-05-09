@@ -11,7 +11,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Abstract class responsible for the connection between server and client.
+ * Abstract class responsible for the connection between to clients.
+ *
+ * @author marcobaga
  */
 
 public abstract class PlayerController implements Runnable{
@@ -32,6 +34,9 @@ public abstract class PlayerController implements Runnable{
         this.outgoing = new ArrayList<>();
     }
 
+    /**
+     * Manages login communication with the client
+     */
     public void run(){
         send("Select a name");
         LOGGER.log(Level.FINE, "Name request sent");
@@ -56,14 +61,27 @@ public abstract class PlayerController implements Runnable{
         send("Name accepted.");
     }
 
+    /**
+     * Checks for connection with client and forwards messages
+     */
     public void refresh(){}
 
+    /**
+     * Sends a message through the connection to the client
+     *
+     * @param in            the message to be sent
+     */
     private void send(String in){
         LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
         outgoing.add(in);
         refresh();
     }
 
+    /**
+     * Receives a message from the client (BLOCKING)
+     *
+     * @return              the message received
+     */
     private String receive() {
         while(incoming.isEmpty()){
             try {
@@ -107,6 +125,10 @@ public abstract class PlayerController implements Runnable{
         //method called by game controller to retrieve the answer to said question
         return (1 + (new Random()).nextInt(max));
     }
+
+    /**
+     * Getters and Setters
+     */
 
     public String getName() {
         return name;

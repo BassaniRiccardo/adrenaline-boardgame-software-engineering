@@ -11,6 +11,8 @@ import it.polimi.ingsw.network.client.Connection;
  */
 public class RequestFactory {
 
+    private RequestFactory(){}
+
     /**
      * Translator method
      *

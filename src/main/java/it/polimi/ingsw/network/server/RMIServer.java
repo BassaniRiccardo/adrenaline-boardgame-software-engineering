@@ -10,6 +10,11 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Server implementation for providing an RMI based communication
+ *
+ * @author marcobaga
+ */
 public class RMIServer implements RemoteServer {
 
     private ExecutorService executor;
@@ -18,12 +23,20 @@ public class RMIServer implements RemoteServer {
     private int port;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
+    /**
+     * Standard constructor
+     *
+     * @param port              the RMIRegistry's port (default 1420)
+     */
     public RMIServer(int port){
         this.port = port;
         id = 0;
         executor = Executors.newCachedThreadPool();
     }
 
+    /**
+     * Carries out binding procedures of this class
+     */
     public void setup() {
         try {
             RemoteServer stub = (RemoteServer) UnicastRemoteObject.exportObject(this, 0);
@@ -35,6 +48,11 @@ public class RMIServer implements RemoteServer {
         }catch (AlreadyBoundException ex) {LOGGER.log(Level.SEVERE, "RMI server binding failed", ex);}
     }
 
+    /**
+     * Called by a client, it instantiates a new PlayerController accessible via RMI and returns the string associated in the registry
+     *
+     * @return                  the name bound to the new PlayerController
+     */
     public synchronized String getPlayerController() {
         LOGGER.log(Level.FINE, "Constructing a PlayerController with ID {0}", id);
         String remoteName = "PC"+id;
@@ -52,6 +70,9 @@ public class RMIServer implements RemoteServer {
         return remoteName;
     }
 
+    /**
+     * Shuts down and cleans up
+     */
     public void shutdown(){
         try {
             reg.unbind("RMIServer");

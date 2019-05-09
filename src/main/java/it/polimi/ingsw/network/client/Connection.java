@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 /**
  * Interface for connecting to the server
+ *
  * @author marcobaga
  */
 public abstract class Connection implements Runnable{
@@ -16,10 +17,12 @@ public abstract class Connection implements Runnable{
     ClientMain clientMain;
     static final Logger LOGGER = Logger.getLogger("clientLogger");
 
+    /**
+     * Main loop for checking incoming messages and passing them to other classes
+     */
     public void run(){
         while(Thread.currentThread().isAlive()){
             String message = receive();
-            System.out.println("loop");
             if(!message.equals("")) {
                 LOGGER.log(Level.INFO,"Received message: " + message);
                 clientMain.handleRequest(RequestFactory.toRequest(message));
@@ -45,5 +48,10 @@ public abstract class Connection implements Runnable{
      */
     public abstract void shutdown();
 
+    /**
+     * Hides the implementation of methods to receive messages from server
+     *
+     * @return          message received
+     */
     abstract String receive();
 }

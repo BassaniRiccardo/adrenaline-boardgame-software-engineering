@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-//TODO: test
+/**
 /**
  * Main client class, containing most of the client's logic and structures
  *
@@ -52,7 +52,51 @@ public class ClientMain {
     }
 
     /**
+     * Wrapper class for request handling
+     *
+     * @param request    request to be managed
+     */
+    public void handleRequest(Request request){
+        request.manage(this, ui, connection);
+    }
+
+    /**
+     * Initializes a logger for all the classes used by the client.
+     */
+    private void initializeLogger(){
+        try {
+            FileHandler fileHandler = new FileHandler("clientLog.txt");
+            fileHandler.setLevel(Level.ALL);
+            fileHandler.setFormatter(new SimpleFormatter());
+            LOGGER.addHandler(fileHandler);
+        }catch (IOException ex){LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);}
+        LOGGER.setLevel(Level.ALL);
+    }
+
+    /**
+     * Loads server IP and port from args or client.properties
+     */
+    private Properties loadConfig(String[] args) {
+        Properties prop = new Properties();
+
+        if (args.length == 2) {     //test reading from args
+            prop.put("serverIP", args[0]);
+            prop.put("RMIPort", args[1]);
+            prop.put("TCPPort", args[1]);
+        } else {
+            try (InputStream input = new FileInputStream("client.properties")) {
+                prop.load(input);
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, "Cannot load client config from file", ex);
+            }
+        }
+        return prop;
+    }
+
+    /**
      * Method that initializes ui and connection as chosen by the user. Both are executed in a different thread.
+     *
+     * @param args      the server's ip and port
      */
     private void setup(String[] args){
 
@@ -83,39 +127,4 @@ public class ClientMain {
         executor.submit(connection);
     }
 
-    /**
-     * Wrapper class for request handling
-     *
-     * @param request    request to be managed
-     */
-    public void handleRequest(Request request){
-        request.manage(this, ui, connection);
-    }
-
-    private void initializeLogger(){
-        try {
-            FileHandler fileHandler = new FileHandler("clientLog.txt");
-            fileHandler.setLevel(Level.ALL);
-            fileHandler.setFormatter(new SimpleFormatter());
-            LOGGER.addHandler(fileHandler);
-        }catch (IOException ex){LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);}
-        LOGGER.setLevel(Level.ALL);
-    }
-
-    private Properties loadConfig(String[] args) {
-        Properties prop = new Properties();
-
-        if (args.length == 2) {     //test reading from args
-            prop.put("serverIP", args[0]);
-            prop.put("RMIPort", args[1]);
-            prop.put("TCPPort", args[1]);
-        } else {
-            try (InputStream input = new FileInputStream("client.properties")) {
-                prop.load(input);
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, "Cannot load client config from file", ex);
-            }
-        }
-        return prop;
-    }
 }

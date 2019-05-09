@@ -14,12 +14,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
-//TODO: implement shutdown, handle exceptions properly, test
-
+/**
+ * Implementation of RMI connection to server
+ *
+ * @author marcobaga
+ */
 public class RMIConnection extends Connection {
 
     private RemotePlayerController playerStub;
 
+    /**
+     * Constructor retrieving remote objects
+     *
+     * @param clientMain        reference to the main class
+     * @param address           IP to connect to
+     * @param port              port to connect to
+     */
     public RMIConnection(ClientMain clientMain, String address, int port){
         this.clientMain = clientMain;
         try {
@@ -56,6 +66,12 @@ public class RMIConnection extends Connection {
         }
     }
 
+
+    /**
+     * Receives server messages via calling a remote methods (NON blocking)
+     *
+     * @return              the message received or an empty string if no message was sent
+     */
     @Override
     String receive(){
         String message = "";
@@ -68,6 +84,11 @@ public class RMIConnection extends Connection {
         return message;
     }
 
+    /**
+     * Sends message via calling a remote function with the message as a parameter (NON blocking)
+     *
+     * @param message       the message to send
+     */
     @Override
     public void send(String message) {
         try {
@@ -79,6 +100,9 @@ public class RMIConnection extends Connection {
         }
     }
 
+    /**
+     * Shuts down the connection and cleans up
+     */
     @Override
     public void shutdown(){
         //implement shutdown

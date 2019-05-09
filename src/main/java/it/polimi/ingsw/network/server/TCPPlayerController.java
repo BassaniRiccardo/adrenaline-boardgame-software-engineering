@@ -8,6 +8,11 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 
+/**
+ * Implementation of PlayerController communicating through a socket
+ *
+ * @author marcobaga
+ */
 public class TCPPlayerController extends PlayerController{
 
     private Socket socket;
@@ -19,6 +24,9 @@ public class TCPPlayerController extends PlayerController{
         this.socket = socket;
     }
 
+   /**
+     * Initializes the connection (this happens on a separate thread from the main one so that the server can manage multiple requests in short time)
+     */
     @Override
     public void run (){
         try {
@@ -32,6 +40,9 @@ public class TCPPlayerController extends PlayerController{
         }
     }
 
+    /**
+     * Forwards the messages through the connection and receives them. Detects disconnected clients and allows for non-blocking send and receive methods.
+     */
     @Override
     public synchronized void refresh() {
         if(!suspended) {

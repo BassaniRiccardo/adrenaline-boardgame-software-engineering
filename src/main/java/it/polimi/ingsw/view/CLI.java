@@ -10,23 +10,45 @@ import java.util.logging.Logger;
 
 
 //TODO: fully implement this class, add graphic functionality
+
+/**
+ * Simple command line interface for the client's I/O operations
+ *
+ * @author  marcobaga
+ */
 public class CLI implements UI{
 
     private Scanner in;
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
 
-    public CLI(ClientMain clientMain){
+    /**
+     * Standard constructor
+     */
+    public CLI(ClientMain clientMain) {
         this.in = new Scanner(System.in);
         this.clientMain = clientMain;
     }
 
+    /**
+     * Displays a certain message
+     *
+     * @param message       message to be displayed
+     */
     public void display(String message) {System.out.println(message);}
 
+    /**
+     * Queries the user for input (blocking)
+     *
+     * @return              the user's input as a string
+     */
     public String get(){
         return in.nextLine();
     }
 
+    /**
+     * Main CLI loop checking for user input asynchronously from other threads, in particular for closing the client while awaiting a message.
+     */
     @Override
     public void run() {
 

@@ -93,6 +93,9 @@ public class ServerMain {
         System.exit(0);
     }
 
+    /**
+     * Initializes logger, a reader of System.in, RMI and TCP servers
+     */
     private void setup(){
         this.initializeLogger();
         LOGGER.log(Level.INFO,"Main method started");
@@ -212,6 +215,9 @@ public class ServerMain {
         return players;
     }
 
+    /**
+     * Initializes the logger so that it writes to a txt file
+     */
     private void initializeLogger(){
         try {
             FileHandler fileHandler = new FileHandler("serverLog.txt");
@@ -222,6 +228,11 @@ public class ServerMain {
         LOGGER.setLevel(Level.ALL);
     }
 
+    /**
+     * Loads config from file if possible
+     *
+     * @return              the loaded properties or empty properties if failed
+     */
     public static Properties loadConfig(){
         Properties prop = new Properties();
         try (InputStream input = new FileInputStream("server.properties")) {
@@ -232,6 +243,9 @@ public class ServerMain {
         return prop;
     }
 
+    /**
+     * Handles input from keyboard (currently the only way to shutdown the server)
+     */
     private void manageInput(){
         try{
             if (in.ready()) {
@@ -253,12 +267,18 @@ public class ServerMain {
         }
     }
 
+    /**
+     * Refreshes connections: forwards TCP messages and checks for activity or client disconnection
+     */
     private void refreshConnections(){
         for (PlayerController p : new ArrayList<>(this.players)) {
             p.refresh();
         }
     }
 
+    /**
+     * Start a game if certain conditions are satisfied
+     */
     private void matchmaking(){
         if (waitingPlayers.size() > 4 || (timer.isOver() && waitingPlayers.size() > 2)) {
             selectedPlayers.clear();

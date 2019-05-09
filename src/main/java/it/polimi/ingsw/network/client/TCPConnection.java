@@ -9,17 +9,27 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 
-//TODO: in-depth testing
-//implement reaction to server disconnect
-
+/**
+ * Implementation of Socket connection to server
+ *
+ * @author marcobaga
+ */
 public class TCPConnection extends Connection {
 
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
 
+    /**
+     * Constructor establishing a TCP connection
+     *
+     * @param clientMain        reference to the main class
+     * @param address           IP to connect to
+     * @param port              port to connect to
+     */
     public TCPConnection(ClientMain clientMain, String address, int port){
         this.clientMain = clientMain;
         LOGGER.log(Level.INFO, "Starting TCP connection");
@@ -27,6 +37,7 @@ public class TCPConnection extends Connection {
             socket = new Socket(address, port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream());
+            socket.setSoTimeout(100);
             LOGGER.log(Level.INFO, "Connected to TCP server");
         }catch (ConnectException ex){
             LOGGER.log(Level.INFO, "Cannot connect to server. Closing");
@@ -38,6 +49,11 @@ public class TCPConnection extends Connection {
         }
     }
 
+    /**
+     * Sends a message through the socket (NOT blocking)
+     *
+     * @param message       message to send
+     */
     @Override
     public void send(String message){
         out.println(message);
@@ -45,14 +61,22 @@ public class TCPConnection extends Connection {
         LOGGER.log(Level.FINE, "Message sent to TCP server: {0}", message);
     }
 
-
+    /**
+     * Checks the socket input stream for new messages (NOT blocking)
+     *
+     * @return          the string received (empty if no message arrived)
+     */
     @Override
     String receive(){
         String message = "";
         try {
-            if (in.ready()) {
-                message = in.readLine();
+            message = in.readLine();
+            if (message == null) {
+                LOGGER.log(Level.INFO, "TCPConnection: server disconnected, shutting down");
+                clientMain.handleRequest(RequestFactory.toRequest("quit"));
             }
+        }catch(SocketTimeoutException ex) {
+            LOGGER.log(Level.FINEST, "No incoming message from TCPPlayerController", ex);
         }catch(IOException ex) {
             LOGGER.log(Level.INFO, "TCPConnection: server disconnected, shutting down");
             clientMain.handleRequest(RequestFactory.toRequest("quit"));
@@ -60,6 +84,9 @@ public class TCPConnection extends Connection {
         return message;
     }
 
+    /**
+     * Shuts down and cleans up
+     */
     @Override
     public void shutdown() {
         try {

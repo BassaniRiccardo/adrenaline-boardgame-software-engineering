@@ -28,6 +28,7 @@ public class ClientMain {
     private Connection connection;
     private ExecutorService executor;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
+
     //requests alter the player model. calling setters of the model generates a list of operations to revert the changes. if "reset move" is caleld, those changes are applied
     //once the player confirms its move, updates are sent as a request to all other clients
 
@@ -47,7 +48,7 @@ public class ClientMain {
         ClientMain clientMain = new ClientMain();
         clientMain.initializeLogger();
         clientMain.setup(args);
-        System.out.println("Setup finished");
+        LOGGER.log(Level.INFO, "Setup finished");
     }
 
     /**
@@ -55,22 +56,7 @@ public class ClientMain {
      */
     private void setup(String[] args){
 
-        ////////////////
-        Properties prop = new Properties();
-
-        if(args.length==2){     //test reading from args
-            prop.put("serverIP", args[0]);
-            prop.put("RMIPort", args[1]);
-            prop.put("TCPPort", args[1]);
-        }else {
-            try (InputStream input = new FileInputStream("client.properties")) {
-                prop.load(input);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-/////////////////////////////
-
+        Properties prop = loadConfig(args);
 
         Scanner in = new Scanner(System.in);
         System.out.println("Client avviato. Che interfaccia grafica vuoi utilizzare (GUI/CLI)?");
@@ -92,7 +78,6 @@ public class ClientMain {
             ui.display("RMI selezionata.");
         } else {
             connection = new TCPConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("TCPPort", "5000")));
-
             ui.display("Socket selezionata.");
         }
         executor.submit(connection);
@@ -107,13 +92,30 @@ public class ClientMain {
         request.manage(this, ui, connection);
     }
 
-    public void initializeLogger(){
+    private void initializeLogger(){
         try {
-            FileHandler FILEHANDLER = new FileHandler("clientLog.txt");
-            FILEHANDLER.setLevel(Level.ALL);
-            FILEHANDLER.setFormatter(new SimpleFormatter());
-            LOGGER.addHandler(FILEHANDLER);
+            FileHandler fileHandler = new FileHandler("clientLog.txt");
+            fileHandler.setLevel(Level.ALL);
+            fileHandler.setFormatter(new SimpleFormatter());
+            LOGGER.addHandler(fileHandler);
         }catch (IOException ex){LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);}
         LOGGER.setLevel(Level.ALL);
+    }
+
+    private Properties loadConfig(String[] args) {
+        Properties prop = new Properties();
+
+        if (args.length == 2) {     //test reading from args
+            prop.put("serverIP", args[0]);
+            prop.put("RMIPort", args[1]);
+            prop.put("TCPPort", args[1]);
+        } else {
+            try (InputStream input = new FileInputStream("client.properties")) {
+                prop.load(input);
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, "Cannot load client config from file", ex);
+            }
+        }
+        return prop;
     }
 }

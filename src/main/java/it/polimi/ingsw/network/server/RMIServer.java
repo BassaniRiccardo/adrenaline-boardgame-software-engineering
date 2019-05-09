@@ -10,10 +10,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//TODO: manage disconnections (graceful and not)
-//TODO: adapt class for connections from different hosts
-
-
 public class RMIServer implements RemoteServer {
 
     private ExecutorService executor;
@@ -30,40 +26,36 @@ public class RMIServer implements RemoteServer {
 
     public void setup() {
         try {
-            RemoteServer stub = (RemoteServer) UnicastRemoteObject.exportObject(this, 0); //check port
+            RemoteServer stub = (RemoteServer) UnicastRemoteObject.exportObject(this, 0);
             LocateRegistry.createRegistry(port);
-            reg = LocateRegistry.getRegistry(port); //cambiare con ip+porta
+            reg = LocateRegistry.getRegistry(port);
             reg.bind("RMIServer", stub);
-            System.out.println("RMIServer ready");
-        }catch(RemoteException ex) {ex.printStackTrace(); System.out.println("Failed to retrieve RMI register for server binding");
-        }catch (AlreadyBoundException ex) {System.out.println("RMI server binding failed");}
+            LOGGER.log(Level.INFO, "RMIServer ready");
+        }catch(RemoteException ex) {LOGGER.log(Level.SEVERE, "Failed to retrieve RMI register for server binding", ex); //try again?
+        }catch (AlreadyBoundException ex) {LOGGER.log(Level.SEVERE, "RMI server binding failed", ex);}
     }
 
-    public synchronized String getPlayerController() { //maybe throw RemoteException
-        System.out.println("Server: inizio costruzione PlayerController con ID " + id);
+    public synchronized String getPlayerController() {
+        LOGGER.log(Level.FINE, "Constructing a PlayerController with ID {0}", id);
         String remoteName = "PC"+id;
-        RMIPlayerController rmiPlayerController = new RMIPlayerController(remoteName);
-        System.out.println("Creato nuovo PlayerController");
+        RMIPlayerController rmiPlayerController = new RMIPlayerController();
+        LOGGER.log(Level.FINE, "New PlayerController created");
         try {
             RemotePlayerController stub = (RemotePlayerController) UnicastRemoteObject.exportObject(rmiPlayerController, 0);
-
-            System.out.println("creato Stub");
             reg.bind(remoteName, stub);
-            System.out.println("RMIPC bound");
-        }catch(RemoteException ex) { ex.printStackTrace(); System.out.println("Failed to retrieve RMI register for server binding while creating PC");
-        }catch (AlreadyBoundException ex) {System.out.println("RMI server binding failed");}
+        }catch(RemoteException ex) {
+            LOGGER.log(Level.SEVERE, "Failed to retrieve RMI register for server binding while creating PC", ex);
+        }catch (AlreadyBoundException ex) {LOGGER.log(Level.SEVERE, "PC binding failed");}
         executor.submit(rmiPlayerController);
-        System.out.println("RMIPlayerController created");
+        LOGGER.log(Level.FINE, "RMIPlayerController created");
         id++;
         return remoteName;
     }
 
     public void shutdown(){
-        //also close TCP and RMI Player controllers
         try {
             reg.unbind("RMIServer");
             UnicastRemoteObject.unexportObject(this, true);
-        }catch(Exception ex){ LOGGER.log(Level.SEVERE, "Caught while shuttind down RMIServer", ex);}
-
+        }catch(Exception ex){ LOGGER.log(Level.SEVERE, "Exception caught while shutting down RMIServer", ex);}
     }
 }

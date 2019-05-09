@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 //TODO: fully implement this class, add graphic functionality
@@ -12,6 +14,7 @@ public class CLI implements UI{
 
     private Scanner in;
     private ClientMain clientMain;
+    private static final Logger LOGGER = Logger.getLogger("clientLogger");
 
     public CLI(ClientMain clientMain){
         this.in = new Scanner(System.in);
@@ -33,20 +36,20 @@ public class CLI implements UI{
             try{
                 if (in.ready()) {
                     if(in.readLine().equals("q")){
-                        System.out.println("CLI: quitting");
+                        display("CLI: quitting");
                         clientMain.handleRequest(RequestFactory.toRequest("quit"));
                     }else{
-                        System.out.println("Wait for your turn or press q to quit");
+                        display("Wait for your turn or press q to quit");
                     }
                 }
             }catch(IOException e){
-                System.out.println("Cannot retrieve input from keyboard");
+                LOGGER.log(Level.SEVERE, "Cannot retrieve input from keyboard, quitting");
                 clientMain.handleRequest(RequestFactory.toRequest("quit"));
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             }catch(InterruptedException ex){
-                System.out.println("Skipped waiting time.");
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
         }

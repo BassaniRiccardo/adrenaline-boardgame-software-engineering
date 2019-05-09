@@ -81,11 +81,12 @@ public class ServerMain {
             synchronized (instance) {
                 sm.refreshConnections();
                 sm.matchmaking();
+                sm.removeSuspendedPlayers();
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             }catch(InterruptedException ex){
-                System.out.println("Skipped waiting time.");
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -97,10 +98,10 @@ public class ServerMain {
         LOGGER.log(Level.INFO,"Main method started");
         LOGGER.log(Level.FINE, "Logger initialized");
 
-        Properties prop = this.loadConfig();
+        Properties prop = ServerMain.loadConfig();
         LOGGER.log(Level.FINE, "Config read from file");
 
-        this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", "5000")), this);
+        this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", "5000")));
         this.executor.submit(this.tcpServer);
         this.rmiServer = new RMIServer(Integer.parseInt(prop.getProperty("RMIPort", "1420")));
         this.rmiServer.setup();
@@ -113,7 +114,6 @@ public class ServerMain {
         this.in = new BufferedReader(new InputStreamReader(System.in));
         this.running = true;
     }
-
 
     /**
      * Removes a game from tracked ones.
@@ -129,9 +129,10 @@ public class ServerMain {
      *
      * @param p             the player to be added
      */
-    public void addPlayer(PlayerController p){
+    private void addPlayer(PlayerController p){
         waitingPlayers.add(p);
         players.add(p);
+        LOGGER.log(Level.FINE, "Player added: " + p.getName());
     }
 
     /**
@@ -141,16 +142,15 @@ public class ServerMain {
      * @param p             the player attempting to log in
      */
     public synchronized boolean login(String name, PlayerController p){      //this method needs to be synchronized most likely
-        LOGGER.log(Level.INFO, "Someone is attempting to login: {0}", p);
+        LOGGER.log(Level.FINE, "Someone is attempting to login as {0}", name);
         for(PlayerController pc : players){
             if(pc.getName().equals(name)){
-                System.out.println("Login unsuccessful");
+                LOGGER.log(Level.FINE, "Login unsuccessful");
                 return false;
             }
         }
-        System.out.println("Login should be successful");
         addPlayer(p);
-        System.out.println("Login successful");
+        LOGGER.log(Level.INFO,"{0} logged in", name);
         return true;
     }
 
@@ -181,6 +181,7 @@ public class ServerMain {
             for (PlayerController old : g.getPlayers()) {
                 if (old.getName().equals(name) && old.isSuspended()) {
                     g.setPlayer(g.getPlayers().indexOf(old), p);
+                    LOGGER.log(Level.INFO,"{0} resumed", name);
                     return true;
                 }
             }
@@ -189,20 +190,17 @@ public class ServerMain {
     }
 
     /**
-     * Resumes players if they disconnected while still waiting
+     * Removes players who were suspended while till waiting for a game
      *
-     * @param p             the player who disconnected
      */
-    public synchronized void removeIfWaiting(PlayerController p){
-        for (GameEngine g : currentGames) {
-            for (PlayerController old : g.getPlayers()) {
-                if (old==p) {
-                    return;
-                }
+    private synchronized void removeSuspendedPlayers(){
+        for (PlayerController p : new ArrayList<>(waitingPlayers)){
+            if(p.isSuspended()){
+                players.remove(p);
+                waitingPlayers.remove(p);
+                LOGGER.log(Level.INFO, "{0} was removed", p.getName());
             }
         }
-        players.remove(p);
-        waitingPlayers.remove(p);
     }
 
     /**
@@ -214,17 +212,17 @@ public class ServerMain {
         return players;
     }
 
-    public void initializeLogger(){
+    private void initializeLogger(){
         try {
-            FileHandler FILEHANDLER = new FileHandler("serverLog.txt");
-            FILEHANDLER.setLevel(Level.ALL);
-            FILEHANDLER.setFormatter(new SimpleFormatter());
-            LOGGER.addHandler(FILEHANDLER);
+            FileHandler fileHandler = new FileHandler("serverLog.txt");
+            fileHandler.setLevel(Level.FINE);
+            fileHandler.setFormatter(new SimpleFormatter());
+            LOGGER.addHandler(fileHandler);
         }catch (IOException ex){LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);}
         LOGGER.setLevel(Level.ALL);
     }
 
-    private Properties loadConfig(){
+    public static Properties loadConfig(){
         Properties prop = new Properties();
         try (InputStream input = new FileInputStream("server.properties")) {
             prop.load(input);
@@ -240,8 +238,12 @@ public class ServerMain {
                 if(in.readLine().equals("q")){
                     System.out.println("Quitting");
                     running = false;
-                    this.tcpServer.shutdown();
-                    //this.rmiServer.shutdown();
+                    tcpServer.shutdown();
+                    rmiServer.shutdown();
+                    players.clear();
+                    waitingPlayers.clear();
+                    selectedPlayers.clear();
+                    currentGames.clear();
                 }else{
                     System.out.println("Press q to quit");
                 }

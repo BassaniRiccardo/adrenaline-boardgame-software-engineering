@@ -1,26 +1,24 @@
 package it.polimi.ingsw.network.server;
 
-import it.polimi.ingsw.controller.ServerMain;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TCPServer implements Runnable {
 
     private int port;
-    private ServerMain serverMain;
     private boolean running;
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
-    public TCPServer(int port, ServerMain serverMain){
+    public TCPServer(int port){
         this.port = port;
-        this.serverMain = serverMain;
         this.running = false;
     }
 
-    //accepts connections, creates PlayerController
     public void run(){
 
         running = true;
@@ -28,29 +26,25 @@ public class TCPServer implements Runnable {
         ServerSocket serverSocket;
         try{
             serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return;
-        }
 
-        System.out.println("TCPServer ready");
+            LOGGER.log(Level.INFO, "TCPServer ready");
 
-        while (running){
-            try{
+            while (running){
                 Socket socket = serverSocket.accept();
                 executor.submit(new TCPPlayerController(socket));
-                System.out.println("Accepted new connection, passed it to TCPPlayerController");
-            } catch(IOException e) {
-                break;
+                LOGGER.log(Level.INFO, "Accepted new connection");
             }
+            serverSocket.close();
+            LOGGER.log(Level.INFO, "TCPServer shutting down");
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "TCPServer initialization failed", ex);
+            //try again?
         }
-        System.out.println("TCPServer shutting down");
     }
 
-    public int getPort() {
+    public int getPort() {  //only used for testing
         return port;
     }
 
     public void shutdown(){ this.running = false;}
-
 }

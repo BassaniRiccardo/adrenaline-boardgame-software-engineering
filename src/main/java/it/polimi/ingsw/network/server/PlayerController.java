@@ -3,30 +3,80 @@ import it.polimi.ingsw.controller.GameEngine;
 import it.polimi.ingsw.controller.ServerMain;
 import it.polimi.ingsw.model.board.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Abstract class responsible for the connection between server and client.
  */
 
-//TODO: finish implementing
-// it might be agood idea to hold a list of messages and a flag telling if they have been answered. Maybe answer can hold the question's id?
-
-public abstract class PlayerController implements Runnable{ //oggetto remoto
-    GameEngine game;
-    String name;
+public abstract class PlayerController implements Runnable{
+    private GameEngine game;
+    protected String name;
     boolean suspended;
-    Player model;
+    private Player model;
+    static final Logger LOGGER = Logger.getLogger("serverLogger");
+    List<String> incoming;
+    List<String> outgoing;
 
-    public void run(){}
+    PlayerController(){
+        this.game = null;
+        this.name = null;
+        this.suspended = false;
+        this.model = null;
+        this.incoming = new ArrayList<>();
+        this.outgoing = new ArrayList<>();
+    }
+
+    public void run(){
+        send("Select a name");
+        LOGGER.log(Level.FINE, "Name request sent");
+        name = receive();
+        LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
+
+        while(!ServerMain.getInstance().login(name, this)){
+            if(ServerMain.getInstance().canResume(name)){
+                send("Do you want to resume?");
+                String ans = receive();
+                if(ans.equals("yes")) {
+                    if(ServerMain.getInstance().resume(name, this)){
+                        break;
+                    } else {
+                        send("Somebody already resumed.");
+                    }
+                }
+            }
+            send("Name already taken. Try another one");
+            name = receive();
+        }
+        send("Name accepted.");
+    }
 
     public void refresh(){}
 
-    public void send(String in){}
+    private void send(String in){
+        LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
+        outgoing.add(in);
+        refresh();
+    }
 
-    public String receive () {
-        return null;
+    private String receive() {
+        while(incoming.isEmpty()){
+            try {
+                refresh();
+                TimeUnit.MILLISECONDS.sleep(100);
+            }catch(InterruptedException ex){
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+        }
+        String message = incoming.remove(0);
+        LOGGER.log(Level.FINE, "Message added to incoming: {0}", message);
+        return message;
     }
 
     /**
@@ -58,15 +108,9 @@ public abstract class PlayerController implements Runnable{ //oggetto remoto
         return (1 + (new Random()).nextInt(max));
     }
 
-    //these next methods are remote and can be called by the client to retrieve the qeustions and provide answers
-    public String getQuestion(){        //remote method
-        return new String();
-    }
-
     public String getName() {
         return name;
     }
-
     public GameEngine getGame() { return game;  }
 
     public Player getModel() {return model; }
@@ -81,8 +125,7 @@ public abstract class PlayerController implements Runnable{ //oggetto remoto
 
     public void suspend() {
         this.suspended = true;
-        ServerMain.getInstance().removeIfWaiting(this);
-        System.out.println("Player " + name + " was suspended");
+        LOGGER.log(Level.INFO,"Player {0} was suspended", name);
     }
 
 }

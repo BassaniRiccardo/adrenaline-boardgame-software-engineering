@@ -1,100 +1,59 @@
 package it.polimi.ingsw.network.server;
 
-import it.polimi.ingsw.controller.ServerMain;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Level;
 
-//TODO: finish implementing
-//this is the class that both the gameengine and the client talk to. it is used as a "messenger" between the two
 public class TCPPlayerController extends PlayerController{
 
     private Socket socket;
-    private List<String> incoming;
-    private List<String> outgoing;
     private BufferedReader in;
     private PrintWriter out;
 
     public TCPPlayerController(Socket socket){
+        super();
         this.socket = socket;
-        this.incoming = new ArrayList<>();
-        this.outgoing = new ArrayList<>();
-    }
-
-    public void run (){
-        try {
-
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream());
-            System.out.println("TCPPlayerController running, starting login procedures");
-            out.println("Select a name");
-            out.flush();
-            System.out.println("Name request sent");
-            name = in.readLine();
-            System.out.println("Name received: " + name);
-
-            while(!ServerMain.getInstance().login(name, this)){
-                if(ServerMain.getInstance().canResume(name)){
-                    out.println("Do you want to resume?");
-                    out.flush();
-                    String ans = in.readLine();
-                    if(ans.equals("yes")) {
-                        if(ServerMain.getInstance().resume(name, this)){
-                            break;
-                        } else {
-                            out.println("Somebody already resumed.");
-                            out.flush();
-                        }
-                    }
-                }
-                out.println("Name already taken. Try another one");
-                out.flush();
-                name = in.readLine();
-            }
-            out.println("Name accepted.");
-            out.flush();
-            socket.setSoTimeout(100);
-
-        }catch (IOException e){ e.printStackTrace(); suspend();}
     }
 
     @Override
-    public void refresh() {
+    public void run (){
+        try {
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(socket.getOutputStream());
+            socket.setSoTimeout(100);
+            super.run();
+        }catch(Exception ex){
+            LOGGER.log(Level.SEVERE, "Cannot create TCPPlayerController", ex);
+            suspend();
+        }
+    }
+
+    @Override
+    public synchronized void refresh() {
         if(!suspended) {
             try {
                 String message = in.readLine();
                 if (message == null) {
                     suspend();
                 } else {
+                    LOGGER.log(Level.FINE, "Received a message over TCP connection");
                     incoming.add(message);
-                    System.out.println("TCPPlayerController just received a message");
                 }
             } catch (SocketTimeoutException ex) {
+                LOGGER.log(Level.FINEST, "No incoming message from TCPPlayerController", ex);
             } catch (IOException ex) {
-                ex.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Cannot reach client", ex);
                 suspend();
             }
             if (!outgoing.isEmpty()) {
-                out.println(outgoing.get(0));
+                out.println(outgoing.remove(0));
                 out.flush();
+                LOGGER.log(Level.FINE, "Sending a message over TCP connection");
             }
         }
-    }
-
-    @Override
-    public void send(String in, List<String> options) {
-        outgoing.add(in);
-    }
-
-    @Override
-    public String receive() {
-        while(incoming.isEmpty()){}
-        return incoming.get(0);
     }
 }

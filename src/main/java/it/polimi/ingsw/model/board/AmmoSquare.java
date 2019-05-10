@@ -133,10 +133,10 @@ public class AmmoSquare extends Square  {
 
 
     /**
-     * Returns true if the two ammo squares have the same id.
+     * Returns true if the compared objects are two weapon squares belonging to the same board with the same id.
      *
      * @param o    the ammo square to compare to the current ammo square.
-     * @return     true if the two ammo squares have the same id.
+     * @return     true if the compared objects are two weapon squares belonging to the same board with the same id.
      *             false otherwise.
      */
     @Override
@@ -156,7 +156,7 @@ public class AmmoSquare extends Square  {
         AmmoSquare s = (AmmoSquare) o;
 
         // Compare the data members and return accordingly
-        return s.getId() == getId();
+        return s.getId() == getId() && s.getBoard().equals(getBoard());
 
     }
 
@@ -167,8 +167,8 @@ public class AmmoSquare extends Square  {
     @Override
     public int hashCode() {
 
-        int result = 0;
-        result = getId();
+        int result;
+        result = getId() + getBoard().hashCode();
         return result;
 
     }

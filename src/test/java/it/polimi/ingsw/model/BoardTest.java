@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static it.polimi.ingsw.model.cards.Color.*;
@@ -546,4 +547,26 @@ public class BoardTest {
         board1.setMap(map);
     }
 
+
+    /**
+     * Tests the method sort().
+     */
+    @Test
+    public void sort(){
+
+        Board b = BoardConfigurer.configureMap(4);
+        Player p1 = new Player(1, Player.HeroName.BANSHEE, b);
+        Player p2 = new Player(2, Player.HeroName.D_STRUCT_OR, b);
+        Player p3 = new Player(3, Player.HeroName.SPROG, b);
+        Player p4 = new Player(4, Player.HeroName.VIOLET, b);
+
+        List<Player> toSort = new ArrayList<>(Arrays.asList(p1, p2, p3, p4));
+        List<Player> occurrences = new ArrayList<>(Arrays.asList(p2, p1, p3, p3, p2, p1, p3, p3, p4));
+
+        b.sort(toSort, occurrences);
+
+        //p3 has the highest number of occurrences, p2 and p1 has the same but p2 appears first in the list; p4 has the lowest number of occurrences
+        assertEquals(new ArrayList<>(Arrays.asList(p3, p2, p1, p4)), toSort);
+
+    }
 }

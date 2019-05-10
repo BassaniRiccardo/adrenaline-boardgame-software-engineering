@@ -18,7 +18,7 @@ import static it.polimi.ingsw.model.cards.Color.*;
  * There are from 3 up to 5 instances of Player.
  * The id attribute is unique.
  *
- * @author  davidealde
+ * @authors davidealde, BassaniRiccardo
  */
 
 //TODO
@@ -100,7 +100,7 @@ public class Player {
 
         this.weaponList = new ArrayList<>();
         this.powerUpList = new ArrayList<>();
-        this.ammoPack =new AmmoPack(0,0,0);
+        this.ammoPack =new AmmoPack(1,1,1);
 
         this.actionList = new ArrayList<>();
         this.mainTargets=new ArrayList<>();
@@ -116,6 +116,7 @@ public class Player {
 
     }
 
+    //TODO: to remove if a fake player is not created
     public Player(Player toCopy) {
 
         this.id = toCopy.getId();
@@ -325,7 +326,7 @@ public class Player {
      * Collects a weapon.
      *
      */
-    public void collect(Card collectedCard) throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void collect(Card collectedCard) throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
         position.removeCard(collectedCard);
 
@@ -347,13 +348,11 @@ public class Player {
      * Draws a random power up from the deck of power ups and adds it to the player power ups list.
      * If there are no drawable cards left in the deck, the deck is regenerated.
      */
-    public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
         if (this.powerUpList.size()>=4) throw new UnacceptableItemNumberException("A player can normally hold up to 3 power ups; 4 are allowed in the process of rebirth. More than 4 are never allowed.");
         if (this.board.getPowerUpDeck().getDrawable().isEmpty()){
-            try {
-                this.board.getPowerUpDeck().regenerate();
-            } catch (WrongTimeException e){ e.printStackTrace();}
+            this.board.getPowerUpDeck().regenerate();
         }
         PowerUp p = (PowerUp)this.board.getPowerUpDeck().drawCard();
         p.setHolder(this);
@@ -532,18 +531,11 @@ public class Player {
         }
 
         //asks the board for the players
-        List<Player> playersToReward = this.board.getPlayers();
+        List<Player> playersToReward = new ArrayList<>();
+        playersToReward.addAll(this.board.getPlayers());
 
         //properly orders the playersToReward
-        sort(playersToReward, (p1, p2) -> {
-            if (frequency(damages, p1) > frequency(damages, p2)) return -1;
-            else if (frequency(damages, p1) < frequency(damages, p2)) return 1;
-            else {
-                if (damages.indexOf(p1) < damages.indexOf(p2)) return -1;
-                else if (damages.indexOf(p1) > damages.indexOf(p2)) return 1;
-                return 0;
-            }
-        });
+        board.sort(playersToReward, damages);
 
         //assign the points
         int nextPointsToGive;
@@ -633,21 +625,18 @@ public class Player {
 
     //TODO the model should not be modified, it is better to create a fake player and work on it.
 
-    public List<Square> getShootingSquares(int steps){
+    public List<Square> getShootingSquares(int steps, List<Weapon> weaponToConsider) throws NotAvailableAttributeException{
 
         List<Square> starting = new ArrayList<>();
         List<Square> start = board.getReachable(position, steps);
         for (Square s1: start){
             boolean found = false;
             this.setPosition(s1);
-            List<Weapon> weaponToConsider = getLoadedWeapons();
             for (Weapon w: weaponToConsider){
                 for (FireMode f : w.getFireModeList()){
-                    try {
-                        if (!(f.getTargetFinder().find(this).isEmpty())) {
-                            found = true;
-                        }
-                    } catch (NotAvailableAttributeException e){e.printStackTrace();}
+                    if (!(f.getTargetFinder().find(this).isEmpty())) {
+                        found = true;
+                    }
                 }
             }
             if (found && !starting.contains(s1)) starting.add(s1);
@@ -663,78 +652,52 @@ public class Player {
      *
      * @return
      */
-    public List<Action> getAvailableActions(){
+    public List<Action> getAvailableActions() throws NotAvailableAttributeException{
 
         List<Action> availableActions = new ArrayList<>();
         availableActions.addAll(getActionList());
-
-        //TODO: remove the shooting action only when the player cannot reload.a useful weapon
-
-        if (status == Status.BASIC || status == Status.ADRENALINE_1){
-            if(getShootingSquares(0).isEmpty()){
-                availableActions.remove(2);
-            }
-        }
-        else if (status == Status.ADRENALINE_2 || status == Status.FRENZY_1){
-            if(getShootingSquares(1).isEmpty()){
-                availableActions.remove(2);
-            }
-        }
-        else if (status == Status.FRENZY_2){
-            if(getShootingSquares(2).isEmpty()){
-                availableActions.remove(1);
-            }
-        }
-
-/*        if(getShootingSquares(2).isEmpty()) {
-            Action shootingAction = null;
-            for (Action action : availableActions) {
-                if (action.isShoot()) shootingAction = action;
-            }
-            availableActions.remove(shootingAction);
-        }
-        else if (getShootingSquares(1).isEmpty()){
-            Action shootingAction = null;
-            for (Action action : availableActions) {
-                if (action.isShoot() && action.getSteps() < 2) shootingAction = action;
-            }
-            if (shootingAction!=null) availableActions.remove(shootingAction);
-        }
-        else if (getShootingSquares(0).isEmpty()){
-            Action shootingAction = null;
-            for (Action action : availableActions) {
-                if (action.isShoot() && action.getSteps() < 1) shootingAction = action;
-            }
-            if (shootingAction!=null) availableActions.remove(shootingAction);
-        }
-
-        if(getReloadableWeapons().isEmpty()) {
-            Action reloadingAction = null;
-            for (Action action : availableActions) {
-                if (action.isReload()) reloadingAction = action;
-            }
-            if (reloadingAction != null) availableActions.remove(reloadingAction);
-        }
-
- */
+        availableActions = removeShootingAction(availableActions);
         availableActions = removeCollectingAction(availableActions);
         return availableActions;
 
     }
 
-    /**
-     * Returns the list of weapons the player can collect from the specified weapon square.
-     *
-     * @param weaponSquare         the square the player wants to collect a weapon from.
-     * @return
-     */
-    public List<Weapon> getCollectibleWeapons(WeaponSquare weaponSquare){
 
-        List<Weapon> collectable = new ArrayList<>();
-        for (Weapon w : weaponSquare.getWeapons()){
-            if (hasEnoughAmmo(w.getReducedCost())) collectable.add(w);
+    /**
+     * Modifies and returns a list of actions, removing the shooting action if it cannot be executed.
+     *
+     * @param availableActions          the list of action before the possible removal.
+     * @return                          the list of action after the possible removal.
+     */
+    public List<Action> removeShootingAction(List<Action> availableActions) throws NotAvailableAttributeException{
+
+        if (status == Status.BASIC || status == Status.ADRENALINE_1){
+            if(getShootingSquares(0, getLoadedWeapons()).isEmpty()){
+                availableActions.remove(2);
+            }
         }
-        return collectable;
+        else if (status == Status.ADRENALINE_2){
+            if(getShootingSquares(1, getLoadedWeapons()).isEmpty()){
+                availableActions.remove(2);
+            }
+        }
+        else if (status == Status.FRENZY_1){
+            List<Weapon> weapons = new ArrayList<>();
+            weapons.addAll(getLoadedWeapons());
+            weapons.addAll(getReloadableWeapons());
+            if(getShootingSquares(1, weapons ).isEmpty()){
+                availableActions.remove(2);
+            }
+        }
+        else if (status == Status.FRENZY_2){
+            List<Weapon> weapons = new ArrayList<>();
+            weapons.addAll(getLoadedWeapons());
+            weapons.addAll(getReloadableWeapons());
+            if(getShootingSquares(2, weapons).isEmpty()){
+                availableActions.remove(1);
+            }
+        }
+        return availableActions;
 
     }
 
@@ -760,14 +723,9 @@ public class Player {
 
                 } else if (status == Status.ADRENALINE_1 || status == Status.ADRENALINE_2 || status == Status.FRENZY_1) {
                     if (board.getDistance(s, position) > 2) possibleDest.remove(s);
-                } else if (status == Status.FRENZY_2) {
-                    if (board.getDistance(s, position) > 3) possibleDest.remove(s);
-                }
+                } else if (status == Status.FRENZY_2 && board.getDistance(s, position) > 3) possibleDest.remove(s);
             }
-            if (possibleDest.contains(s) && board.getSpawnPoints().contains(s)){
-                if (getCollectibleWeapons((WeaponSquare)s).isEmpty())  possibleDest.remove(s);
-
-            }
+            if (possibleDest.contains(s) && board.getSpawnPoints().contains(s) && getCollectibleWeapons((WeaponSquare)s).isEmpty()) possibleDest.remove(s);
 
         }
 
@@ -782,6 +740,23 @@ public class Player {
 
 
     /**
+     * Returns the list of weapons the player can collect from the specified weapon square.
+     *
+     * @param weaponSquare         the square the player wants to collect a weapon from.
+     * @return
+     */
+    public List<Weapon> getCollectibleWeapons(WeaponSquare weaponSquare){
+
+        List<Weapon> collectable = new ArrayList<>();
+        for (Weapon w : weaponSquare.getWeapons()){
+            if (hasEnoughAmmo(w.getReducedCost())) collectable.add(w);
+        }
+        return collectable;
+
+    }
+
+
+    /**
      * Returns a string representing the player.
      *
      * @return      the description of the player.
@@ -790,5 +765,44 @@ public class Player {
     public String toString() {
         return "Player " + id + " : " + name;
     }
+
+
+    /**
+     * Returns true if the compared objects are two players belonging to the same board with the same id.
+     *
+     * @param o     the object to compare to the current player.
+     * @return      true if the compared objects are two players belonging to the same board with the same id.
+     *              false otherwise.
+     */
+    @Override
+    public boolean equals(Object o){
+
+        // If the object is compared with itself then return true
+        if (o == this) {
+            return true;
+        }
+        // Checks if o is an instance of Player or not
+        if (!(o instanceof Player)) {
+            return false;
+        }
+        // typecast o to Player in order to compare the id
+        Player p = (Player) o;
+        // Compares the IDs and returns accordingly
+        return p.getId() == getId() && p.getBoard().equals(getBoard());
+
+    }
+
+    /**
+     * Returns the hashCode of the player.
+     *
+     * @return      the hashCode of the player.
+     */
+    @Override
+    public int hashCode() {
+        int result;
+        result = id + getBoard().hashCode();
+        return result;
+    }
+
 }
 

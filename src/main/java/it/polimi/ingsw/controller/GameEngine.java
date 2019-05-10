@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.logging.*;
 
 import static it.polimi.ingsw.controller.Encoder.encode;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
@@ -40,6 +41,10 @@ public class GameEngine implements Runnable{
     private boolean gameOver;
     private KillShotTrack killShotTrack;
     private boolean frenzy;
+
+    private static final Logger LOGGER = Logger.getLogger("gameEngineLogger");
+    private static final String P = "Player ";
+
 
     /**
      * Constructs a GameEngine with a list of Player Controller.
@@ -101,21 +106,14 @@ public class GameEngine implements Runnable{
     public void run(){
 
         setup();
-
         ExecutorService executor = Executors.newCachedThreadPool();
-
         while (!gameOver){
-
             runTurn(executor, 1, false);
-
             if (killShotTrack.getSkullsLeft() == 0) {
                 manageGameEnd(executor);
             }
-
             changePlayer();
-
         }
-
         resolve();
 
     }
@@ -136,7 +134,7 @@ public class GameEngine implements Runnable{
         try {
             BoardConfigurer.setAmmoTilesAndWeapons(board);
             System.out.println("Ammo tiles and weapons set.");
-        } catch (UnacceptableItemNumberException | NoMoreCardsException e) {e.printStackTrace();}
+        } catch (UnacceptableItemNumberException | NoMoreCardsException e) {LOGGER.log(Level.SEVERE,"Exception thrown while setting ammo tiles and weapons", e);}
         configurePlayers();
 
         //set frenzy options
@@ -167,7 +165,6 @@ public class GameEngine implements Runnable{
      */
     private void configureMap(){
 
-        //int[] mapIDs = {1,2,3,4};
         List<Integer> mapIDs = new ArrayList<>(Arrays.asList(1,2,3,4));
         List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
@@ -201,7 +198,7 @@ public class GameEngine implements Runnable{
         BoardConfigurer.configureKillShotTrack(averageSkullNumber, board);
         try {
             this.killShotTrack = board.getKillShotTrack();
-        } catch (NotAvailableAttributeException e) {e.printStackTrace();}
+        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
 
         System.out.println("Players voted. Number of skulls: " + averageSkullNumber + ".");
 
@@ -224,7 +221,7 @@ public class GameEngine implements Runnable{
             p.setPlayer(new Player(id, selectedName, board));
             board.getPlayers().add(p.getModel());
             heroList.remove(selectedName);
-            System.out.println("Player " + id + " selected " + selectedName + ".");
+            System.out.println(P + id + " selected " + selectedName + ".");
             id++;
 
         }
@@ -285,21 +282,10 @@ public class GameEngine implements Runnable{
             }
         });
 
-        System.out.println("\nGame over.\n");
-
-        if (players.get(0).getModel().getPoints() == players.get(1).getModel().getPoints() && !killShotTrack.getKillers().contains(players.get(0).getModel()) && !killShotTrack.getKillers().contains(players.get(1).getModel())) {
-            System.out.println("Player " + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
-            for (int i = 2; i < players.size(); i++) {
-                System.out.println("Player " + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-            }
-        } else {
-            System.out.println("Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
-            for (int i = 1; i < players.size(); i++) {
-                System.out.println("Player " + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-            }
-        }
+        gameOver();
 
     }
+
 
     /**
      * Runs a turn, starting a timer representing the maximum time the user can use to complete his turn.
@@ -311,25 +297,29 @@ public class GameEngine implements Runnable{
      */
     public void runTurn (ExecutorService executor, int timeout, boolean frenzy){
 
-        Future future = executor.submit(new TurnManager(board, currentPlayer, players,frenzy));
+        Future future = executor.submit(new TurnManager(board, currentPlayer,frenzy));
 
         try {
-            future.get(timeout, TimeUnit.MINUTES); // use future
-        } catch (TimeoutException ex) { currentPlayer.suspend();
-        } catch (Exception ex) { ex.printStackTrace();} //proper handling to be implemented
+            future.get(timeout, TimeUnit.MINUTES);
+        } catch (TimeoutException e) { currentPlayer.suspend();
+        } catch (Exception e) {LOGGER.log(Level.SEVERE,"Exception thrown while running a turn", e);} //proper handling to be implemented
 
     }
+
 
     /**
      * Updates the current player and checks if there are enough players to continue the game.
      */
     public void changePlayer(){
+
         currentPlayer = getNextPlayer();
         long playerCount = players.stream().filter(x->!x.isSuspended()).count();
         if(playerCount<3){
             gameOver = true;
         }
+
     }
+
 
     /**
      * Manages the end of the game, depending on whether the frenzy mode is active.
@@ -337,6 +327,7 @@ public class GameEngine implements Runnable{
      * @param executor      the executor which execute the  thread of TurnManager.
      */
     public void manageGameEnd(ExecutorService executor){
+
         if (!frenzy) gameOver = true;
         else {
             for (Player p : board.getPlayers()){
@@ -356,8 +347,30 @@ public class GameEngine implements Runnable{
                 changePlayer();
             }
             gameOver = true;
-
         }
+
+    }
+
+
+    /**
+     * Decides the winner.
+     */
+    public void gameOver(){
+
+        System.out.println("\nGame over.\n");
+
+        if (players.get(0).getModel().getPoints() == players.get(1).getModel().getPoints() && !killShotTrack.getKillers().contains(players.get(0).getModel()) && !killShotTrack.getKillers().contains(players.get(1).getModel())) {
+            System.out.println(P + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
+            for (int i = 2; i < players.size(); i++) {
+                System.out.println(P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+            }
+        } else {
+            System.out.println("Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
+            for (int i = 1; i < players.size(); i++) {
+                System.out.println(P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+            }
+        }
+
     }
 
 

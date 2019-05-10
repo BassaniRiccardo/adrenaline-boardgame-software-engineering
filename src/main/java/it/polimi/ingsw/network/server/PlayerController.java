@@ -121,6 +121,7 @@ public abstract class PlayerController implements Runnable{
     public String getName() {
         return name;
     }
+
     public GameEngine getGame() { return game;  }
 
     public Player getModel() {return model; }

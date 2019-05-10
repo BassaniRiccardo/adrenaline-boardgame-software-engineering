@@ -31,7 +31,7 @@ public class TurnManagerTest {
         System.out.println("\nSetup:");
         gameEngine.setup();
 
-        TurnManager turnManager = new TurnManager(gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, false);
+        TurnManager turnManager = new TurnManager(gameEngine.getBoard(), gameEngine.getCurrentPlayer(), false);
         System.out.println("Player 1: first turn.");
         turnManager.run();
 */
@@ -58,7 +58,7 @@ public class TurnManagerTest {
 
         gameEngine.setup();
 
-        TurnManager turnManager = new TurnManager(gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, false);
+        TurnManager turnManager = new TurnManager(gameEngine.getBoard(), gameEngine.getCurrentPlayer(), false);
 
         System.out.println("Player 1: JoinBoard()");
 

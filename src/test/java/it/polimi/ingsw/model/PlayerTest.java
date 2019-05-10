@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model;
 
 import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.controller.PowerUpFactory;
 import it.polimi.ingsw.controller.WeaponFactory;
 import it.polimi.ingsw.model.board.*;
 import it.polimi.ingsw.model.cards.*;
@@ -106,13 +107,14 @@ public class PlayerTest {
      * Tests collect() in an ammo square, when the ammo tile is available.
      */
     @Test(expected = NotAvailableAttributeException.class)
-    public void collectAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
+    public void collectAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //simulates a scenario, all the squares are filled
         Board b = BoardConfigurer.getInstance().simulateScenario();
 
         //a player with no ammo pack
         Player player = b.getPlayers().get(0);
+        player.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
 
         //checks that the player has no ammo
         assertEquals(0, player.getAmmoPack().getBlueAmmo());
@@ -137,7 +139,7 @@ public class PlayerTest {
      * Tests collect() in an ammo square, when no ammo tile is available.
      */
     @Test
-    public void collectNoAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
+    public void collectNoAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //simulates a scenario, all the squares are filled
         Board b = BoardConfigurer.getInstance().simulateScenario();
@@ -145,6 +147,9 @@ public class PlayerTest {
         //a player with no ammo pack
         Player player1 = b.getPlayers().get(0);
         Player player2 = b.getPlayers().get(1);
+        player1.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
+        player2.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
+
 
         //checks there is a ammo tile in the square
         assertNotNull(((AmmoSquare) player1.getPosition()).getAmmoTile());
@@ -186,7 +191,7 @@ public class PlayerTest {
      * Tests drawPowerUp().
      */
     @Test
-    public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
         Board b = BoardConfigurer.getInstance().simulateScenario();
 
@@ -209,7 +214,7 @@ public class PlayerTest {
      * Tests drawPowerUp(), drawing 2 power ups.
      */
     @Test
-    public void drawPowerUpMultiple() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void drawPowerUpMultiple() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
         Board b = BoardConfigurer.getInstance().simulateScenario();
 
@@ -244,7 +249,7 @@ public class PlayerTest {
      * Tests discardPowerUp()
      */
     @Test
-    public void discardPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void discardPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
         Board b = BoardConfigurer.getInstance().simulateScenario();
 
@@ -266,6 +271,57 @@ public class PlayerTest {
 
         //checks that powerUpList contains only powerUp2
         assertTrue(player.getPowerUpList().contains(powerUp2) && player.getPowerUpList().size() == 1);
+
+    }
+
+
+    /**
+     * Tests hasUsableTeleporterOrNewton() when a player has only a teleporter.
+     */
+    @Test
+    public void hasUsableTeleporter() throws NoMoreCardsException, NotAvailableAttributeException, UnacceptableItemNumberException{
+
+        Board b = BoardConfigurer.simulateScenario();
+        Player p = b.getPlayers().get(1);
+        PowerUpFactory powerUpFactory = new PowerUpFactory(b);
+
+        //the player has no powerups
+        assertFalse(p.hasUsableTeleporterOrNewton());
+        PowerUp powerUpToAdd =powerUpFactory.createPowerUp(PowerUp.PowerUpName.TELEPORTER, BLUE);
+        p.getPowerUpList().add(powerUpToAdd);
+
+        //the player has a teleporter
+        assertTrue(p.hasUsableTeleporterOrNewton());
+    }
+
+    /**
+     * Tests hasUsableTeleporterOrNewton() when a player has only a newton.
+     * When there are no other players on the board the newton in not usable.
+     * When a player is added to the board, the newton becomes usable.
+     */
+    @Test
+    public void hasUsableNewton() throws NotAvailableAttributeException{
+
+        Board b = BoardConfigurer.configureMap(4);
+        PowerUpFactory powerUpFactory = new PowerUpFactory(b);
+        Player p1 = new Player(1, Player.HeroName.SPROG, b);
+        b.getPlayers().add(p1);
+        p1.setInGame(true);
+
+        //the player has no powerups
+        assertFalse(p1.hasUsableTeleporterOrNewton());
+        PowerUp powerUpToAdd =powerUpFactory.createPowerUp(PowerUp.PowerUpName.NEWTON, BLUE);
+        powerUpToAdd.setHolder(p1);
+        p1.getPowerUpList().add(powerUpToAdd);
+
+        //the player has a newton but there are no targets
+        assertFalse(p1.hasUsableTeleporterOrNewton());
+        Player p2 = new Player(2, Player.HeroName.BANSHEE, b);
+        b.getPlayers().add(p2);
+        p2.setInGame(true);
+
+        //p2 is a target, the newton is usable
+        assertTrue(p1.hasUsableTeleporterOrNewton());
 
     }
 
@@ -460,12 +516,13 @@ public class PlayerTest {
      * Tests useAsAmmo()
      */
     @Test
-    public void useAsAmmo() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void useAsAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
         Board b = BoardConfigurer.getInstance().simulateScenario();
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, b);
+        player.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
 
         //draws a powerUp
         player.drawPowerUp();
@@ -498,12 +555,13 @@ public class PlayerTest {
      * Tests addAmmoPack()
      */
     @Test
-    public void addAmmoPackPlayer() {
+    public void addAmmoPack() {
 
         Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        player.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
 
         //instantiates an AmmoPack
         AmmoPack ammoPack = new AmmoPack(1, 2, 3);
@@ -526,6 +584,7 @@ public class PlayerTest {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        player.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
 
         //instantiates 2 AmmoPacks
         AmmoPack ammoPack1 = new AmmoPack(1, 2, 3);
@@ -541,6 +600,66 @@ public class PlayerTest {
         assertTrue(player.getAmmoPack().getRedAmmo() == 0 && player.getAmmoPack().getBlueAmmo() == 1 && player.getAmmoPack().getYellowAmmo() == 1);
     }
 
+
+    /**
+     * Tests the method getReloadableWeapons().
+     *
+     * @throws UnacceptableItemNumberException
+     */
+    @Test
+    public void getReloadableWeapons() throws UnacceptableItemNumberException{
+
+        Board b  = BoardConfigurer.configureMap(4);
+        Player p1 =  new Player(1, Player.HeroName.VIOLET, b);
+        b.getPlayers().add(p1);
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+        p1.addWeapon(lockRifle);
+
+        //the player does not have ammo, then he cannot reload the weapon
+        assertTrue(p1.getReloadableWeapons().isEmpty());
+
+        p1.addAmmoPack(new AmmoPack(2,2,2));
+
+        //the player can now reload the weapon
+        assertEquals(new ArrayList<>(Arrays.asList(lockRifle)), p1.getReloadableWeapons());
+
+        Weapon electroscythe = weaponFactory.createWeapon(Weapon.WeaponName.ELECTROSCYTHE);
+        electroscythe.setLoaded(true);
+        p1.addWeapon(electroscythe);
+
+        //a loaded weapon cannot be reloaded, then only the lock rifle is returned
+        assertEquals(new ArrayList<>(Arrays.asList(lockRifle)), p1.getReloadableWeapons());
+
+    }
+
+
+    /**
+     * Tests the method getLoadedWeapons().
+     *
+     * @throws UnacceptableItemNumberException
+     */
+    @Test
+    public void getLoadedWeapons() throws UnacceptableItemNumberException{
+
+        Board b  = BoardConfigurer.configureMap(4);
+        Player p1 =  new Player(1, Player.HeroName.VIOLET, b);
+        b.getPlayers().add(p1);
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+        p1.addWeapon(lockRifle);
+
+        //the lockrifle is not loaded
+        assertTrue(p1.getLoadedWeapons().isEmpty());
+
+        Weapon electroscythe = weaponFactory.createWeapon(Weapon.WeaponName.ELECTROSCYTHE);
+        electroscythe.setLoaded(true);
+        p1.addWeapon(electroscythe);
+
+        //the electroscythe is loaded
+        assertEquals(new ArrayList<>(Arrays.asList(electroscythe)), p1.getLoadedWeapons());
+
+    }
 
     /**
      * Tests sufferDamage()
@@ -1081,10 +1200,8 @@ public class PlayerTest {
         b.getPlayers().get(2).setPosition(b.getPlayers().get(4).getPosition());
         b.getPlayers().get(3).setPosition(b.getPlayers().get(4).getPosition());
 
-
-
         List<Square> expected = new ArrayList<>(Arrays.asList(b.getMap().get(2),b.getMap().get(3),b.getMap().get(6),b.getMap().get(9)));
-        assertEquals(expected, b.getPlayers().get(1).getShootingSquares(2));
+        assertEquals(expected, b.getPlayers().get(1).getShootingSquares(2, b.getPlayers().get(1).getLoadedWeapons()));
 
     }
 
@@ -1109,7 +1226,7 @@ public class PlayerTest {
         b.getPlayers().get(3).setPosition(b.getPlayers().get(4).getPosition());
 
         List<Square> expected = new ArrayList<>(Arrays.asList(b.getMap().get(2)));
-        assertEquals(expected, b.getPlayers().get(1).getShootingSquares(1));
+        assertEquals(expected, b.getPlayers().get(1).getShootingSquares(1, b.getPlayers().get(1).getLoadedWeapons()));
 
     }
 
@@ -1134,7 +1251,7 @@ public class PlayerTest {
         b.getPlayers().get(2).setPosition(b.getPlayers().get(4).getPosition());
         b.getPlayers().get(3).setPosition(b.getPlayers().get(4).getPosition());
 
-        assertTrue(b.getPlayers().get(1).getShootingSquares(0).isEmpty());
+        assertTrue(b.getPlayers().get(1).getShootingSquares(0, b.getPlayers().get(1).getLoadedWeapons()).isEmpty());
 
     }
 
@@ -1150,7 +1267,7 @@ public class PlayerTest {
     public void getShootingSquareNoWeapons() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
         Board b = BoardConfigurer.getInstance().simulateScenario();
-        assertTrue(b.getPlayers().get(0).getShootingSquares(2).isEmpty());
+        assertTrue(b.getPlayers().get(0).getShootingSquares(2, b.getPlayers().get(0).getLoadedWeapons()).isEmpty());
     }
 
 
@@ -1170,11 +1287,15 @@ public class PlayerTest {
         Board b = BoardConfigurer.getInstance().simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon cyberBlade = weaponFactory.createWeapon(Weapon.WeaponName.CYBERBLADE);
+        cyberBlade.setLoaded(true);
+        cyberBlade.setHolder(b.getPlayers().get(2));
+
         b.getPlayers().get(2).setPosition(b.getMap().get(1));
         b.getPlayers().get(2).addWeapon(cyberBlade);
 
         List<Square> expectedSquares = new ArrayList<>(Arrays.asList(b.getMap().get(0),b.getMap().get(1)));
-        assertEquals(expectedSquares, b.getPlayers().get(2).getShootingSquares(2));
+        System.out.println();
+        assertEquals(expectedSquares, b.getPlayers().get(2).getShootingSquares(2, b.getPlayers().get(2).getLoadedWeapons()));
 
         */
     }
@@ -1182,9 +1303,13 @@ public class PlayerTest {
     @Test
     public void getShootingSquares1Heatseeker() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
-       /* Board b = BoardConfigurer.getInstance().simulateScenario();
+        /*
+
+        Board b = BoardConfigurer.getInstance().simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon heatseeker = weaponFactory.createWeapon(Weapon.WeaponName.HEATSEEKER);
+        heatseeker.setLoaded(true);
+        heatseeker.setHolder(b.getPlayers().get(2));
         b.getPlayers().get(2).setPosition(b.getMap().get(1));
         b.getPlayers().get(2).addWeapon(heatseeker);
 
@@ -1195,10 +1320,18 @@ public class PlayerTest {
         List<Player> expectedPlayers2 = new ArrayList<>(Arrays.asList(b.getPlayers().get(4)));
 
         List<List<Player>> expectedList = new ArrayList<>();
-        expectedList.addList(expectedPlayers1);
-        expectedList.addList(expectedPlayers2);
+        expectedList.add(expectedPlayers1);
+        expectedList.add(expectedPlayers2);
+
+        System.out.println(b.getPlayers().get(0).getPosition());
+        System.out.println(b.getPlayers().get(1).getPosition());
+        System.out.println(b.getPlayers().get(2).getPosition());
+        System.out.println(b.getPlayers().get(3).getPosition());
+        System.out.println(b.getPlayers().get(4).getPosition());
+
 
         assertEquals(expectedList, heatseeker.getFireModeList().get(0).findTargets());
+
         */
     }
 
@@ -1231,6 +1364,97 @@ public class PlayerTest {
 
     }
 
+
+    /**
+     * Tests the method getAvailableActions when the status of the player is BASIC.
+     *
+     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     */
+    @Test
+    public void getAvailableActionsBasic() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
+
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+        lockRifle.setLoaded(true);
+        lockRifle.setHolder(b.getPlayers().get(1));
+        b.getPlayers().get(1).addWeapon(lockRifle);
+        b.getPlayers().get(0).setPosition(b.getPlayers().get(4).getPosition());
+        b.getPlayers().get(2).setPosition(b.getPlayers().get(4).getPosition());
+        b.getPlayers().get(3).setPosition(b.getPlayers().get(4).getPosition());
+
+        //the player cannot move before shooting, then he cannot hit a target
+        List<Action> expected = new ArrayList<>(Arrays.asList(new Action(3, false, false, false), new Action(1,true, false, false)));
+        assertEquals(expected, b.getPlayers().get(1).getAvailableActions());
+
+    }
+
+
+    /**
+     * Tests the method getAvailableActions when the status of the player is ADRENALINE_2.
+     *
+     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     */
+    @Test
+    public void getAvailableActionsAdrenaline2() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
+
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+        lockRifle.setLoaded(true);
+        lockRifle.setHolder(b.getPlayers().get(1));
+        b.getPlayers().get(1).addWeapon(lockRifle);
+        b.getPlayers().get(1).setStatus(Player.Status.ADRENALINE_2);
+        b.getPlayers().get(1).refreshActionList();
+        b.getPlayers().get(0).setPosition(b.getPlayers().get(4).getPosition());
+        b.getPlayers().get(2).setPosition(b.getPlayers().get(4).getPosition());
+        b.getPlayers().get(3).setPosition(b.getPlayers().get(4).getPosition());
+
+        //the player can move up to one square before shooting, then he can hit some targets
+        List<Action> expected = new ArrayList<>(Arrays.asList(new Action(3, false, false, false), new Action(2,true, false, false), new Action(1,false, true, false)));
+        assertEquals(expected, b.getPlayers().get(1).getAvailableActions());
+
+    }
+
+
+    /**
+     * Tests the method removeShootingAction().
+     *
+     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     */
+    @Test
+    public void removeShootingAction() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
+
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+        lockRifle.setLoaded(true);
+        lockRifle.setHolder(b.getPlayers().get(1));
+        b.getPlayers().get(1).addWeapon(lockRifle);
+
+        //the player can shoot and the shooting action is not removed
+        List<Action> startigActions1 = new ArrayList<>(Arrays.asList(new Action(3, false, false, false), new Action(1,true, false, false), new Action(0, false, true, false)));
+        List<Action> finalActions1 = b.getPlayers().get(1).removeCollectingAction(startigActions1);
+        assertEquals(startigActions1, finalActions1);
+
+        b.getPlayers().get(0).setPosition(b.getPlayers().get(4).getPosition());
+        b.getPlayers().get(2).setPosition(b.getPlayers().get(4).getPosition());
+        b.getPlayers().get(3).setPosition(b.getPlayers().get(4).getPosition());
+
+        //the player cannot shoot and the shooting action is removed
+        List<Action> expected = new ArrayList<>(Arrays.asList(new Action(3, false, false, false), new Action(1,true, false, false)));
+        List<Action> finalActions2 = b.getPlayers().get(1).removeShootingAction(startigActions1);
+        assertEquals(expected, finalActions2);
+
+    }
+
+
     /**
      * Tests the method removeCollectingAction, when the collecting action must not be removed since the player can reach
      * squares with items to collect.
@@ -1240,7 +1464,7 @@ public class PlayerTest {
      * @throws NoMoreCardsException
      */
     @Test
-    public void removeCollectingAction() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
+    public void removeCollectingAction() throws UnacceptableItemNumberException, NoMoreCardsException{
 
         Board b = BoardConfigurer.getInstance().simulateScenario();
 
@@ -1252,20 +1476,80 @@ public class PlayerTest {
     }
 
 
+    /**
+     * Tests the method getCollectibleWeapons().
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     */
     @Test
-    public void getAvailableActions() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
+    public void getCollectibleWeapons()throws UnacceptableItemNumberException, NoMoreCardsException{
 
-      /*  Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Player p = b.getPlayers().get(0);
+        p.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
+        WeaponSquare weaponSquare = b.getSpawnPoints().get(0);
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
-        b.getPlayers().get(1).addWeapon(lockRifle);
-        b.getPlayers().get(0).setPosition(b.getPlayers().get(4).getPosition());
-        b.getPlayers().get(2).setPosition(b.getPlayers().get(4).getPosition());
-        b.getPlayers().get(3).setPosition(b.getPlayers().get(4).getPosition());
-        List<Action> expected = new ArrayList<>(Arrays.asList(new Action(3, false, false, false), new Action(1,true, false, false)));
-        assertEquals(expected, b.getPlayers().get(0).getAvailableActions());
+        Weapon heatSeeker = weaponFactory.createWeapon(Weapon.WeaponName.HEATSEEKER);
+        weaponSquare.getWeapons().clear();
 
-        */
+        weaponSquare.addCard(lockRifle);
+        weaponSquare.addCard(heatSeeker);
+
+        //the player does not have ammo, then he cannot collect any weapon
+        assertTrue(p.getCollectibleWeapons(weaponSquare).isEmpty());
+
+        //the player has two blue ammo, then he can collect the lock rifle  but not the heat seeker
+        p.addAmmoPack(new AmmoPack(0,2, 0));
+        assertEquals(new ArrayList<>(Arrays.asList(lockRifle)), p.getCollectibleWeapons(weaponSquare));
+
+    }
+
+
+    /**
+     * Tests the method equals().
+     */
+    @Test
+    public void equalsOverride() {
+
+        Board b1 = new Board();
+        Board b2 = new Board();
+        Player player1 = new Player(1, Player.HeroName.BANSHEE, b1);
+        Player player2 = new Player(1, Player.HeroName.BANSHEE, b1);
+        Player player3 = new Player(1, Player.HeroName.DOZER, b2);
+        Player player4 = new Player(2, Player.HeroName.D_STRUCT_OR, b1);
+
+        //same id and board
+        assertEquals(player1,player2);
+        //same id, different boards
+        assertNotEquals(player1,player3);
+        //same board, different IDs
+        assertNotEquals(player1, player4);
+
+    }
+
+
+    /**
+     * Tests the method hashCode().
+     */
+    @Test
+    public void hashCodeOverride() {
+
+        Board b1 = new Board();
+        Board b2 = new Board();
+        Player player1 = new Player(1, Player.HeroName.BANSHEE, b1);
+        Player player2 = new Player(1, Player.HeroName.BANSHEE, b1);
+        Player player3 = new Player(1, Player.HeroName.DOZER, b2);
+        Player player4 = new Player(2, Player.HeroName.D_STRUCT_OR, b1);
+
+        //same id and board
+        assertEquals(player1.hashCode(),player2.hashCode());
+        //same id, different boards
+        assertNotEquals(player1.hashCode(),player3.hashCode());
+        //same board, different IDs
+        assertNotEquals(player1.hashCode(), player4.hashCode());
+
     }
 
 }

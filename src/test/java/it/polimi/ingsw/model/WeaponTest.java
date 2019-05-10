@@ -44,6 +44,7 @@ public class WeaponTest {
     public void listAvailableFireModes2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         Board b = BoardConfigurer.getInstance().simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
+        b.getPlayers().get(0).getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
         b.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         Weapon w = b.getPlayers().get(0).getWeaponList().get(0);
         b.getPlayers().get(0).addAmmoPack(new AmmoPack(0,0,0));
@@ -61,6 +62,7 @@ public class WeaponTest {
     @Test
     public void listAvailableFireModes3() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         Board b = BoardConfigurer.getInstance().simulateScenario();
+        b.getPlayers().get(0).getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
         WeaponFactory weaponFactory = new WeaponFactory(b);
         b.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         Weapon w = b.getPlayers().get(0).getWeaponList().get(0);

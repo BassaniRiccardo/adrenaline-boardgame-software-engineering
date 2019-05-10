@@ -74,7 +74,9 @@ public abstract class PlayerController implements Runnable{
      */
     private void send(String in){
         LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
-        outgoing.add(in);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", in);
+        outgoing.add(jsonObject.toString());
         refresh();
     }
 
@@ -98,22 +100,6 @@ public abstract class PlayerController implements Runnable{
         return message;
     }
 
-    /**
-     * Sends a message to the client containing a question and some options.
-     *
-     * @param encodedMessage           the JsonObject to send to the client.
-     */
-    public void send(JsonObject encodedMessage){
-        //method to be called by GameController to ask the player to make a choice, providing the options.
-        /*System.out.println(toSend.get(0) + "\n\n");
-        toSend.remove(toSend.get(0));
-        for (String s: toSend){
-            System.out.println(s + "\t");
-        }
-        System.out.println("\n\n");
-        */
-
-    }
 
     /**
      * Returns a random number between 1 and max.
@@ -152,4 +138,9 @@ public abstract class PlayerController implements Runnable{
         LOGGER.log(Level.INFO,"Player {0} was suspended", name);
     }
 
+    public void send (JsonObject jmessage){
+        LOGGER.log(Level.FINE, "JMessage added to outgoing: {0}", jmessage.get("head").getAsString());
+        outgoing.add(jmessage.toString());
+        refresh();
+    }
 }

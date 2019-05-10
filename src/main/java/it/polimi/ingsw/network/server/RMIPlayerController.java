@@ -1,5 +1,6 @@
 package it.polimi.ingsw.network.server;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.controller.ServerMain;
 import java.rmi.RemoteException;
 
@@ -45,7 +46,9 @@ public class RMIPlayerController extends PlayerController implements RemotePlaye
     @Override
     public String getMessage() throws RemoteException {
         if(outgoing.isEmpty()){
-            return "";
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("head", "PING");
+            return jsonObject.toString();
         }
         return outgoing.remove(0);
     }

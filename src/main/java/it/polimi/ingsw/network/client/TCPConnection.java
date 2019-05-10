@@ -1,5 +1,6 @@
 package it.polimi.ingsw.network.client;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.view.ClientMain;
 import it.polimi.ingsw.view.RequestFactory;
 
@@ -68,7 +69,9 @@ public class TCPConnection extends Connection {
      */
     @Override
     String receive(){
-        String message = "";
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", "PING");
+        String message = jsonObject.toString();
         try {
             message = in.readLine();
             if (message == null) {

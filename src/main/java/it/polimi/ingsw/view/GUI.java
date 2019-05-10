@@ -1,6 +1,9 @@
 package it.polimi.ingsw.view;
 
 //TODO: implement
+
+import java.util.List;
+
 /**
  * Graphical user interface for I/O operations
  *
@@ -31,6 +34,10 @@ public class GUI implements UI, Runnable {
         return null;
     }
 
+    @Override
+    public String get(List<String> list){
+        return "";
+    }
     /**
      * Main GUI loop
      */

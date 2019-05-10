@@ -27,7 +27,7 @@ public class EncoderTest {
 
         JsonObject res = Encoder.encode("Choose a weapon", weapons);
 
-        assertEquals("{\"Header\":\"Choose a weapon\",\"Options\":[\"Lock rifle\",\"Flamethrower\",\"Tractor beam\",\"Grenade launcher\"]}", res.toString() );
+        assertEquals("{\"head\":\"Choose a weapon\",\"Options\":[\"Lock rifle\",\"Flamethrower\",\"Tractor beam\",\"Grenade launcher\"]}", res.toString() );
     }
 
     @Test

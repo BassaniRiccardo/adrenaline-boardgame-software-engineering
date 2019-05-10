@@ -3,6 +3,7 @@ package it.polimi.ingsw.view;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -75,5 +76,10 @@ public class CLI implements UI{
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    @Override
+    public String get(List<String> list){
+        return "";
     }
 }

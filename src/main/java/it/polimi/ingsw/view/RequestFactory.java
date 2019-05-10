@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.network.client.Connection;
 
 //TODO: finish implementing
@@ -29,6 +30,13 @@ public class RequestFactory {
 
         return (ClientMain clientMain, UI ui, Connection connection)->{
             ui.display(message);
+            connection.send(ui.get());
+        };
+    }
+
+    public static Request toRequest(JsonObject jMessage){
+        return (ClientMain clientMain, UI ui, Connection connection)->{
+            ui.display(jMessage.get("head").getAsString());
             connection.send(ui.get());
         };
     }

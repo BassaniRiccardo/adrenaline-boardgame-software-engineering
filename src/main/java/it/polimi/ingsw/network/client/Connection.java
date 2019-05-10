@@ -1,5 +1,7 @@
 package it.polimi.ingsw.network.client;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import it.polimi.ingsw.view.ClientMain;
 import it.polimi.ingsw.view.RequestFactory;
 
@@ -21,11 +23,20 @@ public abstract class Connection implements Runnable{
      * Main loop for checking incoming messages and passing them to other classes
      */
     public void run(){
+        JsonParser jsonParser = new JsonParser();
         while(Thread.currentThread().isAlive()){
             String message = receive();
-            if(!message.equals("")) {
-                LOGGER.log(Level.INFO,"Received message: " + message);
-                clientMain.handleRequest(RequestFactory.toRequest(message));
+            try {
+                JsonObject jMessage = (JsonObject) jsonParser.parse(message);
+                if(!jMessage.get("head").getAsString().equals("PING")) {
+                    LOGGER.log(Level.INFO,"Received message: " + jMessage.get("head").getAsString());
+                    clientMain.handleRequest(RequestFactory.toRequest(jMessage));
+                }
+            }catch(Exception ex){
+                LOGGER.log(Level.SEVERE, "Received string cannot be parsed to Json", ex);
+                JsonObject jMessage = new JsonObject();
+                jMessage.addProperty("head", "MALFORMED");
+                clientMain.handleRequest(RequestFactory.toRequest(jMessage));
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(100);

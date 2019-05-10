@@ -37,7 +37,7 @@ public class Encoder {
     public static JsonObject encode (String message, List options){
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("Header", message);
+        jsonObject.addProperty("head", message);
         addList(jsonObject, "Options", options);
         System.out.println(jsonObject.toString());
 

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.network.client;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.network.server.RemotePlayerController;
 import it.polimi.ingsw.network.server.RemoteServer;
 import it.polimi.ingsw.view.ClientMain;
@@ -48,6 +49,7 @@ public class RMIConnection extends Connection {
                             playerStub.ping();
                         }catch(RemoteException ex){
                             LOGGER.log(Level.SEVERE, "Unable to ping RMI server", ex);
+                            clientMain.handleRequest(RequestFactory.toRequest("quit"));
                         }
                         try {
                             TimeUnit.MILLISECONDS.sleep(100);
@@ -62,7 +64,7 @@ public class RMIConnection extends Connection {
             LOGGER.log(Level.SEVERE, "Could not find stubs in registry", ex);
         }catch(RemoteException ex){
             LOGGER.log(Level.SEVERE, "RMI server disconnected, shutting down", ex);
-            clientMain.handleRequest(RequestFactory.toRequest("quit"));
+            System.exit(0);
         }
     }
 
@@ -74,7 +76,9 @@ public class RMIConnection extends Connection {
      */
     @Override
     String receive(){
-        String message = "";
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", "PING");
+        String message = jsonObject.toString();
         try {
             message = playerStub.getMessage();
         }catch(RemoteException ex){

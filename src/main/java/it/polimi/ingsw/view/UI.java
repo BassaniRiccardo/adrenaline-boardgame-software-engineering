@@ -1,5 +1,7 @@
 package it.polimi.ingsw.view;
 
+import java.util.List;
+
 /**
  * Interface for user interface and managing client's input/output
  *
@@ -20,4 +22,6 @@ public interface UI extends Runnable {
      * @return          the string typed or chosen by the user
      */
     String get();
+
+    String get(List<String> list);
 }

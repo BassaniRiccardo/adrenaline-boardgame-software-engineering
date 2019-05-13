@@ -105,6 +105,10 @@ public class ClientMain {
         Scanner in = new Scanner(System.in);
         System.out.println("Client avviato. Che interfaccia grafica vuoi utilizzare (GUI/CLI)?");
         String buff = in.nextLine();
+        while(!(buff.equals("GUI")||buff.equals("CLI"))){
+            System.out.println("Scelta non valida. Riprovare.");
+            buff = in.nextLine();
+        }
         if(buff.equals("GUI")){
             ui = new GUI(this);
             ui.display("GUI selezionata.");
@@ -117,6 +121,10 @@ public class ClientMain {
 
         ui.display("Che tipo di connessione vuoi utilizzare? (Socket/RMI)");
         buff = ui.get();
+        while(!(buff.equals("GUI")||buff.equals("CLI"))){
+            ui.display("Scelta non valida. RIprovare.");
+            buff = ui.get();
+        }
         if(buff.equals("RMI")){
             connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
             ui.display("RMI selezionata.");

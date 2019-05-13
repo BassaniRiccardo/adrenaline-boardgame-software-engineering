@@ -4,11 +4,8 @@ import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import static java.util.Collections.*;
 
 /**
  * Represents the kill shot track of the board.
@@ -119,19 +116,11 @@ public class KillShotTrack {
     public void rewardKillers() {
 
         //asks the board for the players
-        List<Player> playersToReward = this.board.getPlayers();
+        List<Player> playersToReward = new ArrayList<>();
+        playersToReward.addAll(this.board.getPlayers());
 
         //properly orders the playersToReward
-        Collections.sort(playersToReward, (p1,p2) -> {
-            if (frequency(killers, p1) > frequency(killers, p2)) return -1;
-            else if (frequency(killers, p1) < frequency(killers, p2)) return 1;
-            else {
-                if (killers.indexOf(p1) < killers.indexOf(p2)) return -1;
-                else if (killers.indexOf(p1) > killers.indexOf(p2)) return 1;
-                return 0;
-
-            }
-        });
+        board.sort(playersToReward, killers);
 
         //assigns the points
         int pointsToGive =8;
@@ -148,4 +137,5 @@ public class KillShotTrack {
         }
 
     }
+
 }

@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 /**
  * Tests all the methods of the class Square that are identical in WeaponSquare and AmmoSquare.
  * Weapon squares and ammo squares are instantiated interchangeably.
+ * The methods equals() and hashcode() are tested in the subclasses.
  * The method toString of Color is tested too.
  *
  * @author BassaniRiccardo

@@ -151,13 +151,19 @@ public class AmmoSquareTest {
     @Test
     public void equalsOverride() {
 
-        //creates two identical ammoSquares
-        //since the id identifies the square, the other fields are set equals too
-        //the method equals() only checks the id
-        Board b = BoardConfigurer.getInstance().configureMap(1);
-        AmmoSquare ammoSquare1 = new AmmoSquare(b, 1, 1, 1, 1, RED);
-        AmmoSquare ammoSquare2 = new AmmoSquare(b, 1, 1, 1, 1, RED);
-        assertTrue(ammoSquare1.equals(ammoSquare2));
+        Board b1 = new Board();
+        Board b2 = new Board();
+        AmmoSquare ammoSquare1 = new AmmoSquare(b1, 1, 2, 3, 3, BLUE);
+        AmmoSquare ammoSquare2 = new AmmoSquare(b1, 1, 2, 3, 3, BLUE);
+        AmmoSquare ammoSquare3 = new AmmoSquare(b2, 1, 2, 3, 3, BLUE);
+        AmmoSquare ammoSquare4 = new AmmoSquare(b1, 2, 3, 2 , 2, RED);
+
+        //same id and board
+        assertEquals(ammoSquare1,ammoSquare2);
+        //same id, different boards
+        assertNotEquals(ammoSquare1,ammoSquare3);
+        //same board, different IDs
+        assertNotEquals(ammoSquare1, ammoSquare4);
 
     }
 
@@ -167,13 +173,19 @@ public class AmmoSquareTest {
     @Test
     public void hashCodeOverride() {
 
-        //creates two identical ammoSquares
-        //since the id identifies the square, the other fields are set equals too
-        //the method equals() only checks the id
-        Board b = BoardConfigurer.getInstance().configureMap(1);
-        AmmoSquare ammoSquare1 = new AmmoSquare(b, 1, 1, 1, 1, RED);
-        AmmoSquare ammoSquare2 = new AmmoSquare(b, 1, 1, 1, 1, RED);
-        assertEquals(ammoSquare1.hashCode(), ammoSquare2.hashCode());
+        Board b1 = new Board();
+        Board b2 = new Board();
+        AmmoSquare ammoSquare1 = new AmmoSquare(b1, 1, 2, 3, 3, BLUE);
+        AmmoSquare ammoSquare2 = new AmmoSquare(b1, 1, 2, 3, 3, BLUE);
+        AmmoSquare ammoSquare3 = new AmmoSquare(b2, 1, 2, 3, 3, BLUE);
+        AmmoSquare ammoSquare4 = new AmmoSquare(b1, 2, 3, 2 , 2, RED);
+
+        //same id and board
+        assertEquals(ammoSquare1.hashCode(),ammoSquare2.hashCode());
+        //same id, different boards
+        assertNotEquals(ammoSquare1.hashCode(),ammoSquare3.hashCode());
+        //same board, different IDs
+        assertNotEquals(ammoSquare1.hashCode(), ammoSquare4.hashCode());
 
     }
 

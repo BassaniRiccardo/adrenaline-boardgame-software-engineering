@@ -185,10 +185,10 @@ public abstract class Square {
 
 
     /**
-     * Returns true if the two squares have the same id.
+     * Returns true if the compared objects are two squares belonging to the same board with the same id.
      *
-     * @param o the square to compare to the current square.
-     * @return      true if the two squares have the same id.
+     * @param o     the object to compare to the current square.
+     * @return      true if the compared objects are two squares belonging to the same board with the same id.
      *              false otherwise.
      */
     @Override
@@ -207,8 +207,8 @@ public abstract class Square {
         // typecast o to Square in order to compare the IDs
         Square s = (Square) o;
 
-        // Compares the IDs and returns accordingly
-        return s.getId() == getId();
+        // Compares the IDs and the boards and returns accordingly
+        return s.getId() == getId() && s.getBoard().equals(s.getBoard());
     }
 
     /**
@@ -218,8 +218,8 @@ public abstract class Square {
      */
     @Override
     public int hashCode() {
-        int result = 0;
-        result = id;
+        int result;
+        result = id + board.hashCode();
         return result;
     }
 

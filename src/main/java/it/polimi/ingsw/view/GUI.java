@@ -38,8 +38,11 @@ public class GUI implements UI, Runnable {
     public String get(List<String> list){
         return "";
     }
+
     /**
      * Main GUI loop
      */
     public void run(){}
+
+    public void display(List<String> list){}
 }

@@ -20,7 +20,8 @@ import static org.junit.Assert.*;
  * @author BassaniRiccardo
  */
 
-public class WeaponSquareTest {
+public class
+WeaponSquareTest {
 
 
     /**
@@ -271,13 +272,19 @@ public class WeaponSquareTest {
     @Test
     public void equalsOverride() {
 
+        Board b1 = new Board();
+        Board b2 = new Board();
+        WeaponSquare weaponSquare1 = new WeaponSquare(b1, 1, 2, 3, 3, BLUE);
+        WeaponSquare weaponSquare2 = new WeaponSquare(b1, 1, 2, 3, 3, BLUE);
+        WeaponSquare weaponSquare3 = new WeaponSquare(b2, 1, 2, 3, 3, BLUE);
+        WeaponSquare weaponSquare4 = new WeaponSquare(b1, 2, 3, 2 , 2, RED);
 
-        //creates two identical weapon squares
-        //since the id identifies the square, the other fields are set equals too
-        //the method equals() only checks the id
-        WeaponSquare weaponSquare1 = new WeaponSquare(new Board(), 2, 1, 1, 1, RED);
-        WeaponSquare weaponSquare2 = new WeaponSquare(new Board(), 2, 1, 1, 1, RED);
-        assertTrue(weaponSquare1.equals(weaponSquare2));
+        //same id and board
+        assertEquals(weaponSquare1,weaponSquare2);
+        //same id, different boards
+        assertNotEquals(weaponSquare1,weaponSquare3);
+        //same board, different IDs
+        assertNotEquals(weaponSquare1, weaponSquare4);
 
     }
 
@@ -288,12 +295,19 @@ public class WeaponSquareTest {
     @Test
     public void hashCodeOverride() {
 
-        //creates two identical weapon squares
-        //since the id identifies the square, the other fields are set equals too
-        //the method equals() only checks the id
-        WeaponSquare weaponSquare1 = new WeaponSquare(new Board(), 2, 1, 1, 1, RED);
-        WeaponSquare weaponSquare2 = new WeaponSquare(new Board(), 2, 1, 1, 1, RED);
-        assertEquals(weaponSquare1.hashCode(), weaponSquare2.hashCode());
+        Board b1 = new Board();
+        Board b2 = new Board();
+        WeaponSquare weaponSquare1 = new WeaponSquare(b1, 1, 2, 3, 3, BLUE);
+        WeaponSquare weaponSquare2 = new WeaponSquare(b1, 1, 2, 3, 3, BLUE);
+        WeaponSquare weaponSquare3 = new WeaponSquare(b2, 1, 2, 3, 3, BLUE);
+        WeaponSquare weaponSquare4 = new WeaponSquare(b1, 2, 3, 2 , 2, RED);
+
+        //same id and board
+        assertEquals(weaponSquare1.hashCode(),weaponSquare2.hashCode());
+        //same id, different boards
+        assertNotEquals(weaponSquare1.hashCode(),weaponSquare3.hashCode());
+        //same board, different IDs
+        assertNotEquals(weaponSquare1.hashCode(), weaponSquare4.hashCode());
 
     }
 

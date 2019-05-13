@@ -24,4 +24,6 @@ public interface UI extends Runnable {
     String get();
 
     String get(List<String> list);
+
+    void display(List<String> list);
 }

@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import java.util.*;
 
 import static it.polimi.ingsw.model.cards.Color.*;
+import static java.util.Collections.frequency;
 
 /**
  * Represents the game board, made of a map with walls.
@@ -604,5 +605,26 @@ public class Board {
                 destCol == startCol + 2 && !leftWalls[destRow - 1][destCol - 1] && !leftWalls[destRow - 1][destCol - 1 - 1] ||
                 destCol == startCol + 3 && !leftWalls[destRow - 1][destCol - 1] &&
                         !leftWalls[destRow - 1][destCol - 1 - 1] && !leftWalls[destRow - 1][destCol - 2 - 1]));
+    }
+
+
+    /**
+     * Sorts a list of players depending on the occurrences in a specified list of players.
+     * Used by both Player and KillShotTrack
+     *
+     * @param playersToSort
+     * @param occurrences
+     */
+    public void sort(List<Player> playersToSort, List<Player> occurrences){
+        Collections.sort(playersToSort, (p1,p2) -> {
+            if (frequency(occurrences, p1) > frequency(occurrences, p2)) return -1;
+            else if (frequency(occurrences, p1) < frequency(occurrences, p2)) return 1;
+            else {
+                if (occurrences.indexOf(p1) < occurrences.indexOf(p2)) return -1;
+                else if (occurrences.indexOf(p1) > occurrences.indexOf(p2)) return 1;
+                return 0;
+
+            }
+        });
     }
 }

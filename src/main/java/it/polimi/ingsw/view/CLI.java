@@ -80,6 +80,23 @@ public class CLI implements UI{
 
     @Override
     public String get(List<String> list){
-        return "";
+        boolean verified = false;
+        String ans = "";
+        do {
+            ans = in.nextLine();
+            if(Integer.parseInt(ans)<list.size()){
+                verified = true;
+            }
+        }while(!verified);
+        return ans;
+    }
+
+    public void display(List<String> list){
+        System.out.println("Here are your choices:");
+        for(int i = 0; i<list.size(); i++){
+            System.out.println(i+") "+list.get(i));
+        }
+        list.forEach(System.out::println);
+        System.out.println("Choose one");
     }
 }

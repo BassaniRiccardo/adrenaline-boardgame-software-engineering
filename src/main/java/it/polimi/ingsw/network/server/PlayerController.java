@@ -39,14 +39,14 @@ public abstract class PlayerController implements Runnable{
      * Manages login communication with the client
      */
     public void run(){
-        send("Select a name");
+        sendReq("Select a name", 16);
         LOGGER.log(Level.FINE, "Name request sent");
         name = receive();
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
         while(!ServerMain.getInstance().login(name, this)){
             if(ServerMain.getInstance().canResume(name)){
-                send("Do you want to resume?");
+                sendReq("Do you want to resume?", 4);
                 String ans = receive();
                 if(ans.equals("yes")) {
                     if(ServerMain.getInstance().resume(name, this)){
@@ -56,7 +56,7 @@ public abstract class PlayerController implements Runnable{
                     }
                 }
             }
-            send("Name already taken. Try another one");
+            sendReq("Name already taken. Try another one", 16);
             name = receive();
         }
         send("Name accepted.");
@@ -75,7 +75,18 @@ public abstract class PlayerController implements Runnable{
     private void send(String in){
         LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", in);
+        jsonObject.addProperty("head", "MSG");
+        jsonObject.addProperty("text", in);
+        outgoing.add(jsonObject.toString());
+        refresh();
+    }
+
+    private void sendReq(String in, int lenght){
+        LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", "REQ");
+        jsonObject.addProperty("text", in);
+        jsonObject.addProperty("lenght", lenght);
         outgoing.add(jsonObject.toString());
         refresh();
     }
@@ -96,7 +107,7 @@ public abstract class PlayerController implements Runnable{
             }
         }
         String message = incoming.remove(0);
-        LOGGER.log(Level.FINE, "Message added to incoming: {0}", message);
+        LOGGER.log(Level.FINE, "Message received: {0}", message);
         return message;
     }
 
@@ -121,6 +132,7 @@ public abstract class PlayerController implements Runnable{
     public String getName() {
         return name;
     }
+
     public GameEngine getGame() { return game;  }
 
     public Player getModel() {return model; }

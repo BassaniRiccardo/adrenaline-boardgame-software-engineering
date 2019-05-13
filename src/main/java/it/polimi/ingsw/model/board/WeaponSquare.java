@@ -131,7 +131,8 @@ public class WeaponSquare extends Square {
      */
     public void addCard() throws UnacceptableItemNumberException, NoMoreCardsException {
 
-        if (weapons.size() >= 3) throw new UnacceptableItemNumberException("A weapon square can not contain mare than 3 weapons.");
+        if (weapons.size() >= 3) throw new UnacceptableItemNumberException("A weapon square can not contain mare than 3 weapons." +
+                "");
 
         this.weapons.add((Weapon)this.getBoard().getWeaponDeck().drawCard());
 
@@ -156,10 +157,10 @@ public class WeaponSquare extends Square {
 
 
     /**
-     * Returns true if the two weapon squares have the same id.
+     * Returns true if the compared objects are two weapon squares belonging to the same board with the same id.
      *
      * @param o    the weapon square to compare to the current weapon square.
-     * @return     true if the two weapon squares have the same id.
+     * @return     true if the compared objects are two weapon squares belonging to the same board with the same id.
      *             false otherwise.
      */
     @Override
@@ -179,7 +180,7 @@ public class WeaponSquare extends Square {
         WeaponSquare s = (WeaponSquare) o;
 
         // Compare the data members and return accordingly
-        return s.getId() == getId();
+        return s.getId() == getId() && s.getBoard().equals(getBoard());
         
     }
 
@@ -191,7 +192,7 @@ public class WeaponSquare extends Square {
     public int hashCode() {
 
         int result;
-        result = getId();
+        result = getId() + getBoard().hashCode();
         return result;
 
     }

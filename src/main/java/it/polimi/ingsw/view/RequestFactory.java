@@ -1,7 +1,12 @@
 package it.polimi.ingsw.view;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.network.client.Connection;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //TODO: finish implementing
 
@@ -35,9 +40,42 @@ public class RequestFactory {
     }
 
     public static Request toRequest(JsonObject jMessage){
-        return (ClientMain clientMain, UI ui, Connection connection)->{
-            ui.display(jMessage.get("head").getAsString());
-            connection.send(ui.get());
-        };
+
+        String head = jMessage.get("head").getAsString();
+
+        if(head.equals("MSG")) {
+            return (ClientMain clientMain, UI ui, Connection connection) -> {
+                ui.display(jMessage.get("text").getAsString());
+            };
+        }
+        if (head.equals("REQ")) {
+            return (ClientMain clientMain, UI ui, Connection connection) -> {
+                ui.display(jMessage.get("text").getAsString());
+                connection.send(ui.get());
+            };
+        }
+        if (head.equals("OPT")){
+            return (ClientMain clientMain, UI ui, Connection connection) -> {
+                JsonArray arr = jMessage.getAsJsonArray("options");
+                List<String> list = new ArrayList<>();
+                for(int i = 0; i<arr.size(); i++){
+                    list.add(arr.get(i).getAsString());
+                }
+                ui.display(list);
+                connection.send(ui.get(list));
+            };
+        }
+        if (head.equals("UPD")){
+            return (ClientMain clientMain, UI ui, Connection connection) -> {
+                //clientMain.setModel(jMessage.get("mod"));
+                //ui.drawModel();
+            };
+        }
+
+        else {
+            return (ClientMain clientMain, UI ui, Connection connection) -> {
+                ui.display("error: received a message with header" + jMessage.get("head").getAsString());
+            };
+        }
     }
 }

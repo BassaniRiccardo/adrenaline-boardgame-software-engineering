@@ -21,7 +21,9 @@ public class GameEngineTest {
      */
     @Test
     public void run() {
-/*
+
+    /*
+
         List<PlayerController> connections = new ArrayList<>();
         connections.add(new TCPPlayerController(null));
         connections.add(new TCPPlayerController(null));
@@ -31,7 +33,9 @@ public class GameEngineTest {
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.run();
-*/
+
+    */
+
     }
 
 

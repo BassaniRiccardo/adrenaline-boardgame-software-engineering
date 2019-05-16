@@ -1,6 +1,6 @@
 package it.polimi.ingsw.model;
 
-import it.polimi.ingsw.model.board.ModelDataReader;
+import it.polimi.ingsw.controller.ModelDataReader;
 import it.polimi.ingsw.model.cards.FireMode;
 import it.polimi.ingsw.model.cards.Weapon;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the methods of the class ModelDataReader
  */
-public class modelDataReaderTest {
+public class ModelDataReaderTest {
 
     /**
      * Tests the method getColor()
@@ -182,19 +182,5 @@ public class modelDataReaderTest {
 
 //-----Methods for BoardConfigurer-----------------------------------------------------------------------------------------------------------
 
-    @Test
-    public void getWSNumber() {
-        ModelDataReader modelDataReader = new ModelDataReader();
-        int out;
-        out= modelDataReader.getWSNumber(1);
-        assertEquals(3,out);
-    }
 
-    @Test
-    public void getWallTXX() {
-        ModelDataReader modelDataReader = new ModelDataReader();
-        boolean out;
-        out= modelDataReader.getWallTXX(1,1,1);
-        assertTrue(out);
-    }
 }

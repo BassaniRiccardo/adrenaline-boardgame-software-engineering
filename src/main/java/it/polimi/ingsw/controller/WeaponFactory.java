@@ -10,7 +10,6 @@ import static it.polimi.ingsw.model.cards.Color.*;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 import static it.polimi.ingsw.model.board.Board.*;
 import it.polimi.ingsw.model.board.Board;
-import it.polimi.ingsw.model.board.ModelDataReader;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.cards.*;

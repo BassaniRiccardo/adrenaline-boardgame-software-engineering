@@ -1,4 +1,4 @@
-package it.polimi.ingsw.model.board;
+package it.polimi.ingsw.controller;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -16,9 +16,18 @@ import com.google.gson.*;
  *
  * @author  davidealde
  */
+
+//TODO
+//substitute all methods for the weapon factory with the definitive ones
+//test the new methods
+//check all the project for values that can be written in a json file
+
 public class ModelDataReader {
 
-    private static         JsonParser parser = new JsonParser();
+    private static JsonParser parser = new JsonParser();
+    private static String weaponsFile = "src/main/resources/weaponsFile.json";
+    private static String boardConfFile = "src/main/resources/boardConfFile.json";
+    private static String miscellaneous = "src/main/resources/miscellaneous.json";
 
     /**
      * Constructor of a json class
@@ -26,7 +35,122 @@ public class ModelDataReader {
     public ModelDataReader() {
     }
 
-//---METHODS FOR WeaponFactory-------------------------------------------------------------------------------------------------------------
+//------DEFINITIVE methods------------------------------------------------------------------------------------------------------
+
+    private JsonObject analyzer(String fileName){
+        try {
+            JsonElement jsontree = parser.parse(new FileReader(fileName));
+            return jsontree.getAsJsonObject();
+        }
+        catch (JsonIOException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private JsonObject analyzer(String fileName, String array, int elemId){
+        try {
+            JsonElement jsontree = parser.parse(new FileReader(fileName));
+            JsonObject je = jsontree.getAsJsonObject();
+            JsonArray ja = je.getAsJsonArray(array);
+            for (Object o : ja) {
+                JsonObject arrayElement = (JsonObject) o;
+                if (elemId==arrayElement.get("elementId").getAsInt()) {
+                    return arrayElement;
+                }}}
+        catch (JsonIOException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public int getIntBC(String key) {
+
+        JsonObject obj=analyzer(boardConfFile);
+        if(obj==null) throw new NullPointerException();
+        return obj.get(key).getAsInt();
+    }
+
+    public int getIntBC(String key, String array, int elemId){
+
+        JsonObject obj=analyzer(boardConfFile,array,elemId);
+        if(obj==null) throw new NullPointerException();
+        return obj.get(key).getAsInt();
+    }
+
+    public boolean getBooleanBC(String key, String array, int elemId) {
+
+        JsonObject obj=analyzer(boardConfFile,array,elemId);
+        if(obj==null) throw new NullPointerException();
+        int out=obj.get(key).getAsInt();
+        if(out==1)
+            return true;
+        else
+            return false;
+    }
+
+    public Color getColorBC(String key) {
+
+        JsonObject obj=analyzer(boardConfFile);
+        if(obj==null) throw new NullPointerException();
+        String out=obj.get(key).getAsString();
+        if(out.equals("r")){
+            return Color.RED;
+        } else if (out.equals("b")) {
+            return Color.BLUE;
+        }else
+            return Color.YELLOW;
+    }
+
+    public Color getColorBC(String key, String array, int elemId) {
+
+        JsonObject obj=analyzer(boardConfFile,array,elemId);
+        if(obj==null) throw new NullPointerException();
+        String out=obj.get(key).getAsString();
+        if(out.equals("r")){
+            return Color.RED;
+        } else if (out.equals("b")) {
+            return Color.BLUE;
+        }else
+            return Color.YELLOW;
+    }
+
+    public int getInt(String key) {
+
+        JsonObject obj=analyzer(miscellaneous);
+        if(obj==null) throw new NullPointerException();
+        return obj.get(key).getAsInt();
+    }
+
+    public int getInt(String key, String array, int elemId) {
+
+        JsonObject obj=analyzer(miscellaneous,array,elemId);
+        if(obj==null) throw new NullPointerException();
+        return obj.get(key).getAsInt();
+    }
+
+    public boolean getBoolean(String key, String array, int elemId) {
+
+        JsonObject obj=analyzer(miscellaneous,array,elemId);
+        if(obj==null) throw new NullPointerException();
+        int out=obj.get(key).getAsInt();
+        return (out==1);
+    }
+
+    public String getString(String key) {
+
+        JsonObject obj=analyzer(miscellaneous);
+        if(obj==null) throw new NullPointerException();
+        return obj.get(key).getAsString();
+    }
+
+
+//---METHODS FOR WeaponFactory (THEY HAVE TO BE CHANGED)-------------------------------------------------------------------------------------------------------------
 
     /**
      * Reads from the json file the color of the weapon of interest
@@ -37,7 +161,7 @@ public class ModelDataReader {
     public String getColor(Weapon.WeaponName weaponName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -68,7 +192,7 @@ public class ModelDataReader {
     public String getFullCostRed(Weapon.WeaponName weaponName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -99,7 +223,7 @@ public class ModelDataReader {
     public String getFullCostBlue(Weapon.WeaponName weaponName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -130,7 +254,7 @@ public class ModelDataReader {
     public String getFullCostYellow(Weapon.WeaponName weaponName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -161,7 +285,7 @@ public class ModelDataReader {
     public String getNameList(Weapon.WeaponName weaponName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -192,7 +316,7 @@ public class ModelDataReader {
     public String getTargetNumber(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -229,7 +353,7 @@ public class ModelDataReader {
     public String getFireModeCostRed(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -266,7 +390,7 @@ public class ModelDataReader {
     public String getFireModeCostBlue(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -303,7 +427,7 @@ public class ModelDataReader {
     public String getFireModeCostYellow(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -340,7 +464,7 @@ public class ModelDataReader {
     public String getMove(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -377,7 +501,7 @@ public class ModelDataReader {
     public String getDmg(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -414,7 +538,7 @@ public class ModelDataReader {
     public String getDmg2(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -451,7 +575,7 @@ public class ModelDataReader {
     public String getMark(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -488,7 +612,7 @@ public class ModelDataReader {
     public String getSteps(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -525,7 +649,7 @@ public class ModelDataReader {
     public String getEff(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -562,7 +686,7 @@ public class ModelDataReader {
     public String getWhere(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -599,7 +723,7 @@ public class ModelDataReader {
     public String getMoveType(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         try {
-            JsonElement jsontree = parser.parse(new FileReader("weaponsFile.json"));
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray("weapons");
             for (Object o : ja) {
@@ -624,386 +748,6 @@ public class ModelDataReader {
             return "FileNotFoundException";
         }
         return "NOT FOUND";
-    }
-
-
-//---METHODS FOR BoardConfigurer-------------------------------------------------------------------------------------------------------------
-
-    public int getWSNumber(int boardNumber) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("wSNumber").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public int getASNumber(int boardNumber) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("aSNumber").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public boolean getWallTXX(int boardNumber, int row, int column) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    String key="wallT"+row+column;
-                    int out=board.get(key).getAsInt();
-                    if(out==1)
-                        return true;
-                    else
-                        return false;
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public boolean getWallLXX(int boardNumber, int row, int column) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    int out=board.get("wallL"+Integer.toString(row)+Integer.toString(column)).getAsInt();
-                    if(out==1)
-                        return true;
-                    else
-                        return false;
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public int getASXID(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("aS"+Integer.toString(n)+"ID").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-
-    }
-    public int getWSXID(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("wS"+Integer.toString(n)+"ID").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public int getASXRoomId(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("aS"+Integer.toString(n)+"RoomID").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public int getWSXRoomId(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("wS"+Integer.toString(n)+"RoomID").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public int getASXRow(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("aS"+Integer.toString(n)+"Row").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public int getWSXRow(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("wS"+Integer.toString(n)+"Row").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public int getASXColumn(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("aS"+Integer.toString(n)+"Column").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public int getWSXColumn(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    return  board.get("wS"+Integer.toString(n)+"Column").getAsInt();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public Color getASXColor(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber == number) {
-                    String color = board.get("aS" + Integer.toString(n) + "Color").getAsString();
-                    switch (color) {
-                        case "r":
-                            return Color.RED;
-                        case "b":
-                            return Color.BLUE;
-                        case "y":
-                            return Color.YELLOW;
-                        case "p":
-                            return Color.PURPLE;
-                        case "g":
-                            return Color.GREY;
-                        case "v":
-                            return Color.GREEN;
-                        default:
-                            return Color.RED;
-                    }
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public Color getWSXColor(int boardNumber, int n) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader("boardConfigParameters.json"));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("boards");
-            for (Object o : ja) {
-                JsonObject board = (JsonObject) o;
-                int number = board.get("number").getAsInt();
-                if (boardNumber==number) {
-                    String color=board.get("wS"+Integer.toString(n)+"Color").getAsString();
-                    switch (color) {
-                        case "r":
-                            return Color.RED;
-                        case "b":
-                            return Color.BLUE;
-                        case "y":
-                            return Color.YELLOW;
-                        case "p":
-                            return Color.PURPLE;
-                        case "g":
-                            return Color.GREY;
-                        case "v":
-                            return Color.GREEN;
-                        default:
-                            return Color.RED;
-                    }
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
 }

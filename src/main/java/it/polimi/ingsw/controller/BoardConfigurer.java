@@ -23,13 +23,13 @@ import static it.polimi.ingsw.model.cards.Color.*;
  * Only one instance of the board configurer is allowed.
  * Helps the other classes in the process of testing, by simulating the necessary scenarios.
  *
- * @author  BassaniRiccardo
+ * @author  BassaniRiccardo, davidealde
  */
 
 public class BoardConfigurer {
 
     private static BoardConfigurer instance = null;
-
+    private static ModelDataReader j = new ModelDataReader();
 
     /**
      * Constructs a board configurer.
@@ -56,149 +56,88 @@ public class BoardConfigurer {
     /**
      * Configures the board setting the map and the walls.
      *
-     * @param type      the type of map, to be chosen between 1,2,3,4.
+     * @param b         the type of map, to be chosen between 1,2,3,4.
      * @return          the configured board.
      */
-    public static Board configureMap(int type) {
+    public static Board configureMap(int b) {
 
         Board board = new Board();
 
-        switch (type) {
+        List<Square> map = new ArrayList<>();
+        List<WeaponSquare> spawnPoints = new ArrayList<>();
 
-              case 1:
+        int rowsNumber = j.getIntBC("rowsNumber");
+        int columnNumber = j.getIntBC("columnsNumber");
+        boolean[][] topWall = new boolean[rowsNumber][columnNumber];
+        boolean[][] leftWall = new boolean[rowsNumber][columnNumber];
 
-                  List<Square> firstMap = new ArrayList<>();
-                  List<WeaponSquare> spawnPoints1 = new ArrayList<>();
-
-                  boolean[][] firstTopWall = {{true, true, true, false}, {false, true, false, true}, {true, false, true, false}};
-                  boolean[][] firstLeftWall = {{true, false, false, true}, {true, false, false, false}, {false, false, false, false}};
-
-                  firstMap.add(new AmmoSquare(board, 0, 1, 1, 1, BLUE));
-                  firstMap.add(new AmmoSquare(board, 1, 1, 1, 2, BLUE));
-                  firstMap.add(new WeaponSquare(board,2, 1, 1, 3, BLUE));
-                  firstMap.add(new WeaponSquare(board,3, 2, 2, 1, RED));
-                  firstMap.add(new AmmoSquare(board, 4, 2, 2, 2, RED));
-                  firstMap.add(new AmmoSquare(board, 5, 2, 2, 3, PURPLE));
-                  firstMap.add(new AmmoSquare(board, 6, 3, 2, 4, YELLOW));
-                  firstMap.add(new AmmoSquare(board, 7, 4, 3, 2, GREY));
-                  firstMap.add(new AmmoSquare(board, 8, 4, 3, 3, GREY));
-                  firstMap.add(new WeaponSquare(board, 9, 3, 3, 4, YELLOW));
-
-                  spawnPoints1.add((WeaponSquare) firstMap.get(2));
-                  spawnPoints1.add((WeaponSquare) firstMap.get(3));
-                  spawnPoints1.add((WeaponSquare) firstMap.get(9));
-
-                  board.setMap(firstMap);
-                  board.setSpawnPoints(spawnPoints1);
-                  board.setTopWalls(firstTopWall);
-                  board.setLeftWalls(firstLeftWall);
-
-                  break;
-
-              case 2:
-
-                  ArrayList<Square> secondMap = new ArrayList<>();
-                  List<WeaponSquare> spawnPoints2 = new ArrayList<>();
-
-                  boolean[][] secondTopWall = {{true, true, true, false}, {false, false, false, true}, {false, false, true, false}};
-                  boolean[][] secondLeftWall = {{true, false, false, true}, {true, true, false, false}, {false, false, false, false}};
-
-                  secondMap.add(new AmmoSquare(board, 0, 1, 1, 1, RED));
-                  secondMap.add(new AmmoSquare(board, 1, 2, 1, 2, BLUE));
-                  secondMap.add(new WeaponSquare(board, 2, 2, 1, 3, BLUE));
-                  secondMap.add(new WeaponSquare(board, 3, 1, 2, 1, RED));
-                  secondMap.add(new AmmoSquare(board, 4, 3, 2, 2, PURPLE));
-                  secondMap.add(new AmmoSquare(board, 5, 3, 2, 3, PURPLE));
-                  secondMap.add(new AmmoSquare(board, 6, 4, 2, 4, YELLOW));
-                  secondMap.add(new AmmoSquare(board, 7, 5, 3, 1, GREY));
-                  secondMap.add(new AmmoSquare(board, 8, 5, 3, 2, GREY));
-                  secondMap.add(new AmmoSquare(board, 9, 5, 3, 3, GREY));
-                  secondMap.add(new WeaponSquare(board, 10, 4, 3, 4, YELLOW));
-
-                  spawnPoints2.add((WeaponSquare) secondMap.get(2));
-                  spawnPoints2.add((WeaponSquare) secondMap.get(3));
-                  spawnPoints2.add((WeaponSquare) secondMap.get(10));
-
-                  board.setMap(secondMap);
-                  board.setSpawnPoints(spawnPoints2);
-                  board.setTopWalls(secondTopWall);
-                  board.setLeftWalls(secondLeftWall);
-
-                  break;
-
-              case 4:
-
-                  ArrayList<Square> fourthMap = new ArrayList<>();
-                  List<WeaponSquare> spawnPoints4 = new ArrayList<>();
-
-                  boolean[][] fourthTopWall = {{true, true, true, true}, {false, false, false, false}, {false, false, false, false}};
-                  boolean[][] fourthLeftWall = {{true, false, false, false}, {true, true, true, false}, {true, false, false, false}};
-
-                  fourthMap.add(new AmmoSquare(board, 0, 1, 1, 1, RED));
-                  fourthMap.add(new AmmoSquare(board, 1, 2, 1, 2, BLUE));
-                  fourthMap.add(new WeaponSquare(board, 2, 2, 1, 3, BLUE));
-                  fourthMap.add(new AmmoSquare(board, 3, 3, 1, 4, GREEN));
-                  fourthMap.add(new WeaponSquare(board, 4, 1, 2, 1, RED));
-                  fourthMap.add(new AmmoSquare(board, 5, 4, 2, 2, PURPLE));
-                  fourthMap.add(new AmmoSquare(board, 6, 5, 2, 3, YELLOW));
-                  fourthMap.add(new AmmoSquare(board, 7, 5, 2, 4, YELLOW));
-                  fourthMap.add(new AmmoSquare(board, 8, 6, 3, 1, GREY));
-                  fourthMap.add(new AmmoSquare(board, 9, 6, 3, 2, GREY));
-                  fourthMap.add(new AmmoSquare(board, 10, 5, 3, 3, YELLOW));
-                  fourthMap.add(new WeaponSquare(board, 11, 5, 3, 4, YELLOW));
-
-                  spawnPoints4.add((WeaponSquare) fourthMap.get(2));
-                  spawnPoints4.add((WeaponSquare) fourthMap.get(4));
-                  spawnPoints4.add((WeaponSquare) fourthMap.get(11));
-
-                  board.setMap(fourthMap);
-                  board.setSpawnPoints(spawnPoints4);
-                  board.setTopWalls(fourthTopWall);
-                  board.setLeftWalls(fourthLeftWall);
-
-                  break;
-
-              // map 3 is good for every number of players
-              default:
-
-                  ArrayList<Square> thirdMap = new ArrayList<>();
-                  List<WeaponSquare> spawnPoints3 = new ArrayList<>();
-
-                  boolean[][] thirdTopWall = {{true, true, true, true}, {false, true, false, false}, {false, false, false, false}};
-                  boolean[][] thirdLeftWall = {{true, false, false, false}, {true, false, true, false}, {true, false, false, false}};
-
-                  thirdMap.add(new AmmoSquare(board, 0, 1, 1, 1, BLUE));
-                  thirdMap.add(new AmmoSquare(board, 1, 1, 1, 2, BLUE));
-                  thirdMap.add(new WeaponSquare(board, 2, 1, 1, 3, BLUE));
-                  thirdMap.add(new AmmoSquare(board, 3, 2, 1, 4, GREEN));
-                  thirdMap.add(new WeaponSquare(board, 4, 3, 2, 1, RED));
-                  thirdMap.add(new AmmoSquare(board, 5, 3, 2, 2, RED));
-                  thirdMap.add(new AmmoSquare(board, 6, 4, 2, 3, YELLOW));
-                  thirdMap.add(new AmmoSquare(board, 7, 4, 2, 4, YELLOW));
-                  thirdMap.add(new AmmoSquare(board, 8, 5, 3, 2, GREY));
-                  thirdMap.add(new AmmoSquare(board, 9, 4, 3, 3, YELLOW));
-                  thirdMap.add(new WeaponSquare(board, 10, 4, 3, 4, YELLOW));
-
-                  spawnPoints3.add((WeaponSquare) thirdMap.get(2));
-                  spawnPoints3.add((WeaponSquare) thirdMap.get(4));
-                  spawnPoints3.add((WeaponSquare) thirdMap.get(10));
-
-                  board.setMap(thirdMap);
-                  board.setSpawnPoints(spawnPoints3);
-                  board.setTopWalls(thirdTopWall);
-                  board.setLeftWalls(thirdLeftWall);
-
+        for (int i = 1; i <= rowsNumber; i++) {
+            for (int k = 1; k <= columnNumber; k++) {
+                topWall[i-1][k-1] = j.getBooleanBC("wallT"+i+k,"boards",b);
+                leftWall[i-1][k-1] = j.getBooleanBC("wallL"+i+k,"boards",b);
+            }
         }
 
+        int ammoSquareNumber = j.getIntBC("aSNumber","boards",b);
+        int weaponSquareNumber = j.getIntBC("wSNumber","boards",b);
+
+        //creates the list to use the setter later
+      /* for (int i = 1; i <= weaponSquareNumber+ammoSquareNumber; i++){
+            if(j.getBooleanBC("square"+i,"boards",b)){  //true for ammoSquare, false for weaponSquare
+                map.add(new AmmoSquare(board, 0, 1, 1, 1, BLUE));  //values are not important because they'll be overwritten in next cycle
+            }else{
+                map.add(new WeaponSquare(board, 0, 1, 1, 1, BLUE));
+            }
+        }*/
+
+        int w=1; int a=1;
+        for (int i = 0; i < weaponSquareNumber+ammoSquareNumber; i++){
+            if((j.getIntBC("wS"+w+"Id","boards",b))==i){
+                map.add(new WeaponSquare(board, j.getIntBC("wS"+w+"Id","boards",b),
+                        j.getIntBC("wS"+w+"RoomId","boards",b),
+                        j.getIntBC("wS"+w+"Row","boards",b),
+                        j.getIntBC("wS"+w+"Column","boards",b),
+                        j.getColorBC("wS"+w+"Color","boards",b)));
+                w++;
+            }else{
+                map.add(new AmmoSquare(board, j.getIntBC("aS"+a+"Id","boards",b),
+                        j.getIntBC("aS"+a+"RoomId","boards",b),
+                        j.getIntBC("aS"+a+"Row","boards",b),
+                        j.getIntBC("aS"+a+"Column","boards",b),
+                        j.getColorBC("aS"+a+"Color","boards",b)));
+                a++;
+            }
+        }
+
+      /*  for (int i = 1; i <= weaponSquareNumber+ammoSquareNumber; i++)
+            map.add(new WeaponSquare(board, j.getIntBC("wS"+i+"Id","boards",b),
+                    j.getIntBC("wS"+i+"RoomId","boards",b),
+                    j.getIntBC("wS"+i+"Row","boards",b),
+                    j.getIntBC("wS"+i+"Column","boards",b),
+                    j.getColorBC("wS"+i+"Color","boards",b)));
+
+        for (int i = 1; i <= weaponSquareNumber+ammoSquareNumber; i++)
+            map.add(new AmmoSquare(board, j.getIntBC("aS"+i+"Id","boards",b),
+                    j.getIntBC("aS"+i+"RoomId","boards",b),
+                    j.getIntBC("aS"+i+"Row","boards",b),
+                    j.getIntBC("aS"+i+"Column","boards",b),
+                    j.getColorBC("aS"+i+"Color","boards",b)));*/
+
+        for(int i=1;i<=weaponSquareNumber;i++)
+            spawnPoints.add((WeaponSquare) map.get(j.getIntBC("wS"+i+"Id","boards",b)));
+
+        board.setMap(map);
+        board.setSpawnPoints(spawnPoints);
+        board.setTopWalls(topWall);
+        board.setLeftWalls(leftWall);
+
         return board;
-
     }
-
 
     /**
      * Adds a specified number of players to the board, and coherently sets the number of players.
      *
-     * @param playerNumber         the number of player.
+     * @param playerNumber          the number of player.
      * @param board                 the board the players must be added to.
      */
     public static void configurePlayerOptions(int playerNumber, Board board){
@@ -235,34 +174,25 @@ public class BoardConfigurer {
 
         //configures the ammo deck
         Deck ammoDeck = new Deck();
-        for (int i = 0; i < 3; i++) {
-            ammoDeck.addCard(new AmmoTile(false, new AmmoPack(0, 2, 1)));
-            ammoDeck.addCard(new AmmoTile(false, new AmmoPack(0, 1, 2)));
-            ammoDeck.addCard(new AmmoTile(false, new AmmoPack(1, 0, 2)));
-            ammoDeck.addCard(new AmmoTile(false, new AmmoPack(1, 2, 0)));
-            ammoDeck.addCard(new AmmoTile(false, new AmmoPack(2, 1, 0)));
-            ammoDeck.addCard(new AmmoTile(false, new AmmoPack(2, 0, 1)));
-        }
-        for (int i = 0; i < 2; i++) {
-            ammoDeck.addCard(new AmmoTile(true, new AmmoPack(2, 0, 0)));
-            ammoDeck.addCard(new AmmoTile(true, new AmmoPack(0, 2, 0)));
-            ammoDeck.addCard(new AmmoTile(true, new AmmoPack(0, 0, 2)));
-        }
-        for (int i = 0; i < 4; i++) {
-            ammoDeck.addCard(new AmmoTile(true, new AmmoPack(0, 1, 1)));
-            ammoDeck.addCard(new AmmoTile(true, new AmmoPack(1, 0, 1)));
-            ammoDeck.addCard(new AmmoTile(true, new AmmoPack(1, 1, 0)));
+        int ammoTilesTypesNumber = j.getIntBC("ammoTilesTypesNumber");
+        for(int i=0; i<ammoTilesTypesNumber;i++){
+            for(int k=0; k<j.getIntBC("quantity","ammoTiles",i); k++){
+                    ammoDeck.addCard((new AmmoTile((j.getBooleanBC("pU","ammoTiles",i)),
+                        new AmmoPack(j.getIntBC("r","ammoTiles",i),
+                                j.getIntBC("b","ammoTiles",i),
+                                j.getIntBC("y","ammoTiles",i)))));
+            }
         }
         ammoDeck.shuffleDeck();
 
         //configures the powerUps deck
         PowerUpFactory powerUpFactory = new PowerUpFactory(board);
         Deck powerUpsDeck = new Deck();
-        for (int i = 0; i< 2; i++) {
+        for (int i = 0; i< j.getIntBC("pUNumberPerColor"); i++) {
             for (PowerUp.PowerUpName powerUpName : PowerUp.PowerUpName.values()) {
-                powerUpsDeck.addCard(powerUpFactory.createPowerUp(powerUpName, RED));
-                powerUpsDeck.addCard(powerUpFactory.createPowerUp(powerUpName, BLUE));
-                powerUpsDeck.addCard(powerUpFactory.createPowerUp(powerUpName, YELLOW));
+                for(int k=0; k<j.getIntBC("pUColorsNumber");k++) {
+                    powerUpsDeck.addCard(powerUpFactory.createPowerUp(powerUpName, j.getColorBC("pUColor"+k)));
+                }
             }
         }
         powerUpsDeck.shuffleDeck();
@@ -289,11 +219,10 @@ public class BoardConfigurer {
 
     }
 
-
     /**
      * Configures the killShotTrack, depending on the number of skulls selected.
      *
-     * @param skullNumber          the number of skulls to addList to the track.
+     * @param skullNumber          the number of skulls to add to the track.
      * @param board                the board the kill shot track must be added to.
      */
     public static void configureKillShotTrack(int skullNumber, Board board){
@@ -314,18 +243,15 @@ public class BoardConfigurer {
     public static Board simulateScenario() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //sets the board components
-        Board board = configureMap(4);
-        configurePlayerOptions(5, board);
+        Board board = configureMap(j.getIntBC("simulationMapNumber"));
+        configurePlayerOptions(j.getIntBC("simulationPlayersNumber"), board);
         configureDecks(board);
-        configureKillShotTrack(8, board);
+        configureKillShotTrack(j.getIntBC("simulationSkullsNumber"), board);
         setAmmoTilesAndWeapons(board);
 
         //sets the players positions on the board
-        board.getPlayers().get(0).setPosition(board.getMap().get(0));
-        board.getPlayers().get(1).setPosition(board.getMap().get(1));
-        board.getPlayers().get(2).setPosition(board.getMap().get(2));
-        board.getPlayers().get(3).setPosition(board.getMap().get(3));
-        board.getPlayers().get(4).setPosition(board.getMap().get(11));
+        for(int i=0;i<j.getIntBC("simulationPlayersNumber");i++)
+            board.getPlayers().get(i).setPosition(board.getMap().get(j.getIntBC("simulationPositionPlayer"+i)));
 
         return board;
 

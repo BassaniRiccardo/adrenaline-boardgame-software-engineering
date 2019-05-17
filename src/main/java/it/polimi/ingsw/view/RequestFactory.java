@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.network.client.Connection;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,8 +68,12 @@ public class RequestFactory {
         }
         if (head.equals("UPD")){
             return (ClientMain clientMain, UI ui, Connection connection) -> {
-                //clientMain.setModel(jMessage.get("mod"));
-                //ui.drawModel();
+                JsonObject mod = jMessage.getAsJsonObject("mod");
+                Gson gson = new Gson();
+                ClientModel clientModel = gson.fromJson(mod.toString(), ClientModel.class);
+
+                clientMain.setClientModel(clientModel);
+                //ui.drawModel();           //almost observer!
             };
         }
 

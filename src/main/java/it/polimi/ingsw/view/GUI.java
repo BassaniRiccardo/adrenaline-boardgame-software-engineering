@@ -12,6 +12,9 @@ import java.util.List;
 
 public class GUI implements UI, Runnable {
 
+    //niente hardcode, tenere presente le dimensioni della finestra
+    //i file png o jpeg delle carte vanno nella cartella resources (comei json)
+
     private ClientMain clientMain;
 
     public GUI(ClientMain clientMain){

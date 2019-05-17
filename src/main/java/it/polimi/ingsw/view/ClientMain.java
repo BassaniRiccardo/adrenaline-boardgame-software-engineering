@@ -28,6 +28,7 @@ public class ClientMain {
     private Connection connection;
     private ExecutorService executor;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
+    private ClientModel clientModel;
 
     //requests alter the player model. calling setters of the model generates a list of operations to revert the changes. if "reset move" is caleld, those changes are applied
     //once the player confirms its move, updates are sent as a request to all other clients
@@ -35,7 +36,7 @@ public class ClientMain {
     /**
      * Constructor
      */
-    private ClientMain(){
+    public ClientMain(){
         executor = Executors.newCachedThreadPool();
     }
 
@@ -121,7 +122,7 @@ public class ClientMain {
 
         ui.display("Che tipo di connessione vuoi utilizzare? (Socket/RMI)");
         buff = ui.get();
-        while(!(buff.equals("GUI")||buff.equals("CLI"))){
+        while(!(buff.equals("RMI")||buff.equals("Socket"))){
             ui.display("Scelta non valida. RIprovare.");
             buff = ui.get();
         }
@@ -135,4 +136,11 @@ public class ClientMain {
         executor.submit(connection);
     }
 
+    public ClientModel getClientModel() {
+        return clientModel;
+    }
+
+    public void setClientModel(ClientModel clientModel) {
+        this.clientModel = clientModel;
+    }
 }

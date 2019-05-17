@@ -63,6 +63,8 @@ public class BoardConfigurer {
 
         Board board = new Board();
 
+        board.setId(type);
+
         switch (type) {
 
               case 1:

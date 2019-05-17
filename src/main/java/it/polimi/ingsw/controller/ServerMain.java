@@ -16,6 +16,7 @@ import java.util.logging.*;
 //TODO: check synchronization
 //TODO: in depth testing
 //FIX: if an rmi player disconnects, its name is kept locked
+//TODO: ask the tutors if it is okay for the view not to observe anything, nut to be notified by the controller when it need to be updated
 
 /**
  * Main class that manages connections and matchmaking.

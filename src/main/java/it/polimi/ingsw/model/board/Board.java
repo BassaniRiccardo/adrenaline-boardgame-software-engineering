@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.board;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.model.cards.Color.*;
 import static java.util.Collections.frequency;
@@ -22,6 +23,7 @@ public class Board {
     public enum Direction {RIGHT, LEFT, UP, DOWN}
 
     //depend on the map_id, set by BoardConfigurer
+    private int id;
     private List<Square> map;
     private boolean[][] leftWalls;
     private boolean[][] topWalls;
@@ -626,5 +628,24 @@ public class Board {
 
             }
         });
+    }
+
+    public List<AmmoSquare> getAmmoSquares(){
+
+        List<AmmoSquare> l = new ArrayList<>();
+        for(Square s : map){
+            if(!getSpawnPoints().contains(s)){
+                l.add((AmmoSquare)s);
+            }
+        }
+        return l;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId(){
+        return id;
     }
 }

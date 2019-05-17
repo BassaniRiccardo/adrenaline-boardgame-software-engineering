@@ -23,10 +23,6 @@ import static it.polimi.ingsw.model.cards.Color.*;
  */
 
 //TODO
-// Complete the exception: can a player hold 4 weapons while choosing which  one he wants to discard?
-// I'd say yes, because the square does not have the space to contain 4 weapons, while the player hand does.
-// Whether including the exception here or in the controller depends on the presence of variables indicating the state of the game:
-// endOfTheTurn(killShotTrack), Rebirth, discardingWeapon...and their visibility to the model.
 // Look at the comments at line 246, 287/
 
 public class Player {
@@ -240,6 +236,18 @@ public class Player {
 
     public void setDead(boolean dead) {this.dead = dead;}
 
+    public void setDamages(List<Player> damages) { this.damages = damages; }
+
+    public void setWeaponList(List<Weapon> weaponList) { this.weaponList = weaponList;}
+
+    public void setPowerUpList(List<PowerUp> powerUpList) {
+        this.powerUpList = powerUpList;
+        for (PowerUp p : powerUpList){
+            p.setHolder(this);
+        }
+    }
+
+    public void setAmmoPack(AmmoPack ammoPack) { this.ammoPack = ammoPack; }
 
     /**
      * Adds damages to the player.
@@ -250,7 +258,7 @@ public class Player {
      */
     public void sufferDamage(int amount, Player shooter) {
 
-        if (amount < 1) throw new IllegalArgumentException("Not valid amount of damage");
+        if (amount < 0) throw new IllegalArgumentException("Not valid amount of damage");
         if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
 
         justDamaged = true;
@@ -328,7 +336,7 @@ public class Player {
      * Collects a weapon.
      *
      */
-    public void collect(Card collectedCard) throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
+    public boolean collect(Card collectedCard) throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
         position.removeCard(collectedCard);
 
@@ -339,9 +347,13 @@ public class Player {
         }
         else {
             addAmmoPack(((AmmoTile)collectedCard).getAmmoPack());
-            if (((AmmoTile)collectedCard).hasPowerUp()) drawPowerUp();
+            if (((AmmoTile)collectedCard).hasPowerUp()) {
+                if (powerUpList.size()>2) return false;
+                drawPowerUp();
+            }
             board.getAmmoDeck().getDiscarded().add(collectedCard);
         }
+        return true;
 
     }
 
@@ -352,7 +364,7 @@ public class Player {
      */
     public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
-        if (this.powerUpList.size()>=4) throw new UnacceptableItemNumberException("A player can normally hold up to 3 power ups; 4 are allowed in the process of rebirth. More than 4 are never allowed.");
+        if (this.powerUpList.size() > 4) throw new UnacceptableItemNumberException("A player can normally hold up to 3 power ups; 4 are allowed in the process of rebirth. More than 4 are never allowed.");
         if (this.board.getPowerUpDeck().getDrawable().isEmpty()){
             this.board.getPowerUpDeck().regenerate();
         }
@@ -397,6 +409,35 @@ public class Player {
     public boolean hasUsableTeleporterOrNewton() throws NotAvailableAttributeException {
         for (PowerUp p : getPowerUpList()) {
             if ((p.getName() == PowerUp.PowerUpName.NEWTON && !(p.findTargets().isEmpty()))|| p.getName() == PowerUp.PowerUpName.TELEPORTER) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns whether the player owns a tagback grenade which can be used against an enemy.
+     *
+     * @return  true if the player owns a tagback grenade which can be used against an enemy.
+     *          false otherwise.
+     * @throws  NotAvailableAttributeException
+     */
+    public boolean hasUsableTagbackGrenade() throws NotAvailableAttributeException {
+        for (PowerUp p : getPowerUpList()) {
+            if (p.getName() == PowerUp.PowerUpName.TAGBACK_GRENADE && !(p.findTargets().isEmpty())) return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Returns whether the player owns a targeting scope which can be used against an enemy.
+     *
+     * @return  true if the player owns a targeting scope which can be used against an enemy.
+     *          false otherwise.
+     * @throws  NotAvailableAttributeException
+     */
+    public boolean hasUsableTargetingScope() throws NotAvailableAttributeException {
+        for (PowerUp p : getPowerUpList()) {
+            if (p.getName() == PowerUp.PowerUpName.TARGETING_SCOPE && !(p.findTargets().isEmpty())) return true;
         }
         return false;
     }
@@ -490,6 +531,16 @@ public class Player {
         return available;
     }
 
+    public List<PowerUp> getPowerUps(PowerUp.PowerUpName name){
+        List<PowerUp> powerUps
+                = new ArrayList<>();
+        for (PowerUp p : powerUpList){
+            if (p.getName()== name){
+                powerUps.add(p);
+            }
+        }
+        return powerUps;
+    }
 
 
     /**
@@ -501,6 +552,24 @@ public class Player {
         if (this==target) throw new IllegalArgumentException("The player can not be in the list of his own targets.");
         this.mainTargets.add(target); }
 
+
+    /**
+     * Adds a list of players to the main targets.
+     *
+     * @param targets         players added to the main targets.
+     */
+    public void addMainTargets(List<Player> targets) {
+        if (targets.contains(this)) throw new IllegalArgumentException("The player can not be in the list of his own targets.");
+        this.mainTargets.addAll(targets); }
+
+
+    /**
+     * Adds a list of players to the optional targets.
+     *
+     * @param targets         players added to the optional targets.
+     */
+    public void addOptionalTargets(List<Player> targets) {
+        this.optionalTargets.addAll(targets); }
 
     /**
      * Updates the points the player will give to his killers the next time he will die.
@@ -646,11 +715,12 @@ public class Player {
             boolean found = false;
             this.setPosition(s1);
             for (Weapon w: weaponToConsider){
-                for (FireMode f : w.getFireModeList()){
-                    if (!(f.getTargetFinder().find(this).isEmpty())) {
-                        found = true;
-                    }
-                }
+                if (!w.listAvailableFireModes().isEmpty()) found = true;
+                //for (FireMode f : w.getFireModeList()){
+                  //  if (!(f.getTargetFinder().find(this).isEmpty())) {
+                    //    found = true;
+                    //}
+                //}
             }
             if (found && !starting.contains(s1)) starting.add(s1);
         }
@@ -669,8 +739,8 @@ public class Player {
 
         List<Action> availableActions = new ArrayList<>();
         availableActions.addAll(getActionList());
-        availableActions = removeShootingAction(availableActions);
-        availableActions = removeCollectingAction(availableActions);
+        removeShootingAction(availableActions);
+        removeCollectingAction(availableActions);
         return availableActions;
 
     }

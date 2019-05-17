@@ -16,74 +16,74 @@ import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
 /**
-     * Factory class to create a weapon.
-     *
-     * @author  marcobaga, davidealde
-     */
+ * Factory class to create a weapon.
+ *
+ * @author  marcobaga, davidealde
+ */
 
-    public class WeaponFactory {
+public class WeaponFactory {
 
 
-        private static Board board;
-        private static ModelDataReader j = new ModelDataReader();
+    private static Board board;
+    private static ModelDataReader j = new ModelDataReader();
 
     /**
-         * Constructs a weapon factory with a reference to the game board.
-         *
-         * @param board         the board of the game.
-         * @return      a WeaponFactory
-         */
-        public WeaponFactory(Board board){this.board = board;}
+     * Constructs a weapon factory with a reference to the game board.
+     *
+     * @param board         the board of the game.
+     * @return      a WeaponFactory
+     */
+    public WeaponFactory(Board board){this.board = board;}
 
-        /**
-         *Creates a Weapon object according to its name
-         *
-         * @param  weaponName  the name of the weapon to be created
-         * @return      the Weapon object created
-         */
-        public Weapon createWeapon(Weapon.WeaponName weaponName) {
+    /**
+     *Creates a Weapon object according to its name
+     *
+     * @param  weaponName  the name of the weapon to be created
+     * @return      the Weapon object created
+     */
+    public Weapon createWeapon(Weapon.WeaponName weaponName) {
 
-            FireMode fireMode;
-            TargetFinder targetFinder;
-            DestinationFinder destinationFinder;
-            Effect effect;
+        FireMode fireMode;
+        TargetFinder targetFinder;
+        DestinationFinder destinationFinder;
+        Effect effect;
 
 
-            Color color = getColor(weaponName);
-            AmmoPack fullCost = getFullCost(weaponName);
-            AmmoPack reducedCost = getReducedCost(weaponName);
-            List<FireMode.FireModeName> nameList = getNameList(weaponName);
-            List<FireMode> fireModeList = new ArrayList<>(nameList.size());
-            int targetNumber;
-            AmmoPack fireModeCost;
+        Color color = getColor(weaponName);
+        AmmoPack fullCost = getFullCost(weaponName);
+        AmmoPack reducedCost = getReducedCost(weaponName);
+        List<FireMode.FireModeName> nameList = getNameList(weaponName);
+        List<FireMode> fireModeList = new ArrayList<>(nameList.size());
+        int targetNumber;
+        AmmoPack fireModeCost;
 
-            for (FireMode.FireModeName name : nameList) {
-                effect = getEffect(weaponName, name);
-                targetFinder = getTargetFinder(weaponName, name);
-                destinationFinder = getDestinationFinder(weaponName, name);
-                targetNumber = getTargetNumber(weaponName, name);
-                fireModeCost = getFireModeCost(weaponName, name);
+        for (FireMode.FireModeName name : nameList) {
+            effect = getEffect(weaponName, name);
+            targetFinder = getTargetFinder(weaponName, name);
+            destinationFinder = getDestinationFinder(weaponName, name);
+            targetNumber = getTargetNumber(weaponName, name);
+            fireModeCost = getFireModeCost(weaponName, name);
 
-                fireMode = new FireMode(name, targetNumber, fireModeCost, destinationFinder, targetFinder, effect);
-                fireModeList.add(fireMode);
-            }
-
-            Weapon weapon = new Weapon(weaponName, color, fullCost, reducedCost, fireModeList, board);
-
-            for (FireMode f : fireModeList) {
-                f.setWeapon(weapon);
-            }
-            return weapon;
+            fireMode = new FireMode(name, targetNumber, fireModeCost, destinationFinder, targetFinder, effect);
+            fireModeList.add(fireMode);
         }
 
-        /**
-         * Getters of some characteristics of the weapons
-         * They should all be private but they're protected to be visible for testing
-         *
-         * @param weaponName            the name of the weapon of interest
-         * @retun                       the value of interest
-         */
-        protected static Color getColor(Weapon.WeaponName weaponName) {
+        Weapon weapon = new Weapon(weaponName, color, fullCost, reducedCost, fireModeList, board);
+
+        for (FireMode f : fireModeList) {
+            f.setWeapon(weapon);
+        }
+        return weapon;
+    }
+
+    /**
+     * Getters of some characteristics of the weapons
+     * They should all be private but they're protected to be visible for testing
+     *
+     * @param weaponName            the name of the weapon of interest
+     * @retun                       the value of interest
+     */
+    protected static Color getColor(Weapon.WeaponName weaponName) {
 
         String color = j.getColor(weaponName);
 
@@ -95,7 +95,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     }
 
 
-        protected static AmmoPack getFullCost(Weapon.WeaponName weaponName) {
+    protected static AmmoPack getFullCost(Weapon.WeaponName weaponName) {
 
         int r = Integer.parseInt(j.getFullCostRed(weaponName));
         int b = Integer.parseInt(j.getFullCostBlue(weaponName));
@@ -105,7 +105,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     }
 
 
-        protected static AmmoPack getReducedCost(Weapon.WeaponName weaponName) {
+    protected static AmmoPack getReducedCost(Weapon.WeaponName weaponName) {
         AmmoPack res = getFullCost(weaponName);
         Color c = getColor(weaponName);
         if (c == RED ) {
@@ -119,7 +119,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     }
 
 
-        protected static List<FireMode.FireModeName> getNameList(Weapon.WeaponName weaponName) {
+    protected static List<FireMode.FireModeName> getNameList(Weapon.WeaponName weaponName) {
 
         int type = Integer.parseInt(j.getNameList(weaponName));
         if (type==1) {
@@ -135,16 +135,16 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
         }
     }
 
-        /**
-         * Getters of some characteristics of the firemodes of the weapons
-         * They should all be private but they're protected to be visible for testing
-         *
-         * @param weaponName            the name of the weapon of interest
-         * @param fireModeName          the name of the firemode of interest
-         * @retun                       the value of interest
-         */
+    /**
+     * Getters of some characteristics of the firemodes of the weapons
+     * They should all be private but they're protected to be visible for testing
+     *
+     * @param weaponName            the name of the weapon of interest
+     * @param fireModeName          the name of the firemode of interest
+     * @retun                       the value of interest
+     */
 
-        protected static Integer getTargetNumber (Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    protected static Integer getTargetNumber (Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         int number = Integer.parseInt(j.getTargetNumber(weaponName, fireModeName));
 
@@ -152,7 +152,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     }
 
 
-        protected static AmmoPack getFireModeCost (Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    protected static AmmoPack getFireModeCost (Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
         if(fireModeName == MAIN) {
             return new AmmoPack(0,0,0);
         }
@@ -165,7 +165,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     }
 
 
-        protected static Effect getEffect(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    protected static Effect getEffect(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         String eff= j.getEff(weaponName, fireModeName);
         int dmg = Integer.parseInt(j.getDmg(weaponName,fireModeName));
@@ -204,7 +204,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     }
 
 
-        protected static TargetFinder getTargetFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    protected static TargetFinder getTargetFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
         String where = j.getWhere(weaponName, fireModeName);
         TargetFinder targetFinder;
         switch(where) {
@@ -654,7 +654,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     }
 
 
-        protected static DestinationFinder getDestinationFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    protected static DestinationFinder getDestinationFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
         int move = Integer.parseInt(j.getMove(weaponName,fireModeName));
         String where = j.getWhere(weaponName, fireModeName);
@@ -749,19 +749,19 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
             }
         }
 
-       return destinationFinder;
+        return destinationFinder;
     }
 
-        /**
-         * Inflicts damages and marks in consequence of a shoot
-         * It should be private but it's protected to be visible for testing
-         *
-         * @param damage                the amount of damages
-         * @param marks                 the amount of marks
-         * @retun                       the effect
-         */
+    /**
+     * Inflicts damages and marks in consequence of a shoot
+     * It should be private but it's protected to be visible for testing
+     *
+     * @param damage                the amount of damages
+     * @param marks                 the amount of marks
+     * @retun                       the effect
+     */
 
-        protected static Effect createEffect(int damage, int marks){
+    protected static Effect createEffect(int damage, int marks){
 
         if(damage<0 || marks<0){
             throw new IllegalArgumentException("Damage and marks must be positive.");
@@ -779,7 +779,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
     }
 
 
-        protected static List<List<Player>> cartesian (List<List<Player>> a, List<List<Player>> b){
+    protected static List<List<Player>> cartesian (List<List<Player>> a, List<List<Player>> b){
         List<List<Player>> atemp = a.stream()
                 .filter(x->!x.isEmpty())
                 .distinct()
@@ -816,4 +816,4 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
         return res;
     }
-    }
+}

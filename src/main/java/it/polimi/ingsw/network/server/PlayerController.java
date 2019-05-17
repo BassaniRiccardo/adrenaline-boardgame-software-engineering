@@ -153,6 +153,6 @@ public abstract class PlayerController implements Runnable{
     public void send (JsonObject jmessage){
         LOGGER.log(Level.FINE, "JMessage added to outgoing: {0}", jmessage.get("head").getAsString());
         outgoing.add(jmessage.toString());
-        refresh();
+        //refresh();
     }
 }

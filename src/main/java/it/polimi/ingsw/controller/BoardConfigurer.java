@@ -23,7 +23,7 @@ import static it.polimi.ingsw.model.cards.Color.*;
  * Only one instance of the board configurer is allowed.
  * Helps the other classes in the process of testing, by simulating the necessary scenarios.
  *
- * @author  BassaniRiccardo, davidealde
+ * @author  BassaniRiccardo, serialized by davidealde
  */
 
 public class BoardConfigurer {

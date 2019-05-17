@@ -37,7 +37,6 @@ public class ServerMain {
     private BufferedReader in;
     private boolean running;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
-    private static ModelDataReader J = new ModelDataReader();
 
 
     /**
@@ -86,7 +85,7 @@ public class ServerMain {
                 sm.removeSuspendedPlayers();
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(J.getInt("sleepingTime"));
+                TimeUnit.MILLISECONDS.sleep(100);
             }catch(InterruptedException ex){
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
@@ -106,13 +105,13 @@ public class ServerMain {
         Properties prop = ServerMain.loadConfig();
         LOGGER.log(Level.FINE, "Config read from file");
 
-        this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", J.getString("TCPPOrtDefVal"))));
+        this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", "5000")));
         this.executor.submit(this.tcpServer);
-        this.rmiServer = new RMIServer(Integer.parseInt(prop.getProperty("RMIPort", J.getString("TCPPOrtDefVal"))));
+        this.rmiServer = new RMIServer(Integer.parseInt(prop.getProperty("RMIPort", "1420")));
         this.rmiServer.setup();
         LOGGER.log(Level.FINE, "TCPServer and RMIServer running, press q to quit");
 
-        this.timer = new MatchmakingTimer(Integer.parseInt(prop.getProperty("matchmakingTime", J.getString("matchmakingTimeDefVal"))));
+        this.timer = new MatchmakingTimer(Integer.parseInt(prop.getProperty("matchmakingTime", "60")));
         this.timer.reset();
         LOGGER.log(Level.FINE, "MatchmakingTimer initialized");
 
@@ -282,9 +281,9 @@ public class ServerMain {
      * Start a game if certain conditions are satisfied
      */
     private void matchmaking(){
-        if (waitingPlayers.size() >= J.getInt("maxPlayersNumber")|| (timer.isOver() && waitingPlayers.size() > J.getInt("minPlayersNumber"))) {
+        if (waitingPlayers.size() > 4 || (timer.isOver() && waitingPlayers.size() > 2)) {
             selectedPlayers.clear();
-            for (int i = 0; i < waitingPlayers.size() && i < J.getInt("maxPlayersNumber"); i++) {
+            for (int i = 0; i < waitingPlayers.size() && i < 5; i++) {
                 selectedPlayers.add(waitingPlayers.get(i));
             }
             GameEngine current = new GameEngine(selectedPlayers);
@@ -292,9 +291,9 @@ public class ServerMain {
             currentGames.add(current);
             System.out.println("Game started with " + selectedPlayers.size() + " players");
             waitingPlayers.removeAll(selectedPlayers); //toglie i primi n
-        } else if (waitingPlayers.size() <= J.getInt("minPlayersNumber")) {
+        } else if (waitingPlayers.size() < 3) {
             timer.stop();
-        } else if (waitingPlayers.size() > J.getInt("minPlayersNumber") && !timer.isRunning()) {
+        } else if (waitingPlayers.size() > 2 && !timer.isRunning()) {
             timer.start();
         }
     }

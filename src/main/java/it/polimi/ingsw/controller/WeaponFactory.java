@@ -242,7 +242,7 @@ public class WeaponFactory {
         }));
         effectMap.put(SECONDARY, ((shooter, target, destination) -> {
             target.sufferDamage(1, shooter);
-            board.getPlayersInside(target.getPosition()).forEach(x -> x.addMarks(2, shooter));
+            board.getPlayersInside(target.getPosition()).stream().filter(x->!x.equals(shooter)).forEach(x -> x.addMarks(2, shooter));
         }));
         fireModeMap.put(HELLION, effectMap);
 
@@ -574,14 +574,7 @@ public class WeaponFactory {
             return res;
         });
         targetMap.put(SECONDARY, p -> board.getReachable(p.getPosition(), 1).stream()
-                .filter(x -> {
-                    try {
-                        return !x.equals(p.getPosition());
-                    } catch (NotAvailableAttributeException e) {
-                        LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                        return false;
-                    }
-                })
+                .filter(x -> !x.containsPlayer(p))
                 .map(Square::getPlayers)
                 .filter(x->!x.isEmpty())
                 .collect(Collectors.toList()));
@@ -708,15 +701,8 @@ public class WeaponFactory {
                 .collect(Collectors.toList())
         );
         targetMap.put(OPTION1, p -> {List<List<Player>> l = board.getVisible(p.getPosition()).stream()
+                .filter(x -> !x.containsPlayer(p))
                 .map(Square::getPlayers)
-                .filter(x -> {
-                    try {
-                        return !x.equals(p.getPosition());
-                    } catch (NotAvailableAttributeException e) {
-                        LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                        return false;
-                    }
-                })
                 .collect(Collectors.toList());
             l.add(p.getPosition().getPlayers().stream().filter(x -> !x.equals(p)).collect(Collectors.toList()));
             return l;

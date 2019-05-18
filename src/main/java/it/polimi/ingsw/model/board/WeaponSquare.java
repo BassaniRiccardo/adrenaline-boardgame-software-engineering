@@ -66,6 +66,16 @@ public class WeaponSquare extends Square {
 
     }
 
+
+    /**
+     * Setter for weapons.
+     *
+     * @param weapons       the value to assign to weapons.
+     */
+    public void setWeapons(List<Weapon> weapons) {
+        this.weapons = weapons;
+    }
+
     /**
      * Returns true if the weapon square does not contain a weapon.
      *

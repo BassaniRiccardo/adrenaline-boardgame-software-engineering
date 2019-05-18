@@ -20,7 +20,8 @@ import java.util.logging.Level;
  *
  * @author marcobaga
  */
-public class RMIConnection extends Connection {
+public class
+RMIConnection extends Connection {
 
     private RemotePlayerController playerStub;
 
@@ -32,6 +33,7 @@ public class RMIConnection extends Connection {
      * @param port              port to connect to
      */
     public RMIConnection(ClientMain clientMain, String address, int port){
+        System.out.println("address: " + address + "\nport: " + port);
         this.clientMain = clientMain;
         try {
             Registry reg = LocateRegistry.getRegistry(address, port);

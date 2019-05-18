@@ -1,6 +1,6 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.network.server.PlayerController;
 import it.polimi.ingsw.network.server.TCPPlayerController;
 import org.junit.Test;
@@ -22,8 +22,6 @@ public class GameEngineTest {
     @Test
     public void run() {
 
-    /*
-
         List<PlayerController> connections = new ArrayList<>();
         connections.add(new TCPPlayerController(null));
         connections.add(new TCPPlayerController(null));
@@ -33,8 +31,6 @@ public class GameEngineTest {
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.run();
-
-    */
 
     }
 
@@ -138,6 +134,9 @@ public class GameEngineTest {
     @Test
     public void getNextPlayerStandard(){
 
+
+        Board b = BoardConfigurer.configureMap(1);
+
         List<PlayerController> connections = new ArrayList<>();
         connections.add(new TCPPlayerController(null));
         connections.add(new TCPPlayerController(null));
@@ -146,6 +145,7 @@ public class GameEngineTest {
         connections.add(new TCPPlayerController(null));
 
         GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setBoard(b);
 
         gameEngine.setCurrentPlayer(connections.get(0));
         gameEngine.setCurrentPlayer(gameEngine.getNextPlayer());
@@ -159,6 +159,8 @@ public class GameEngineTest {
     @Test
     public void getNextPlayerAfterLast(){
 
+        Board b = BoardConfigurer.configureMap(1);
+
         List<PlayerController> connections = new ArrayList<>();
         connections.add(new TCPPlayerController(null));
         connections.add(new TCPPlayerController(null));
@@ -167,7 +169,7 @@ public class GameEngineTest {
         connections.add(new TCPPlayerController(null));
 
         GameEngine gameEngine = new GameEngine(connections);
-
+        gameEngine.setBoard(b);
         gameEngine.setCurrentPlayer(connections.get(4));
         gameEngine.setCurrentPlayer(gameEngine.getNextPlayer());
         assertEquals(connections.get(0), gameEngine.getCurrentPlayer());
@@ -180,6 +182,8 @@ public class GameEngineTest {
     @Test
     public void getNextPlayerWithSuspendedPlayers(){
 
+        Board b = BoardConfigurer.configureMap(1);
+
         List<PlayerController> connections = new ArrayList<>();
         connections.add(new TCPPlayerController(null));
         connections.add(new TCPPlayerController(null));
@@ -188,6 +192,7 @@ public class GameEngineTest {
         connections.add(new TCPPlayerController(null));
 
         GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setBoard(b);
 
         gameEngine.setCurrentPlayer(connections.get(0));
         connections.get(1).suspend();

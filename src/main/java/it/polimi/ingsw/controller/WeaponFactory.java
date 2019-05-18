@@ -61,6 +61,7 @@ public class WeaponFactory {
         int targetNumber;
         AmmoPack fireModeCost;
 
+
         for (FireMode.FireModeName name : nameList) {
             effect = getEffect(weaponName, name);
             targetFinder = getTargetFinder(weaponName, name);
@@ -146,8 +147,10 @@ public class WeaponFactory {
             res.subAmmoPack(new AmmoPack(1,0,0));
         }else if (c==BLUE) {
             res.subAmmoPack(new AmmoPack(0,1,0));
-        }else {
+        }else if (c==YELLOW){
             res.subAmmoPack(new AmmoPack(0,0,1));
+        }else{
+            LOGGER.log(Level.SEVERE, "Error in retrieving weapon color");
         }
         return res;
     }

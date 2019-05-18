@@ -23,15 +23,12 @@ import static java.util.Collections.frequency;
  * Class responsible of running a game.
  * The interaction with the user is simulated by the method receive() of PlayerController.
  * Must be updated implementing the connection with the client.
+ *
+ * @author BassaniRiccardo
  */
 
 //TODO: implement the connection with the client. Finish testing.
-/**
- * hai aggiunto il primo giocatore e l'hai settato a players(0)
- * ora devi fare che lo status cambia in base alla posizione rispetto al primo giocatore
- *
- * poi si deve fare che dopo l'ultimo teschio si fa un turno a testa fino al game over.
- */
+//      understand why handleUsingPowerUp, ConvertPowerUp and Reload are sometimes called unexpectedly (maybe it is solved now).
 
 public class GameEngine implements Runnable{
 
@@ -41,8 +38,9 @@ public class GameEngine implements Runnable{
     private boolean gameOver;
     private KillShotTrack killShotTrack;
     private boolean frenzy;
+    private StatusSaver statusSaver;
 
-    private static final Logger LOGGER = Logger.getLogger("gameEngineLogger");
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
 
 
@@ -58,6 +56,7 @@ public class GameEngine implements Runnable{
         gameOver = false;
         killShotTrack = null;
         frenzy = false;
+        this.statusSaver = null;
     }
 
     /**
@@ -84,7 +83,15 @@ public class GameEngine implements Runnable{
     }
 
     public void setCurrentPlayer(PlayerController currentPlayer) {
+        this.board.setCurrentPlayer(currentPlayer.getModel());
         this.currentPlayer = currentPlayer;
+    }
+
+    /**
+     * Only for testing
+     */
+    public void setBoard(Board board) {
+        this.board = board;
     }
 
     /**
@@ -155,6 +162,7 @@ public class GameEngine implements Runnable{
 
 
         setCurrentPlayer(players.get(0));
+        statusSaver = new StatusSaver(board);
         System.out.println("\n");
 
     }
@@ -297,7 +305,7 @@ public class GameEngine implements Runnable{
      */
     public void runTurn (ExecutorService executor, int timeout, boolean frenzy){
 
-        Future future = executor.submit(new TurnManager(board, currentPlayer,frenzy));
+        Future future = executor.submit(new TurnManager(board, currentPlayer, players, statusSaver,  frenzy));
 
         try {
             future.get(timeout, TimeUnit.MINUTES);
@@ -312,7 +320,7 @@ public class GameEngine implements Runnable{
      */
     public void changePlayer(){
 
-        currentPlayer = getNextPlayer();
+        setCurrentPlayer(getNextPlayer());
         long playerCount = players.stream().filter(x->!x.isSuspended()).count();
         if(playerCount<3){
             gameOver = true;

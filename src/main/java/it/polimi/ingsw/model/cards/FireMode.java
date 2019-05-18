@@ -131,4 +131,9 @@ public class FireMode implements Targeted {
         return !(findTargets().isEmpty());
     }
 
+
+    @Override
+    public String toString() {
+        return this.weapon + ": " + this.getName();
+    }
 }

@@ -6,6 +6,8 @@ import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class modeling a single firemode of a weapon.
@@ -27,6 +29,7 @@ public class FireMode implements Targeted {
     private final Effect effect;
     private final TargetFinder targetFinder;
     private final DestinationFinder destinationFinder;
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
     /**
      * Constructs a firemode, with a name, the number of targets, the cost in ammo packs,
@@ -98,8 +101,9 @@ public class FireMode implements Targeted {
      * @return      an ArrayList containing sets of targets to be chosen, each saved as an ArrayList
      */
     public List<List<Player>> findTargets() throws NotAvailableAttributeException{
-
-        return targetFinder.find(weapon.getHolder());
+        List<List<Player>> res = targetFinder.find(weapon.getHolder());
+        LOGGER.log(Level.FINE, "Targets found: " + res);
+        return res;
 
     }
 
@@ -113,7 +117,9 @@ public class FireMode implements Targeted {
         if(targets == null){
             throw new NullPointerException("The firemode must have some targets.");
         }
-        return destinationFinder.find(weapon.getHolder(), targets);
+        List<Square> res = destinationFinder.find(weapon.getHolder(), targets);
+        LOGGER.log(Level.FINE, "Destinations found: " + res);
+        return res;
     }
 
     /**

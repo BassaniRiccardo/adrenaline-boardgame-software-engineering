@@ -26,8 +26,9 @@ public class SquareRenderer {
         for (int i = 0; i < ammo.size(); i++) {
             box[0][i + 8] = ammo.get(i);
         }
-
-        box[0][10] = String.valueOf(weaponNum);
+        if(weaponNum!=0) {
+            box[0][10] = String.valueOf(weaponNum);
+        }
 
         for (int i = 0; i < players.size(); i++) {
 

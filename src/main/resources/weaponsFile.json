@@ -25,7 +25,7 @@
 					"dmg": "0",
 					"mark": "1",
 					"targetsN": "1",
-					"where": "sight1",
+					"where": "sight1optional",
 					"move": "0",
 					"effect": "0"
 				}
@@ -266,7 +266,7 @@
 					"targetsN": "1",
 					"where": "sight1",
 					"move": "0",
-					"effect": "moveDmg"
+					"effect": "0"
 				},
 				{
 					"mode": "OPTION1",

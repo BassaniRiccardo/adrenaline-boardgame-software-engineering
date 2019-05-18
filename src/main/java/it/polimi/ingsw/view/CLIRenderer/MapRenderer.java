@@ -73,7 +73,7 @@ public class MapRenderer {
         }
 
         for(int n = 0; n<12; n++){
-            squares[n] = new SquareRenderer(2, ammo.get(n), 2, players.get(n));
+            squares[n] = new SquareRenderer(n, ammo.get(n), weaponNum[n], players.get(n));
         };
 
         placeSquaresOnMap(map, squares);

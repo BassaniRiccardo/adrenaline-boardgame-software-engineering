@@ -77,7 +77,7 @@ public abstract class PlayerController implements Runnable{
         LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "MSG");
-        jsonObject.addProperty("text", in);
+        jsonObject.addProperty("message", in);
         outgoing.add(jsonObject.toString());
         refresh();
     }
@@ -86,7 +86,7 @@ public abstract class PlayerController implements Runnable{
         LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "REQ");
-        jsonObject.addProperty("text", in);
+        jsonObject.addProperty("message", in);
         jsonObject.addProperty("length", length);
         outgoing.add(jsonObject.toString());
         refresh();
@@ -140,14 +140,14 @@ public abstract class PlayerController implements Runnable{
      * @param max           the number of options.
      * @param timeout       the time given to make a choice.
      * @return              the user choice (now a random value).
-     */
+     *//*
     public int receive (int max, int timeout){
         //method called by game controller to retrieve the answer to said question
         int ans = (1 + (new Random()).nextInt(max));
         return ans;
         //something like this???
         //return Integer.parseInt(incoming.get(incoming.size()-1)) + 1;
-    }
+    }*/
 
     /**
      * Getters and Setters

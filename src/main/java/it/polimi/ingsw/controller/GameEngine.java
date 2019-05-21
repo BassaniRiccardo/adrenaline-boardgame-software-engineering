@@ -136,10 +136,9 @@ public class GameEngine implements Runnable{
         LOGGER.log(Level.INFO,"\n\nAll the players are connected.\n");
         configureMap();
         configureKillShotTrack();
-        try {
-            board.getKillShotTrack().removeSkulls(4);
-
-        } catch ( NotAvailableAttributeException | UnacceptableItemNumberException e){};
+        //try {
+        //    board.getKillShotTrack().removeSkulls(4);
+        //} catch ( NotAvailableAttributeException | UnacceptableItemNumberException e){};
         BoardConfigurer.configureDecks(board);
         LOGGER.log(Level.INFO,"Decks configured.");
 
@@ -155,8 +154,8 @@ public class GameEngine implements Runnable{
         int no = 0;
         frenzyOptions.addAll(Arrays.asList("yes", "no"));
         for (PlayerController p: players){
-            p.send(encode(OPT, "Do you wan to play with the frenzy?", frenzyOptions));
-            if (p.receive(2, 10) == 1) yes++;
+            p.send(encode(OPT, "Do you want to play with the frenzy?", frenzyOptions));
+            if (Integer.parseInt(p.receive()) == 1) yes++;
             else no++;
         }
         if (yes>=no) {
@@ -183,7 +182,9 @@ public class GameEngine implements Runnable{
 
         for (PlayerController p : players) {
             p.send(encode(OPT, "Vote for the map you want:", mapIDs));
-            int vote = p.receive(4,10);
+        }
+        for(PlayerController p : players) {
+            int vote = Integer.parseInt(p.receive());
             votes.set(vote-1, votes.get(vote-1)+1);
         }
         int mapId = Collections.max(votes);
@@ -204,9 +205,12 @@ public class GameEngine implements Runnable{
 
         for (PlayerController p : players) {
             p.send(encode(OPT, "How many skulls do you want?", skullsOptions));
-            int selected = p.receive(4, 10);
+        }
+        for (PlayerController p : players) {
+            int selected = Integer.parseInt(p.receive());
             totalSkullNumber = totalSkullNumber + selected + 4;
         }
+
         int averageSkullNumber = Math.round((float)totalSkullNumber/(float)players.size());
         BoardConfigurer.configureKillShotTrack(averageSkullNumber, board);
         try {
@@ -226,13 +230,15 @@ public class GameEngine implements Runnable{
         List<Player.HeroName> heroList = new ArrayList<>(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
         int id = 1;
 
-        for (PlayerController p : players) {
-
+        for(PlayerController p : players) {
             p.send(encode(OPT, "What hero do you want?", heroList));
-            int selected = p.receive(heroList.size(), 10);
+            int selected = Integer.parseInt(p.receive());
+            System.out.println("selected " + selected);
             Player.HeroName selectedName = heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
+            System.out.println("setplayer");
             board.getPlayers().add(p.getModel());
+            System.out.println("added");
             heroList.remove(selectedName);
             LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
             id++;

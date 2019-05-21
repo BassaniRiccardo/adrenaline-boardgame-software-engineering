@@ -27,6 +27,8 @@ public class CLI implements UI{
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private String[][] render;
+    private String answer;
+    private boolean receiving, justReceived;
 
 
     /**
@@ -35,6 +37,8 @@ public class CLI implements UI{
     public CLI(ClientMain clientMain) {
         this.in = new Scanner(System.in);
         this.clientMain = clientMain;
+        receiving = false;
+        justReceived = false;
     }
 
     /**
@@ -60,7 +64,7 @@ public class CLI implements UI{
         drawModel();
         System.out.println("Here are your choices:");
         for(int i = 0; i<list.size(); i++){
-            System.out.println(i+") "+list.get(i));
+            System.out.println((i+1) +") "+list.get(i));
         }
         System.out.println("Choose one");
 
@@ -72,7 +76,18 @@ public class CLI implements UI{
      * @return              the user's input as a string
      */
     public String get(){
-        return in.nextLine();
+        receiving = true;
+        while(!justReceived){
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            }catch(InterruptedException ex){
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+        }
+        justReceived = false;
+        receiving = false;
+        return answer;
     }
 
     /**
@@ -80,15 +95,20 @@ public class CLI implements UI{
      */
     @Override
     public void run() {
-
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
         while(Thread.currentThread().isAlive()) {
             try{
                 if (in.ready()) {
-                    if(in.readLine().equals("q")){
+                    String msg = in.readLine();
+                    System.out.println("Ho letto " + msg);
+                    if(msg.equals("q")){
                         display("CLI: quitting");
                         clientMain.handleRequest(RequestFactory.toRequest("quit"));
+                    }else if(receiving&&!justReceived) {
+                        System.out.println("Ho salvato come answer " + msg);
+                        answer = msg;
+                        justReceived = true;
                     }else{
                         display("Wait for your turn or press q to quit");
                     }
@@ -108,26 +128,49 @@ public class CLI implements UI{
 
     @Override
     public String get(List<String> list){
+        receiving = true;
         boolean verified = false;
-        String ans = "";
-        do {
-            ans = in.nextLine();
-            if(Integer.parseInt(ans)<list.size() && Integer.parseInt(ans)>=0){
-                verified = true;
+        while(!verified) {
+            while (!justReceived) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException ex) {
+                    LOGGER.log(Level.INFO, "Skipped waiting time.");
+                    Thread.currentThread().interrupt();
+                }
             }
-        }while(!verified);
-        return ans;
+            if (Integer.parseInt(answer) <= list.size() && Integer.parseInt(answer) > 0) {
+                verified = true;
+                justReceived = false;
+            }
+        }
+        receiving = false;
+        return answer;
     }
 
     @Override
     public String get(String m){
+        receiving = true;
+        boolean verified = false;
         int max = Integer.parseInt(m);
-        String ans = in.nextLine();
-        while(ans.length()>max) {
-            System.out.println("Your answer must be shorter than " + max + " characters, try again");
-            ans = in.nextLine();
+        while(!verified) {
+            while (!justReceived) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException ex) {
+                    LOGGER.log(Level.INFO, "Skipped waiting time.");
+                    Thread.currentThread().interrupt();
+                }
+            }
+            if (answer.length()<max) {
+                verified = true;
+                justReceived = false;
+            } else{
+                System.out.println("Your answer must be shorter than " + max + " characters, try again");
+            }
         }
-        return ans;
+        receiving = false;
+        return answer;
     }
 
 

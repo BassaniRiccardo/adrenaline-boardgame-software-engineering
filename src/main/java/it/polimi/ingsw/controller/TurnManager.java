@@ -98,7 +98,6 @@ public class TurnManager implements Runnable{
                 LOGGER.log(Level.FINE,"Action executed;");
                 actionsLeft--;
                 LOGGER.log(Level.FINE,"Actions left: " + actionsLeft);
-
             }
         }
 
@@ -190,7 +189,7 @@ public class TurnManager implements Runnable{
 
         //asks the user which powerup he wants to discard
         currentPlayerConnection.send(encode(OPT, "Which powerUp do you want to discard?", player.getPowerUpList()) );
-        int selected = currentPlayerConnection.receive(player.getPowerUpList().size(), 10);
+        int selected = Integer.parseInt(currentPlayerConnection.receive());
         PowerUp discarded = player.getPowerUpList().get(selected-1);
 
         if (powerUpToDraw == 2)
@@ -246,7 +245,7 @@ public class TurnManager implements Runnable{
 
         currentPlayerConnection.send(encode(OPT, "What do you want to do?", options));
 
-        int selected = currentPlayerConnection.receive(options.size(), 10);
+        int selected = Integer.parseInt(currentPlayerConnection.receive());
 
         if (selected == availableActions.size() + 1){
             if (canUSePowerUp){
@@ -335,7 +334,7 @@ public class TurnManager implements Runnable{
             List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
             currentPlayerConnection.send(encode(OPT,"Do you want to use a powerup?", options));
-            answer = currentPlayerConnection.receive(2, 10);
+            answer = Integer.parseInt(currentPlayerConnection.receive());
             if (answer == 2){
                 LOGGER.log(Level.FINE, () -> currentPlayer  + " decides not to use a powerup." );
             }
@@ -376,7 +375,7 @@ public class TurnManager implements Runnable{
         optionsPowerUps.add("reset");
 
         currentPlayerConnection.send(encode(OPT, "Which powerup do you want to use?", optionsPowerUps));
-        int selected = currentPlayerConnection.receive(optionsPowerUps.size(), 10);
+        int selected = Integer.parseInt(currentPlayerConnection.receive());
 
         if (selected == optionsPowerUps.size()){
             resetPowerUp();
@@ -389,7 +388,7 @@ public class TurnManager implements Runnable{
                 List<String> optionsTargets = toStringList(powerUpToUse.findTargets());
                 optionsTargets.add("reset");
                 currentPlayerConnection.send(encode(OPT, "Who do you want to choose as a target?", optionsTargets));
-                selected = currentPlayerConnection.receive(optionsTargets.size(), 10);
+                selected = Integer.parseInt(currentPlayerConnection.receive());
                 if (selected == optionsTargets.size()){
                     resetPowerUp();
                     return;
@@ -404,7 +403,7 @@ public class TurnManager implements Runnable{
             List<String> optionsDest = toStringList(powerUpToUse.findDestinations(targets));
             optionsDest.add("reset");
             currentPlayerConnection.send(encode(OPT, "Choose a destination", optionsDest));
-            selected = currentPlayerConnection.receive(optionsDest.size(), 10);
+            selected = Integer.parseInt(currentPlayerConnection.receive());
             if (selected == optionsDest.size()) {
                 resetPowerUp();
                 return;
@@ -446,7 +445,7 @@ public class TurnManager implements Runnable{
             List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
             currentPlayerConnection.send(encode(OPT, "Do you want to convert a powerup?", options));
-            answer = currentPlayerConnection.receive(2, 10);
+            answer = Integer.parseInt(currentPlayerConnection.receive());
 
             if (answer == 2){
                 LOGGER.log(Level.FINE, () -> currentPlayer + " decides not to convert a powerup.");
@@ -460,7 +459,7 @@ public class TurnManager implements Runnable{
                 optionsConvert.add("reset");
 
                 currentPlayerConnection.send(encode(OPT, "Which powerup do you want to convert?", optionsConvert));
-                int selected = currentPlayerConnection.receive(optionsConvert.size(), 10);
+                int selected = Integer.parseInt(currentPlayerConnection.receive());
                 if (selected==optionsConvert.size()) {
                     return resetConvert();
                 }
@@ -513,7 +512,7 @@ public class TurnManager implements Runnable{
 
                 LOGGER.log(Level.FINE, currentPlayer + " is in " + currentPlayer.getPosition());
                 currentPlayerConnection.send(encode (OPT, "Where do you wanna move?", optionsDest));
-                int selected = currentPlayerConnection.receive(optionsDest.size(), 10);
+                int selected = Integer.parseInt(currentPlayerConnection.receive());
                 if (selected == optionsDest.size()){
                     resetAction();
                     return;
@@ -546,7 +545,7 @@ public class TurnManager implements Runnable{
                     List<String> optionsCollectible = toStringList(collectible);
                     optionsCollectible.add("reset");
                     currentPlayerConnection.send(encode(OPT, "Which weapon do you want to collect?", optionsCollectible ));
-                    int selected = currentPlayerConnection.receive(optionsCollectible.size(), 10);
+                    int selected = Integer.parseInt(currentPlayerConnection.receive());
                     if (selected == optionsCollectible.size()){
                         resetAction();
                         return;
@@ -558,7 +557,7 @@ public class TurnManager implements Runnable{
                         List<String> optionsToDiscard = toStringList(currentPlayer.getWeaponList());
                         optionsToDiscard.add("reset");
                         currentPlayerConnection.send(encode(OPT, "Which weapon do you want to discard?", optionsToDiscard));
-                        selected = currentPlayerConnection.receive(optionsToDiscard.size(), 10);
+                        selected = Integer.parseInt(currentPlayerConnection.receive());
                         if(selected == optionsToDiscard.size()){
                             resetAction();
                             return;
@@ -614,7 +613,7 @@ public class TurnManager implements Runnable{
         optionsWeapons.add("reset");
 
         currentPlayerConnection.send(encode(OPT, "Choose your weapon", optionsWeapons));
-        int selected1 = currentPlayerConnection.receive(optionsWeapons.size(), 5);
+        int selected1 = Integer.parseInt(currentPlayerConnection.receive());
         if (selected1 == optionsWeapons.size()){
             resetAction();
             return;
@@ -644,7 +643,7 @@ public class TurnManager implements Runnable{
                 currentPlayerConnection.send(encode(OPT, "If you want, select an additional firemode", options));
             }
             else currentPlayerConnection.send(encode(OPT, "Select a firemode in order to shoot", options));
-            int selected2 = currentPlayerConnection.receive(options.size(), 5);
+            int selected2 = Integer.parseInt(currentPlayerConnection.receive());
             if (selected2 == remainingFiremodes.size() + 1){
                 resetAction();
                 return;
@@ -724,7 +723,7 @@ public class TurnManager implements Runnable{
         optionsTarget.add("reset");
 
         currentPlayerConnection.send(encode(OPT, "Choose targets", optionsTarget));
-        int selected = currentPlayerConnection.receive(optionsTarget.size(), 5);
+        int selected = Integer.parseInt(currentPlayerConnection.receive());
         if (selected == optionsTarget.size()){
             resetAction();
             return;
@@ -739,7 +738,7 @@ public class TurnManager implements Runnable{
             List<String> optionsDest = toStringList(destinations);
             optionsDest.add("reset");
             currentPlayerConnection.send(encode(OPT, "Choose a destination", optionsDest));
-            selected = currentPlayerConnection.receive(optionsDest.size(), 5);
+            selected = Integer.parseInt(currentPlayerConnection.receive());
             if (selected == optionsDest.size()){
                 resetAction();
                 return;
@@ -780,7 +779,7 @@ public class TurnManager implements Runnable{
             options.add("None");
             options.add("reset");
             currentPlayerConnection.send(encode(OPT, "Which weapon do you want to reload?", options));
-            int selected = currentPlayerConnection.receive(options.size(), 10);
+            int selected = Integer.parseInt(currentPlayerConnection.receive());
             if (selected == currentPlayer.getReloadableWeapons().size() + 2) {
                 resetAction();
                 return true;
@@ -826,7 +825,7 @@ public class TurnManager implements Runnable{
         List<String> options = toStringList(reloadable);
         options.add("reset");
         currentPlayerConnection.send(encode(OPT, "You have to reload one of these weapons to shoot. Which one do you choose?", options));
-        int selected = currentPlayerConnection.receive(options.size(), 10);
+        int selected = Integer.parseInt(currentPlayerConnection.receive());
         if (selected == options.size()){
             resetAction();
             return;
@@ -908,12 +907,12 @@ public class TurnManager implements Runnable{
 
         reset = false;
         currentPlayerConnection.send(encode(OPT, "Do you want to use a targeting scope?", new ArrayList(Arrays.asList("yes", "no")) ));
-        int answer = currentPlayerConnection.receive(2, 5);
+        int answer = Integer.parseInt(currentPlayerConnection.receive());
         if (answer == 1){
             List<String> optionsPowerup = toStringList(currentPlayer.getPowerUps(PowerUp.PowerUpName.TARGETING_SCOPE));
             optionsPowerup.add("reset");
             currentPlayerConnection.send(encode(OPT, "Which targeting scope do you want to use?", optionsPowerup));
-            int selected = currentPlayerConnection.receive(currentPlayer.getPowerUps(PowerUp.PowerUpName.TARGETING_SCOPE).size(), 5);
+            int selected = Integer.parseInt(currentPlayerConnection.receive());
             if (selected == optionsPowerup.size()){
                 resetAction();
                 return true;
@@ -923,7 +922,7 @@ public class TurnManager implements Runnable{
             List<String> optionsTargets = toStringList(targets);
             optionsTargets.add("reset");
             currentPlayerConnection.send(encode(OPT, "Who do you want to target?", optionsTargets));
-            selected = currentPlayerConnection.receive(optionsTargets.size(), 5);
+            selected = Integer.parseInt(currentPlayerConnection.receive());
             if (selected == optionsTargets.size()){
                 resetAction();
                 return true;
@@ -954,13 +953,13 @@ public class TurnManager implements Runnable{
 
         PlayerController connection = playerConnections.get(board.getPlayers().indexOf(p));
         connection.send(encode(OPT, "Do you want to use a tagback grenade?", new ArrayList(Arrays.asList("yes", "no")) ));
-        int answer = connection.receive(2, 5);
+        int answer = Integer.parseInt(currentPlayerConnection.receive());
         if (answer == 1){
             LOGGER.log(Level.FINE, () -> p + "Decides to use a grenade" );
             List<String> optionsGrenade = toStringList(p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE));
             optionsGrenade.add("reset");
             connection.send(encode(OPT, "Which tagback grenade do you want to use?", optionsGrenade ));
-            int selected = connection.receive(optionsGrenade.size(), 5);
+            int selected = Integer.parseInt(currentPlayerConnection.receive());
             if (selected == optionsGrenade.size()){
                 return (handleTagbackGrenade(p));
             }
@@ -996,7 +995,7 @@ public class TurnManager implements Runnable{
     private boolean askConfirmation(String request) {
 
         currentPlayerConnection.send(encode(OPT, request, new ArrayList(Arrays.asList("yes", "no"))));
-        int answer = currentPlayerConnection.receive(2, 5);
+        int answer = Integer.parseInt(currentPlayerConnection.receive());
         if (answer == 1){
             LOGGER.log(Level.FINE, "action confirmed");
             return true;
@@ -1016,7 +1015,7 @@ public class TurnManager implements Runnable{
     private boolean askConfirmation(String request, Player p) {
 
         playerConnections.get(board.getPlayers().indexOf(p)).send(encode(OPT, request, new ArrayList(Arrays.asList("yes", "no"))));
-        int answer = playerConnections.get(board.getPlayers().indexOf(p)).receive(2, 5);
+        int answer = Integer.parseInt(currentPlayerConnection.receive());
         if (answer == 1){
             LOGGER.log(Level.FINE, "action confirmed");
             return true;
@@ -1091,4 +1090,3 @@ public class TurnManager implements Runnable{
         else actionsLeft++;
     }
 }
-

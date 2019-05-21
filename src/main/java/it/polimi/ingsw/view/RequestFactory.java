@@ -45,14 +45,13 @@ public class RequestFactory {
 
         if(head.equals("MSG")) {
             return (ClientMain clientMain, UI ui, Connection connection) -> {
-                ui.display(jMessage.get("text").getAsString());
+                ui.display(jMessage.get("message").getAsString());
             };
         }
         if (head.equals("REQ")) {
             return (ClientMain clientMain, UI ui, Connection connection) -> {
-                ui.display(jMessage.get("text").getAsString());
+                ui.display(jMessage.get("message").getAsString());
                 connection.send(ui.get(jMessage.get("length").getAsString()));
-                connection.send(ui.get());
             };
         }
         if (head.equals("OPT")){
@@ -62,7 +61,7 @@ public class RequestFactory {
                 for(int i = 0; i<arr.size(); i++){
                     list.add(arr.get(i).getAsString());
                 }
-                ui.display(jMessage.get("text").getAsString(), list);
+                ui.display(jMessage.get("message").getAsString(), list);
                 connection.send(ui.get(list));
             };
         }

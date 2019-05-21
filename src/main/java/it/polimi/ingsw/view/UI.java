@@ -24,8 +24,11 @@ public interface UI extends Runnable {
     String get();
 
     String get(List<String> list);
+    String get(String max);
 
     void display(List<String> list);
+
+    void render();
 }
 
 

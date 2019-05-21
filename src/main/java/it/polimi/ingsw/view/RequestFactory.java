@@ -52,7 +52,7 @@ public class RequestFactory {
         if (head.equals("REQ")) {
             return (ClientMain clientMain, UI ui, Connection connection) -> {
                 ui.display(jMessage.get("text").getAsString());
-                connection.send(ui.get());
+                connection.send(ui.get(jMessage.get("length").getAsString()));
             };
         }
         if (head.equals("OPT")){
@@ -73,7 +73,7 @@ public class RequestFactory {
                 ClientModel clientModel = gson.fromJson(mod.toString(), ClientModel.class);
 
                 clientMain.setClientModel(clientModel);
-                //ui.drawModel();           //almost observer!
+                ui.render();
             };
         }
 

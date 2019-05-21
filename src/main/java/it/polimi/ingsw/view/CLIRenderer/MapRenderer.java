@@ -5,6 +5,7 @@ import it.polimi.ingsw.view.ClientModel;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -23,7 +24,7 @@ public class MapRenderer {
         int mapID = model.getMapID();
 
 
-        map = loadMap(1);     //mapID needs to go here
+        map = loadMap(mapID);     //mapID needs to go here
 
         List<List<String>> ammo = new ArrayList<>(12);
         int[] weaponNum = new int[12];
@@ -44,16 +45,16 @@ public class MapRenderer {
             }
 
             for(int i=0; i< model.getBlueAmmoOnGround().getOrDefault(n, 0); i++) {
-                ammo.get(n).add(ClientModel.getEscapeCode("blue") + "x" + "\u001b[0m");    //blue ammo!
+                ammo.get(n).add(ClientModel.getEscapeCode("blue") + "❚" + "\u001b[0m");    //blue ammo!
             }
             for(int i=0; i< model.getRedAmmoOnGround().getOrDefault(n, 0); i++) {
-                ammo.get(n).add(ClientModel.getEscapeCode("red")+"x"+"\u001b[0m");    //red ammo!
+                ammo.get(n).add(ClientModel.getEscapeCode("red")+"❚"+"\u001b[0m");    //red ammo!
             }
             for(int i=0; i< model.getYellowAmmoOnGround().getOrDefault(n, 0); i++) {
-                ammo.get(n).add(ClientModel.getEscapeCode("yellow")+"x"+"\u001b[0m");    //yellow ammo!
+                ammo.get(n).add(ClientModel.getEscapeCode("yellow")+"❚"+"\u001b[0m");    //yellow ammo!
             }
             if(model.getPowerUpOnGround().getOrDefault(n, false)){
-                ammo.get(n).add("+");    //powerup!
+                ammo.get(n).add("⚡");    //powerup!
             }
 
             weaponNum[n] = model.getWeaponsOnGround().getOrDefault(n, new ArrayList<>(0)).size();  //weapons on ground
@@ -64,19 +65,18 @@ public class MapRenderer {
             String color = "";
             String mark = "";
             if(playerID == model.getCurrentPlayer()){
-                mark = "@";
+                mark = "◯";
             } else {
-                mark = "O";
+                mark = "◯";
             }
             color = ClientModel.getEscapeCode(model.getPlayerColor().get(playerID));
             players.get(model.getPlayerPosition().get(playerID)).add(color + mark + "\u001b[0m");
         }
 
-        for(int n = 0; n<12; n++){
+        for(int n : getRoomSet(mapID)){
             squares[n] = new SquareRenderer(n, ammo.get(n), weaponNum[n], players.get(n));
+            placeSquareOnMap(map, squares[n], n);
         };
-
-        placeSquaresOnMap(map, squares);
 
         return map;
     }
@@ -90,10 +90,8 @@ public class MapRenderer {
         return box1;
     }
 
-    public static void placeSquaresOnMap(String[][] map, SquareRenderer[] squares){
-        for(int i = 0; i < squares.length; i++){
-            merge(map, squares[i].getBox(), 1+6*(i/4), 1+14*(i%4));
-        }
+    public static void placeSquareOnMap(String[][] map, SquareRenderer square, int index){
+        merge(map, square.getBox(), 1+6*(index/4), 1+14*(index%4));
     }
 
     public static String[][] loadMap(int id){
@@ -104,7 +102,7 @@ public class MapRenderer {
 
         String[][] map = new String[18][55];
 
-        String fileName = "map"+ id + ".txt";
+        String fileName = "src/main/resources/map"+ id + ".map";
 
         try{
         BufferedReader br = new BufferedReader(new FileReader(fileName));
@@ -133,4 +131,15 @@ public class MapRenderer {
     //    this.squares = squares;
     //}
 
+    private static List<Integer>getRoomSet(int id){
+        List<Integer> res  = new ArrayList<>(Arrays.asList(0,1,2,4,5,6,7,9,10,11));
+        switch(id){
+            case 1: res.add(3); res.add(8); break;
+            case 2: break;
+            case 3: res.add(3); break;
+            case 4: res.add(8); break;
+            default: break;
+        }
+        return res;
+    }
 }

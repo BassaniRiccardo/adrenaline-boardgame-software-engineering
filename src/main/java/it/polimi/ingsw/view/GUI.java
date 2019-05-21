@@ -45,9 +45,16 @@ public class GUI implements UI, Runnable {
         return "";
     }
 
-    /**
-     * Main GUI loop
-     */
+    @Override
+    public String get(String max){ return "";}
+
+    @Override
+    public void render(){}
+
+
+        /**
+         * Main GUI loop
+         */
     public void run(){}
 
     public void display(List<String> list){}

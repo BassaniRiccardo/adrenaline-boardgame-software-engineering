@@ -38,6 +38,7 @@ public class ClientMain {
      */
     public ClientMain(){
         executor = Executors.newCachedThreadPool();
+        clientModel = null;
     }
 
     /**

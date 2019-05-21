@@ -8,14 +8,14 @@ import java.util.List;
 public class WeaponRenderer {
 
     public static String[][] get(ClientModel clientModel){
-        String[][] box = new String[7][60];
+        String[][] box = new String[9][55];
 
         String[] weapons = new String[clientModel.getWeaponsOnGround().keySet().size()];
         List<Integer> shooters = clientModel.getKillShotTrack();
         String[] killshotTrack = new String[shooters.size()];
 
         for(int i=0; i<shooters.size(); i++){
-            killshotTrack[i] = ClientModel.getEscapeCode(clientModel.getPlayerColor().get(i)) + "x" + "\u001b[0m";
+            killshotTrack[i] = ClientModel.getEscapeCode(clientModel.getPlayerColor().get(i)) + "♱" + "\u001b[0m";
         }
 
         int ind=0;
@@ -23,9 +23,9 @@ public class WeaponRenderer {
             weapons[ind] = "Room " + roomID + ": ";
             List<String> list = clientModel.getWeaponsOnGround().get(roomID);
             for (int i = 0; i< list.size(); i++){
-                weapons[ind].concat(list.get(i));
+                weapons[ind] = weapons[ind].concat(list.get(i));
                 if(i!=list.size()-1){
-                    weapons[ind].concat(", ");
+                    weapons[ind] = weapons[ind].concat(", ");
                 }
             }
             ind++;
@@ -49,6 +49,20 @@ public class WeaponRenderer {
 
         for(int i=0; i< killshotTrack.length; i++){
             box[5][i+14] = String.valueOf(killshotTrack[i]);
+        }
+
+        String hand = "Hand: ";
+
+        List<String> powerUpList = clientModel.getPowerUpinHand();
+        for (int i = 0; i< powerUpList.size(); i++){
+            hand = hand.concat(powerUpList.get(i));
+            if(i!=powerUpList.size()-1){
+                hand = hand.concat(", ");
+            }
+        }
+
+        for(int i=0; i<hand.length(); i++){
+            box[7][i+3] = String.valueOf(hand.charAt(i));
         }
 
         return box;

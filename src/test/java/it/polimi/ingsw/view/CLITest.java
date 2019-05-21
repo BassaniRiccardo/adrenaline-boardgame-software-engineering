@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view;
 
+import it.polimi.ingsw.view.CLIRenderer.MapRenderer;
 import org.junit.Test;
 
 import java.util.*;
@@ -92,6 +93,7 @@ public class CLITest {
 
 
         ClientModel model = new ClientModel(3, 5, 4, weaponsOnGround, blueAmmoOnGround, redAmmoOnGround, yellowAmmoOnGround, powerUpOnGround, mapID, currentPlayer, players, playerColor, cardNumber, damage, marks, equippedWeapons, loaded, playerPosition, playerName, powerUpInHand, killshotTrack);
+
 
         //getmap okay
         //weapobox.get okay

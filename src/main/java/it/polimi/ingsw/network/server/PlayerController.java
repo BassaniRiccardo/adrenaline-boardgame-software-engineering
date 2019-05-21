@@ -3,6 +3,7 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.controller.GameEngine;
 import it.polimi.ingsw.controller.ServerMain;
 import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.exceptions.SlowAnswerException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,12 +82,12 @@ public abstract class PlayerController implements Runnable{
         refresh();
     }
 
-    private void sendReq(String in, int lenght){
+    private void sendReq(String in, int length){
         LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "REQ");
         jsonObject.addProperty("text", in);
-        jsonObject.addProperty("lenght", lenght);
+        jsonObject.addProperty("length", length);
         outgoing.add(jsonObject.toString());
         refresh();
     }
@@ -96,11 +97,31 @@ public abstract class PlayerController implements Runnable{
      *
      * @return              the message received
      */
-    private String receive() {
+    public String receive() {
         while(incoming.isEmpty()){
             try {
                 refresh();
                 TimeUnit.MILLISECONDS.sleep(100);
+            }catch(InterruptedException ex){
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+        }
+        String message = incoming.remove(0);
+        LOGGER.log(Level.FINE, "Message received: {0}", message);
+        return message;
+    }
+
+    public String receive(int timeout) throws SlowAnswerException{
+        int i = 0;
+        while(incoming.isEmpty()){
+            try {
+                refresh();
+                TimeUnit.MILLISECONDS.sleep(100);
+                i++;
+                if(i>10*timeout){
+                    throw new SlowAnswerException("Player took more than "+ timeout + " seconds to answer");
+                }
             }catch(InterruptedException ex){
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();

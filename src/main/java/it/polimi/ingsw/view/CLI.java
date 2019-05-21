@@ -41,7 +41,9 @@ public class CLI implements UI{
      *
      * @param message       message to be displayed
      */
-    public void display(String message) {System.out.println(message);}
+    public void display(String message) {
+        drawModel();
+        System.out.println(message);}
 
     /**
      * Queries the user for input (blocking)
@@ -96,7 +98,19 @@ public class CLI implements UI{
         return ans;
     }
 
+    @Override
+    public String get(String m){
+        int max = Integer.parseInt(m);
+        String ans = in.nextLine();
+        while(ans.length()>max) {
+            System.out.println("Your answer must be shorter than " + max + " characters, try again");
+            ans = in.nextLine();
+        }
+        return ans;
+    }
+
     public void display(List<String> list){
+        drawModel();
         System.out.println("Here are your choices:");
         for(int i = 0; i<list.size(); i++){
             System.out.println(i+") "+list.get(i));
@@ -108,20 +122,22 @@ public class CLI implements UI{
 
     private String[][] addFrame(String[][] base){
 
-        String[][] res = new String[base.length+2][base[0].length+2];
+        String[][] res = new String[base.length+2][base[0].length+4];
         for(int i=0;i<res[0].length;i++){
-            res[0][i] = "x";
-            res[res.length-1][i] = "x";
+            res[0][i] = "⊡";
+            res[res.length-1][i] = "⊡";
         }
 
-        for(int i=0;i<res.length;i++){
-            res[i][0] = "x";
-            res[i][res[i].length-1] = "x";
+        for(int i=1;i<res.length-1;i++){
+            res[i][0] = "⊡";
+            res[i][1] = " ";
+            res[i][res[i].length-1] = "⊡";
+            res[i][res[i].length-2] = " ";
         }
 
         for(int i=0; i<base.length; i++){
             for(int j = 0; j<base[i].length; j++){
-                res[i+1][j+1] = base[i][j];
+                res[i+1][j+2] = base[i][j];
             }
         }
 
@@ -143,7 +159,7 @@ public class CLI implements UI{
                                 res[i][j] = " ";
                             }
                         } else if (i==box1.length){
-                            res[i][j] = "x";
+                            res[i][j] = "⊡";
                         } else{
                             if(j<box1[i].length) {
                                 res[i][j] = box1[i][j];
@@ -175,17 +191,21 @@ public class CLI implements UI{
             }
         } else{
             if(separate) {
-                res = new String[Math.max(box1.length, box2.length)][box1[0].length+box2[0].length+1];
+                res = new String[Math.max(box1.length, box2.length)][box1[0].length+box2[0].length+3];
                 for(int i=0; i < res.length; i++){
                     for(int j=0; j<res[0].length;j++){
-                        if(j>box1[i].length){
+                        if(j>box1[i].length+2){
                             if(i<box2.length) {
-                                res[i][j] = box2[i][j - (box1[i].length+1)];
+                                res[i][j] = box2[i][j - (box1[i].length+3)];
                             }else{
                                 res[i][j] = " ";
                             }
-                        } else if (j==box1[i].length){
-                            res[i][j] = "x";
+                        } else if (j==box1[i].length) {
+                            res[i][j] = " ";
+                        }else if (j==box1[i].length+1) {
+                            res[i][j] = "⊡";
+                        }else if (j==box1[i].length+2){
+                            res[i][j] = " ";
                         } else{
                             if(i<box1.length) {
                                 res[i][j] = box1[i][j];
@@ -220,7 +240,10 @@ public class CLI implements UI{
     }
 
     public void drawModel(){
-        for(int i=0;i<10;i++){
+        if(clientMain.getClientModel()==null){      //temporary
+            return;
+        }
+        for(int i=0;i<100;i++){
             System.out.print("\n");
         }
         for(int i=0; i<render.length; i++){

@@ -81,8 +81,8 @@ public class ServerMain {
             sm.manageInput();
             synchronized (instance) {
                 sm.refreshConnections();
-                sm.matchmaking();
                 sm.removeSuspendedPlayers();
+                sm.matchmaking();
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(100);

@@ -99,13 +99,6 @@
       "reload1": "0",
       "reload2": "1"
     }
-  ],
-
-  "sleepigTime": "100",
-  "TCPPOrtDefVal": "5000",
-  "rmiortdefVal": "1420",
-  "matchmakingTimeDefVal": "60",
-  "maxPlayersNumber": "5",
-  "minPlayersNumber": "2"
+  ]
 
 }

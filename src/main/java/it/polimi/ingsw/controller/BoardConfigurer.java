@@ -85,15 +85,6 @@ public class BoardConfigurer {
         int ammoSquareNumber = j.getIntBC("aSNumber","boards",b);
         int weaponSquareNumber = j.getIntBC("wSNumber","boards",b);
 
-        //creates the list to use the setter later
-      /* for (int i = 1; i <= weaponSquareNumber+ammoSquareNumber; i++){
-            if(j.getBooleanBC("square"+i,"boards",b)){  //true for ammoSquare, false for weaponSquare
-                map.add(new AmmoSquare(board, 0, 1, 1, 1, BLUE));  //values are not important because they'll be overwritten in next cycle
-            }else{
-                map.add(new WeaponSquare(board, 0, 1, 1, 1, BLUE));
-            }
-        }*/
-
         int w=1; int a=1;
         for (int i = 0; i < weaponSquareNumber+ammoSquareNumber; i++){
             if((j.getIntBC("wS"+w+"Id","boards",b))==i){
@@ -112,20 +103,6 @@ public class BoardConfigurer {
                 a++;
             }
         }
-
-      /*  for (int i = 1; i <= weaponSquareNumber+ammoSquareNumber; i++)
-            map.add(new WeaponSquare(board, j.getIntBC("wS"+i+"Id","boards",b),
-                    j.getIntBC("wS"+i+"RoomId","boards",b),
-                    j.getIntBC("wS"+i+"Row","boards",b),
-                    j.getIntBC("wS"+i+"Column","boards",b),
-                    j.getColorBC("wS"+i+"Color","boards",b)));
-
-        for (int i = 1; i <= weaponSquareNumber+ammoSquareNumber; i++)
-            map.add(new AmmoSquare(board, j.getIntBC("aS"+i+"Id","boards",b),
-                    j.getIntBC("aS"+i+"RoomId","boards",b),
-                    j.getIntBC("aS"+i+"Row","boards",b),
-                    j.getIntBC("aS"+i+"Column","boards",b),
-                    j.getColorBC("aS"+i+"Color","boards",b)));*/
 
         for(int i=1;i<=weaponSquareNumber;i++)
             spawnPoints.add((WeaponSquare) map.get(j.getIntBC("wS"+i+"Id","boards",b)));

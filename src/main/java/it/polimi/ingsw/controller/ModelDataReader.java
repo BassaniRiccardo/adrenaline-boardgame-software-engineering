@@ -2,40 +2,37 @@ package it.polimi.ingsw.controller;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-
-import it.polimi.ingsw.model.cards.Color;
-import it.polimi.ingsw.model.cards.FireMode;
-import it.polimi.ingsw.model.cards.Weapon;
 import com.google.gson.*;
-
+import it.polimi.ingsw.model.cards.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static it.polimi.ingsw.model.cards.Color.*;
 
 /**
  * Offers thr methods to read from a .json file the characteristics of a weapon and the keywords that map the weapon
  * into the algorithms that describes the mechanism of the weapon
- * the files is weaponsFile.json
+ * the files is weapons.json
  *
  * @author  davidealde
  */
 
-//TODO
-//substitute all methods for the weapon factory with the definitive ones
-//test the new methods
-//check all the project for values that can be written in a json file
+//TODO test the new methods
+//TODO check all the project for values that can be written in a json file
 
 public class ModelDataReader {
-
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static JsonParser parser = new JsonParser();
-    private static String weaponsFile = "src/main/resources/weaponsFile.json";
-    private static String boardConfFile = "src/main/resources/boardConfFile.json";
+    private static String weaponsFile = "src/main/resources/weapons.json";
+    private static String boardConfFile = "src/main/resources/boardConf.json";
     private static String miscellaneous = "src/main/resources/miscellaneous.json";
 
     /**
      * Constructor of a json class
      */
-    public ModelDataReader() {
+    public ModelDataReader() {//all attributes are static
     }
 
-//------DEFINITIVE methods------------------------------------------------------------------------------------------------------
+//------methods for BoardConfigurer and other classes (not WeaponFactory)------------------------------------------------------------------------------------------------------
 
     private JsonObject analyzer(String fileName){
         try {
@@ -43,9 +40,9 @@ public class ModelDataReader {
             return jsontree.getAsJsonObject();
         }
         catch (JsonIOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Unable to read from file", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "File not found", e);
         }
         return null;
     }
@@ -61,32 +58,40 @@ public class ModelDataReader {
                     return arrayElement;
                 }}}
         catch (JsonIOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Unable to read from file", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "File not found", e);
         }
         return null;
     }
 
-
     public int getIntBC(String key) {
 
         JsonObject obj=analyzer(boardConfFile);
-        if(obj==null) throw new NullPointerException();
+        if(obj==null){
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
+        }
         return obj.get(key).getAsInt();
     }
 
     public int getIntBC(String key, String array, int elemId){
 
         JsonObject obj=analyzer(boardConfFile,array,elemId);
-        if(obj==null) throw new NullPointerException();
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
+        }
         return obj.get(key).getAsInt();
     }
 
     public boolean getBooleanBC(String key, String array, int elemId) {
 
         JsonObject obj=analyzer(boardConfFile,array,elemId);
-        if(obj==null) throw new NullPointerException();
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return false;
+        }
         int out=obj.get(key).getAsInt();
         if(out==1)
             return true;
@@ -94,63 +99,115 @@ public class ModelDataReader {
             return false;
     }
 
-    public Color getColorBC(String key) {
-
-        JsonObject obj=analyzer(boardConfFile);
-        if(obj==null) throw new NullPointerException();
-        String out=obj.get(key).getAsString();
-        if(out.equals("r")){
-            return Color.RED;
-        } else if (out.equals("b")) {
-            return Color.BLUE;
-        }else
-            return Color.YELLOW;
-    }
-
-    public Color getColorBC(String key, String array, int elemId) {
-
-        JsonObject obj=analyzer(boardConfFile,array,elemId);
-        if(obj==null) throw new NullPointerException();
-        String out=obj.get(key).getAsString();
-        if(out.equals("r")){
-            return Color.RED;
-        } else if (out.equals("b")) {
-            return Color.BLUE;
-        }else
-            return Color.YELLOW;
-    }
-
     public int getInt(String key) {
 
         JsonObject obj=analyzer(miscellaneous);
-        if(obj==null) throw new NullPointerException();
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
+        }
         return obj.get(key).getAsInt();
     }
 
     public int getInt(String key, String array, int elemId) {
 
         JsonObject obj=analyzer(miscellaneous,array,elemId);
-        if(obj==null) throw new NullPointerException();
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
+        }
         return obj.get(key).getAsInt();
     }
 
     public boolean getBoolean(String key, String array, int elemId) {
 
         JsonObject obj=analyzer(miscellaneous,array,elemId);
-        if(obj==null) throw new NullPointerException();
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return false;
+        }
         int out=obj.get(key).getAsInt();
         return (out==1);
     }
 
-    public String getString(String key) {
+    public Color getColorBC(String key, String array, int elemId) {
+        JsonObject obj=analyzer(boardConfFile,array,elemId);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return GREEN;
+        }
+        String out=obj.get(key).getAsString();
+        if(out.equals("r")){
+            return Color.RED;
+        } else if (out.equals("b")) {
+            return Color.BLUE;
+        }else
+            return Color.YELLOW;
+    }
 
-        JsonObject obj=analyzer(miscellaneous);
-        if(obj==null) throw new NullPointerException();
-        return obj.get(key).getAsString();
+    public Color getColorBC(String key) {
+        JsonObject obj=analyzer(boardConfFile);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return GREEN;
+        }
+        String out=obj.get(key).getAsString();
+        if(out.equals("r")){
+            return Color.RED;
+        } else if (out.equals("b")) {
+            return Color.BLUE;
+        }else
+            return Color.YELLOW;
     }
 
 
-//---METHODS FOR WeaponFactory (THEY HAVE TO BE CHANGED)-------------------------------------------------------------------------------------------------------------
+//---METHODS FOR WeaponFactory -------------------------------------------------------------------------------------------------------------
+
+
+    private JsonObject analyzer(Weapon.WeaponName weaponName){
+        try {
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
+            JsonObject je = jsontree.getAsJsonObject();
+            JsonArray ja = je.getAsJsonArray("weapons");
+            for (Object o : ja) {
+                JsonObject arrayElement = (JsonObject) o;
+                if (weaponName.toString().equals(arrayElement.get("name").getAsString())) {
+                    return arrayElement;
+                }}}
+        catch (JsonIOException e) {
+            LOGGER.log(Level.SEVERE, "Unable to read from file", e);
+        } catch (FileNotFoundException e) {
+            LOGGER.log(Level.SEVERE, "File not found", e);
+        }
+        return null;
+    }
+
+    private JsonObject analyzer(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName){
+        try {
+            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
+            JsonObject je = jsontree.getAsJsonObject();
+            JsonArray ja = je.getAsJsonArray("weapons");
+            for (Object o : ja) {
+                JsonObject arrayElement = (JsonObject) o;
+                if (weaponName.toString().equals(arrayElement.get("name").getAsString())) {
+                    JsonArray modesList = arrayElement.getAsJsonArray("modes");
+                    for (Object k : modesList) {
+                        JsonObject mode = (JsonObject) k;
+                        String modeName = mode.get("mode").getAsString();
+                        if (modeName.equals(fireModeName.toString())) {
+                            return mode;
+                        }
+                    }
+                }
+            }
+        }
+        catch (JsonIOException e) {
+            LOGGER.log(Level.SEVERE, "Unable to read from file", e);
+        } catch (FileNotFoundException e) {
+            LOGGER.log(Level.SEVERE, "File not found", e);
+        }
+        return null;
+    }
 
     /**
      * Reads from the json file the color of the weapon of interest
@@ -158,29 +215,19 @@ public class ModelDataReader {
      * @param weaponName the name of the weapon
      * @return the color of the weapon
      */
-    public String getColor(Weapon.WeaponName weaponName) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    return weapon.get("color").getAsString();
-                }
-            }
+    public Color getColor(Weapon.WeaponName weaponName) {
+        JsonObject obj=analyzer(weaponName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return GREEN;
         }
-        catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
-        }
-
-        return "NOT FOUND";
+        String out=obj.get("color").getAsString();
+        if(out.equals("red")){
+            return Color.RED;
+        } else if (out.equals("blue")) {
+            return Color.BLUE;
+        }else
+            return Color.YELLOW;
     }
 
     /**
@@ -189,29 +236,14 @@ public class ModelDataReader {
      * @param weaponName            the name of the weapon
      * @return                      the red full cost of the weapon
      */
-    public String getFullCostRed(Weapon.WeaponName weaponName) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    return weapon.get("costR").getAsString();
-                }
-            }
+    public AmmoPack getFullCostRed(Weapon.WeaponName weaponName) {
+        JsonObject obj=analyzer(weaponName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return new AmmoPack(0,0,0);
         }
-        catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
-        }
-
-        return "NOT FOUND";
+        int out=obj.get("costR").getAsInt();
+        return new AmmoPack(out,0,0);
     }
 
     /**
@@ -220,29 +252,14 @@ public class ModelDataReader {
      * @param weaponName            the name of the weapon
      * @return                      the blue full cost of the weapon
      */
-    public String getFullCostBlue(Weapon.WeaponName weaponName) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    return weapon.get("costB").getAsString();
-                }
-            }
+    public AmmoPack getFullCostBlue(Weapon.WeaponName weaponName) {
+        JsonObject obj=analyzer(weaponName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return new AmmoPack(0,0,0);
         }
-        catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
-        }
-
-        return "NOT FOUND";
+        int out=obj.get("costB").getAsInt();
+        return new AmmoPack(0,out,0);
     }
 
     /**
@@ -251,60 +268,31 @@ public class ModelDataReader {
      * @param weaponName            the name of the weapon
      * @return                      the yellow full cost of the weapon
      */
-    public String getFullCostYellow(Weapon.WeaponName weaponName) {
-
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    return weapon.get("costY").getAsString();
-                }
-            }
+    public AmmoPack getFullCostYellow(Weapon.WeaponName weaponName) {
+        JsonObject obj=analyzer(weaponName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return new AmmoPack(0,0,0);
         }
-        catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
-        }
-
-        return "NOT FOUND";
+        int out=obj.get("costY").getAsInt();
+        return new AmmoPack(0,0,out);
     }
 
-    /**
+     /**
      * Reads from the json file the list of fire modes of the weapon of interest
      *
      * @param weaponName            the name of the weapon
      * @return                      the list of fire modes of the weapon
      */
-    public String getNameList(Weapon.WeaponName weaponName) {
+     public int getFireModeList(Weapon.WeaponName weaponName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    return weapon.get("type").getAsString();
-                }
-            }
-        }
-        catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
-        }
-        return "NOT FOUND";
-    }
+         JsonObject obj=analyzer(weaponName);
+         if(obj==null) {
+             LOGGER.log(Level.SEVERE, "Data not found");
+             return -1;
+         }
+         return obj.get("type").getAsInt();
+     }
 
     /**
      * Reads from the json file the number of the targets of the firemode of interest of the weapon of interest
@@ -313,34 +301,14 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the number of the targets of the firemode of the weapon
      */
-    public String getTargetNumber(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public int getTargetNumber(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("targetsN").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-                return "IOException";
-            } catch (JsonSyntaxException e) {
-                return "JsonSyntaxException";
-            } catch (FileNotFoundException e) {
-                return "FileNotFoundException";
-            }
-        return "NOT FOUND";
+        JsonObject obj = analyzer(weaponName, fireModeName);
+        if (obj == null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
+        }
+        return obj.get("targetsN").getAsInt();
     }
 
     /**
@@ -350,34 +318,15 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the red cost of the firemode of the weapon
      */
-    public String getFireModeCostRed(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public AmmoPack getFireModeCostRed(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("costR").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj = analyzer(weaponName, fireModeName);
+        if (obj == null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return new AmmoPack(0,0,0);
         }
-        return "NOT FOUND";
+        int out=obj.get("costR").getAsInt();
+        return new AmmoPack(out,0,0);
     }
 
     /**
@@ -387,34 +336,15 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the blue cost of the firemode of the weapon
      */
-    public String getFireModeCostBlue(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public AmmoPack getFireModeCostBlue(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("costB").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj = analyzer(weaponName, fireModeName);
+        if (obj == null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return new AmmoPack(0,0,0);
         }
-        return "NOT FOUND";
+        int out=obj.get("costB").getAsInt();
+        return new AmmoPack(0,out,0);
     }
 
     /**
@@ -424,34 +354,15 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the yellow cost of the firemode of the weapon
      */
-    public String getFireModeCostYellow(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public AmmoPack getFireModeCostYellow(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("costY").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj = analyzer(weaponName, fireModeName);
+        if (obj == null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return new AmmoPack(0,0,0);
         }
-        return "NOT FOUND";
+        int out=obj.get("costY").getAsInt();
+        return new AmmoPack(0,0,out);
     }
 
     /**
@@ -461,34 +372,14 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the number of moves permitted of the firemode of the weapon
      */
-    public String getMove(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public int getMove(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("move").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj=analyzer(weaponName, fireModeName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
         }
-        return "NOT FOUND";
+        return obj.get("move").getAsInt();
     }
 
     /**
@@ -498,34 +389,14 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the damages of the firemode of the weapon
      */
-    public String getDmg(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public int getDmg(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("dmg").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj=analyzer(weaponName, fireModeName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
         }
-        return "NOT FOUND";
+        return obj.get("dmg").getAsInt();
     }
 
     /**
@@ -535,34 +406,14 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the other amount of damages of the firemode of the weapon
      */
-    public String getDmg2(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public int getDmg2(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("dmg2").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj=analyzer(weaponName, fireModeName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
         }
-        return "NOT FOUND";
+        return obj.get("dmg2").getAsInt();
     }
 
     /**
@@ -572,34 +423,14 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the marks of the firemode of the weapon
      */
-    public String getMark(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public int getMark(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("mark").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj=analyzer(weaponName, fireModeName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
         }
-        return "NOT FOUND";
+        return obj.get("mark").getAsInt();
     }
 
     /**
@@ -609,34 +440,14 @@ public class ModelDataReader {
      * @param fireModeName          the firemode name
      * @return                      the steps of the firemode of the weapon
      */
-    public String getSteps(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
+    public int getSteps(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("steps").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj=analyzer(weaponName, fireModeName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return -1;
         }
-        return "NOT FOUND";
+        return obj.get("steps").getAsInt();
     }
 
     /**
@@ -648,32 +459,12 @@ public class ModelDataReader {
      */
     public String getEff(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("effect").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj=analyzer(weaponName, fireModeName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return "Nothing";
         }
-        return "NOT FOUND";
+        return obj.get("effect").getAsString();
     }
 
     /**
@@ -685,32 +476,12 @@ public class ModelDataReader {
      */
     public String getWhere(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("where").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj=analyzer(weaponName, fireModeName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return "Nothing";
         }
-        return "NOT FOUND";
+        return obj.get("where").getAsString();
     }
 
     /**
@@ -722,32 +493,12 @@ public class ModelDataReader {
      */
     public String getMoveType(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
 
-        try {
-            JsonElement jsontree = parser.parse(new FileReader(weaponsFile));
-            JsonObject je = jsontree.getAsJsonObject();
-            JsonArray ja = je.getAsJsonArray("weapons");
-            for (Object o : ja) {
-                JsonObject weapon = (JsonObject) o;
-                String name = weapon.get("name").getAsString();
-                if (name.equals(weaponName.toString())) {
-                    JsonArray modesList = weapon.getAsJsonArray("modes");
-                    for (Object k : modesList) {
-                        JsonObject mode = (JsonObject) k;
-                        String modeName = mode.get("mode").getAsString();
-                        if (modeName.equals(fireModeName.toString())) {
-                            return mode.get("moveType").getAsString();
-                        }
-                    }
-                }
-            }
-        }catch (JsonIOException e) {
-            return "IOException";
-        } catch (JsonSyntaxException e) {
-            return "JsonSyntaxException";
-        } catch (FileNotFoundException e) {
-            return "FileNotFoundException";
+        JsonObject obj=analyzer(weaponName, fireModeName);
+        if(obj==null) {
+            LOGGER.log(Level.SEVERE, "Data not found");
+            return "Nothing";
         }
-        return "NOT FOUND";
+        return obj.get("moveType").getAsString();
     }
 
 }

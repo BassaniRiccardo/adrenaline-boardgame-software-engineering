@@ -95,7 +95,7 @@ public class WeaponFactoryTest {
      * Tests that the name list of a particular weapon is correct
      *//*
     @Test
-    public void getNameList() throws NoMoreCardsException, UnacceptableItemNumberException {
+    public void getFireModeList() throws NoMoreCardsException, UnacceptableItemNumberException {
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.RAILGUN);
@@ -131,4 +131,25 @@ public class WeaponFactoryTest {
         assertEquals(0,ammoPack.getRedAmmo());
         assertEquals(0,ammoPack.getBlueAmmo());
     }*/
+
+    @Test
+    public void createAllWeapon() throws NoMoreCardsException, UnacceptableItemNumberException{
+        Board b = BoardConfigurer.simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        for(Weapon.WeaponName weaponName : Weapon.WeaponName.values()){
+            weaponFactory.createWeapon(weaponName);
+            System.out.println(weaponName);
+        }
+    }
+
+    @Test
+    public void pintAllTargetFinder() throws NoMoreCardsException, UnacceptableItemNumberException{
+        Board b = BoardConfigurer.simulateScenario();
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        for(Weapon.WeaponName weaponName : Weapon.WeaponName.values()){
+            weaponFactory.createWeapon(weaponName);
+            System.out.println(weaponName);
+            //for (FireMode.FireModeName fireModeName : weaponName.getFireModeList)
+        }
+    }
 }

@@ -1,6 +1,7 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.controller.ModelDataReader;
+import it.polimi.ingsw.model.cards.AmmoPack;
+import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.cards.FireMode;
 import it.polimi.ingsw.model.cards.Weapon;
 import org.junit.Test;
@@ -13,15 +14,59 @@ import static org.junit.Assert.*;
  */
 public class ModelDataReaderTest {
 
+    @Test
+    public void getIntBC() {
+        ModelDataReader modelDataReader = new ModelDataReader();
+        assertEquals(4,modelDataReader.getIntBC("columnsNumber"));
+    }
+
+    @Test
+    public void getIntBC1() {
+        ModelDataReader modelDataReader = new ModelDataReader();
+        assertEquals(3,modelDataReader.getIntBC("wSNumber","boards",1));
+    }
+
+    @Test
+    public void getBooleanBC() {
+        ModelDataReader modelDataReader = new ModelDataReader();
+        assertTrue(modelDataReader.getBooleanBC("wallT12","boards",1));
+    }
+
+    @Test
+    public void getInt() {
+        ModelDataReader modelDataReader = new ModelDataReader();
+        assertEquals(3,modelDataReader.getInt("newtonMaxDistance"));
+    }
+
+    @Test
+    public void getInt1() {
+        ModelDataReader modelDataReader = new ModelDataReader();
+        assertEquals(3,modelDataReader.getInt("numberOfActions","status",0));
+    }
+
+    @Test
+    public void getBoolean() {
+        ModelDataReader modelDataReader = new ModelDataReader();
+        assertTrue(modelDataReader.getBoolean("collect2","status",2));
+    }
+
+
+    @Test
+    public void getColorBC() {
+        ModelDataReader modelDataReader = new ModelDataReader();
+        assertEquals(Color.YELLOW,modelDataReader.getColorBC("aS9Color","boards",4));
+    }
+
+
     /**
      * Tests the method getColor()
      */
     @Test
     public void getColor() {
         ModelDataReader modelDataReader = new ModelDataReader();
-        String out;
+        Color out;
         out= modelDataReader.getColor(Weapon.WeaponName.LOCK_RIFLE);
-        assertEquals("blue",out);
+        assertEquals(Color.BLUE,out);
     }
 
     /**
@@ -30,9 +75,9 @@ public class ModelDataReaderTest {
     @Test
     public void getFullCostRed() {
         ModelDataReader modelDataReader = new ModelDataReader();
-        int out;
-        out=Integer.parseInt(modelDataReader.getFullCostRed(Weapon.WeaponName.MACHINE_GUN));
-        assertEquals(1,out);
+        AmmoPack out;
+        out=modelDataReader.getFullCostRed(Weapon.WeaponName.MACHINE_GUN);
+        assertEquals(1,out.getRedAmmo());
     }
 
     /**
@@ -41,9 +86,9 @@ public class ModelDataReaderTest {
     @Test
     public void getFullCostBlue() {
         ModelDataReader modelDataReader = new ModelDataReader();
-        int out;
-        out=Integer.parseInt(modelDataReader.getFullCostBlue(Weapon.WeaponName.LOCK_RIFLE));
-        assertEquals(2,out);
+        AmmoPack out;
+        out=modelDataReader.getFullCostBlue(Weapon.WeaponName.LOCK_RIFLE);
+        assertEquals(2,out.getBlueAmmo());
     }
 
     /**
@@ -52,19 +97,19 @@ public class ModelDataReaderTest {
     @Test
     public void getFullCostYellow() {
         ModelDataReader modelDataReader = new ModelDataReader();
-        int out;
-        out=Integer.parseInt(modelDataReader.getFullCostYellow(Weapon.WeaponName.MACHINE_GUN));
-        assertEquals(0,out);
+        AmmoPack out;
+        out=modelDataReader.getFullCostYellow(Weapon.WeaponName.MACHINE_GUN);
+        assertEquals(0,out.getYellowAmmo());
     }
 
     /**
-     * Tests the method getNameList()
+     * Tests the method getFireModeList()
      */
     @Test
     public void getNameList() {
         ModelDataReader modelDataReader = new ModelDataReader();
         int out;
-        out=Integer.parseInt(modelDataReader.getNameList(Weapon.WeaponName.THOR));
+        out=modelDataReader.getFireModeList(Weapon.WeaponName.THOR);
         assertEquals(4,out);
     }
 
@@ -75,7 +120,7 @@ public class ModelDataReaderTest {
     public void getTargetNumber() {
         ModelDataReader modelDataReader = new ModelDataReader();
         int out;
-        out=Integer.parseInt(modelDataReader.getTargetNumber(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1));
+        out=modelDataReader.getTargetNumber(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1);
         assertEquals(1,out);
     }
 
@@ -86,7 +131,7 @@ public class ModelDataReaderTest {
     public void getFireModeCostRed() {
         ModelDataReader modelDataReader = new ModelDataReader();
         int out;
-        out=Integer.parseInt(modelDataReader.getFireModeCostRed(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1));
+        out=modelDataReader.getFireModeCostRed(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1).getRedAmmo();
         assertEquals(0,out);
     }
 
@@ -97,7 +142,7 @@ public class ModelDataReaderTest {
     public void getFireModeCostBlue() {
         ModelDataReader modelDataReader = new ModelDataReader();
         int out;
-        out=Integer.parseInt(modelDataReader.getFireModeCostBlue(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1));
+        out=modelDataReader.getFireModeCostBlue(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1).getBlueAmmo();
         assertEquals(1,out);
     }
 
@@ -108,7 +153,7 @@ public class ModelDataReaderTest {
     public void getFireModeCostYellow() {
         ModelDataReader modelDataReader = new ModelDataReader();
         int out;
-        out=Integer.parseInt(modelDataReader.getFireModeCostYellow(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1));
+        out=modelDataReader.getFireModeCostYellow(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1).getYellowAmmo();
         assertEquals(0,out);
     }
 
@@ -119,7 +164,7 @@ public class ModelDataReaderTest {
     public void getMove() {
         ModelDataReader modelDataReader = new ModelDataReader();
         int out;
-        out=Integer.parseInt(modelDataReader.getMove(Weapon.WeaponName.VORTEX_CANNON, FireMode.FireModeName.MAIN));
+        out=modelDataReader.getMove(Weapon.WeaponName.VORTEX_CANNON, FireMode.FireModeName.MAIN);
         assertEquals(1,out);
     }
 
@@ -130,7 +175,7 @@ public class ModelDataReaderTest {
     public void getDmg() {
         ModelDataReader modelDataReader = new ModelDataReader();
         int out;
-        out=Integer.parseInt(modelDataReader.getDmg(Weapon.WeaponName.FURNACE, FireMode.FireModeName.SECONDARY));
+        out=modelDataReader.getDmg(Weapon.WeaponName.FURNACE, FireMode.FireModeName.SECONDARY);
         assertEquals(1,out);
     }
 
@@ -141,7 +186,7 @@ public class ModelDataReaderTest {
     public void getMark() {
         ModelDataReader modelDataReader = new ModelDataReader();
         int out;
-        out=Integer.parseInt(modelDataReader.getMark(Weapon.WeaponName.FURNACE, FireMode.FireModeName.SECONDARY));
+        out=modelDataReader.getMark(Weapon.WeaponName.FURNACE, FireMode.FireModeName.SECONDARY);
         assertEquals(1,out);
     }
 

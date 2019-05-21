@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static it.polimi.ingsw.controller.Encoder.Header.OPT;
 import static org.junit.Assert.assertEquals;
 
 
@@ -25,9 +26,9 @@ public class EncoderTest {
         Weapon fourth = weaponFactory.createWeapon(Weapon.WeaponName.GRENADE_LAUNCHER);
         List<Weapon> weapons = new ArrayList<>(Arrays.asList(first,second,third,fourth));
 
-        JsonObject res = Encoder.encode("Choose a weapon", weapons);
+        JsonObject res = Encoder.encode(OPT, "Choose a weapon", weapons);
 
-        assertEquals("{\"head\":\"Choose a weapon\",\"options\":[\"Lock rifle\",\"Flamethrower\",\"Tractor beam\",\"Grenade launcher\"]}", res.toString() );
+        assertEquals("{\"head\":\"OPT\",\"message\":\"Choose a weapon\",\"options\":[\"Lock rifle\",\"Flamethrower\",\"Tractor beam\",\"Grenade launcher\"]}", res.toString() );
     }
 
     @Test

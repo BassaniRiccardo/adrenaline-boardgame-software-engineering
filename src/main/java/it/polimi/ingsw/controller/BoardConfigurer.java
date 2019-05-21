@@ -148,6 +148,12 @@ public class BoardConfigurer {
         //configures the weapons deck
         WeaponFactory weaponFactory = new WeaponFactory(board);
         Deck weaponsDeck = new Deck();
+        /*
+        for (int i = 0; i < 21; i++){
+            weaponsDeck.addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+
+        }
+        */
         for (Weapon.WeaponName weaponName : Weapon.WeaponName.values()) {
             weaponsDeck.addCard(weaponFactory.createWeapon(weaponName));
         }

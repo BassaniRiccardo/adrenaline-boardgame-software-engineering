@@ -26,6 +26,10 @@ import java.util.stream.Collectors;
 
 public class Encoder {
 
+    public enum Header {
+        PNG, MSG, REQ, OPT, UPD;
+    }
+
     private Encoder instance;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
@@ -44,12 +48,13 @@ public class Encoder {
      * @param options           the generic list.
      * @return                  the JsonObject.
      */
-    public static JsonObject encode (String message, List options){
+    public static JsonObject encode (Header head, String message, List options){
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", message);
+        jsonObject.addProperty("head", head.toString());
+        jsonObject.addProperty("message", message);
         addList(jsonObject, "options", options);
-        System.out.println(jsonObject.toString());
+        LOGGER.log(Level.FINE, jsonObject.toString());
 
         return jsonObject;
 

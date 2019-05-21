@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.network.client.Connection;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ public class RequestFactory {
         }
 
         return (ClientMain clientMain, UI ui, Connection connection)->{
-            ui.display(message);
+            ui.displayMessage(message);
             connection.send(ui.get());
         };
     }
@@ -46,12 +45,12 @@ public class RequestFactory {
 
         if(head.equals("MSG")) {
             return (ClientMain clientMain, UI ui, Connection connection) -> {
-                ui.display(jMessage.get("text").getAsString());
+                ui.displayMessage(jMessage.get("text").getAsString());
             };
         }
         if (head.equals("REQ")) {
             return (ClientMain clientMain, UI ui, Connection connection) -> {
-                ui.display(jMessage.get("text").getAsString());
+                ui.displayMessage(jMessage.get("text").getAsString());
                 connection.send(ui.get());
             };
         }
@@ -62,7 +61,7 @@ public class RequestFactory {
                 for(int i = 0; i<arr.size(); i++){
                     list.add(arr.get(i).getAsString());
                 }
-                ui.display(list);
+                ui.displayOptions(jMessage.get("text").getAsString(), list);
                 connection.send(ui.get(list));
             };
         }
@@ -79,7 +78,7 @@ public class RequestFactory {
 
         else {
             return (ClientMain clientMain, UI ui, Connection connection) -> {
-                ui.display("error: received a message with header" + jMessage.get("head").getAsString());
+                ui.displayMessage("error: received a message with header" + jMessage.get("head").getAsString());
             };
         }
     }

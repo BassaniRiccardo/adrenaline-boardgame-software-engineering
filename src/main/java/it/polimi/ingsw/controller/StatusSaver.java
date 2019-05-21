@@ -68,7 +68,7 @@ public class StatusSaver {
      */
     public void updateCheckpoint(boolean start ) {
 
-        System.out.println("playersPowerups saved: " + playersPowerups);
+        LOGGER.log(Level.FINE, () -> "playersPowerups saved: " + playersPowerups);
         try {
 
             //attributes shared by all players
@@ -94,8 +94,8 @@ public class StatusSaver {
                 squareWeapons.add(new ArrayList<>(((WeaponSquare)s).getWeapons()));
             }
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while updating the checkpoint", e);}
-        System.out.println("updating checkpoint");
-        System.out.println("playersPowerups saved: " + playersPowerups);
+        LOGGER.log(Level.FINE, "updating checkpoint");
+        LOGGER.log(Level.FINE, () -> "playersPowerups saved: " + playersPowerups);
 
     }
 
@@ -106,13 +106,13 @@ public class StatusSaver {
      * @param start
      */
     public void updatePowerups(boolean start ) {
-        System.out.println("playersPowerups: " + playersPowerups);
+        LOGGER.log(Level.FINE, () -> "playersPowerups: " + playersPowerups);
         playersPowerups.clear();
         for (Player p : board.getActivePlayers()) {
             playersPowerups.add(new ArrayList<>(p.getPowerUpList()));
         }
-        System.out.println("updating powerUps");
-        System.out.println("playersPowerups: " + playersPowerups);
+        LOGGER.log(Level.FINE, "updating powerUps");
+        LOGGER.log(Level.FINE, () -> "playersPowerups: " + playersPowerups);
 
     }
 
@@ -138,12 +138,15 @@ public class StatusSaver {
         board.getCurrentPlayer().setWeaponList(new ArrayList<>(currentPlayerWeapons));
         for (Weapon w : board.getCurrentPlayer().getWeaponList()){
             w.setLoaded(currentPlayerLoadedWeapons.get(board.getCurrentPlayer().getWeaponList().indexOf(w)));
+            w.setHolder(board.getCurrentPlayer());
         }
+        board.getCurrentPlayer().getMainTargets().clear();
+        board.getCurrentPlayer().getOptionalTargets().clear();
         //squares
         for (Square s : board.getSpawnPoints()) {
             ((WeaponSquare)s).setWeapons(squareWeapons.get(board.getSpawnPoints().indexOf(s)));
         }
-        System.out.println("Restoring checkpoint");
+        LOGGER.log(Level.FINE, "Restoring checkpoint");
         displayPowerUps();
 
     }
@@ -168,6 +171,6 @@ public class StatusSaver {
         for (Player p : board.getActivePlayers()) {
             powerups += p.getPowerUpList() + "  ";
         }
-        System.out.println("playersPowerups: " + powerups);
+        LOGGER.log(Level.FINE, "playersPowerups: " + powerups);
     }
 }

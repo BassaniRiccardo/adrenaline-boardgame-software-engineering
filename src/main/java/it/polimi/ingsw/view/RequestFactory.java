@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.network.client.Connection;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +52,7 @@ public class RequestFactory {
             return (ClientMain clientMain, UI ui, Connection connection) -> {
                 ui.display(jMessage.get("text").getAsString());
                 connection.send(ui.get(jMessage.get("length").getAsString()));
+                connection.send(ui.get());
             };
         }
         if (head.equals("OPT")){
@@ -62,7 +62,7 @@ public class RequestFactory {
                 for(int i = 0; i<arr.size(); i++){
                     list.add(arr.get(i).getAsString());
                 }
-                ui.display(list);
+                ui.display(jMessage.get("text").getAsString(), list);
                 connection.send(ui.get(list));
             };
         }

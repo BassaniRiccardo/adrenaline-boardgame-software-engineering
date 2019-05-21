@@ -28,6 +28,7 @@ public class CLI implements UI{
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private String[][] render;
 
+
     /**
      * Standard constructor
      */
@@ -41,9 +42,29 @@ public class CLI implements UI{
      *
      * @param message       message to be displayed
      */
+    @Override
     public void display(String message) {
         drawModel();
         System.out.println(message);}
+
+    @Override
+    public void display(String message, String max){
+        drawModel();
+        System.out.println(message + "[max. " + max + "caratteri]");
+    }
+
+    @Override
+    public void display(String message, List<String> list) {
+
+        System.out.println(message);
+        drawModel();
+        System.out.println("Here are your choices:");
+        for(int i = 0; i<list.size(); i++){
+            System.out.println(i+") "+list.get(i));
+        }
+        System.out.println("Choose one");
+
+    }
 
     /**
      * Queries the user for input (blocking)
@@ -91,7 +112,7 @@ public class CLI implements UI{
         String ans = "";
         do {
             ans = in.nextLine();
-            if(Integer.parseInt(ans)<list.size()){
+            if(Integer.parseInt(ans)<list.size() && Integer.parseInt(ans)>=0){
                 verified = true;
             }
         }while(!verified);
@@ -109,15 +130,7 @@ public class CLI implements UI{
         return ans;
     }
 
-    public void display(List<String> list){
-        drawModel();
-        System.out.println("Here are your choices:");
-        for(int i = 0; i<list.size(); i++){
-            System.out.println(i+") "+list.get(i));
-        }
-        list.forEach(System.out::println);
-        System.out.println("Choose one");
-    }
+
 
 
     private String[][] addFrame(String[][] base){
@@ -143,6 +156,8 @@ public class CLI implements UI{
 
         return res;
     }
+
+
 
     public String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
 

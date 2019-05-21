@@ -118,7 +118,7 @@ public class Weapon implements Card {
     public void setLoaded(boolean loaded) { this.loaded = loaded; }
 
     public void setHolder(Player holder) {
-        if (!this.board.getPlayers().contains(holder)) throw new IllegalArgumentException("Only a player on the map can hold a weapon.");
+        //if (!this.board.getPlayers().contains(holder)) throw new IllegalArgumentException("Only a player on the map can hold a weapon.");
         this.holder = holder;
     }
 

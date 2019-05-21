@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,7 +89,11 @@ public class FireMode implements Targeted {
         if(targets == null || targets.isEmpty()){
             throw new IllegalArgumentException("A target is necessary for the effects to be applied.");
         }
-        for(Player p : targets){
+        LOGGER.log(Level.INFO, ()->name + "Weapon used: " + weapon);
+        LOGGER.log(Level.INFO,  name + "Holder: " + weapon.getHolder());
+        LOGGER.log(Level.INFO, ()->name + "Targets: " + targets);
+        LOGGER.log(Level.INFO, ()->name + "Destination: " + destination);
+        for(Player p : new ArrayList<>(targets)){
             effect.apply(weapon.getHolder(), p, destination);
         }
         weapon.getHolder().useAmmo(cost);
@@ -102,7 +107,7 @@ public class FireMode implements Targeted {
      */
     public List<List<Player>> findTargets() throws NotAvailableAttributeException{
         List<List<Player>> res = targetFinder.find(weapon.getHolder());
-        LOGGER.log(Level.FINE, "Targets found: " + res);
+        LOGGER.log(Level.INFO, name + " " + weapon + "Targets found: " + res);
         return res;
 
     }
@@ -128,7 +133,11 @@ public class FireMode implements Targeted {
      * @return      true is this FireMode can be used
      */
     public boolean isAvailable()throws NotAvailableAttributeException {
-        return !(findTargets().isEmpty());
+        for (List<Player> targets : findTargets()){
+            if (!targets.isEmpty()) return true;
+        }
+        return false;
+        //return !(findTargets().isEmpty());
     }
 
 

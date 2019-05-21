@@ -16,6 +16,8 @@ public interface UI extends Runnable {
      */
     void display(String message);
 
+    void display(String message, String max);
+
     /**
      * Returns the user's input
      *
@@ -26,9 +28,8 @@ public interface UI extends Runnable {
     String get(List<String> list);
     String get(String max);
 
-    void display(List<String> list);
-
     void render();
+    void display(String message, List<String> list);
 }
 
 

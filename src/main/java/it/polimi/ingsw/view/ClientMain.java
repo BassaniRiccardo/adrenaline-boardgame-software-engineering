@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view;
 
+import javafx.application.Application;
 import it.polimi.ingsw.network.client.Connection;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
@@ -31,6 +32,10 @@ public class ClientMain {
     private ClientModel clientModel;
 
     //requests alter the player model. calling setters of the model generates a list of operations to revert the changes. if "reset move" is caleld, those changes are applied
+
+    public void setUi(UI ui) {
+        this.ui = ui;
+    }
     //once the player confirms its move, updates are sent as a request to all other clients
 
     /**
@@ -112,8 +117,9 @@ public class ClientMain {
             buff = in.nextLine();
         }
         if(buff.equals("GUI")){
-            ui = new GUI(this);
-            ui.display("GUI selezionata.");
+            Application.launch(GUI.class, args);
+            //((GUI) ui).main(args);
+            //GUI.displayMessage("GUI selezionata.");
         }
         else{
             ui = new CLI(this);
@@ -124,7 +130,7 @@ public class ClientMain {
         ui.display("Che tipo di connessione vuoi utilizzare? (Socket/RMI)");
         buff = ui.get();
         while(!(buff.equals("RMI")||buff.equals("Socket"))){
-            ui.display("Scelta non valida. RIprovare.");
+            ui.display("Scelta non valida. Riprovare.");
             buff = ui.get();
         }
         if(buff.equals("RMI")){

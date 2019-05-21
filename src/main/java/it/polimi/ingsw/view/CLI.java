@@ -28,6 +28,7 @@ public class CLI implements UI{
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private String[][] render;
 
+
     /**
      * Standard constructor
      */
@@ -41,7 +42,25 @@ public class CLI implements UI{
      *
      * @param message       message to be displayed
      */
-    public void display(String message) {System.out.println(message);}
+    @Override
+    public void displayMessage(String message) {System.out.println(message);}
+
+    @Override
+    public void displayRequest(String message) {System.out.println(message);}
+
+    @Override
+    public void displayOptions(String message, List<String> list) {
+
+        System.out.println(message);
+
+        System.out.println("Here are your choices:");
+        for(int i = 0; i<list.size(); i++){
+            System.out.println(i+") "+list.get(i));
+        }
+        //list.forEach(System.out::println);
+        System.out.println("Choose one");
+
+    }
 
     /**
      * Queries the user for input (blocking)
@@ -64,10 +83,10 @@ public class CLI implements UI{
             try{
                 if (in.ready()) {
                     if(in.readLine().equals("q")){
-                        display("CLI: quitting");
+                        displayMessage("CLI: quitting");
                         clientMain.handleRequest(RequestFactory.toRequest("quit"));
                     }else{
-                        display("Wait for your turn or press q to quit");
+                        displayMessage("Wait for your turn or press q to quit");
                     }
                 }
             }catch(IOException e){
@@ -89,21 +108,24 @@ public class CLI implements UI{
         String ans = "";
         do {
             ans = in.nextLine();
-            if(Integer.parseInt(ans)<list.size()){
+            if(Integer.parseInt(ans)<list.size() && Integer.parseInt(ans)>=0){
                 verified = true;
             }
         }while(!verified);
         return ans;
     }
 
-    public void display(List<String> list){
+    //to delete
+    /*
+    public void displayOptions(List<String> list){
         System.out.println("Here are your choices:");
         for(int i = 0; i<list.size(); i++){
             System.out.println(i+") "+list.get(i));
         }
-        list.forEach(System.out::println);
+        //list.forEach(System.out::println);
         System.out.println("Choose one");
     }
+    */
 
 
     private String[][] addFrame(String[][] base){
@@ -127,6 +149,8 @@ public class CLI implements UI{
 
         return res;
     }
+
+
 
     public String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
 

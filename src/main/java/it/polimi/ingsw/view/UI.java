@@ -14,7 +14,15 @@ public interface UI extends Runnable {
      *
      * @param message   message to be displayed
      */
-    void display(String message);
+    void displayMessage(String message);
+
+    /**
+     * Displays a request to the user
+     *
+     * @param message   message to be displayed
+     */
+    void displayRequest(String message);
+
 
     /**
      * Returns the user's input
@@ -25,7 +33,7 @@ public interface UI extends Runnable {
 
     String get(List<String> list);
 
-    void display(List<String> list);
+    void displayOptions(String message, List<String> list);
 }
 
 

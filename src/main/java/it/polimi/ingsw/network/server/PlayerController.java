@@ -122,7 +122,10 @@ public abstract class PlayerController implements Runnable{
      */
     public int receive (int max, int timeout){
         //method called by game controller to retrieve the answer to said question
-        return (1 + (new Random()).nextInt(max));
+        int ans = (1 + (new Random()).nextInt(max));
+        return ans;
+        //something like this???
+        //return Integer.parseInt(incoming.get(incoming.size()-1)) + 1;
     }
 
     /**
@@ -153,6 +156,6 @@ public abstract class PlayerController implements Runnable{
     public void send (JsonObject jmessage){
         LOGGER.log(Level.FINE, "JMessage added to outgoing: {0}", jmessage.get("head").getAsString());
         outgoing.add(jmessage.toString());
-        //refresh();
+        refresh();
     }
 }

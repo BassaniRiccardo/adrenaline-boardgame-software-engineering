@@ -219,12 +219,15 @@ public class ServerMain {
     /**
      * Initializes the logger so that it writes to a txt file
      */
-    private void initializeLogger(){
+    public static void initializeLogger(){
         try {
+            ConsoleHandler consoleHandler = new ConsoleHandler();
+            consoleHandler.setLevel(Level.FINE);
             FileHandler fileHandler = new FileHandler("serverLog.txt");
             fileHandler.setLevel(Level.FINE);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
+            LOGGER.addHandler(consoleHandler);
         }catch (IOException ex){LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);}
         LOGGER.setLevel(Level.ALL);
     }

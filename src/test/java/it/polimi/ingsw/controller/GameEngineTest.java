@@ -22,6 +22,9 @@ public class GameEngineTest {
     @Test
     public void run() {
 
+        /*
+        ServerMain.initializeLogger();
+
         List<PlayerController> connections = new ArrayList<>();
         connections.add(new TCPPlayerController(null));
         connections.add(new TCPPlayerController(null));
@@ -31,6 +34,7 @@ public class GameEngineTest {
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.run();
+        */
 
     }
 
@@ -133,7 +137,6 @@ public class GameEngineTest {
      */
     @Test
     public void getNextPlayerStandard(){
-
 
         Board b = BoardConfigurer.configureMap(1);
 

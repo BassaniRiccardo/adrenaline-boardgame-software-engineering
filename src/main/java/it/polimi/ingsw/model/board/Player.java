@@ -8,8 +8,13 @@ import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 import static java.util.Collections.*;
 import static it.polimi.ingsw.model.cards.Color.*;
 
@@ -71,6 +76,7 @@ public class Player {
 
     private boolean inGame;
     private static ModelDataReader J = new ModelDataReader();
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
 
     /**
@@ -343,6 +349,7 @@ public class Player {
         if (this.board.getSpawnPoints().contains(position)){
                 this.getAmmoPack().subAmmoPack(((Weapon)collectedCard).getReducedCost());
                 ((Weapon)collectedCard).setLoaded(true);
+                ((Weapon)collectedCard).setHolder(this);
                 addWeapon((Weapon) collectedCard);
         }
         else {
@@ -383,6 +390,11 @@ public class Player {
     public void discardWeapon(Card removedWeapon) {
         if (!weaponList.contains(removedWeapon)) throw new IllegalArgumentException("The player does not own this weapon");
         weaponList.remove(removedWeapon);
+        /*
+        try {
+            removedWeapon.setHolder(null);
+        } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "This thype of card cannot have an holder");}
+        */
     }
 
 
@@ -620,7 +632,7 @@ public class Player {
                 p.addPoints(pointsToGive);
                 int totalGivenPoints = pointsToGive;
                 if (damages.get(0) == p) totalGivenPoints++;
-                System.out.println("Player " + p.getId() + " gains " + totalGivenPoints + " points.");
+                LOGGER.log(Level.FINE, p + " gains " + totalGivenPoints + " points.");
             }
             if (pointsToGive != 1) {
                 if (pointsToGive == 2) pointsToGive -= 1;
@@ -711,11 +723,31 @@ public class Player {
 
         List<Square> starting = new ArrayList<>();
         List<Square> start = board.getReachable(position, steps);
+        Square square = this.position;
         for (Square s1: start){
             boolean found = false;
+            boolean option1 = false;
+            FireMode preMove = null;
             this.setPosition(s1);
             for (Weapon w: weaponToConsider){
-                if (!w.listAvailableFireModes().isEmpty()) found = true;
+                for (FireMode f : w.listAvailableFireModes()){
+                    if (f.getName()==MAIN || f.getName() == SECONDARY)  found = true;
+                    if (f.getName()==OPTION1){
+                        option1 = true;
+                        preMove = f;
+                    }
+                }
+                if (!found && option1) {
+                    for (Square dest : preMove.getDestinationFinder().find(this, new ArrayList<>(Arrays.asList(this)))) {
+                        this.setPosition(dest);
+                        for (FireMode f : w.listAvailableFireModes()) {
+                            if (f.getName() == MAIN || f.getName() == SECONDARY) found = true;
+                        }
+                        if (true) break;
+                    }
+                }
+                //if only option1 is available??
+                //if (!w.listAvailableFireModes().isEmpty()) found = true;
                 //for (FireMode f : w.getFireModeList()){
                   //  if (!(f.getTargetFinder().find(this).isEmpty())) {
                     //    found = true;
@@ -724,6 +756,7 @@ public class Player {
             }
             if (found && !starting.contains(s1)) starting.add(s1);
         }
+        setPosition(square);
         return starting;
 
     }

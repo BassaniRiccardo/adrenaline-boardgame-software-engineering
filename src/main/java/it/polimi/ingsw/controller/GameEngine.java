@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
+import static it.polimi.ingsw.controller.Encoder.Header.OPT;
 import static it.polimi.ingsw.controller.Encoder.encode;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
@@ -132,15 +133,19 @@ public class GameEngine implements Runnable{
      */
     public void setup(){
 
-        System.out.println("\n\nAll the players are connected.\n");
+        LOGGER.log(Level.INFO,"\n\nAll the players are connected.\n");
         configureMap();
         configureKillShotTrack();
+        try {
+            board.getKillShotTrack().removeSkulls(4);
+
+        } catch ( NotAvailableAttributeException | UnacceptableItemNumberException e){};
         BoardConfigurer.configureDecks(board);
-        System.out.println("Decks configured.");
+        LOGGER.log(Level.INFO,"Decks configured.");
 
         try {
             BoardConfigurer.setAmmoTilesAndWeapons(board);
-            System.out.println("Ammo tiles and weapons set.");
+            LOGGER.log(Level.INFO,"Ammo tiles and weapons set.");
         } catch (UnacceptableItemNumberException | NoMoreCardsException e) {LOGGER.log(Level.SEVERE,"Exception thrown while setting ammo tiles and weapons", e);}
         configurePlayers();
 
@@ -150,20 +155,20 @@ public class GameEngine implements Runnable{
         int no = 0;
         frenzyOptions.addAll(Arrays.asList("yes", "no"));
         for (PlayerController p: players){
-            p.send(encode("Do you wan to play with the frenzy?", frenzyOptions));
+            p.send(encode(OPT, "Do you wan to play with the frenzy?", frenzyOptions));
             if (p.receive(2, 10) == 1) yes++;
             else no++;
         }
         if (yes>=no) {
             frenzy=true;
-            System.out.println("Frenzy active.");
+            LOGGER.log(Level.INFO,"Frenzy active.");
         }
-        else  System.out.println("Frenzy not active.");
+        else  LOGGER.log(Level.INFO,"Frenzy not active.");
 
 
         setCurrentPlayer(players.get(0));
         statusSaver = new StatusSaver(board);
-        System.out.println("\n");
+        LOGGER.log(Level.INFO,"\n");
 
     }
 
@@ -177,7 +182,7 @@ public class GameEngine implements Runnable{
         List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
         for (PlayerController p : players) {
-            p.send(encode("Vote for the map you want:", mapIDs));
+            p.send(encode(OPT, "Vote for the map you want:", mapIDs));
             int vote = p.receive(4,10);
             votes.set(vote-1, votes.get(vote-1)+1);
         }
@@ -185,7 +190,7 @@ public class GameEngine implements Runnable{
 
         board = BoardConfigurer.configureMap(mapId);
 
-        System.out.println("Players voted: map " + mapId + " selected.");
+        LOGGER.log(Level.INFO,() -> "Players voted: map " + mapId + " selected.");
 
     }
 
@@ -198,7 +203,7 @@ public class GameEngine implements Runnable{
         int totalSkullNumber = 0;
 
         for (PlayerController p : players) {
-            p.send(encode("How many skulls do you want?", skullsOptions));
+            p.send(encode(OPT, "How many skulls do you want?", skullsOptions));
             int selected = p.receive(4, 10);
             totalSkullNumber = totalSkullNumber + selected + 4;
         }
@@ -208,7 +213,7 @@ public class GameEngine implements Runnable{
             this.killShotTrack = board.getKillShotTrack();
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
 
-        System.out.println("Players voted. Number of skulls: " + averageSkullNumber + ".");
+        LOGGER.log(Level.INFO,() -> "Players voted. Number of skulls: " + averageSkullNumber + ".");
 
     }
 
@@ -223,13 +228,13 @@ public class GameEngine implements Runnable{
 
         for (PlayerController p : players) {
 
-            p.send(encode("What hero do you want?", heroList));
+            p.send(encode(OPT, "What hero do you want?", heroList));
             int selected = p.receive(heroList.size(), 10);
             Player.HeroName selectedName = heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
             board.getPlayers().add(p.getModel());
             heroList.remove(selectedName);
-            System.out.println(P + id + " selected " + selectedName + ".");
+            LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
             id++;
 
         }
@@ -267,8 +272,8 @@ public class GameEngine implements Runnable{
      */
     public void resolve(){
 
-        if (!frenzy) System.out.println("The last skull has been removed. Points are added to the players according to the kill shot track.");
-        else System.out.println("Frenzy ended. Points are added to the players according to the kill shot track.");
+        if (!frenzy) LOGGER.log(Level.INFO,"The last skull has been removed. Points are added to the players according to the kill shot track.");
+        else LOGGER.log(Level.INFO,"Frenzy ended. Points are added to the players according to the kill shot track.");
 
         killShotTrack.rewardKillers();
 
@@ -349,7 +354,7 @@ public class GameEngine implements Runnable{
                     else p.setStatus(Player.Status.FRENZY_2);
                 }
             }
-            System.out.println("\nNo more skulls left:\n\nFrenzy mode!!!!!!\n");
+            LOGGER.log(Level.INFO,"\nNo more skulls left:\n\nFrenzy mode!!!!!!\n");
             for (int i=0; i<players.size(); i++){
                 runTurn(executor, 1, true);
                 changePlayer();
@@ -368,14 +373,14 @@ public class GameEngine implements Runnable{
         System.out.println("\nGame over.\n");
 
         if (players.get(0).getModel().getPoints() == players.get(1).getModel().getPoints() && !killShotTrack.getKillers().contains(players.get(0).getModel()) && !killShotTrack.getKillers().contains(players.get(1).getModel())) {
-            System.out.println(P + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
+            LOGGER.log(Level.INFO,() -> P + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
             for (int i = 2; i < players.size(); i++) {
-                System.out.println(P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+                LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
             }
         } else {
-            System.out.println("Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
+            LOGGER.log(Level.INFO,() -> "Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
             for (int i = 1; i < players.size(); i++) {
-                System.out.println(P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+                LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
             }
         }
 

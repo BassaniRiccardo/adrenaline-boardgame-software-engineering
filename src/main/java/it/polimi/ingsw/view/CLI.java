@@ -65,8 +65,10 @@ public class CLI implements UI{
         System.out.println("Here are your choices:");
         for(int i = 0; i<list.size(); i++){
             System.out.println((i+1) +") "+list.get(i));
+
         }
         System.out.println("Choose one");
+
 
     }
 
@@ -75,13 +77,13 @@ public class CLI implements UI{
      *
      * @return              the user's input as a string
      */
-    public String get(){
+    public String get() {
         receiving = true;
-        while(!justReceived){
+        while (!justReceived) {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
-            }catch(InterruptedException ex){
-                LOGGER.log(Level.INFO,"Skipped waiting time.");
+            } catch (InterruptedException ex) {
+                LOGGER.log(Level.INFO, "Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -89,6 +91,7 @@ public class CLI implements UI{
         receiving = false;
         return answer;
     }
+
 
     /**
      * Main CLI loop checking for user input asynchronously from other threads, in particular for closing the client while awaiting a message.
@@ -147,6 +150,7 @@ public class CLI implements UI{
         receiving = false;
         return answer;
     }
+
 
     @Override
     public String get(String m){

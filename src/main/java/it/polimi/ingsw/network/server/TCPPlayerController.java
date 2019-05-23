@@ -51,7 +51,7 @@ public class TCPPlayerController extends PlayerController{
                 if (message == null) {
                     suspend();
                 } else {
-                    LOGGER.log(Level.FINE, "Received a message over TCP connection");
+                    LOGGER.log(Level.FINE, "Received a message over TCP connection: " + message);
                     incoming.add(message);
                 }
             } catch (SocketTimeoutException ex) {

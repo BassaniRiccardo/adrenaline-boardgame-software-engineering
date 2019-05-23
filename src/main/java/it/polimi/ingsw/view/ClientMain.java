@@ -1,6 +1,5 @@
 package it.polimi.ingsw.view;
 
-import javafx.application.Application;
 import it.polimi.ingsw.network.client.Connection;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
@@ -8,6 +7,8 @@ import it.polimi.ingsw.network.client.TCPConnection;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -30,6 +31,14 @@ public class ClientMain {
     private ExecutorService executor;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private ClientModel clientModel;
+
+    private String inputGUI;
+    private boolean updatedInputGUI;
+
+    public void setInputGUI(String inputGUI){
+        this.inputGUI = inputGUI;
+        this.updatedInputGUI = true;
+    }
 
     //requests alter the player model. calling setters of the model generates a list of operations to revert the changes. if "reset move" is caleld, those changes are applied
 
@@ -117,9 +126,16 @@ public class ClientMain {
             buff = in.nextLine();
         }
         if(buff.equals("GUI")){
-            Application.launch(GUI.class, args);
-            //((GUI) ui).main(args);
-            //GUI.displayMessage("GUI selezionata.");
+            new Thread() {
+                @Override
+                public void run() {
+                    javafx.application.Application.launch(GUI.class);
+                }
+            }.start();
+            GUI gui = GUI.waitGUI();
+            ui = gui;
+            ((GUI) ui).setClientMain(this);
+            ui.display("GUI selezionata.");
         }
         else{
             ui = new CLI(this);
@@ -127,13 +143,15 @@ public class ClientMain {
         }
         executor.submit(ui);
 
-        ui.display("Che tipo di connessione vuoi utilizzare? (Socket/RMI)");
-        buff = ui.get();
-        while(!(buff.equals("RMI")||buff.equals("Socket"))){
+        ui.display("Che tipo di connessione vuoi utilizzare?", new ArrayList<>(Arrays.asList("Socket", "RMI")));
+        buff = ui.get("6");
+        while (buff == null) System.out.println("Input gui value: " + buff);
+        System.out.println("Input gui value: " + buff);
+        while(!(buff.equals("0")|| buff.equals("1"))){
             ui.display("Scelta non valida. Riprovare.");
-            buff = ui.get();
+            buff = ui.get("6");
         }
-        if(buff.equals("RMI")){
+        if(buff.equals("1")){
             connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
             ui.display("RMI selezionata.");
         } else {

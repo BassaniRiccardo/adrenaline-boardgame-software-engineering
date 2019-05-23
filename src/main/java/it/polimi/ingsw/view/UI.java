@@ -12,25 +12,40 @@ public interface UI extends Runnable {
     /**
      * Displays a message to the user
      *
-     * @param message   message to be displayed
+     * @param message message to be displayed
      */
     void display(String message);
 
+    /**
+     * Displays a request to the user
+     *
+     * @param message message to be displayed
+     */
     void display(String message, String max);
+
+    /**
+     * Displays a message and a list of options to the user
+     *
+     * @param message message to be displayed
+     * @param options options to be displayed
+     */
+    void display(String message, List<String> options);
+
 
     /**
      * Returns the user's input
      *
-     * @return          the string typed or chosen by the user
+     * @return the string typed or chosen by the user
      */
-    String get();
 
     String get(List<String> list);
+
     String get(String max);
 
     void render();
-    void display(String message, List<String> list);
+
 }
+
 
 
 /*

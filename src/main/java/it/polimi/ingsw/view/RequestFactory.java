@@ -34,8 +34,8 @@ public class RequestFactory {
         }
 
         return (ClientMain clientMain, UI ui, Connection connection)->{
-            ui.display(message);
-            connection.send(ui.get());
+            ui.display(message, "15");
+            connection.send(ui.get("15"));
         };
     }
 
@@ -50,7 +50,7 @@ public class RequestFactory {
         }
         if (head.equals("REQ")) {
             return (ClientMain clientMain, UI ui, Connection connection) -> {
-                ui.display(jMessage.get("message").getAsString());
+                ui.display(jMessage.get("message").getAsString(), jMessage.get("length").getAsString());
                 connection.send(ui.get(jMessage.get("length").getAsString()));
             };
         }
@@ -61,6 +61,7 @@ public class RequestFactory {
                 for(int i = 0; i<arr.size(); i++){
                     list.add(arr.get(i).getAsString());
                 }
+
                 ui.display(jMessage.get("message").getAsString(), list);
                 connection.send(ui.get(list));
             };

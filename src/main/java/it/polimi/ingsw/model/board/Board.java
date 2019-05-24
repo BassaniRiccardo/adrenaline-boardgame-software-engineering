@@ -1,9 +1,10 @@
 package it.polimi.ingsw.model.board;
 
+import it.polimi.ingsw.controller.Encoder;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.network.server.VirtualView;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.model.cards.Color.*;
 import static java.util.Collections.frequency;
@@ -40,6 +41,8 @@ public class Board {
 
     //depends on skullsNumber, set by the BoardConfigurer
     private KillShotTrack killShotTrack;
+
+    private List<VirtualView> observers = new ArrayList<>();
 
 
     /**
@@ -647,5 +650,23 @@ public class Board {
 
     public int getId(){
         return id;
+    }
+
+    public void registerObserver(VirtualView p){
+        observers.add(p);
+    }
+
+    public void removeObserver(VirtualView p){
+        observers.remove(p);
+    }
+
+    public void notifyObservers(){
+        for(VirtualView p : observers){
+            notifyObserver(p);
+        }
+    }
+
+    public void notifyObserver(VirtualView p){
+        p.update(Encoder.getModel(this, p.getModel()));
     }
 }

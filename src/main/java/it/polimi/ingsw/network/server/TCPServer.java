@@ -38,7 +38,7 @@ public class TCPServer implements Runnable {
 
             while (running){
                 Socket socket = serverSocket.accept();
-                executor.submit(new TCPPlayerController(socket));
+                executor.submit(new TCPVirtualView(socket));
                 LOGGER.log(Level.INFO, "Accepted new connection");
             }
             serverSocket.close();

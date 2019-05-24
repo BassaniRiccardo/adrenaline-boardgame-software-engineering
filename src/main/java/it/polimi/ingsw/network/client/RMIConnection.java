@@ -1,29 +1,34 @@
 package it.polimi.ingsw.network.client;
 
-import com.google.gson.JsonObject;
-import it.polimi.ingsw.network.server.RemotePlayerController;
+import it.polimi.ingsw.network.server.RemoteController;
 import it.polimi.ingsw.network.server.RemoteServer;
 import it.polimi.ingsw.view.ClientMain;
-import it.polimi.ingsw.view.RequestFactory;
+import it.polimi.ingsw.view.ClientModel;
+import it.polimi.ingsw.view.UI;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.concurrent.TimeUnit;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementation of RMI connection to server
  *
  * @author marcobaga
  */
-public class
-RMIConnection extends Connection {
+public class RMIConnection implements Runnable, RemoteView {
 
-    private RemotePlayerController playerStub;
+    private RemoteController playerStub;
+    private ClientMain clientMain;
+    static final Logger LOGGER = Logger.getLogger("clientLogger");
+
 
     /**
      * Constructor retrieving remote objects
@@ -38,27 +43,24 @@ RMIConnection extends Connection {
         try {
             Registry reg = LocateRegistry.getRegistry(address, port);
             RemoteServer serverStub = (RemoteServer) reg.lookup("RMIServer");
-            String pcLookup = serverStub.getPlayerController();
+            String pcLookup = serverStub.getPlayerController((RemoteView) UnicastRemoteObject.exportObject(this, 0));
             LOGGER.log(Level.SEVERE, "Name received for RMI PC lookup: " + pcLookup);
-            playerStub = (RemotePlayerController) reg.lookup(pcLookup);
+            playerStub = (RemoteController) reg.lookup(pcLookup);
 
             ExecutorService executor = Executors.newCachedThreadPool();
-            executor.submit(new Runnable(){
-                @Override
-                public void run(){
-                    while(Thread.currentThread().isAlive()){
-                        try {
-                            playerStub.ping();
-                        }catch(RemoteException ex){
-                            LOGGER.log(Level.SEVERE, "Unable to ping RMI server", ex);
-                            clientMain.handleRequest(RequestFactory.toRequest("quit"));
-                        }
-                        try {
-                            TimeUnit.MILLISECONDS.sleep(100);
-                        }catch(InterruptedException ex){
-                            LOGGER.log(Level.INFO,"Skipped waiting time.");
-                            Thread.currentThread().interrupt();
-                        }
+            executor.submit(()->{
+                while(Thread.currentThread().isAlive()){
+                    try {
+                        playerStub.ping();
+                    }catch(RemoteException ex){
+                        LOGGER.log(Level.SEVERE, "Unable to ping RMI server", ex);
+                        clientMain.shutdown();
+                    }
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(100);
+                    }catch(InterruptedException ex){
+                        LOGGER.log(Level.INFO,"Skipped waiting time.");
+                        Thread.currentThread().interrupt();
                     }
                 }
             });
@@ -70,48 +72,26 @@ RMIConnection extends Connection {
         }
     }
 
-
-    /**
-     * Receives server messages via calling a remote methods (NON blocking)
-     *
-     * @return              the message received or an empty string if no message was sent
-     */
-    @Override
-    String receive(){
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", "PING");
-        String message = jsonObject.toString();
-        try {
-            message = playerStub.getMessage();
-        }catch(RemoteException ex){
-            LOGGER.log(Level.SEVERE, "RMI server disconnected, shutting down", ex);
-            clientMain.handleRequest(RequestFactory.toRequest("quit"));
-        }
-        return message;
+    public void run(){
+        System.out.println("RMIConnection running");
     }
 
-    /**
-     * Sends message via calling a remote function with the message as a parameter (NON blocking)
-     *
-     * @param message       the message to send
-     */
-    @Override
-    public void send(String message) {
-        try {
-            playerStub.answer(message);
-            LOGGER.log(Level.FINE, "Sending message to RMI server");
-        }catch (RemoteException ex){
-            LOGGER.log(Level.SEVERE, "RMI server disconnected, shutting down", ex);
-            clientMain.handleRequest(RequestFactory.toRequest("quit"));
-        }
+    public int choose(String msg, List<String> options) throws RemoteException{
+        return clientMain.choose(msg, options);
     }
 
-    /**
-     * Shuts down the connection and cleans up
-     */
-    @Override
-    public void shutdown(){
-        //implement shutdown
+    public void display(String msg) throws RemoteException{
+        clientMain.display(msg);
+    }
+
+    public String getInput(String msg, int max) throws RemoteException{
+        return clientMain.getInput(msg, max);
+    }
+
+    public void ping(){}
+
+    public void updateModel(ClientModel clientModel){
+        clientMain.setClientModel(clientModel);
     }
 
 }

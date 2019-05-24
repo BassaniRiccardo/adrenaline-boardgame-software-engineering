@@ -1,5 +1,7 @@
 package it.polimi.ingsw.network.server;
 
+import it.polimi.ingsw.network.client.RemoteView;
+
 import java.rmi.AlreadyBoundException;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.registry.Registry;
@@ -42,7 +44,6 @@ public class RMIServer implements RemoteServer {
             RemoteServer stub = (RemoteServer) UnicastRemoteObject.exportObject(this, 0);
             LocateRegistry.createRegistry(port);
             reg = LocateRegistry.getRegistry(port);
-
             reg.bind("RMIServer", stub);
             LOGGER.log(Level.INFO, "RMIServer ready");
         }catch(RemoteException ex) {LOGGER.log(Level.SEVERE, "Failed to retrieve RMI register for server binding", ex); //try again?
@@ -50,23 +51,23 @@ public class RMIServer implements RemoteServer {
     }
 
     /**
-     * Called by a client, it instantiates a new PlayerController accessible via RMI and returns the string associated in the registry
+     * Called by a client, it instantiates a new VirtualView accessible via RMI and returns the string associated in the registry
      *
-     * @return                  the name bound to the new PlayerController
+     * @return                  the name bound to the new VirtualView
      */
-    public synchronized String getPlayerController() {
-        LOGGER.log(Level.FINE, "Constructing a PlayerController with ID {0}", id);
+    public synchronized String getPlayerController(RemoteView view) {
+        LOGGER.log(Level.FINE, "Constructing a VirtualView with ID {0}", id);
         String remoteName = "PC"+id;
-        RMIPlayerController rmiPlayerController = new RMIPlayerController();
-        LOGGER.log(Level.FINE, "New PlayerController created");
+        RMIVirtualView rmiPlayerController = new RMIVirtualView(view);
+        LOGGER.log(Level.FINE, "New VirtualView created");
         try {
-            RemotePlayerController stub = (RemotePlayerController) UnicastRemoteObject.exportObject(rmiPlayerController, 0);
+            RemoteController stub = (RemoteController) UnicastRemoteObject.exportObject(rmiPlayerController, 0);
             reg.bind(remoteName, stub);
         }catch(RemoteException ex) {
             LOGGER.log(Level.SEVERE, "Failed to retrieve RMI register for server binding while creating PC", ex);
         }catch (AlreadyBoundException ex) {LOGGER.log(Level.SEVERE, "PC binding failed");}
         executor.submit(rmiPlayerController);
-        LOGGER.log(Level.FINE, "RMIPlayerController created");
+        LOGGER.log(Level.FINE, "RMIVirtualView created");
         id++;
         return remoteName;
     }

@@ -2,13 +2,13 @@ package it.polimi.ingsw.controller;
 
 import java.util.concurrent.TimeUnit;
 
-public class MatchmakingTimer {
+public class Timer {
     private boolean over;
     private long start;
     private long duration;
     private boolean running;
 
-    public MatchmakingTimer(int duration){
+    public Timer(int duration){
         this.duration = TimeUnit.NANOSECONDS.convert(duration, TimeUnit.SECONDS);
         this.over = false;
         this.start = 0;
@@ -45,7 +45,4 @@ public class MatchmakingTimer {
         update();
         return over&&running;
     }
-
-
-
 }

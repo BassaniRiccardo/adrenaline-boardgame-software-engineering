@@ -5,24 +5,20 @@ import it.polimi.ingsw.model.board.KillShotTrack;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.model.exceptions.SlowAnswerException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
-import it.polimi.ingsw.network.server.PlayerController;
+import it.polimi.ingsw.network.server.VirtualView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
-import static it.polimi.ingsw.controller.Encoder.Header.OPT;
-import static it.polimi.ingsw.controller.Encoder.encode;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 
 /**
  * Class responsible of running a game.
- * The interaction with the user is simulated by the method receive() of PlayerController.
+ * The interaction with the user is simulated by the method receive() of VirtualView.
  * Must be updated implementing the connection with the client.
  *
  * @author BassaniRiccardo
@@ -33,13 +29,16 @@ import static java.util.Collections.frequency;
 
 public class GameEngine implements Runnable{
 
-    private List<PlayerController> players;
-    private PlayerController currentPlayer;
+    private List<VirtualView> players;
+    private VirtualView currentPlayer;
     private Board board;
     private boolean gameOver;
     private KillShotTrack killShotTrack;
     private boolean frenzy;
     private StatusSaver statusSaver;
+    private Map<VirtualView, String> notifications;
+    private Timer timer = new Timer(120);
+
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
@@ -50,7 +49,7 @@ public class GameEngine implements Runnable{
      *
      * @param players           the players in the game.
      */
-    public GameEngine(List<PlayerController> players){
+    public GameEngine(List<VirtualView> players){
         this.players = players;
         currentPlayer = null;
         board = null;
@@ -58,16 +57,20 @@ public class GameEngine implements Runnable{
         killShotTrack = null;
         frenzy = false;
         this.statusSaver = null;
+        for(VirtualView p : players){
+            p.setGame(this);
+        }
+        notifications = new HashMap<>();
     }
 
     /**
      *  Getters
      */
-    public List<PlayerController> getPlayers() {
+    public List<VirtualView> getPlayers() {
         return players;
     }
 
-    public PlayerController getCurrentPlayer() {
+    public VirtualView getCurrentPlayer() {
         return currentPlayer;
     }
 
@@ -79,11 +82,11 @@ public class GameEngine implements Runnable{
     /**
      *  Setters
      */
-    public void setPlayers(List<PlayerController> players) {
+    public void setPlayers(List<VirtualView> players) {
         this.players = players;
     }
 
-    public void setCurrentPlayer(PlayerController currentPlayer) {
+    public void setCurrentPlayer(VirtualView currentPlayer) {
         this.board.setCurrentPlayer(currentPlayer.getModel());
         this.currentPlayer = currentPlayer;
     }
@@ -96,12 +99,12 @@ public class GameEngine implements Runnable{
     }
 
     /**
-     * Adds a PlayerController to the game.
+     * Adds a VirtualView to the game.
      *
-     * @param index         the position of the new PlayerController in the PlayerController list.
+     * @param index         the position of the new VirtualView in the VirtualView list.
      * @param p             the player connection to addList.
      */
-    public void setPlayer(int index, PlayerController p) {
+    public void setPlayer(int index, VirtualView p) {
         this.players.set(index, p);     //this and other methods need to be synchronized
     }
 
@@ -153,9 +156,11 @@ public class GameEngine implements Runnable{
         int yes = 0;
         int no = 0;
         frenzyOptions.addAll(Arrays.asList("yes", "no"));
-        for (PlayerController p: players){
-            p.send(encode(OPT, "Do you want to play with the frenzy?", frenzyOptions));
-            if (Integer.parseInt(p.receive()) == 1) yes++;
+        for (VirtualView p: players) {
+            p.choose("Do you want to play with the frenzy?", frenzyOptions);
+        }
+        for(VirtualView p : players){
+            if(Integer.parseInt(waitShort(p, 20))==1) yes++;
             else no++;
         }
         if (yes>=no) {
@@ -180,16 +185,22 @@ public class GameEngine implements Runnable{
         List<Integer> mapIDs = new ArrayList<>(Arrays.asList(1,2,3,4));
         List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
-        for (PlayerController p : players) {
-            p.send(encode(OPT, "Vote for the map you want:", mapIDs));
+
+        for(VirtualView p : players) {
+            p.choose("Vote for the map you want:", mapIDs);
         }
-        for(PlayerController p : players) {
-            int vote = Integer.parseInt(p.receive());
+
+        for(VirtualView p : players) {
+            int vote = Integer.parseInt(waitShort(p, 20));
             votes.set(vote-1, votes.get(vote-1)+1);
         }
         int mapId = Collections.max(votes);
 
         board = BoardConfigurer.configureMap(mapId);
+
+        for(VirtualView p : players) {
+            board.registerObserver(p);
+        }
 
         LOGGER.log(Level.INFO,() -> "Players voted: map " + mapId + " selected.");
 
@@ -203,11 +214,11 @@ public class GameEngine implements Runnable{
         List<Integer> skullsOptions = new ArrayList<>(Arrays.asList(5,6,7,8));
         int totalSkullNumber = 0;
 
-        for (PlayerController p : players) {
-            p.send(encode(OPT, "How many skulls do you want?", skullsOptions));
+        for (VirtualView p : players) {
+            p.choose("How many skulls do you want?", skullsOptions);
         }
-        for (PlayerController p : players) {
-            int selected = Integer.parseInt(p.receive());
+        for (VirtualView p : players) {
+            int selected = Integer.parseInt(waitShort(p, 20));
             totalSkullNumber = totalSkullNumber + selected + 4;
         }
 
@@ -218,7 +229,6 @@ public class GameEngine implements Runnable{
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
 
         LOGGER.log(Level.INFO,() -> "Players voted. Number of skulls: " + averageSkullNumber + ".");
-
     }
 
     /**
@@ -230,9 +240,9 @@ public class GameEngine implements Runnable{
         List<Player.HeroName> heroList = new ArrayList<>(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
         int id = 1;
 
-        for(PlayerController p : players) {
-            p.send(encode(OPT, "What hero do you want?", heroList));
-            int selected = Integer.parseInt(p.receive());
+        for(VirtualView p : players) {
+            p.choose("What hero do you want?", heroList);
+            int selected = Integer.parseInt(waitShort(p, 20));
             System.out.println("selected " + selected);
             Player.HeroName selectedName = heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
@@ -252,7 +262,7 @@ public class GameEngine implements Runnable{
      *
      * @return      the next player.
      */
-    public PlayerController getNextPlayer(){   //must be robust for an empty list of player
+    public VirtualView getNextPlayer(){   //must be robust for an empty list of player
 
         int ind = players.indexOf(currentPlayer);
         ind++ ;
@@ -315,14 +325,9 @@ public class GameEngine implements Runnable{
      * @param frenzy                whether the frenzy is active during the turn.
      */
     public void runTurn (ExecutorService executor, int timeout, boolean frenzy){
-
-        Future future = executor.submit(new TurnManager(board, currentPlayer, players, statusSaver,  frenzy));
-
-        try {
-            future.get(timeout, TimeUnit.MINUTES);
-        } catch (TimeoutException e) { currentPlayer.suspend();
-        } catch (Exception e) {LOGGER.log(Level.SEVERE,"Exception thrown while running a turn", e);} //proper handling to be implemented
-
+        timer.start();
+        new TurnManager(this, board, currentPlayer, players, statusSaver,  frenzy).run();
+        timer.stop();
     }
 
 
@@ -392,5 +397,80 @@ public class GameEngine implements Runnable{
 
     }
 
+    public String waitShort(VirtualView current, int timeout){
+        long start = System.currentTimeMillis();
+        while(!hasAnswered(current)){
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            }catch(InterruptedException ex){
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+            if(System.currentTimeMillis()>start+timeout*1000){
+                return "1"; //what to return?
+            }
+        }
+        //check how many players are left!
+        return notifications.remove(current);
+    }
+
+    public String wait(VirtualView current) throws SlowAnswerException{
+        while(!hasAnswered(current)){
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            }catch(InterruptedException ex){
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+            if(timer.isOver()){
+                throw new SlowAnswerException();
+            }
+        }
+        //check how many players are left!
+        return notifications.remove(current);
+    }
+
+    public List<VirtualView> waitAll(int timeout) {
+        long start = System.currentTimeMillis();
+        boolean loop = true;
+        List<VirtualView> list = new ArrayList<>();
+        while(loop){
+            loop = false;
+            for(VirtualView p : players){
+                if(!hasAnswered(p)&&!p.isSuspended()){
+                    loop=true;
+                } else if(!list.contains(p)){
+                    list.add(p);
+                }
+            }
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            }catch(InterruptedException ex){
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+            if(System.currentTimeMillis()>start+timeout*1000){
+                break;
+            }
+        }
+        return list;    //contains only virtualviews that answered
+    }
+
+
+        public boolean hasAnswered(VirtualView p){
+        return notifications.containsKey(p);
+    }
+
+    public void notify(VirtualView p, String message){
+        //only do if it is waiting for a message!
+        notifications.putIfAbsent(p, message);
+        //catch exceptions
+        //if a message is already there, it is ignored
+    }
+
+    public Map<VirtualView, String> getNotifications(){
+        //also set waitin to true?
+        return notifications;
+    }
 
 }

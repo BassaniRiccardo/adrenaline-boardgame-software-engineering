@@ -1,14 +1,7 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
-import it.polimi.ingsw.network.server.PlayerController;
-import it.polimi.ingsw.network.server.TCPPlayerController;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 
 //Tests temporarily removed while switching protocol
@@ -20,12 +13,12 @@ public class TurnManagerTest {
     @Test
     public void run() {
 /*
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
         System.out.println("\nSetup:");
@@ -45,12 +38,12 @@ public class TurnManagerTest {
     @Test
     public void joinBoardBegin() throws NotAvailableAttributeException {
 /*
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
 

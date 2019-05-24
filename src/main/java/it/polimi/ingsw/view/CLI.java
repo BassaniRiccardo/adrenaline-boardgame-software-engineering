@@ -101,12 +101,12 @@ public class CLI implements UI{
             try{
                 if (in.ready()) {
                     String msg = in.readLine();
-                    System.out.println("Ho letto " + msg);
+                    //System.out.println("Ho letto " + msg);
                     if(msg.equals("q")){
                         display("CLI: quitting");
-                        clientMain.handleRequest(RequestFactory.toRequest("quit"));
+                        //quit
                     }else if(receiving&&!justReceived) {
-                        System.out.println("Ho salvato come answer " + msg);
+                        //System.out.println("Ho salvato come answer " + msg);
                         answer = msg;
                         justReceived = true;
                     }else{
@@ -115,7 +115,7 @@ public class CLI implements UI{
                 }
             }catch(IOException e){
                 LOGGER.log(Level.SEVERE, "Cannot retrieve input from keyboard, quitting");
-                clientMain.handleRequest(RequestFactory.toRequest("quit"));
+                //quit
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
@@ -139,12 +139,14 @@ public class CLI implements UI{
                     Thread.currentThread().interrupt();
                 }
             }
-            if (Integer.parseInt(answer) <= list.size() && Integer.parseInt(answer) > 0) {
-                verified = true;
+            for(int i = 1; i<=list.size(); i++){
+                if(String.valueOf(i).equals(answer)) {
+                    verified = true;
+                }
                 justReceived = false;
+                receiving = true;
             }
         }
-        receiving = false;
         return answer;
     }
 

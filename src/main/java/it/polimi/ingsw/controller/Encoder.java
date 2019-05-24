@@ -52,7 +52,7 @@ public class Encoder {
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", head.toString());
-        jsonObject.addProperty("message", message);
+        jsonObject.addProperty("text", message);
         addList(jsonObject, "options", options);
         LOGGER.log(Level.FINE, jsonObject.toString());
 
@@ -109,7 +109,7 @@ public class Encoder {
      * @param board                 the model's board
      * @param current               the current player's model
      */
-    public static JsonObject getModel(Board board, Player current){
+    public static ClientModel getModel(Board board, Player current){
 
 
         //this method is temporary, it needs a major overhaul
@@ -200,20 +200,7 @@ public class Encoder {
         }catch(NotAvailableAttributeException ex){ LOGGER.log(Level.SEVERE, "Cannot access killshot track", ex);}
 
 
-        ClientModel cm = new ClientModel(weaponCardsLeft, powerUpCardsLeft, ammoTilesLeft, weaponsOnGround, blueAmmoOnGround, redAmmoOnGround, yellowAmmoOnGround, powerUpOnGround, mapID, currentPlayer, players, playerColor, cardNumber, damage, marks, weapons, loaded, position, name, powerUpInHand, killshotTrack);
-
-
-        Gson gson = new Gson();
-        String json = gson.toJson(cm);
-        //rewrite this part
-        JsonParser jsonParses = new JsonParser();
-        JsonObject jsonObject = new JsonObject();
-
-        try{
-            jsonObject = (JsonObject) jsonParses.parse(json);
-        }catch(Exception ex){LOGGER.log(Level.SEVERE, "Could not save the model as a JsonObject.", ex);}
-
-        return jsonObject;
+        return new ClientModel(weaponCardsLeft, powerUpCardsLeft, ammoTilesLeft, weaponsOnGround, blueAmmoOnGround, redAmmoOnGround, yellowAmmoOnGround, powerUpOnGround, mapID, currentPlayer, players, playerColor, cardNumber, damage, marks, weapons, loaded, position, name, powerUpInHand, killshotTrack);
     }
 }
 

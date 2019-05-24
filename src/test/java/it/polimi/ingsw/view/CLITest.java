@@ -1,6 +1,5 @@
 package it.polimi.ingsw.view;
 
-import it.polimi.ingsw.view.CLIRenderer.MapRenderer;
 import org.junit.Test;
 
 import java.util.*;

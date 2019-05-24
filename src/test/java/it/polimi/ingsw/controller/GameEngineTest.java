@@ -1,8 +1,8 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.Board;
-import it.polimi.ingsw.network.server.PlayerController;
-import it.polimi.ingsw.network.server.TCPPlayerController;
+import it.polimi.ingsw.network.server.TCPVirtualView;
+import it.polimi.ingsw.network.server.VirtualView;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -25,12 +25,12 @@ public class GameEngineTest {
         /*
         ServerMain.initializeLogger();
 
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.run();
@@ -46,12 +46,12 @@ public class GameEngineTest {
     @Test
     public void setup() {
 /*
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.setup();
@@ -68,12 +68,12 @@ public class GameEngineTest {
     @Test
     public void resolveWinner() {
 /*
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.setup();
@@ -106,12 +106,12 @@ public class GameEngineTest {
     @Test
     public void resolveDraw() {
 /*
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.setup();
@@ -140,12 +140,12 @@ public class GameEngineTest {
 
         Board b = BoardConfigurer.configureMap(1);
 
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.setBoard(b);
@@ -164,12 +164,12 @@ public class GameEngineTest {
 
         Board b = BoardConfigurer.configureMap(1);
 
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.setBoard(b);
@@ -187,12 +187,12 @@ public class GameEngineTest {
 
         Board b = BoardConfigurer.configureMap(1);
 
-        List<PlayerController> connections = new ArrayList<>();
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
-        connections.add(new TCPPlayerController(null));
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
         gameEngine.setBoard(b);

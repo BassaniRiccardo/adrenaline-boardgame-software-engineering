@@ -10,7 +10,7 @@ public class MatchmakingTimerTest {
 
     @Test
     public void standardFunctioning() {
-        MatchmakingTimer m = new MatchmakingTimer(3);
+        Timer m = new Timer(3);
         assertFalse(m.isOver());
         assertFalse(m.isRunning());
         m.start();
@@ -34,7 +34,7 @@ public class MatchmakingTimerTest {
 
     @Test
     public void stop() {
-        MatchmakingTimer m = new MatchmakingTimer(3);
+        Timer m = new Timer(3);
         assertFalse(m.isOver());
         assertFalse(m.isRunning());
         m.start();
@@ -59,7 +59,7 @@ public class MatchmakingTimerTest {
 
     @Test
     public void reset() {
-        MatchmakingTimer m = new MatchmakingTimer(3);
+        Timer m = new Timer(3);
         assertFalse(m.isOver());
         assertFalse(m.isRunning());
         m.start();

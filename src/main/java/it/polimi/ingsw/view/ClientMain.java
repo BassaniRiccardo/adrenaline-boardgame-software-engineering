@@ -1,13 +1,14 @@
 package it.polimi.ingsw.view;
 
 import javafx.application.Application;
-import it.polimi.ingsw.network.client.Connection;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -26,24 +27,16 @@ import java.util.logging.SimpleFormatter;
 public class ClientMain {
 
     private UI ui;
-    private Connection connection;
+    private Runnable connection;
     private ExecutorService executor;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private ClientModel clientModel;
-
-    //requests alter the player model. calling setters of the model generates a list of operations to revert the changes. if "reset move" is caleld, those changes are applied
-
-    public void setUi(UI ui) {
-        this.ui = ui;
-    }
-    //once the player confirms its move, updates are sent as a request to all other clients
 
     /**
      * Constructor
      */
     public ClientMain(){
-        executor = Executors.newCachedThreadPool();
-        clientModel = null;
+        executor = Executors.newCachedThreadPool();clientModel = null;
     }
 
     /**
@@ -56,15 +49,6 @@ public class ClientMain {
         clientMain.initializeLogger();
         clientMain.setup(args);
         LOGGER.log(Level.INFO, "Setup finished");
-    }
-
-    /**
-     * Wrapper class for request handling
-     *
-     * @param request    request to be managed
-     */
-    public void handleRequest(Request request){
-        request.manage(this, ui, connection);
     }
 
     /**
@@ -143,11 +127,31 @@ public class ClientMain {
         executor.submit(connection);
     }
 
-    public ClientModel getClientModel() {
+
+    public int choose(String msg, List<String> options){
+        ui.display(msg, options);
+        return Integer.parseInt(ui.get(options));
+    }
+
+    public void display(String msg){
+        ui.display(msg);
+
+    }
+
+    public String getInput(String msg, int max){
+        System.out.println(msg);
+        return ui.get();
+    }
+
+    public ClientModel getClientModel(){
         return clientModel;
     }
 
-    public void setClientModel(ClientModel clientModel) {
-        this.clientModel = clientModel;
+    public void setClientModel(ClientModel clientModel){ this.clientModel = clientModel;}
+
+    public void shutdown(){
+        //graceful shutdown
+        System.exit(0);
     }
+
 }

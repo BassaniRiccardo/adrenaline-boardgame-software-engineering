@@ -1,6 +1,6 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.network.server.PlayerController;
+import it.polimi.ingsw.network.server.VirtualView;
 import it.polimi.ingsw.network.server.RMIServer;
 import it.polimi.ingsw.network.server.TCPServer;
 
@@ -26,13 +26,13 @@ import java.util.logging.*;
 public class ServerMain {
 
     private static ServerMain instance;
-    private List <PlayerController> players;
-    private List <PlayerController> waitingPlayers;
-    private List <PlayerController> selectedPlayers;
+    private List <VirtualView> players;
+    private List <VirtualView> waitingPlayers;
+    private List <VirtualView> selectedPlayers;
     private List <GameEngine> currentGames;
     private TCPServer tcpServer;
     private RMIServer rmiServer;
-    private MatchmakingTimer timer;
+    private Timer timer;
     private ExecutorService executor;
     private BufferedReader in;
     private boolean running;
@@ -111,9 +111,9 @@ public class ServerMain {
         this.rmiServer.setup();
         LOGGER.log(Level.FINE, "TCPServer and RMIServer running, press q to quit");
 
-        this.timer = new MatchmakingTimer(Integer.parseInt(prop.getProperty("matchmakingTime", "60")));
+        this.timer = new Timer(Integer.parseInt(prop.getProperty("matchmakingTime", "60")));
         this.timer.reset();
-        LOGGER.log(Level.FINE, "MatchmakingTimer initialized");
+        LOGGER.log(Level.FINE, "Timer initialized");
 
         this.in = new BufferedReader(new InputStreamReader(System.in));
         this.running = true;
@@ -133,7 +133,7 @@ public class ServerMain {
      *
      * @param p             the player to be added
      */
-    private void addPlayer(PlayerController p){
+    private void addPlayer(VirtualView p){
         waitingPlayers.add(p);
         players.add(p);
         LOGGER.log(Level.FINE, "Player added: " + p.getName());
@@ -145,9 +145,9 @@ public class ServerMain {
      * @param name          the player's name
      * @param p             the player attempting to log in
      */
-    public synchronized boolean login(String name, PlayerController p){      //this method needs to be synchronized most likely
+    public synchronized boolean login(String name, VirtualView p){      //this method needs to be synchronized most likely
         LOGGER.log(Level.FINE, "Someone is attempting to login as {0}", name);
-        for(PlayerController pc : players){
+        for(VirtualView pc : players){
             if(pc.getName().equals(name)){
                 LOGGER.log(Level.FINE, "Login unsuccessful");
                 return false;
@@ -165,7 +165,7 @@ public class ServerMain {
      * @return              true is the player can resume his game, else false
      */
     public synchronized boolean canResume(String name){
-        for(PlayerController p : players){
+        for(VirtualView p : players){
             if (p.getName().equals(name)&&p.isSuspended()){
                 return true;
             }
@@ -180,9 +180,9 @@ public class ServerMain {
      * @param p             the player attempting to resume
      * @return              true if the operation was successful, else false
      */
-    public synchronized boolean resume(String name, PlayerController p) {        //sychronize this
+    public synchronized boolean resume(String name, VirtualView p) {        //sychronize this
         for (GameEngine g : currentGames) {
-            for (PlayerController old : g.getPlayers()) {
+            for (VirtualView old : g.getPlayers()) {
                 if (old.getName().equals(name) && old.isSuspended()) {
                     g.setPlayer(g.getPlayers().indexOf(old), p);
                     LOGGER.log(Level.INFO,"{0} resumed", name);
@@ -198,7 +198,7 @@ public class ServerMain {
      *
      */
     private synchronized void removeSuspendedPlayers(){
-        for (PlayerController p : new ArrayList<>(waitingPlayers)){
+        for (VirtualView p : new ArrayList<>(waitingPlayers)){
             if(p.isSuspended()){
                 players.remove(p);
                 waitingPlayers.remove(p);
@@ -212,7 +212,7 @@ public class ServerMain {
      *
      * @return              the comprehensive list of players
      */
-    public synchronized List<PlayerController> getPlayers() {
+    public synchronized List<VirtualView> getPlayers() {
         return players;
     }
 
@@ -275,7 +275,7 @@ public class ServerMain {
      * Refreshes connections: forwards TCP messages and checks for activity or client disconnection
      */
     private void refreshConnections(){
-        for (PlayerController p : new ArrayList<>(this.players)) {
+        for (VirtualView p : new ArrayList<>(this.players)) {
             p.refresh();
         }
     }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.network.server;
 
+import it.polimi.ingsw.network.client.RemoteView;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -10,5 +12,6 @@ import java.rmi.RemoteException;
  */
 public interface RemoteServer extends Remote {
 
-    String getPlayerController() throws RemoteException;
+    String getPlayerController(RemoteView view) throws RemoteException;
+
 }

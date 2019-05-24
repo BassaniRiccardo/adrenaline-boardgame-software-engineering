@@ -8,9 +8,9 @@ import java.rmi.RemoteException;
  *
  * @author marcobaga
  */
-public interface RemotePlayerController extends Remote{
+public interface RemoteController extends Remote{
 
-    void answer(String message) throws RemoteException;
-    String getMessage() throws RemoteException;
+    void notifyObservers(String msg) throws RemoteException;
+
     void ping() throws RemoteException;
 }

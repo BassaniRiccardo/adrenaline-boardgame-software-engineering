@@ -2,18 +2,14 @@ package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.*;
 import it.polimi.ingsw.model.cards.*;
-import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
-import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
-import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
-import it.polimi.ingsw.model.exceptions.WrongTimeException;
-import it.polimi.ingsw.network.server.PlayerController;
+import it.polimi.ingsw.model.exceptions.*;
+import it.polimi.ingsw.network.server.VirtualView;
 
 import java.util.*;
 import java.util.logging.*;
 
 
 import static it.polimi.ingsw.controller.Encoder.*;
-import static it.polimi.ingsw.controller.Encoder.Header.*;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 
 /**
@@ -39,11 +35,12 @@ public class TurnManager implements Runnable{
 
     private Board board;
     private StatusSaver statusSaver;
-    private List<PlayerController> playerConnections;
-    private PlayerController currentPlayerConnection;
+    private List<VirtualView> playerConnections;
+    private VirtualView currentPlayerConnection;
     private Player currentPlayer;
     private List<Integer> dead;
     private KillShotTrack killShotTrack;
+    private GameEngine gameEngine;
 
     private boolean frenzy;
     static boolean reset;
@@ -59,7 +56,8 @@ public class TurnManager implements Runnable{
      * @param board                         the board of the game.
      * @param currentPlayerConnection       the current player PlayerController.
      */
-    public TurnManager(Board board, PlayerController currentPlayerConnection, List<PlayerController> playerConnections, StatusSaver statusSaver,  boolean frenzy){
+    public TurnManager(GameEngine gameEngine, Board board, VirtualView currentPlayerConnection, List<VirtualView> playerConnections, StatusSaver statusSaver,  boolean frenzy){
+        this.gameEngine = gameEngine;
         this.board = board;
         this.statusSaver = statusSaver;
         this.playerConnections = playerConnections;
@@ -83,87 +81,91 @@ public class TurnManager implements Runnable{
         dead.clear();
         statusSaver.updateCheckpoint(false);
 
-        if (!currentPlayer.isInGame()) {
-            joinBoard(currentPlayer, 2, false);
-        }
-
-        //confirm or go back------>checkpoint
-
-        actionsLeft = 2;
-        if (currentPlayer.getStatus() == Player.Status.FRENZY_2) actionsLeft--;
-        while (actionsLeft > 0) {
-            currentPlayer.refreshActionList();
-            LOGGER.log(Level.FINE,"Actions left: " + actionsLeft);
-            if (executeAction()) {                  //confirm or go back------>checkpoint
-                LOGGER.log(Level.FINE,"Action executed;");
-                actionsLeft--;
-                LOGGER.log(Level.FINE,"Actions left: " + actionsLeft);
+        try {
+            if (!currentPlayer.isInGame()) {
+                joinBoard(currentPlayer, 2, false);
             }
-        }
 
-        LOGGER.log(Level.FINE,"All actions executed" );
+            //confirm or go back------>checkpoint
 
-
-        for (Player p : board.getPlayers()) {
-            LOGGER.log(Level.FINEST, p +": damages: " + p.getDamages().size());
-        }
-
-
-        //------>checkpoint
-        statusSaver.updateCheckpoint(false);
-
-        boolean choice1 = handleUsingPowerUp();
-        boolean choice2 = convertPowerUp();
-        boolean choice3 = reload(3);
-
-        if (choice1 || choice2 || choice3 ) {
-            while (!askConfirmation("Do you confirm the ending phase?") ) {
-                LOGGER.log(Level.FINE, currentPlayer + " resets the action");
-                statusSaver.restoreCheckpoint();
-                reset = false;
-                handleUsingPowerUp();
-                convertPowerUp();
-                reload(3);
-            }
-        }
-
-        //checks who died, rewards killers, make the dead draw a power up and respawn
-        for (Player deadPlayer: board.getActivePlayers()){
-            if (dead.contains(deadPlayer.getId())) {
-                try {
-                    LOGGER.log(Level.FINE, "The killers are awarded for the death of " + deadPlayer + ".");
-                    for (Player p : board.getPlayers()) {
-                        LOGGER.log(Level.FINEST, p +": damages: " + p.getDamages().size());
-                    }
-                    deadPlayer.rewardKillers();
-                    killShotTrack.registerKill(currentPlayer, deadPlayer, deadPlayer.getDamages().size() > 11);
-
-                    //necessary otherwise a reset would give back the damages to the dead
-                    statusSaver.updateCheckpoint(false);
-                    joinBoard(deadPlayer, 1, true);
-                    if (frenzy) {
-                        deadPlayer.setFlipped(true);
-                        deadPlayer.setPointsToGive(2);
-                    }
-                } catch (WrongTimeException | UnacceptableItemNumberException e) {
-                    LOGGER.log(Level.SEVERE, "Exception thrown while resolving the deaths", e);
+            actionsLeft = 2;
+            if (currentPlayer.getStatus() == Player.Status.FRENZY_2) actionsLeft--;
+            while (actionsLeft > 0) {
+                currentPlayer.refreshActionList();
+                LOGGER.log(Level.FINE, "Actions left: " + actionsLeft);
+                if (executeAction()) {                  //confirm or go back------>checkpoint
+                    LOGGER.log(Level.FINE, "Action executed;");
+                    actionsLeft--;
+                    LOGGER.log(Level.FINE, "Actions left: " + actionsLeft);
                 }
             }
-        }
-        if (dead.size() > 1) {
-            currentPlayer.addPoints(1);
-            LOGGER.log(Level.FINE, () -> currentPlayer + " gets an extra point for the multiple kill!!!");
-        }
 
-        replaceWeapons();
-        replaceAmmoTiles();
+            LOGGER.log(Level.FINE, "All actions executed");
 
-        LOGGER.log(Level.FINE, () -> currentPlayer + " ends his turn.\n\n");
-        for (Player p: board.getActivePlayers()){
-            LOGGER.log(Level.FINE, () -> p + ": \t\t" + p.getPoints() + " points \t\t"+ p.getDamages().size() + " damages.");
+
+            for (Player p : board.getPlayers()) {
+                LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
+            }
+
+
+            //------>checkpoint
+            statusSaver.updateCheckpoint(false);
+
+            boolean choice1 = handleUsingPowerUp();
+            boolean choice2 = convertPowerUp();
+            boolean choice3 = reload(3);
+
+            if (choice1 || choice2 || choice3) {
+                while (!askConfirmation("Do you confirm the ending phase?")) {
+                    LOGGER.log(Level.FINE, currentPlayer + " resets the action");
+                    statusSaver.restoreCheckpoint();
+                    reset = false;
+                    handleUsingPowerUp();
+                    convertPowerUp();
+                    reload(3);
+                }
+            }
+
+            //checks who died, rewards killers, make the dead draw a power up and respawn
+            for (Player deadPlayer : board.getActivePlayers()) {
+                if (dead.contains(deadPlayer.getId())) {
+                    try {
+                        LOGGER.log(Level.FINE, "The killers are awarded for the death of " + deadPlayer + ".");
+                        for (Player p : board.getPlayers()) {
+                            LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
+                        }
+                        deadPlayer.rewardKillers();
+                        killShotTrack.registerKill(currentPlayer, deadPlayer, deadPlayer.getDamages().size() > 11);
+
+                        //necessary otherwise a reset would give back the damages to the dead
+                        statusSaver.updateCheckpoint(false);
+                        joinBoard(deadPlayer, 1, true);
+                        if (frenzy) {
+                            deadPlayer.setFlipped(true);
+                            deadPlayer.setPointsToGive(2);
+                        }
+                    } catch (WrongTimeException | UnacceptableItemNumberException e) {
+                        LOGGER.log(Level.SEVERE, "Exception thrown while resolving the deaths", e);
+                    }
+                }
+            }
+            if (dead.size() > 1) {
+                currentPlayer.addPoints(1);
+                LOGGER.log(Level.FINE, () -> currentPlayer + " gets an extra point for the multiple kill!!!");
+            }
+
+            replaceWeapons();
+            replaceAmmoTiles();
+
+            LOGGER.log(Level.FINE, () -> currentPlayer + " ends his turn.\n\n");
+            for (Player p : board.getActivePlayers()) {
+                LOGGER.log(Level.FINE, () -> p + ": \t\t" + p.getPoints() + " points \t\t" + p.getDamages().size() + " damages.");
+            }
+
+            System.out.println("\n\n\n");
+        }catch(SlowAnswerException ex){
+            //manage suspensions
         }
-
-        System.out.println("\n\n\n");
 
     }
 
@@ -175,7 +177,7 @@ public class TurnManager implements Runnable{
      * @param player                the player to addList to the board.
      * @param powerUpToDraw         the number of powerups the player has to draw.
      */
-    public void joinBoard(Player player, int powerUpToDraw, boolean reborn) {
+    public void joinBoard(Player player, int powerUpToDraw, boolean reborn) throws SlowAnswerException {
 
         //the user draws two powerups
         for (int i = 0; i < powerUpToDraw; i++) {
@@ -188,8 +190,8 @@ public class TurnManager implements Runnable{
         statusSaver.updatePowerups(false);
 
         //asks the user which powerup he wants to discard
-        currentPlayerConnection.send(encode(OPT, "Which powerUp do you want to discard?", player.getPowerUpList()) );
-        int selected = Integer.parseInt(currentPlayerConnection.receive());
+        currentPlayerConnection.choose("Which powerUp do you want to discard?", player.getPowerUpList());
+        int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         PowerUp discarded = player.getPowerUpList().get(selected-1);
 
         if (powerUpToDraw == 2)
@@ -223,7 +225,7 @@ public class TurnManager implements Runnable{
      * @return      true if an actual action is performed by the user.
      *              false otherwise (if the user decides to use or convert a powerup).
      */
-    public boolean executeAction(){
+    public boolean executeAction() throws SlowAnswerException{
 
         reset = false;
 
@@ -243,9 +245,9 @@ public class TurnManager implements Runnable{
         if (canUSePowerUp){ options.add("Use Powerup"); }
         if (!currentPlayer.getPowerUpList().isEmpty()){ options.add("Convert Powerup"); }
 
-        currentPlayerConnection.send(encode(OPT, "What do you want to do?", options));
+        currentPlayerConnection.choose("What do you want to do?", options);
 
-        int selected = Integer.parseInt(currentPlayerConnection.receive());
+        int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
 
         if (selected == availableActions.size() + 1){
             if (canUSePowerUp){
@@ -272,7 +274,7 @@ public class TurnManager implements Runnable{
      * Interacts with the user showing him the actual actions he can make.
      *
      */
-    public void executeActualAction(Action action){
+    public void executeActualAction(Action action) throws SlowAnswerException{
 
         LOGGER.log(Level.FINE, () -> currentPlayer  + " chooses the action: " + action);
 
@@ -290,7 +292,7 @@ public class TurnManager implements Runnable{
                     reloadMandatory();
                 }
                 else {
-                   reload(1);
+                    reload(1);
                 }
             }  catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while reloading", e);}
 
@@ -311,7 +313,7 @@ public class TurnManager implements Runnable{
      * @return      true if entering the method the player could use a powerup.
      *              false otherwise.
      */
-    public boolean handleUsingPowerUp(){
+    public boolean handleUsingPowerUp() throws SlowAnswerException{
 
         //LOGGER.log(Level.SEVERE,"Entering in method handleUsingPowerUp" );
 
@@ -333,8 +335,8 @@ public class TurnManager implements Runnable{
 
             List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
-            currentPlayerConnection.send(encode(OPT,"Do you want to use a powerup?", options));
-            answer = Integer.parseInt(currentPlayerConnection.receive());
+            currentPlayerConnection.choose("Do you want to use a powerup?", options);
+            answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (answer == 2){
                 LOGGER.log(Level.FINE, () -> currentPlayer  + " decides not to use a powerup." );
             }
@@ -354,7 +356,7 @@ public class TurnManager implements Runnable{
      * Asks the user which powerup he wants to use and how.
      * Activates the effect of the selected powerup.
      */
-    public void usePowerUp(){
+    public void usePowerUp() throws SlowAnswerException{
 
         reset = false;
 
@@ -374,8 +376,8 @@ public class TurnManager implements Runnable{
         List<String> optionsPowerUps = toStringList(usablePowerUps);
         optionsPowerUps.add("reset");
 
-        currentPlayerConnection.send(encode(OPT, "Which powerup do you want to use?", optionsPowerUps));
-        int selected = Integer.parseInt(currentPlayerConnection.receive());
+        currentPlayerConnection.choose("Which powerup do you want to use?", optionsPowerUps);
+        int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
 
         if (selected == optionsPowerUps.size()){
             resetPowerUp();
@@ -387,8 +389,8 @@ public class TurnManager implements Runnable{
             try {
                 List<String> optionsTargets = toStringList(powerUpToUse.findTargets());
                 optionsTargets.add("reset");
-                currentPlayerConnection.send(encode(OPT, "Who do you want to choose as a target?", optionsTargets));
-                selected = Integer.parseInt(currentPlayerConnection.receive());
+                currentPlayerConnection.choose("Who do you want to choose as a target?", optionsTargets);
+                selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
                 if (selected == optionsTargets.size()){
                     resetPowerUp();
                     return;
@@ -402,8 +404,8 @@ public class TurnManager implements Runnable{
         try {
             List<String> optionsDest = toStringList(powerUpToUse.findDestinations(targets));
             optionsDest.add("reset");
-            currentPlayerConnection.send(encode(OPT, "Choose a destination", optionsDest));
-            selected = Integer.parseInt(currentPlayerConnection.receive());
+            currentPlayerConnection.choose("Choose a destination", optionsDest);
+            selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsDest.size()) {
                 resetPowerUp();
                 return;
@@ -428,7 +430,7 @@ public class TurnManager implements Runnable{
      * @return      true if entering the method the player could use a powerup.
      *              false otherwise.
      */
-    public boolean convertPowerUp() {
+    public boolean convertPowerUp() throws SlowAnswerException{
 
         //LOGGER.log(Level.SEVERE,"Entering in method convertPowerUp" );
 
@@ -444,8 +446,8 @@ public class TurnManager implements Runnable{
 
             List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
-            currentPlayerConnection.send(encode(OPT, "Do you want to convert a powerup?", options));
-            answer = Integer.parseInt(currentPlayerConnection.receive());
+            currentPlayerConnection.choose("Do you want to convert a powerup?", options);
+            answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
 
             if (answer == 2){
                 LOGGER.log(Level.FINE, () -> currentPlayer + " decides not to convert a powerup.");
@@ -458,8 +460,8 @@ public class TurnManager implements Runnable{
                 List<String> optionsConvert = toStringList(currentPlayer.getPowerUpList());
                 optionsConvert.add("reset");
 
-                currentPlayerConnection.send(encode(OPT, "Which powerup do you want to convert?", optionsConvert));
-                int selected = Integer.parseInt(currentPlayerConnection.receive());
+                currentPlayerConnection.choose("Which powerup do you want to convert?", optionsConvert);
+                int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
                 if (selected==optionsConvert.size()) {
                     return resetConvert();
                 }
@@ -478,55 +480,55 @@ public class TurnManager implements Runnable{
     /**
      * Handles the process of moving.
      */
-    public void handleMoving(Action action){
+    public void handleMoving(Action action) throws SlowAnswerException{
         try {
 
             reset = false;
 
             List<Square> possibleDestinations = board.getReachable(currentPlayer.getPosition(), (action.getSteps()));
-                if (!action.isCollect() && !action.isShoot()){
-                    possibleDestinations.remove(currentPlayer.getPosition());
-                }
-                else if (action.isCollect()){
-                    List<Square> toRemove = new ArrayList<>();
-                    for (Square square: possibleDestinations){
-                        if (square.isEmpty() || (board.getSpawnPoints().contains(square) && currentPlayer.getCollectibleWeapons((WeaponSquare)square).isEmpty())) {
-                            toRemove.add(square);
-                        }
+            if (!action.isCollect() && !action.isShoot()){
+                possibleDestinations.remove(currentPlayer.getPosition());
+            }
+            else if (action.isCollect()){
+                List<Square> toRemove = new ArrayList<>();
+                for (Square square: possibleDestinations){
+                    if (square.isEmpty() || (board.getSpawnPoints().contains(square) && currentPlayer.getCollectibleWeapons((WeaponSquare)square).isEmpty())) {
+                        toRemove.add(square);
                     }
-                    possibleDestinations.removeAll(toRemove);
+                }
+                possibleDestinations.removeAll(toRemove);
 
+            }
+            else {
+                if (action.isReload()) {
+                    List<Weapon> weapons = new ArrayList<>();
+                    weapons.addAll(currentPlayer.getLoadedWeapons());
+                    weapons.addAll(currentPlayer.getReloadableWeapons());
+                    possibleDestinations = currentPlayer.getShootingSquares(action.getSteps(),weapons );
                 }
-                else {
-                    if (action.isReload()) {
-                        List<Weapon> weapons = new ArrayList<>();
-                        weapons.addAll(currentPlayer.getLoadedWeapons());
-                        weapons.addAll(currentPlayer.getReloadableWeapons());
-                        possibleDestinations = currentPlayer.getShootingSquares(action.getSteps(),weapons );
-                    }
-                    else possibleDestinations = currentPlayer.getShootingSquares(action.getSteps(), currentPlayer.getLoadedWeapons());
-                }
+                else possibleDestinations = currentPlayer.getShootingSquares(action.getSteps(), currentPlayer.getLoadedWeapons());
+            }
 
-                List<String> optionsDest = toStringList(possibleDestinations);
-                optionsDest.add("reset");
+            List<String> optionsDest = toStringList(possibleDestinations);
+            optionsDest.add("reset");
 
-                LOGGER.log(Level.FINE, currentPlayer + " is in " + currentPlayer.getPosition());
-                currentPlayerConnection.send(encode (OPT, "Where do you wanna move?", optionsDest));
-                int selected = Integer.parseInt(currentPlayerConnection.receive());
-                if (selected == optionsDest.size()){
-                    resetAction();
-                    return;
-                }
-                Square dest = possibleDestinations.get(selected - 1);
-                if (!dest.equals(currentPlayer.getPosition())) {
-                    currentPlayer.setPosition(dest);
-                    LOGGER.log(Level.FINE, currentPlayer + " moves in " + currentPlayer.getPosition() + ".");
-                } else
-                    LOGGER.log(Level.FINE, currentPlayer + " stays in " + currentPlayer.getPosition() + ".");
-                if (!action.isShoot() && !action.isCollect()) {
-                    if (!askConfirmation("Do you confirm the movement?")) resetAction();
-                    else statusSaver.updateCheckpoint(false);
-                }
+            LOGGER.log(Level.FINE, currentPlayer + " is in " + currentPlayer.getPosition());
+            currentPlayerConnection.choose("Where do you wanna move?", optionsDest);
+            int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+            if (selected == optionsDest.size()){
+                resetAction();
+                return;
+            }
+            Square dest = possibleDestinations.get(selected - 1);
+            if (!dest.equals(currentPlayer.getPosition())) {
+                currentPlayer.setPosition(dest);
+                LOGGER.log(Level.FINE, currentPlayer + " moves in " + currentPlayer.getPosition() + ".");
+            } else
+                LOGGER.log(Level.FINE, currentPlayer + " stays in " + currentPlayer.getPosition() + ".");
+            if (!action.isShoot() && !action.isCollect()) {
+                if (!askConfirmation("Do you confirm the movement?")) resetAction();
+                else statusSaver.updateCheckpoint(false);
+            }
 
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while handling the moving process", e);}
     }
@@ -535,59 +537,59 @@ public class TurnManager implements Runnable{
      * Handles the process of collecting.
      */
 
-    public void handleCollecting(){
+    public void handleCollecting() throws SlowAnswerException{
         try {
 
             reset = false;
 
             if (board.getSpawnPoints().contains(currentPlayer.getPosition())) {
-                    List<Weapon> collectible = currentPlayer.getCollectibleWeapons((WeaponSquare)currentPlayer.getPosition());
-                    List<String> optionsCollectible = toStringList(collectible);
-                    optionsCollectible.add("reset");
-                    currentPlayerConnection.send(encode(OPT, "Which weapon do you want to collect?", optionsCollectible ));
-                    int selected = Integer.parseInt(currentPlayerConnection.receive());
-                    if (selected == optionsCollectible.size()){
+                List<Weapon> collectible = currentPlayer.getCollectibleWeapons((WeaponSquare)currentPlayer.getPosition());
+                List<String> optionsCollectible = toStringList(collectible);
+                optionsCollectible.add("reset");
+                currentPlayerConnection.choose("Which weapon do you want to collect?", optionsCollectible);
+                int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+                if (selected == optionsCollectible.size()){
+                    resetAction();
+                    return;
+                }
+                Weapon collectedWeapon = (collectible.get(selected-1));
+                currentPlayer.collect(collectedWeapon);
+                LOGGER.log(Level.FINE, () -> currentPlayer + " collects  " + collectedWeapon + ".");
+                if (currentPlayer.getWeaponList().size()>3){
+                    List<String> optionsToDiscard = toStringList(currentPlayer.getWeaponList());
+                    optionsToDiscard.add("reset");
+                    currentPlayerConnection.choose("Which weapon do you want to discard?", optionsToDiscard);
+                    selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+                    if(selected == optionsToDiscard.size()){
                         resetAction();
                         return;
                     }
-                    Weapon collectedWeapon = (collectible.get(selected-1));
-                    currentPlayer.collect(collectedWeapon);
-                    LOGGER.log(Level.FINE, () -> currentPlayer + " collects  " + collectedWeapon + ".");
-                    if (currentPlayer.getWeaponList().size()>3){
-                        List<String> optionsToDiscard = toStringList(currentPlayer.getWeaponList());
-                        optionsToDiscard.add("reset");
-                        currentPlayerConnection.send(encode(OPT, "Which weapon do you want to discard?", optionsToDiscard));
-                        selected = Integer.parseInt(currentPlayerConnection.receive());
-                        if(selected == optionsToDiscard.size()){
-                            resetAction();
-                            return;
-                        }
-                        Weapon discardedWeapon = currentPlayer.getWeaponList().get(selected-1);
-                        currentPlayer.discardWeapon(discardedWeapon);
-                        discardedWeapon.setLoaded(false);
-                        ((WeaponSquare) currentPlayer.getPosition()).addCard(discardedWeapon);
-                        LOGGER.log(Level.FINE, () -> currentPlayer + " discards  " + discardedWeapon + ".");
-                    }
-                    if (!askConfirmation("Do you confirm the collecting?")){
-                        resetAction();
-                    }
-                    else statusSaver.updateCheckpoint(false);
+                    Weapon discardedWeapon = currentPlayer.getWeaponList().get(selected-1);
+                    currentPlayer.discardWeapon(discardedWeapon);
+                    discardedWeapon.setLoaded(false);
+                    ((WeaponSquare) currentPlayer.getPosition()).addCard(discardedWeapon);
+                    LOGGER.log(Level.FINE, () -> currentPlayer + " discards  " + discardedWeapon + ".");
+                }
+                if (!askConfirmation("Do you confirm the collecting?")){
+                    resetAction();
+                }
+                else statusSaver.updateCheckpoint(false);
 
             }
             else {
-                    if (!askConfirmation("Do you confirm the collecting?")){
-                        resetAction();
-                        return;
-                    }
-                    AmmoTile toCollect = ((AmmoSquare) currentPlayer.getPosition()).getAmmoTile();
-                    boolean tooManyPowerUps = !currentPlayer.collect(toCollect);
-                    LOGGER.log(Level.FINE, () -> currentPlayer + " collects an ammo tile.");
-                    if (toCollect.hasPowerUp()){
-                        if (tooManyPowerUps) LOGGER.log(Level.FINE, "It would him to draw a power up, but he already ahs three.");
-                        else LOGGER.log(Level.FINE, "It allows him to draw a power up.");
-                    }
-                    statusSaver.updateCheckpoint(false);
+                if (!askConfirmation("Do you confirm the collecting?")){
+                    resetAction();
+                    return;
                 }
+                AmmoTile toCollect = ((AmmoSquare) currentPlayer.getPosition()).getAmmoTile();
+                boolean tooManyPowerUps = !currentPlayer.collect(toCollect);
+                LOGGER.log(Level.FINE, () -> currentPlayer + " collects an ammo tile.");
+                if (toCollect.hasPowerUp()){
+                    if (tooManyPowerUps) LOGGER.log(Level.FINE, "It would him to draw a power up, but he already ahs three.");
+                    else LOGGER.log(Level.FINE, "It allows him to draw a power up.");
+                }
+                statusSaver.updateCheckpoint(false);
+            }
         }
         catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e) {
             LOGGER.log(Level.SEVERE,"Exception thrown while handling the collecting process", e);
@@ -603,7 +605,7 @@ public class TurnManager implements Runnable{
     //TODO Must be modified implementing a real method instead of a random generator of damage.
     // Tagback_grenade and targeting scope must be considered too.
 
-    public void handleShooting() throws NotAvailableAttributeException{
+    public void handleShooting() throws NotAvailableAttributeException, SlowAnswerException{
 
         currentPlayer.getMainTargets().clear();
         currentPlayer.getOptionalTargets().clear();
@@ -612,8 +614,8 @@ public class TurnManager implements Runnable{
         List<String> optionsWeapons = toStringList(availableWeapons);
         optionsWeapons.add("reset");
 
-        currentPlayerConnection.send(encode(OPT, "Choose your weapon", optionsWeapons));
-        int selected1 = Integer.parseInt(currentPlayerConnection.receive());
+        currentPlayerConnection.choose("Choose your weapon", optionsWeapons);
+        int selected1 = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (selected1 == optionsWeapons.size()){
             resetAction();
             return;
@@ -640,10 +642,10 @@ public class TurnManager implements Runnable{
             options.add("reset");
             if (canStop){
                 options.add("none");
-                currentPlayerConnection.send(encode(OPT, "If you want, select an additional firemode", options));
+                currentPlayerConnection.choose("If you want, select an additional firemode", options);
             }
-            else currentPlayerConnection.send(encode(OPT, "Select a firemode in order to shoot", options));
-            int selected2 = Integer.parseInt(currentPlayerConnection.receive());
+            else currentPlayerConnection.choose("Select a firemode in order to shoot", options);
+            int selected2 = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected2 == remainingFiremodes.size() + 1){
                 resetAction();
                 return;
@@ -706,7 +708,7 @@ public class TurnManager implements Runnable{
 
     }
 
-    private void applyFireMode(FireMode fireMode) throws NotAvailableAttributeException {
+    private void applyFireMode(FireMode fireMode) throws NotAvailableAttributeException, SlowAnswerException {
 
         reset = false;
 
@@ -722,8 +724,8 @@ public class TurnManager implements Runnable{
         List<String> optionsTarget = toStringList(targetsList);
         optionsTarget.add("reset");
 
-        currentPlayerConnection.send(encode(OPT, "Choose targets", optionsTarget));
-        int selected = Integer.parseInt(currentPlayerConnection.receive());
+        currentPlayerConnection.choose("Choose targets", optionsTarget);
+        int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (selected == optionsTarget.size()){
             resetAction();
             return;
@@ -737,8 +739,8 @@ public class TurnManager implements Runnable{
         if (!destinations.isEmpty()) {
             List<String> optionsDest = toStringList(destinations);
             optionsDest.add("reset");
-            currentPlayerConnection.send(encode(OPT, "Choose a destination", optionsDest));
-            selected = Integer.parseInt(currentPlayerConnection.receive());
+            currentPlayerConnection.choose("Choose a destination", optionsDest);
+            selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsDest.size()){
                 resetAction();
                 return;
@@ -764,7 +766,7 @@ public class TurnManager implements Runnable{
      * @return          true if entering the method the player could use a powerup.
      *                  false otherwise.
      */
-    public boolean reload(int max) {
+    public boolean reload(int max) throws SlowAnswerException{
 
         //LOGGER.log(Level.SEVERE,"Entering in method reload" );
 
@@ -778,8 +780,8 @@ public class TurnManager implements Runnable{
             List<String> options = toStringList(currentPlayer.getReloadableWeapons());
             options.add("None");
             options.add("reset");
-            currentPlayerConnection.send(encode(OPT, "Which weapon do you want to reload?", options));
-            int selected = Integer.parseInt(currentPlayerConnection.receive());
+            currentPlayerConnection.choose("Which weapon do you want to reload?", options);
+            int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == currentPlayer.getReloadableWeapons().size() + 2) {
                 resetAction();
                 return true;
@@ -810,7 +812,7 @@ public class TurnManager implements Runnable{
     /**
      * Checks if the user can reload weapons and, while he can, offers him the chance to reload it.
      */
-    public void reloadMandatory() {
+    public void reloadMandatory() throws SlowAnswerException{
 
         reset = false;
 
@@ -824,8 +826,8 @@ public class TurnManager implements Runnable{
         }
         List<String> options = toStringList(reloadable);
         options.add("reset");
-        currentPlayerConnection.send(encode(OPT, "You have to reload one of these weapons to shoot. Which one do you choose?", options));
-        int selected = Integer.parseInt(currentPlayerConnection.receive());
+        currentPlayerConnection.choose("You have to reload one of these weapons to shoot. Which one do you choose?", options);
+        int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (selected == options.size()){
             resetAction();
             return;
@@ -903,16 +905,16 @@ public class TurnManager implements Runnable{
      * @return                          true if the current player decides to use at least one targeting scope.
      *                                  false otherwise.
      */
-    public boolean handleTargetingScope(Player currentPlayer, List<Player> targets ){
+    public boolean handleTargetingScope(Player currentPlayer, List<Player> targets ) throws SlowAnswerException{
 
         reset = false;
-        currentPlayerConnection.send(encode(OPT, "Do you want to use a targeting scope?", new ArrayList(Arrays.asList("yes", "no")) ));
-        int answer = Integer.parseInt(currentPlayerConnection.receive());
+        currentPlayerConnection.choose("Do you want to use a targeting scope?", new ArrayList(Arrays.asList("yes", "no")));
+        int answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (answer == 1){
             List<String> optionsPowerup = toStringList(currentPlayer.getPowerUps(PowerUp.PowerUpName.TARGETING_SCOPE));
             optionsPowerup.add("reset");
-            currentPlayerConnection.send(encode(OPT, "Which targeting scope do you want to use?", optionsPowerup));
-            int selected = Integer.parseInt(currentPlayerConnection.receive());
+            currentPlayerConnection.choose("Which targeting scope do you want to use?", optionsPowerup);
+            int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsPowerup.size()){
                 resetAction();
                 return true;
@@ -921,8 +923,8 @@ public class TurnManager implements Runnable{
 
             List<String> optionsTargets = toStringList(targets);
             optionsTargets.add("reset");
-            currentPlayerConnection.send(encode(OPT, "Who do you want to target?", optionsTargets));
-            selected = Integer.parseInt(currentPlayerConnection.receive());
+            currentPlayerConnection.choose("Who do you want to target?", optionsTargets);
+            selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsTargets.size()){
                 resetAction();
                 return true;
@@ -949,17 +951,17 @@ public class TurnManager implements Runnable{
      * @return          true if the damaged player decided to use at least one tagback grenade.
      *                  false otherwise.
      */
-    private boolean handleTagbackGrenade(Player p){
+    private boolean handleTagbackGrenade(Player p) throws SlowAnswerException{
 
-        PlayerController connection = playerConnections.get(board.getPlayers().indexOf(p));
-        connection.send(encode(OPT, "Do you want to use a tagback grenade?", new ArrayList(Arrays.asList("yes", "no")) ));
-        int answer = Integer.parseInt(currentPlayerConnection.receive());
+        VirtualView player = playerConnections.get(board.getPlayers().indexOf(p));
+        player.choose("Do you want to use a tagback grenade?", new ArrayList(Arrays.asList("yes", "no")) );
+        int answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (answer == 1){
             LOGGER.log(Level.FINE, () -> p + "Decides to use a grenade" );
             List<String> optionsGrenade = toStringList(p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE));
             optionsGrenade.add("reset");
-            connection.send(encode(OPT, "Which tagback grenade do you want to use?", optionsGrenade ));
-            int selected = Integer.parseInt(currentPlayerConnection.receive());
+            player.choose("Which tagback grenade do you want to use?", optionsGrenade);
+            int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsGrenade.size()){
                 return (handleTagbackGrenade(p));
             }
@@ -992,10 +994,10 @@ public class TurnManager implements Runnable{
      * @param request           a string specifying which action must be confirmed or deleted.
      * @return                  true if the current player decides to confirm the action.
      */
-    private boolean askConfirmation(String request) {
+    private boolean askConfirmation(String request) throws SlowAnswerException{
 
-        currentPlayerConnection.send(encode(OPT, request, new ArrayList(Arrays.asList("yes", "no"))));
-        int answer = Integer.parseInt(currentPlayerConnection.receive());
+        currentPlayerConnection.choose(request, new ArrayList(Arrays.asList("yes", "no")));
+        int answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (answer == 1){
             LOGGER.log(Level.FINE, "action confirmed");
             return true;
@@ -1012,10 +1014,10 @@ public class TurnManager implements Runnable{
      * @param p                 the player the question is asked.
      * @return                  true if the player decides to confirm the action.
      */
-    private boolean askConfirmation(String request, Player p) {
+    private boolean askConfirmation(String request, Player p) throws SlowAnswerException{
 
-        playerConnections.get(board.getPlayers().indexOf(p)).send(encode(OPT, request, new ArrayList(Arrays.asList("yes", "no"))));
-        int answer = Integer.parseInt(currentPlayerConnection.receive());
+        playerConnections.get(board.getPlayers().indexOf(p)).choose(request, new ArrayList(Arrays.asList("yes", "no")));
+        int answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (answer == 1){
             LOGGER.log(Level.FINE, "action confirmed");
             return true;
@@ -1034,7 +1036,7 @@ public class TurnManager implements Runnable{
      * @param reborn        true if the player is reborning.
      *                      false if the player is joining the board for the first time.
      */
-    private void resetJoinBoard(Player p, boolean reborn){
+    private void resetJoinBoard(Player p, boolean reborn) throws SlowAnswerException{
         LOGGER.log(Level.FINE, () -> p + " resets the action");
         // if the player is entering the board for the first time only powerups can and must be restored
         // the player must also be set as out of the game (graphically he is removed form the map)
@@ -1051,7 +1053,7 @@ public class TurnManager implements Runnable{
     /**
      * Resets all players powerups.
      */
-    private void resetPowerUp(){
+    private void resetPowerUp() throws SlowAnswerException{
         LOGGER.log(Level.FINE, () -> currentPlayer + " resets the action");
         statusSaver.restoreCheckpoint();
         if (actionsLeft  == 0){
@@ -1063,7 +1065,7 @@ public class TurnManager implements Runnable{
     /**
      * Resets the effects of the last convertPowerUp call.
      */
-    private boolean resetConvert(){
+    private boolean resetConvert() throws SlowAnswerException{
         LOGGER.log(Level.FINE, () -> currentPlayer + " resets the action");
         statusSaver.restoreCheckpoint();
         if (actionsLeft  == 0){
@@ -1078,7 +1080,7 @@ public class TurnManager implements Runnable{
     /**
      * Resets the effects of the last action.
      */
-    private void resetAction(){
+    private void resetAction() throws SlowAnswerException{
         LOGGER.log(Level.FINE, () -> currentPlayer + " resets the action");
         statusSaver.restoreCheckpoint();
         if (actionsLeft == 0)

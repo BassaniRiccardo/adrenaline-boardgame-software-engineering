@@ -72,6 +72,7 @@ public class CLI implements UI{
 
     }
 
+
     /**
      * Queries the user for input (blocking)
      *
@@ -91,7 +92,6 @@ public class CLI implements UI{
         receiving = false;
         return answer;
     }
-
 
     /**
      * Main CLI loop checking for user input asynchronously from other threads, in particular for closing the client while awaiting a message.
@@ -156,6 +156,7 @@ public class CLI implements UI{
 
     @Override
     public String get(String m){
+        System.out.println("hai chiamato il metodo giusto");
         receiving = true;
         boolean verified = false;
         int max = Integer.parseInt(m);

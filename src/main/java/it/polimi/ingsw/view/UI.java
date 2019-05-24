@@ -41,9 +41,10 @@ public interface UI extends Runnable {
      */
     String get();
 
+    String get(String max);
+
     String get(List<String> list);
 
-    String get(String max);
     void render();
 
 }

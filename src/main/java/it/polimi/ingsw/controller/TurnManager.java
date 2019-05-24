@@ -93,6 +93,7 @@ public class TurnManager implements Runnable{
         if (currentPlayer.getStatus() == Player.Status.FRENZY_2) actionsLeft--;
         while (actionsLeft > 0) {
             currentPlayer.refreshActionList();
+            statusSaver.updateCheckpoint(false);
             LOGGER.log(Level.FINE,"Actions left: " + actionsLeft);
             if (executeAction()) {                  //confirm or go back------>checkpoint
                 LOGGER.log(Level.FINE,"Action executed;");
@@ -523,6 +524,7 @@ public class TurnManager implements Runnable{
                     LOGGER.log(Level.FINE, currentPlayer + " moves in " + currentPlayer.getPosition() + ".");
                 } else
                     LOGGER.log(Level.FINE, currentPlayer + " stays in " + currentPlayer.getPosition() + ".");
+                //update current player model
                 if (!action.isShoot() && !action.isCollect()) {
                     if (!askConfirmation("Do you confirm the movement?")) resetAction();
                     else statusSaver.updateCheckpoint(false);
@@ -752,6 +754,7 @@ public class TurnManager implements Runnable{
         else if (fireMode.getName() == OPTION1 || fireMode.getName() == OPTION2) currentPlayer.addOptionalTargets(targets);
         try {
             fireMode.applyEffects(targets, destination);
+            //update current player model
         } catch (IllegalArgumentException e){LOGGER.log(Level.SEVERE, "Error in shooting: " + fireMode);}
 
     }

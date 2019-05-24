@@ -147,11 +147,11 @@ public class ClientMain {
         buff = ui.get("6");
         while (buff == null) System.out.println("Input gui value: " + buff);
         System.out.println("Input gui value: " + buff);
-        while(!(buff.equals("0")|| buff.equals("1"))){
+        while(!(buff.equals("1")|| buff.equals("2"))){
             ui.display("Scelta non valida. Riprovare.");
             buff = ui.get("6");
         }
-        if(buff.equals("1")){
+        if(buff.equals("2")){
             connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
             ui.display("RMI selezionata.");
         } else {

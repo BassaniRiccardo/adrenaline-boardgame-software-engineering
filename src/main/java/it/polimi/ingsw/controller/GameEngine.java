@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
+import static it.polimi.ingsw.controller.Encoder.Header.MSG;
 import static it.polimi.ingsw.controller.Encoder.Header.OPT;
 import static it.polimi.ingsw.controller.Encoder.encode;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
@@ -113,10 +114,11 @@ public class GameEngine implements Runnable{
      */
     public void run(){
 
+        final int TURN_TIME = 3;
         setup();
         ExecutorService executor = Executors.newCachedThreadPool();
         while (!gameOver){
-            runTurn(executor, 1, false);
+            runTurn(executor, TURN_TIME, false);
             if (killShotTrack.getSkullsLeft() == 0) {
                 manageGameEnd(executor);
             }
@@ -187,7 +189,7 @@ public class GameEngine implements Runnable{
             int vote = Integer.parseInt(p.receive());
             votes.set(vote-1, votes.get(vote-1)+1);
         }
-        int mapId = Collections.max(votes);
+        int mapId = votes.indexOf(Collections.max(votes)) + 1;
 
         board = BoardConfigurer.configureMap(mapId);
 
@@ -241,6 +243,7 @@ public class GameEngine implements Runnable{
             System.out.println("added");
             heroList.remove(selectedName);
             LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
+            p.send("You selected " + selectedName);
             id++;
 
         }

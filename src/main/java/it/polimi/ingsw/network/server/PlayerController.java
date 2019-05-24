@@ -73,7 +73,7 @@ public abstract class PlayerController implements Runnable{
      *
      * @param in            the message to be sent
      */
-    private void send(String in){
+    public void send(String in){
         LOGGER.log(Level.FINE, "Message added to outgoing: {0}", in);
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "MSG");

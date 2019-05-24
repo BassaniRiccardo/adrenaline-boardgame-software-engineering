@@ -5,6 +5,7 @@ package it.polimi.ingsw.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
@@ -15,12 +16,12 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import javafx.scene.paint.Color;
+
 
 
 /**
@@ -40,6 +41,7 @@ import javafx.stage.Stage;
 public class GUI extends Application implements UI, Runnable, EventHandler {
 
     private ClientMain clientMain;
+    private Color color = Color.rgb(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256));
     private Stage stage;
     DataSaver dataSaver = new DataSaver();
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
@@ -77,7 +79,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     public void setClientMain(ClientMain clientMain) { this.clientMain = clientMain; }
 
-
     /*
     public static void main(String[] args){
         launch(args);
@@ -96,7 +97,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Platform.runLater( () -> {
             stage.setTitle("Adrenaline");
             BorderPane pane = new BorderPane();
-            Scene scene = new Scene(pane, 500, 500);
+            pane.setBackground(new Background(new BackgroundFill(color, null, null)));
+            Scene scene = new Scene(pane, 500, 50);
             stage.setScene(scene);
             Label label = new Label("Entering the configuration phase...");
             pane.setCenter(label);
@@ -116,10 +118,18 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     public void display(String message) {
 
         Platform.runLater( () -> {
+
+            if      (message.contains("Banshee"))       this.color = Color.BLUE;
+            else if (message.contains("Sprog"))         this.color = Color.GREEN;
+            else if (message.contains("Violet"))        this.color = Color.PURPLE;
+            else if (message.contains("Dozer"))         this.color = Color.GREY;
+            else if (message.contains("D_struct_or"))   this.color = Color.YELLOW;
+
             Label label = new Label(message);
             StackPane layout = new StackPane();
+            layout.setBackground(new Background(new BackgroundFill(color, null, null)));
             layout.getChildren().add(label);
-            Scene scene = new Scene(layout, 500, 500);
+            Scene scene = new Scene(layout, 500, 500, color);
             Stage msgStage = new Stage();
             msgStage.setScene(scene);
             msgStage.show();
@@ -140,7 +150,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Platform.runLater( () -> {
 
             VBox request = new VBox();
-            Label label = new Label(question);
+            request.setBackground(new Background(new BackgroundFill(color, null, null)));
+            Label label = new Label(question + " (max " + maxLength + " characters)");
             request.getChildren().add(label);
 
             TextField textField = new TextField();
@@ -155,17 +166,17 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             request.setSpacing(40);
             Stage reqStage = new Stage();
 
-
             requestButton.setOnAction(e ->
                     {
                         System.out.println("REQ: you clicked me!");
                         dataSaver.requestAnswer = (textField.getText());
+                        dataSaver.requestQuestion = question;
                         dataSaver.update = true;
                         reqStage.close();
                     }
             );
 
-            Scene info = new Scene(request, 400, 300);
+            Scene info = new Scene(request, 400, 300, color);
             reqStage.setScene(info);
             reqStage.show();
 
@@ -185,6 +196,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Platform.runLater( () -> {
 
             VBox options = new VBox();
+            options.setBackground(new Background(new BackgroundFill(color, null, null)));
             Label label = new Label(message);
             options.getChildren().add(label);
             options.setAlignment(Pos.CENTER);
@@ -200,8 +212,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 Button b = new Button(item);
                 buttons.add(b);
                 b.setOnAction(e -> {
-                    System.out.println("OPT " + buttons.indexOf(b) + ": you clicked me!");
-                    dataSaver.requestAnswer = Integer.toString(buttons.indexOf(b));
+                    System.out.println("OPT " + (buttons.indexOf(b)+1) + ": you clicked me!");
+                    dataSaver.requestAnswer = Integer.toString(buttons.indexOf(b) + 1);
                     dataSaver.update = true;
                     optStage.close();
                 });
@@ -209,7 +221,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             optionList.getChildren().addAll(buttons);
             options.getChildren().add(optionList);
 
-            Scene scene = new Scene(options, 300,250);
+            Scene scene = new Scene(options, 600,600, color);
             optStage.setScene(scene);
 
             optStage.show();
@@ -231,6 +243,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             try {
                 Thread.sleep(2000);
             }catch (InterruptedException e){e.printStackTrace();}
+        }
+        while (dataSaver.requestAnswer.length() > Integer.parseInt(maxLength)){
+            display("Max length exceeded, retry: " + dataSaver.requestQuestion, maxLength);
+            get(maxLength);
         }
         dataSaver.update=false;
         return dataSaver.requestAnswer;
@@ -280,6 +296,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      */
     class DataSaver{
         String requestAnswer;
+        String requestQuestion;
         boolean update;
     }
 

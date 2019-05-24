@@ -863,11 +863,11 @@ public class Player {
      */
     public List<Weapon> getCollectibleWeapons(WeaponSquare weaponSquare){
 
-        List<Weapon> collectable = new ArrayList<>();
+        List<Weapon> collectible = new ArrayList<>();
         for (Weapon w : weaponSquare.getWeapons()){
-            if (hasEnoughAmmo(w.getReducedCost())) collectable.add(w);
+            if (hasEnoughAmmo(w.getReducedCost())) collectible.add(w);
         }
-        return collectable;
+        return collectible;
 
     }
 

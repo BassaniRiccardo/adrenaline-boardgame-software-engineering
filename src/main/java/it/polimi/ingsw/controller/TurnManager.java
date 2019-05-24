@@ -92,81 +92,80 @@ public class TurnManager implements Runnable{
             if (currentPlayer.getStatus() == Player.Status.FRENZY_2) actionsLeft--;
             while (actionsLeft > 0) {
                 currentPlayer.refreshActionList();
+                statusSaver.updateCheckpoint(false);
                 LOGGER.log(Level.FINE, "Actions left: " + actionsLeft);
                 if (executeAction()) {                  //confirm or go back------>checkpoint
                     LOGGER.log(Level.FINE, "Action executed;");
                     actionsLeft--;
                     LOGGER.log(Level.FINE, "Actions left: " + actionsLeft);
                 }
-            }
 
-            LOGGER.log(Level.FINE, "All actions executed");
-
-
-            for (Player p : board.getPlayers()) {
-                LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
-            }
+                LOGGER.log(Level.FINE, "All actions executed");
 
 
-            //------>checkpoint
-            statusSaver.updateCheckpoint(false);
-
-            boolean choice1 = handleUsingPowerUp();
-            boolean choice2 = convertPowerUp();
-            boolean choice3 = reload(3);
-
-            if (choice1 || choice2 || choice3) {
-                while (!askConfirmation("Do you confirm the ending phase?")) {
-                    LOGGER.log(Level.FINE, currentPlayer + " resets the action");
-                    statusSaver.restoreCheckpoint();
-                    reset = false;
-                    handleUsingPowerUp();
-                    convertPowerUp();
-                    reload(3);
+                for (Player p : board.getPlayers()) {
+                    LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
                 }
-            }
 
-            //checks who died, rewards killers, make the dead draw a power up and respawn
-            for (Player deadPlayer : board.getActivePlayers()) {
-                if (dead.contains(deadPlayer.getId())) {
-                    try {
-                        LOGGER.log(Level.FINE, "The killers are awarded for the death of " + deadPlayer + ".");
-                        for (Player p : board.getPlayers()) {
-                            LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
-                        }
-                        deadPlayer.rewardKillers();
-                        killShotTrack.registerKill(currentPlayer, deadPlayer, deadPlayer.getDamages().size() > 11);
 
-                        //necessary otherwise a reset would give back the damages to the dead
-                        statusSaver.updateCheckpoint(false);
-                        joinBoard(deadPlayer, 1, true);
-                        if (frenzy) {
-                            deadPlayer.setFlipped(true);
-                            deadPlayer.setPointsToGive(2);
-                        }
-                    } catch (WrongTimeException | UnacceptableItemNumberException e) {
-                        LOGGER.log(Level.SEVERE, "Exception thrown while resolving the deaths", e);
+                //------>checkpoint
+                statusSaver.updateCheckpoint(false);
+
+                boolean choice1 = handleUsingPowerUp();
+                boolean choice2 = convertPowerUp();
+                boolean choice3 = reload(3);
+
+                if (choice1 || choice2 || choice3) {
+                    while (!askConfirmation("Do you confirm the ending phase?")) {
+                        LOGGER.log(Level.FINE, currentPlayer + " resets the action");
+                        statusSaver.restoreCheckpoint();
+                        reset = false;
+                        handleUsingPowerUp();
+                        convertPowerUp();
+                        reload(3);
                     }
                 }
-            }
-            if (dead.size() > 1) {
-                currentPlayer.addPoints(1);
-                LOGGER.log(Level.FINE, () -> currentPlayer + " gets an extra point for the multiple kill!!!");
-            }
 
-            replaceWeapons();
-            replaceAmmoTiles();
+                //checks who died, rewards killers, make the dead draw a power up and respawn
+                for (Player deadPlayer : board.getActivePlayers()) {
+                    if (dead.contains(deadPlayer.getId())) {
+                        try {
+                            LOGGER.log(Level.FINE, "The killers are awarded for the death of " + deadPlayer + ".");
+                            for (Player p : board.getPlayers()) {
+                                LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
+                            }
+                            deadPlayer.rewardKillers();
+                            killShotTrack.registerKill(currentPlayer, deadPlayer, deadPlayer.getDamages().size() > 11);
 
-            LOGGER.log(Level.FINE, () -> currentPlayer + " ends his turn.\n\n");
-            for (Player p : board.getActivePlayers()) {
-                LOGGER.log(Level.FINE, () -> p + ": \t\t" + p.getPoints() + " points \t\t" + p.getDamages().size() + " damages.");
+                            //necessary otherwise a reset would give back the damages to the dead
+                            statusSaver.updateCheckpoint(false);
+                            joinBoard(deadPlayer, 1, true);
+                            if (frenzy) {
+                                deadPlayer.setFlipped(true);
+                                deadPlayer.setPointsToGive(2);
+                            }
+                        } catch (WrongTimeException | UnacceptableItemNumberException e) {
+                            LOGGER.log(Level.SEVERE, "Exception thrown while resolving the deaths", e);
+                        }
+                    }
+                }
+                if (dead.size() > 1) {
+                    currentPlayer.addPoints(1);
+                    LOGGER.log(Level.FINE, () -> currentPlayer + " gets an extra point for the multiple kill!!!");
+                }
+
+                replaceWeapons();
+                replaceAmmoTiles();
+
+                LOGGER.log(Level.FINE, () -> currentPlayer + " ends his turn.\n\n");
+                for (Player p : board.getActivePlayers()) {
+                    LOGGER.log(Level.FINE, () -> p + ": \t\t" + p.getPoints() + " points \t\t" + p.getDamages().size() + " damages.");
+                }
             }
-
             System.out.println("\n\n\n");
         }catch(SlowAnswerException ex){
             //manage suspensions
         }
-
     }
 
 
@@ -525,6 +524,7 @@ public class TurnManager implements Runnable{
                 LOGGER.log(Level.FINE, currentPlayer + " moves in " + currentPlayer.getPosition() + ".");
             } else
                 LOGGER.log(Level.FINE, currentPlayer + " stays in " + currentPlayer.getPosition() + ".");
+            //update current player model
             if (!action.isShoot() && !action.isCollect()) {
                 if (!askConfirmation("Do you confirm the movement?")) resetAction();
                 else statusSaver.updateCheckpoint(false);
@@ -754,6 +754,7 @@ public class TurnManager implements Runnable{
         else if (fireMode.getName() == OPTION1 || fireMode.getName() == OPTION2) currentPlayer.addOptionalTargets(targets);
         try {
             fireMode.applyEffects(targets, destination);
+            //update current player model
         } catch (IllegalArgumentException e){LOGGER.log(Level.SEVERE, "Error in shooting: " + fireMode);}
 
     }

@@ -116,10 +116,11 @@ public class GameEngine implements Runnable{
      */
     public void run(){
 
+        final int TURN_TIME = 3;
         setup();
         ExecutorService executor = Executors.newCachedThreadPool();
         while (!gameOver){
-            runTurn(executor, 1, false);
+            runTurn(executor, TURN_TIME, false);
             if (killShotTrack.getSkullsLeft() == 0) {
                 manageGameEnd(executor);
             }
@@ -194,7 +195,7 @@ public class GameEngine implements Runnable{
             int vote = Integer.parseInt(waitShort(p, 20));
             votes.set(vote-1, votes.get(vote-1)+1);
         }
-        int mapId = Collections.max(votes);
+        int mapId = votes.indexOf(Collections.max(votes)) + 1;
 
         board = BoardConfigurer.configureMap(mapId);
 
@@ -251,6 +252,7 @@ public class GameEngine implements Runnable{
             System.out.println("added");
             heroList.remove(selectedName);
             LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
+            p.display("You selected " + selectedName);
             id++;
 
         }

@@ -41,24 +41,6 @@ public class Encoder {
         return instance;
     }
 
-    /**
-     * Returns a JsonObject given a header and a generic list.
-     *
-     * @param message           the type of message to send.
-     * @param options           the generic list.
-     * @return                  the JsonObject.
-     */
-    public static JsonObject encode (Header head, String message, List options){
-
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", head.toString());
-        jsonObject.addProperty("text", message);
-        addList(jsonObject, "options", options);
-        LOGGER.log(Level.FINE, jsonObject.toString());
-
-        return jsonObject;
-
-    }
 
     /**
      * Returns a list of string given a generic list.
@@ -75,43 +57,12 @@ public class Encoder {
     }
 
     /**
-     * Returns a list of string given an array of int.
-     *
-     * @param options           the int array in input.
-     * @return                  the String list in output.
-     */
-    public static List<String> encode (int[] options){
-        List<String> encoded = new ArrayList<>();
-        for (int i=0; i<options.length; i++){
-            encoded.add(String.valueOf(options[i]));
-        }
-        return encoded;
-    }
-
-    /**
-     * Adds a generic list to a JsonObject, specifying the name of the list.
-     *
-     * @param jsonObject            the JsonObject the list must be added to.
-     * @param property              the name of the list.
-     * @param values                the list itself.
-     */
-    public static void addList(JsonObject jsonObject, String property, List values) {
-        JsonArray array = new JsonArray();
-        for (Object value : values) {
-            array.add(new JsonPrimitive(value.toString()));
-        }
-        jsonObject.add(property, array);
-    }
-
-    /**
      *Translates the model is a siplified JsonObject to be displayed by the client.
      *
      * @param board                 the model's board
      * @param current               the current player's model
      */
     public static ClientModel getModel(Board board, Player current){
-
-
         //this method is temporary, it needs a major overhaul
 
         int weaponCardsLeft = board.getWeaponDeck().getDrawable().size();

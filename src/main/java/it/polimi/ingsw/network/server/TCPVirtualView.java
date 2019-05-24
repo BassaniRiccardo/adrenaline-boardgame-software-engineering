@@ -1,8 +1,6 @@
 package it.polimi.ingsw.network.server;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import it.polimi.ingsw.controller.Encoder;
 import it.polimi.ingsw.view.ClientModel;
 
@@ -78,8 +76,18 @@ public class TCPVirtualView extends VirtualView {
     }
 
     public void choose(String msg, List<?> options){
-        JsonObject j = Encoder.encode(Encoder.Header.OPT, msg, options);
-        send(j);
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", "OPT");
+        jsonObject.addProperty("text", msg);
+
+        JsonArray array = new JsonArray();
+        for (Object o : options) {
+            array.add(new JsonPrimitive(o.toString()));
+        }
+        jsonObject.add("options", array);
+
+        send(jsonObject);
     }
 
 

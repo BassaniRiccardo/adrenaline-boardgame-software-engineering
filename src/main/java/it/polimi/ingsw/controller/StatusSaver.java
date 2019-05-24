@@ -144,7 +144,7 @@ public class StatusSaver {
         board.getCurrentPlayer().getOptionalTargets().clear();
         //squares
         for (Square s : board.getSpawnPoints()) {
-            ((WeaponSquare)s).setWeapons(squareWeapons.get(board.getSpawnPoints().indexOf(s)));
+            ((WeaponSquare)s).setWeapons(new ArrayList<>(squareWeapons.get(board.getSpawnPoints().indexOf(s))));
         }
         LOGGER.log(Level.FINE, "Restoring checkpoint");
         displayPowerUps();

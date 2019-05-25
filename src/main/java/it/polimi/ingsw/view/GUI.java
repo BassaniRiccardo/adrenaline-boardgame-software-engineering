@@ -10,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
 
+import it.polimi.ingsw.controller.Encoder;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -93,8 +94,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        stage = primaryStage;
         Platform.runLater( () -> {
+
+            stage = primaryStage;
             stage.setTitle("Adrenaline");
             BorderPane pane = new BorderPane();
             pane.setBackground(new Background(new BackgroundFill(color, null, null)));
@@ -102,7 +104,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             stage.setScene(scene);
             Label label = new Label("Entering the configuration phase...");
             pane.setCenter(label);
-
             stage.show();
 
         });
@@ -116,6 +117,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * @param message   message to be displayed
      */
     public void display(String message) {
+
+        while (stage==null){
+            try {
+                Thread.sleep(2000);
+            }catch (InterruptedException e){e.printStackTrace();}
+        }
 
         Platform.runLater( () -> {
 
@@ -131,8 +138,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             layout.getChildren().add(label);
             Scene scene = new Scene(layout, 500, 500, color);
             Stage msgStage = new Stage();
-            msgStage.setScene(scene);
-            msgStage.show();
+            stage.setScene(scene);
+            stage.show();
 
         });
 
@@ -146,6 +153,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * @param maxLength      maximum length allowed for the answer
      */
     public void display(String question, String maxLength) {
+
+        while (stage==null){
+            try {
+                Thread.sleep(2000);
+            }catch (InterruptedException e){e.printStackTrace();}
+        }
 
         Platform.runLater( () -> {
 
@@ -169,16 +182,16 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             requestButton.setOnAction(e ->
                     {
                         System.out.println("REQ: you clicked me!");
-                        dataSaver.requestAnswer = (textField.getText());
-                        dataSaver.requestQuestion = question;
+                        dataSaver.answer = (textField.getText());
+                        dataSaver.message = question;
                         dataSaver.update = true;
                         reqStage.close();
                     }
             );
 
             Scene info = new Scene(request, 400, 300, color);
-            reqStage.setScene(info);
-            reqStage.show();
+            stage.setScene(info);
+            stage.show();
 
         });
 
@@ -192,6 +205,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * @param list      the option the user can choose among
      */
     public void display(String message, List<String> list) {
+
+        while (stage==null){
+            try {
+                Thread.sleep(2000);
+            }catch (InterruptedException e){e.printStackTrace();}
+        }
 
         Platform.runLater( () -> {
 
@@ -213,7 +232,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 buttons.add(b);
                 b.setOnAction(e -> {
                     System.out.println("OPT " + (buttons.indexOf(b)+1) + ": you clicked me!");
-                    dataSaver.requestAnswer = Integer.toString(buttons.indexOf(b) + 1);
+                    dataSaver.message = message;
+                    dataSaver.answer = Integer.toString(buttons.indexOf(b) + 1);
                     dataSaver.update = true;
                     optStage.close();
                 });
@@ -222,9 +242,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             options.getChildren().add(optionList);
 
             Scene scene = new Scene(options, 600,600, color);
-            optStage.setScene(scene);
+            stage.setScene(scene);
 
-            optStage.show();
+            stage.show();
 
         });
 
@@ -244,12 +264,17 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 Thread.sleep(2000);
             }catch (InterruptedException e){e.printStackTrace();}
         }
-        while (dataSaver.requestAnswer.length() > Integer.parseInt(maxLength)){
-            display("Max length exceeded, retry: " + dataSaver.requestQuestion, maxLength);
+
+        while (dataSaver.answer.length() > Integer.parseInt(maxLength)){
+            dataSaver.update=false;
+            display("Max length exceeded, retry: " + dataSaver.message, maxLength);
             get(maxLength);
         }
         dataSaver.update=false;
-        return dataSaver.requestAnswer;
+
+        display("Wait for your turn...");
+
+        return dataSaver.answer;
 
     }
 
@@ -261,7 +286,34 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * @return          the user's input
      */
     public String get(List<String> list) {
-        return get(Integer.toString(list.size()));
+
+        /*boolean verified = false;
+        for(int i = 1; i<=list.size(); i++) {
+            if (String.valueOf(i).equals(dataSaver.answer)) {
+                verified = true;
+            }
+        }
+        while (!verified){
+            display(dataSaver.message, list);
+            for(int i = 1; i<=list.size(); i++) {
+                if (String.valueOf(i).equals(dataSaver.answer)) {
+                    verified = true;
+                }
+            }
+        }
+        */
+
+        while (!dataSaver.update){
+            try {
+                Thread.sleep(2000);
+            }catch (InterruptedException e){e.printStackTrace();}
+        }
+
+        dataSaver.update=false;
+
+        display("Wait for your turn...");
+
+        return dataSaver.answer;
     }
 
     /**
@@ -295,12 +347,14 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * Class storing the values the get() method must return.
      */
     class DataSaver{
-        String requestAnswer;
-        String requestQuestion;
+        String answer;
+        String message;
         boolean update;
     }
 
+    //to delete
     public String get(){
+        System.out.println("questo metodo non va chiamato");
         return "";
     }
 

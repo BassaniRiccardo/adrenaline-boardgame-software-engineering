@@ -107,7 +107,8 @@ public class ClientMain {
             System.out.println("Scelta non valida. Riprovare.");
             buff = in.nextLine();
         }
-        if (buff.equals("GUI")) {
+        String selectedInterface;
+        if(buff.equals("GUI")){
             new Thread() {
                 @Override
                 public void run() {
@@ -117,12 +118,13 @@ public class ClientMain {
             GUI gui = GUI.waitGUI();
             ui = gui;
             ((GUI) ui).setClientMain(this);
-            ui.display("GUI selezionata.");
-        } else {
+            selectedInterface = "GUI selezionata.";
+        }else{
             ui = new CLI(this);
-            ui.display("CLI selezionata.");
+            selectedInterface = "CLI selezionata.";
         }
         executor.submit(ui);
+        ui.display(selectedInterface);
 
         ui.display("Che tipo di connessione vuoi utilizzare?", new ArrayList<>(Arrays.asList("Socket", "RMI")));
         buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
@@ -132,10 +134,10 @@ public class ClientMain {
         }
         if (buff.equals("2")) {
             connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
-            ui.display("RMI selezionata.");
+            //ui.display("RMI selezionata.");
         } else {
             connection = new TCPConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("TCPPort", "5000")));
-            ui.display("Socket selezionata.");
+            //ui.display("Socket selezionata.");
         }
         executor.submit(connection);
     }
@@ -151,9 +153,9 @@ public class ClientMain {
 
     }
 
-    public String getInput(String msg, int max) {
-        System.out.println(msg);
-        return ui.get();
+    public String getInput(String msg, int max){
+        ui.display(msg, Integer.toString(max));
+        return ui.get(Integer.toString(max));
     }
 
     public ClientModel getClientModel() {

@@ -40,8 +40,11 @@ public interface UI extends Runnable {
      * @return the string typed or chosen by the user
      */
     String get();
-    String get(List<String> list);
+
     String get(String max);
+
+    String get(List<String> list);
+
     void render();
 
 }

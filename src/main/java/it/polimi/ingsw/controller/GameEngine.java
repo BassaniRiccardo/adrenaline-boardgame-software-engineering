@@ -409,7 +409,7 @@ public class GameEngine implements Runnable{
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
-            if(System.currentTimeMillis()>start+timeout*1000){
+            if(System.currentTimeMillis()>start+timeout*10000){
                 return "1"; //what to return?
             }
         }

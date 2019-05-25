@@ -19,7 +19,7 @@ import java.util.*;
 
 public abstract class Square {
 
-    private final Board board;
+    protected final Board board;
     private final int id;
     private final int roomId;
     private final int row;

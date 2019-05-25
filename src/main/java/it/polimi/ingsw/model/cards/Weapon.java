@@ -1,6 +1,7 @@
 //come utilizzare final?
 
 package it.polimi.ingsw.model.cards;
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
@@ -115,7 +116,9 @@ public class Weapon implements Card {
      * Setters
      */
 
-    public void setLoaded(boolean loaded) { this.loaded = loaded; }
+    public void setLoaded(boolean loaded) { this.loaded = loaded;
+        board.addToUpdateQueue(Updater.get("loaded", this, loaded));
+    }
 
     public void setHolder(Player holder) {
         //if (!this.board.getPlayers().contains(holder)) throw new IllegalArgumentException("Only a player on the map can hold a weapon.");
@@ -180,7 +183,7 @@ public class Weapon implements Card {
     public void reload() throws NotAvailableAttributeException, WrongTimeException {
 
         if (loaded){ throw new WrongTimeException("A weapon can be reloaded only if unloaded.");}
-        this.loaded = true;
+        this.setLoaded(true);
         this.getHolder().getAmmoPack().subAmmoPack(this.fullCost);
 
     }

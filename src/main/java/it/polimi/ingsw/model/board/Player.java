@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.board;
 
 import it.polimi.ingsw.controller.ModelDataReader;
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
@@ -46,7 +47,6 @@ public class Player {
     public enum Status {
         BASIC, ADRENALINE_1, ADRENALINE_2, FRENZY_1, FRENZY_2
     }
-
 
     private final int id;
     private final HeroName name;
@@ -223,6 +223,7 @@ public class Player {
         previousPosition = position;
         this.position = square;
         square.addPlayer(this);
+        board.addToUpdateQueue(Updater.get("move", this, square));
     }
 
     public void setPointsToGive(int p) {
@@ -236,11 +237,12 @@ public class Player {
 
     public void setJustDamaged(boolean justDamaged){this.justDamaged = justDamaged;}
 
-    public void setFlipped(boolean flipped){this.flipped = flipped;}
+    public void setFlipped(boolean flipped){this.flipped = flipped; board.addToUpdateQueue(Updater.get("flip", this));
+    }
 
     public void setInGame(boolean inGame) {this.inGame = inGame;  }
 
-    public void setDead(boolean dead) {this.dead = dead;}
+    public void setDead(boolean dead) {this.dead = dead; board.addToUpdateQueue(Updater.get("die", this));}
 
     public void setDamages(List<Player> damages) { this.damages = damages; }
 
@@ -293,6 +295,7 @@ public class Player {
                 status = Status.ADRENALINE_1;
             }
         }
+        board.addToUpdateQueue(Updater.get("damaged", this, damages));
     }
 
 
@@ -313,7 +316,7 @@ public class Player {
                 marks.add(shooter);
             }
         }
-
+        board.addToUpdateQueue(Updater.get("marked", this, marks));
     }
 
 
@@ -327,6 +330,7 @@ public class Player {
         if (this.weaponList.size()>J.getInt("maxWeapons")) throw new UnacceptableItemNumberException("A player can hold up to 3 weapons; 4 are allowed while choosing which one to discard.");
         addedWeapon.setHolder(this);
         weaponList.add(addedWeapon);
+        board.addToUpdateQueue(Updater.get("pickUpWeapon", this, addedWeapon));
     }
     
 
@@ -335,7 +339,8 @@ public class Player {
      *
      * @param ammoPack         ammo added.
      */
-    public void addAmmoPack(AmmoPack ammoPack) {this.ammoPack.addAmmoPack(ammoPack); }
+    public void addAmmoPack(AmmoPack ammoPack) {this.ammoPack.addAmmoPack(ammoPack);
+        board.addToUpdateQueue(Updater.get("addAmmo", this, ammoPack));}
 
 
     /**
@@ -361,7 +366,6 @@ public class Player {
             board.getAmmoDeck().getDiscarded().add(collectedCard);
         }
         return true;
-
     }
 
 
@@ -374,11 +378,12 @@ public class Player {
         if (this.powerUpList.size() > 4) throw new UnacceptableItemNumberException("A player can normally hold up to 3 power ups; 4 are allowed in the process of rebirth. More than 4 are never allowed.");
         if (this.board.getPowerUpDeck().getDrawable().isEmpty()){
             this.board.getPowerUpDeck().regenerate();
+            board.addToUpdateQueue(Updater.get("pDeckRegen", board.getPowerUpDeck().getDrawable().size()));
         }
         PowerUp p = (PowerUp)this.board.getPowerUpDeck().drawCard();
         p.setHolder(this);
         powerUpList.add(p);
-
+        board.addToUpdateQueue(Updater.get("drawPowerUp", this, p));
     }
     
 
@@ -395,6 +400,7 @@ public class Player {
             removedWeapon.setHolder(null);
         } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "This thype of card cannot have an holder");}
         */
+        board.addToUpdateQueue(Updater.get("discardWeapon", this, (Weapon)removedWeapon));
     }
 
 
@@ -408,6 +414,7 @@ public class Player {
         if (!powerUpList.contains(removedPowerUp)) throw  new IllegalArgumentException("The player does not own this powerup.");
         powerUpList.remove(removedPowerUp);
         board.getPowerUpDeck().addDiscardedCard(removedPowerUp);
+        board.addToUpdateQueue(Updater.get("discardPowerUp", this, (PowerUp)removedPowerUp));
     }
 
 
@@ -476,6 +483,7 @@ public class Player {
      */
     public void useAmmo(AmmoPack usedAmmo) {
         this.ammoPack.subAmmoPack(usedAmmo);
+        board.addToUpdateQueue(Updater.get("useAmmo", this, usedAmmo));
     }
 
 

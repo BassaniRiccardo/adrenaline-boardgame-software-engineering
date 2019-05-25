@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.board;
 
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.cards.Weapon;
@@ -109,8 +110,9 @@ public class WeaponSquare extends Square {
 
         this.weapons.remove(weapon);
 
-        return weapon;
+        board.addToUpdateQueue(Updater.get("weaponRemoved", this, (Weapon)weapon));
 
+        return weapon;
     }
 
 

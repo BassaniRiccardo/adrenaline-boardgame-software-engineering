@@ -100,5 +100,5 @@ public abstract class VirtualView implements Runnable{
 
     abstract int chooseNow(String msg, List<?> options);
 
-    abstract public void update(ClientModel clientModel);
+    abstract public void update(JsonObject jsonObject);
 }

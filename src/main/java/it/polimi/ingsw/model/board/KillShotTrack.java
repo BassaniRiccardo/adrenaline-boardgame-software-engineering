@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.board;
 
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
 
@@ -72,6 +73,8 @@ public class KillShotTrack {
         if (quantity > skullsLeft) throw new UnacceptableItemNumberException("The number of skulls left must be major or equal to zero.");
         skullsLeft -= quantity;
 
+        board.addToUpdateQueue(Updater.get("skullRemoved", quantity));
+
     }
 
 
@@ -92,19 +95,22 @@ public class KillShotTrack {
         if (!dead.isDead())         throw new WrongTimeException("A kill can be registered only when a player dies.");
         if (killer.equals(dead))    throw new IllegalArgumentException("The killer and the dead can not be the same person,");
         killers.add(killer);
+        boolean ok = false;
         if (overkill){
             killers.add(killer);
+            ok = true;
         }
         if (skullsLeft != 0) {
             dead.updateAwards();
             removeSkulls(1);
+            board.addToUpdateQueue(Updater.get("skullRemoved", 1, killer, ok));
             System.out.println("Skulls left: " + skullsLeft + ".");
         }
         else {
             dead.setDead(false);
             dead.getDamages().clear();
+            board.addToUpdateQueue(Updater.get("skullRemoved", 0, killer, ok));
         }
-
     }
 
 

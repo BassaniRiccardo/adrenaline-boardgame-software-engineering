@@ -109,9 +109,9 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         }
     }
 
-    public void update(ClientModel clientModel){
+    public void update(JsonObject jsonObject){
         try {
-            remoteView.updateModel(clientModel);
+            remoteView.update(jsonObject);
         } catch (RemoteException ex) {
             suspend();
         }

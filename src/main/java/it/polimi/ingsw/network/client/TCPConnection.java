@@ -102,10 +102,7 @@ public class TCPConnection implements Runnable {
                             int choice = clientMain.choose(jMessage.get("text").getAsString(), list);
                             send(String.valueOf(choice));
                             break;
-            case "UPD" :    JsonObject mod = jMessage.getAsJsonObject("mod");
-                            Gson gson = new Gson();
-                            ClientModel clientModel = gson.fromJson(mod.toString(), ClientModel.class);
-                            clientMain.setClientModel(clientModel);
+            case "UPD" :    clientMain.update(jMessage);
                             break;
             default:        //do something
                             break;

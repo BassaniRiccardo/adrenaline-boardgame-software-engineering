@@ -1,8 +1,6 @@
 package it.polimi.ingsw.network.server;
 
 import com.google.gson.*;
-import it.polimi.ingsw.controller.Encoder;
-import it.polimi.ingsw.view.ClientModel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -158,12 +156,7 @@ public class TCPVirtualView extends VirtualView {
         out.flush();
         LOGGER.log(Level.FINE, "Sending a message over TCP connection");    }
 
-    public void update (ClientModel clientModel){
-        Gson gson = new Gson();
-        String json = gson.toJson(clientModel);
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", "UPD");
-        jsonObject.addProperty("model", json);
+    public void update (JsonObject jsonObject){
         send(jsonObject);
     }
 }

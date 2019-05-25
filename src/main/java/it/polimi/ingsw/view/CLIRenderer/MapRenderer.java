@@ -33,7 +33,7 @@ public class MapRenderer {
             players.add(new ArrayList<>());
             ammo.add(new ArrayList<>());
         }
-
+/*
         IntStream.range(0, 11).forEachOrdered(n -> {
 
             for(List<String> l : ammo){
@@ -77,7 +77,7 @@ public class MapRenderer {
             squares[n] = new SquareRenderer(n, ammo.get(n), weaponNum[n], players.get(n));
             placeSquareOnMap(map, squares[n], n);
         };
-
+*/
         return map;
     }
 
@@ -142,4 +142,5 @@ public class MapRenderer {
         }
         return res;
     }
+
 }

@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.logging.*;
 
 
-import static it.polimi.ingsw.controller.Encoder.*;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 
 /**
@@ -1091,5 +1090,19 @@ public class TurnManager implements Runnable{
             reload(3);
         }
         else actionsLeft++;
+    }
+
+    /**
+     * Returns a list of string given a generic list.
+     *
+     * @param options       the generic list to transform.
+     * @return              the String list.
+     */
+    public static List<String> toStringList(List options){
+        List<String> encoded = new ArrayList<>();
+        for (Object p : options ){
+            encoded.add(p.toString());
+        }
+        return encoded;
     }
 }

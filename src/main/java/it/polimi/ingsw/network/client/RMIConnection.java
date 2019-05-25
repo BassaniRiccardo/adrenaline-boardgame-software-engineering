@@ -1,5 +1,6 @@
 package it.polimi.ingsw.network.client;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.network.server.RemoteController;
 import it.polimi.ingsw.network.server.RemoteServer;
 import it.polimi.ingsw.view.ClientMain;
@@ -90,8 +91,8 @@ public class RMIConnection implements Runnable, RemoteView {
 
     public void ping(){}
 
-    public void updateModel(ClientModel clientModel){
-        clientMain.setClientModel(clientModel);
+    public void update(JsonObject jsonObject){
+        clientMain.update(jsonObject);
     }
 
 }

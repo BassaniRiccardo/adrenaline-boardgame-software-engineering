@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.CLIRenderer;
 
 import it.polimi.ingsw.view.ClientModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //TODO: rewrite all CLI rendering functions properly, make the code more robust
@@ -10,7 +11,8 @@ public class HandRenderer {
     public static String[][] get(ClientModel clientModel) {
 
         String[][] box = new String[3][60];
-        List<String> list = clientModel.getPowerUpinHand();
+        //List<String> list = clientModel.getPowerUpinHand();
+        List<String> list = new ArrayList<>();
         String ans = "Hand: ";
 
         if (list.isEmpty()) {

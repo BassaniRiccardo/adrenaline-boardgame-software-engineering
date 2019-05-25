@@ -1,6 +1,6 @@
 package it.polimi.ingsw.model.board;
 
-import it.polimi.ingsw.controller.Encoder;
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.network.server.VirtualView;
 
@@ -652,6 +652,12 @@ public class Board {
         return id;
     }
 
+
+    private Map<VirtualView, List<JsonObject>> updates = new HashMap<>();
+
+    //for virtualview in player map.put(v, new ArrayList)
+
+
     public void registerObserver(VirtualView p){
         observers.add(p);
     }
@@ -667,6 +673,21 @@ public class Board {
     }
 
     public void notifyObserver(VirtualView p){
-        p.update(Encoder.getModel(this, p.getModel()));
+        for(JsonObject update : updates.get(p)) {
+            p.update(update);
+        }
+    }
+
+    public void addToUpdateQueue(JsonObject jsonObject){
+        for(VirtualView v : updates.keySet()){
+            updates.get(v).add(jsonObject);
+        }
+    }
+
+    public void revertUpdates(VirtualView v){
+        for(VirtualView other : updates.keySet()){
+            updates.get(other).clear();
+        }
+        //v.update(Encoder.getRevertUpdate());
     }
 }

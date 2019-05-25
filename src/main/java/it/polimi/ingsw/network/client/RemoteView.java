@@ -1,5 +1,6 @@
 package it.polimi.ingsw.network.client;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.view.ClientModel;
 
 import java.rmi.Remote;
@@ -15,7 +16,7 @@ public interface RemoteView extends Remote {
 
     String getInput(String msg, int max) throws RemoteException;
 
-    void updateModel(ClientModel clientModel) throws RemoteException;
+    void update(JsonObject jsonObject) throws RemoteException;
 
     void ping() throws RemoteException;
 

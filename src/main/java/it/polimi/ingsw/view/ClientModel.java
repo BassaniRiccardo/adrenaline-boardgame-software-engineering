@@ -1,6 +1,9 @@
 package it.polimi.ingsw.view;
 
-//TODO: implement
+//TODO: reduce size and complexity to the minimum
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import java.util.List;
 import java.util.Map;
@@ -10,141 +13,388 @@ import java.util.Map;
  *
  * @author  marcobaga
  */
-public final class ClientModel {
+public class ClientModel {
 
-    private final int weaponCardsLeft;
-    private final int powerUpCardsLeft;
-    private final int ammoTilesLeft;
+    public class SimpleSquare {
 
-    private final Map<Integer, List<String>> weaponsOnGround;
-    private final Map<Integer, Integer> blueAmmoOnGround;
-    private final Map<Integer, Integer> redAmmoOnGround;
-    private final Map<Integer, Integer> yellowAmmoOnGround;
-    private final Map<Integer, Boolean> powerUpOnGround;
+        public SimpleSquare(List<SimpleWeapon> weapons, int id, int blueAmmo, int redAmmo, int yellowAmmo, boolean powerup) {
+            this.weapons = weapons;
+            this.id = id;
+            this.blueAmmo = blueAmmo;
+            this.redAmmo = redAmmo;
+            this.yellowAmmo = yellowAmmo;
+            this.powerup = powerup;
+        }
 
-    private final int mapID;
-    private final int currentPlayer;
-    private final List<Integer> players;
-    private final Map<Integer, String> playerColor;
+        List<SimpleWeapon> weapons;
+        int id;
+        int blueAmmo;
+        int redAmmo;
+        int yellowAmmo;
+        boolean powerup;
 
-    private final Map<Integer, Integer> cardNumber;
-    private final Map<Integer, List<Integer>> damage;
-    private final Map<Integer, List<Integer>> marks;
-    private final Map<Integer, List<String>> equippedWeapons;
-    private final Map<String, Boolean> loaded;
-    private final Map<Integer, Integer> playerPosition;
-    private final Map<Integer, String> playerName;
+        public List<SimpleWeapon> getWeapons() {
+            return weapons;
+        }
 
-    private final List<String> powerUpinHand;
-    private final List<Integer> killShotTrack;
+        public void setWeapons(List<SimpleWeapon> weapons) {
+            this.weapons = weapons;
+        }
 
-    public ClientModel(int weaponCardsLeft, int powerUpCardsLeft, int ammoTilesLeft, Map<Integer, List<String>> weaponsOnGround, Map<Integer, Integer> blueAmmoOnGround, Map<Integer, Integer> redAmmoOnGround, Map<Integer, Integer> yellowAmmoOnGround, Map<Integer, Boolean> powerUpOnGround, int mapID, int currentPlayer, List<Integer> players, Map<Integer, String> playerColor, Map<Integer, Integer> cardNumber, Map<Integer, List<Integer>> damage, Map<Integer, List<Integer>> marks, Map<Integer, List<String>> equippedWeapons, Map<String, Boolean> loaded, Map<Integer, Integer> playerPosition, Map<Integer, String> playerName, List<String> powerUpInHand, List<Integer> killShotTrack) {
-        this.weaponCardsLeft = weaponCardsLeft;
-        this.powerUpCardsLeft = powerUpCardsLeft;
-        this.ammoTilesLeft = ammoTilesLeft;
-        this.weaponsOnGround = weaponsOnGround;
-        this.blueAmmoOnGround = blueAmmoOnGround;
-        this.redAmmoOnGround = redAmmoOnGround;
-        this.yellowAmmoOnGround = yellowAmmoOnGround;
-        this.powerUpOnGround = powerUpOnGround;
-        this.mapID = mapID;
-        this.currentPlayer = currentPlayer;
+        public int getBlueAmmo() {
+            return blueAmmo;
+        }
+
+        public void setBlueAmmo(int blueAmmo) {
+            this.blueAmmo = blueAmmo;
+        }
+
+        public int getRedAmmo() {
+            return redAmmo;
+        }
+
+        public void setRedAmmo(int redAmmo) {
+            this.redAmmo = redAmmo;
+        }
+
+        public int getYellowAmmo() {
+            return yellowAmmo;
+        }
+
+        public void setYellowAmmo(int yellowAmmo) {
+            this.yellowAmmo = yellowAmmo;
+        }
+
+        public boolean isPowerup() {
+            return powerup;
+        }
+
+        public void setPowerup(boolean powerup) {
+            this.powerup = powerup;
+        }
+
+        public void SetId(int id) {
+            this.id = id;
+        }
+
+        public int getId(){
+            return id;
+        }
+
+        public void removeWeapon(String name){
+            for(SimpleWeapon w : weapons){
+                if(w.getName()==name){
+                    weapons.remove(w);
+                    return;
+                }
+            }
+        }
+    }
+
+    public class SimplePlayer{
+        private int id;
+        private String color;
+        private int cardNumber;
+        private List<SimplePlayer> damage;
+        private List<SimplePlayer> marks;
+        private List<SimpleWeapon> weapons;
+        private SimpleSquare position;
+        private String name;
+        private int blueAmmo;
+        private int redAmmo;
+        private int yellowAmmo;
+        private boolean flipped;
+
+        public SimplePlayer(int id, String color, int cardNumber, List<SimplePlayer> damage, List<SimplePlayer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String name, int blueAmmo, int redAmmo, int yellowAmmo) {
+            this.id = id;
+            this.color = color;
+            this.cardNumber = cardNumber;
+            this.damage = damage;
+            this.marks = marks;
+            this.weapons = weapons;
+            this.position = position;
+            this.name = name;
+            this.blueAmmo = blueAmmo;
+            this.redAmmo = redAmmo;
+            this.yellowAmmo = yellowAmmo;
+        }
+
+        public void flip(){
+            this.flipped = !flipped;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getColor() {
+            return color;
+        }
+
+        public void setColor(String color) {
+            this.color = color;
+        }
+
+        public int getCardNumber() {
+            return cardNumber;
+        }
+
+        public void setCardNumber(int cardNumber) {
+            this.cardNumber = cardNumber;
+        }
+
+        public List<SimplePlayer> getDamage() {
+            return damage;
+        }
+
+        public void setDamage(List<SimplePlayer> damage) {
+            this.damage = damage;
+        }
+
+        public List<SimplePlayer> getMarks() {
+            return marks;
+        }
+
+        public void setMarks(List<SimplePlayer> marks) {
+            this.marks = marks;
+        }
+
+        public List<SimpleWeapon> getWeapons() {
+            return weapons;
+        }
+
+        public void setWeapons(List<SimpleWeapon> weapons) {
+            this.weapons = weapons;
+        }
+
+        public SimpleSquare getPosition() {
+            return position;
+        }
+
+        public void setPosition(SimpleSquare position) {
+            this.position = position;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void pickUpWeapon(String name){
+            for(SimpleWeapon w : this.position.getWeapons()){
+                if(w.getName().equals(name)){
+                    this.position.getWeapons().remove(w);
+                    this.weapons.add(w);
+                    return;
+                }
+            }
+        }
+
+        public void discardWeapon(String name){
+            for(SimpleWeapon w : this.position.getWeapons()){
+                if(w.getName().equals(name)){
+                    this.position.getWeapons().add(w);
+                    this.weapons.remove(w);
+                    return;
+                }
+            }
+        }
+
+        public void addAmmo(int b, int r, int y){
+            blueAmmo=blueAmmo+b;
+            redAmmo=redAmmo+r;
+            yellowAmmo=yellowAmmo+y;
+        }
+
+        public void subAmmo(int b, int r, int y){
+            blueAmmo=blueAmmo-b;
+            redAmmo=redAmmo-r;
+            yellowAmmo=yellowAmmo-y;
+        }
+
+        public void setAmmo(int b, int r, int y){
+            blueAmmo=b;
+            redAmmo=r;
+            yellowAmmo=y;
+        }
+
+        public SimpleWeapon getWeapon(String name){
+            for(SimpleWeapon s : weapons){
+                if(s.getName()==name){
+                    return s;
+                }
+            }
+            return new SimpleWeapon("error", false);
+        }
+    }
+
+    public class SimpleWeapon{
+        String name;
+        boolean loaded;
+
+        public SimpleWeapon(String name, boolean loaded) {
+            this.name = name;
+            this.loaded = loaded;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public boolean isLoaded() {
+            return loaded;
+        }
+
+        public void setLoaded(boolean loaded) {
+            this.loaded = loaded;
+        }
+    }
+
+    private List<SimpleSquare> squares;
+    private List<SimplePlayer> players;
+
+    private int weaponCardsLeft;
+    private int powerUpCardsLeft;
+    private int ammoTilesLeft;
+
+    private int mapID;
+    private SimplePlayer currentPlayer;
+    private List<SimplePlayer> killShotTrack;
+    private List<String> powerUpInHand;
+
+
+    public List<SimpleSquare> getSquares() {
+        return squares;
+    }
+
+    public void setSquares(List<SimpleSquare> squares) {
+        this.squares = squares;
+    }
+
+    public List<SimplePlayer> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<SimplePlayer> players) {
         this.players = players;
-        this.playerColor = playerColor;
-        this.cardNumber = cardNumber;
-        this.damage = damage;
-        this.marks = marks;
-        this.equippedWeapons = equippedWeapons;
-        this.loaded = loaded;
-        this.playerPosition = playerPosition;
-        this.playerName = playerName;
-        this.powerUpinHand = powerUpInHand;
-        this.killShotTrack = killShotTrack;
     }
 
     public int getWeaponCardsLeft() {
         return weaponCardsLeft;
     }
 
+    public void setWeaponCardsLeft(int weaponCardsLeft) {
+        this.weaponCardsLeft = weaponCardsLeft;
+    }
+
     public int getPowerUpCardsLeft() {
         return powerUpCardsLeft;
+    }
+
+    public void setPowerUpCardsLeft(int powerUpCardsLeft) {
+        this.powerUpCardsLeft = powerUpCardsLeft;
     }
 
     public int getAmmoTilesLeft() {
         return ammoTilesLeft;
     }
 
-    public Map<Integer, List<String>> getWeaponsOnGround() {
-        return weaponsOnGround;
-    }
-
-    public Map<Integer, Integer> getBlueAmmoOnGround() {
-        return blueAmmoOnGround;
-    }
-
-    public Map<Integer, Integer> getRedAmmoOnGround() {
-        return redAmmoOnGround;
-    }
-
-    public Map<Integer, Integer> getYellowAmmoOnGround() {
-        return yellowAmmoOnGround;
-    }
-
-    public Map<Integer, Boolean> getPowerUpOnGround() {
-        return powerUpOnGround;
+    public void setAmmoTilesLeft(int ammoTilesLeft) {
+        this.ammoTilesLeft = ammoTilesLeft;
     }
 
     public int getMapID() {
         return mapID;
     }
 
-    public int getCurrentPlayer() {
+    public void setMapID(int mapID) {
+        this.mapID = mapID;
+    }
+
+    public SimplePlayer getCurrentPlayer() {
         return currentPlayer;
     }
 
-    public List<Integer> getPlayers() {
-        return players;
+    public void setCurrentPlayer(SimplePlayer currentPlayer) {
+        this.currentPlayer = currentPlayer;
     }
 
-    public Map<Integer, String> getPlayerColor() {
-        return playerColor;
-    }
-
-    public Map<Integer, Integer> getCardNumber() {
-        return cardNumber;
-    }
-
-    public Map<Integer, List<Integer>> getDamage() {
-        return damage;
-    }
-
-    public Map<Integer, List<Integer>> getMarks() {
-        return marks;
-    }
-
-    public Map<Integer, List<String>> getEquippedWeapons() {
-        return equippedWeapons;
-    }
-
-    public Map<String, Boolean> getLoaded() {
-        return loaded;
-    }
-
-    public Map<Integer, Integer> getPlayerPosition() {
-        return playerPosition;
-    }
-
-    public Map<Integer, String> getPlayerName() {
-        return playerName;
-    }
-
-    public List<Integer> getKillShotTrack() {
+    public List<SimplePlayer> getKillShotTrack() {
         return killShotTrack;
     }
 
-    public List<String> getPowerUpinHand() {
-        return powerUpinHand;
+    public void setKillShotTrack(List<SimplePlayer> killShotTrack) {
+        this.killShotTrack = killShotTrack;
     }
+
+    public List<String> getPowerUpInHand() {
+        return powerUpInHand;
+    }
+
+    public void setPowerUpInHand(List<String> powerUpInHand) {
+        this.powerUpInHand = powerUpInHand;
+    }
+
+    public void removeSkulls(int n){
+        //do something with killshottrack
+    }
+
+    public void moveTo(int player, int square) {
+        SimplePlayer p = getPlayer(player);
+        SimpleSquare s = getSquare(square);
+        p.setPosition(s);
+    }
+
+    public void flip(int player) {
+        getPlayer(player).flip();
+    }
+
+    public void damage(int player, JsonArray damage){
+        List<SimplePlayer> list = getPlayer(player).getDamage();
+        list.clear();
+        for(JsonElement j : damage){
+            list.add(getPlayer(j.getAsInt()));
+        }
+    }
+
+    public void mark(int player, JsonArray marks){
+        List<SimplePlayer> list = getPlayer(player).getMarks();
+        list.clear();
+        for(JsonElement j : marks){
+            list.add(getPlayer(j.getAsInt()));
+        }
+    }
+
+    public SimplePlayer getPlayer(int id){
+        for(SimplePlayer s : players){
+            if(s.getId() == id){
+                return s;
+            }
+        }
+        return players.get(0);
+        //watch out
+    }
+
+    public SimpleSquare getSquare(int id){
+        for(SimpleSquare s : squares){
+            if(s.getId()==id){
+                return s;
+            }
+        }
+        return squares.get(0);
+    }
+
 
     public static String getEscapeCode(String color){
         if(color==null){

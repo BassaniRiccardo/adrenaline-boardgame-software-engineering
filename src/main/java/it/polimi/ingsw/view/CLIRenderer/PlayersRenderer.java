@@ -15,16 +15,16 @@ public class PlayersRenderer {
 
         String[][] box = new String[24][55];
 
-        List<Integer> players = clientModel.getPlayers();
-        int playerNum = players.size();
-        String[] names = new String[playerNum];
-        String[] weapons = new String[playerNum];
-        for(int i=0; i<playerNum; i++){
-            names[i] = "";
-            weapons[i] = "";
-        }
+        //List<Integer> players = clientModel.getPlayers();
+        //int playerNum = players.size();
+        //String[] names = new String[playerNum];
+        //String[] weapons = new String[playerNum];
+        //for(int i=0; i<playerNum; i++){
+        //    names[i] = "";
+        //    weapons[i] = "";
+        //}
 
-
+/*
         for(int i = 0; i<players.size(); i++){
 
             int playerID = players.get(i);
@@ -40,14 +40,14 @@ public class PlayersRenderer {
                 }
             }
         }
-
+*/
 
         for(int i=0; i<box.length; i++){
             for(int j =0; j<box[i].length; j++){
                 box[i][j] = " ";
             }
         }
-
+/*
         for(int i=0; i<playerNum; i++){
 
             for(int j=0; j<names[i].length(); j++){
@@ -84,7 +84,7 @@ public class PlayersRenderer {
                 }
             }
         }
-
+*/
         //resize
         int max = 0;
         for(int i=0; i<box.length; i++){

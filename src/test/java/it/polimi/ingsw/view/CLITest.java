@@ -91,7 +91,7 @@ public class CLITest {
         List<Integer> killshotTrack = Arrays.asList(1,1,1,4,0);
 
 
-        ClientModel model = new ClientModel(3, 5, 4, weaponsOnGround, blueAmmoOnGround, redAmmoOnGround, yellowAmmoOnGround, powerUpOnGround, mapID, currentPlayer, players, playerColor, cardNumber, damage, marks, equippedWeapons, loaded, playerPosition, playerName, powerUpInHand, killshotTrack);
+        //ClientModel model = new ClientModel(3, 5, 4, weaponsOnGround, blueAmmoOnGround, redAmmoOnGround, yellowAmmoOnGround, powerUpOnGround, mapID, currentPlayer, players, playerColor, cardNumber, damage, marks, equippedWeapons, loaded, playerPosition, playerName, powerUpInHand, killshotTrack);
 
 
         //getmap okay
@@ -99,9 +99,9 @@ public class CLITest {
         //playerbox almost okay
         //handbox almost okay
 
-        cm.setClientModel(model);
-        cli.render();
-        cli.drawModel();
+        //cm.setClientModel(model);
+        //cli.render();
+        //cli.drawModel();
     }
 
 }

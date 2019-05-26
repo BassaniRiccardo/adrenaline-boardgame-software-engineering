@@ -67,6 +67,7 @@ public class BoardConfigurer {
 
         //switch (type) {
 
+        board.setId(b);
         List<Square> map = new ArrayList<>();
         List<WeaponSquare> spawnPoints = new ArrayList<>();
 

@@ -224,8 +224,8 @@ public class Updater {
             } catch (NotAvailableAttributeException e) {
                 LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
             }
-            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped());
-
+            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints());
+            simplePlayers.add(simplePlayer);
             //currentPlayer
             if (p.equals(board.getCurrentPlayer())){
                 cm.setCurrentPlayer(simplePlayer);

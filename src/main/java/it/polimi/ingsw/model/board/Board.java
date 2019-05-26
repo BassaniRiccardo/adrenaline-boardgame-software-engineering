@@ -190,6 +190,8 @@ public class Board {
         this.map = map;
     }
 
+
+
     /**
      * Setter for leftWalls.
      *

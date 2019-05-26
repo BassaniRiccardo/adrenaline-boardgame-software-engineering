@@ -46,17 +46,20 @@ public class ClientModel {
     public abstract class SimpleSquare {
 
 
-        public SimpleSquare(int id) {
+        public SimpleSquare(int id, boolean spawnPoint) {
             this.id = id;
+            this.spawnPoint = spawnPoint;
         }
 
         int id;
+        boolean spawnPoint;
         public void SetId(int id) {
             this.id = id;
         }
         public int getId(){
             return id;
         }
+        public boolean isSpawnPoint() {return spawnPoint;}
 
     }
 
@@ -66,8 +69,8 @@ public class ClientModel {
      */
     public class SimpleWeaponSquare extends SimpleSquare{
 
-        public SimpleWeaponSquare(int id, List<SimpleWeapon> weapons) {
-            super(id);
+        public SimpleWeaponSquare(int id, boolean spawnPoint, List<SimpleWeapon> weapons) {
+            super(id, spawnPoint);
             this.weapons = weapons;
 
         }
@@ -99,8 +102,8 @@ public class ClientModel {
      */
     public class SimpleAmmoSquare extends SimpleSquare{
 
-        public SimpleAmmoSquare(int id, int blueAmmo, int redAmmo, int yellowAmmo, boolean powerup) {
-            super(id);
+        public SimpleAmmoSquare(int id, boolean spawnPoint, int blueAmmo, int redAmmo, int yellowAmmo, boolean powerup) {
+            super(id, spawnPoint);
             this.blueAmmo = blueAmmo;
             this.redAmmo = redAmmo;
             this.yellowAmmo = yellowAmmo;
@@ -165,8 +168,9 @@ public class ClientModel {
         private int yellowAmmo;
         private boolean flipped;
         private boolean inGame;
+        private int points;
 
-        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped) {
+        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped, int points) {
             this.id = id;
             this.color = color;
             this.cardNumber = cardNumber;
@@ -180,6 +184,7 @@ public class ClientModel {
             this.yellowAmmo = yellowAmmo;
             this.inGame = inGame;
             this.flipped = flipped;
+            this.points = points;
         }
 
         public void flip(){
@@ -251,6 +256,10 @@ public class ClientModel {
         public void setUsername(String username) {
             this.username = username;
         }
+
+        public int getPoints() {return points; }
+
+        public void setPoints(int points) {this.points = points;}
 
         public void pickUpWeapon(String name){
             for(SimpleWeapon w : ((SimpleWeaponSquare)this.position).getWeapons()){
@@ -465,7 +474,7 @@ public class ClientModel {
         for (Weapon weapon : square.getWeapons()){
             weapons.add(toSimpleWeapon(weapon));
         }
-        return new ClientModel().new SimpleWeaponSquare(square.getId(), weapons);
+        return new ClientModel().new SimpleWeaponSquare(square.getId(), true, weapons);
     }
 
     public static SimpleSquare toSimpleAmmoSquare(AmmoSquare square){
@@ -483,7 +492,7 @@ public class ClientModel {
         } catch (NotAvailableAttributeException e){
             LOGGER.log(Level.FINE, "No ammotile on the square: 0,0,0, false is displayed.");
         }
-        return new ClientModel().new SimpleAmmoSquare(square.getId(), redAmmo, blueAmmo, yellowAmmo, powerUp);
+        return new ClientModel().new SimpleAmmoSquare(square.getId(), false, redAmmo, blueAmmo, yellowAmmo, powerUp);
     }
 
     public static String getEscapeCode(String color){

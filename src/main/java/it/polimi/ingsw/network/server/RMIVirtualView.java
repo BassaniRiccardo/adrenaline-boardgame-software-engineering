@@ -1,6 +1,7 @@
 package it.polimi.ingsw.network.server;
 
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.network.client.RemoteView;
 import it.polimi.ingsw.view.ClientModel;
 
@@ -118,4 +119,6 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     public void ping(){}
+
+
 }

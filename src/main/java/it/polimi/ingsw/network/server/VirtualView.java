@@ -38,6 +38,7 @@ public abstract class VirtualView implements Runnable{
      * Manages login communication with the client
      */
     public void run(){
+
         name = getInputNow("Select a name", 16);
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
@@ -101,4 +102,5 @@ public abstract class VirtualView implements Runnable{
     abstract int chooseNow(String msg, List<?> options);
 
     abstract public void update(JsonObject jsonObject);
+
 }

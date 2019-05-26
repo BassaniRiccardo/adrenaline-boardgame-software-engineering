@@ -1,6 +1,7 @@
 package it.polimi.ingsw.controller;
 
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.KillShotTrack;
 import it.polimi.ingsw.model.board.Player;
@@ -40,7 +41,6 @@ public class GameEngine implements Runnable{
     private Map<VirtualView, String> notifications;
     private Timer timer = new Timer(120);
 
-
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
 
@@ -78,7 +78,6 @@ public class GameEngine implements Runnable{
     public Board getBoard() {
         return board;
     }
-
 
     /**
      *  Setters
@@ -175,6 +174,11 @@ public class GameEngine implements Runnable{
         setCurrentPlayer(players.get(0));
         statusSaver = new StatusSaver(board);
         LOGGER.log(Level.INFO,"\n");
+
+        for(VirtualView p : players) {
+            board.addToUpdateQueue(Updater.getModel(board, p.getModel()));
+        }
+        board.notifyObservers();
 
     }
 
@@ -472,7 +476,7 @@ public class GameEngine implements Runnable{
     }
 
     public Map<VirtualView, String> getNotifications(){
-        //also set waitin to true?
+        //also set waiting to true?
         return notifications;
     }
 

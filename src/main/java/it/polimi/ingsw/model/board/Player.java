@@ -879,6 +879,15 @@ public class Player {
 
     }
 
+    public String getstringColor(){
+        if (name==HeroName.D_STRUCT_OR) return "yellow";
+        if (name==HeroName.BANSHEE) return "blue";
+        if (name==HeroName.DOZER) return "grey";
+        if (name==HeroName.SPROG) return "green";
+        if (name==HeroName.VIOLET) return "purple";
+        else return "wrong hero name: no color";
+    }
+
 
     /**
      * Returns a string representing the player.

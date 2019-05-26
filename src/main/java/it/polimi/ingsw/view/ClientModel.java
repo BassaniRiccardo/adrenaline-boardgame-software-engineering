@@ -4,9 +4,16 @@ package it.polimi.ingsw.view;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import it.polimi.ingsw.model.board.AmmoSquare;
+import it.polimi.ingsw.model.board.WeaponSquare;
+import it.polimi.ingsw.model.cards.AmmoTile;
+import it.polimi.ingsw.model.cards.Weapon;
+import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class managing the client's model
@@ -15,23 +22,57 @@ import java.util.Map;
  */
 public class ClientModel {
 
-    public class SimpleSquare {
+    //TODO righe&Colonne
 
-        public SimpleSquare(List<SimpleWeapon> weapons, int id, int blueAmmo, int redAmmo, int yellowAmmo, boolean powerup) {
-            this.weapons = weapons;
+    private List<SimpleSquare> squares;
+    private List<SimplePlayer> players;
+
+    private int weaponCardsLeft;
+    private int powerUpCardsLeft;
+    private int ammoTilesLeft;
+
+    private int mapID;
+    private SimplePlayer currentPlayer;
+    private List<SimplePlayer> killShotTrack;
+    private int skullsLeft;
+    private List<String> powerUpInHand;
+
+    private static final Logger LOGGER = Logger.getLogger("clientLogger");
+
+
+    /**
+     * A simplified version of Square, containing only the things the user should see.
+     */
+    public abstract class SimpleSquare {
+
+
+        public SimpleSquare(int id) {
             this.id = id;
-            this.blueAmmo = blueAmmo;
-            this.redAmmo = redAmmo;
-            this.yellowAmmo = yellowAmmo;
-            this.powerup = powerup;
+        }
+
+        int id;
+        public void SetId(int id) {
+            this.id = id;
+        }
+        public int getId(){
+            return id;
+        }
+
+    }
+
+
+    /**
+     * A simplified version of WeaponSquare, containing only the things the user should see.
+     */
+    public class SimpleWeaponSquare extends SimpleSquare{
+
+        public SimpleWeaponSquare(int id, List<SimpleWeapon> weapons) {
+            super(id);
+            this.weapons = weapons;
+
         }
 
         List<SimpleWeapon> weapons;
-        int id;
-        int blueAmmo;
-        int redAmmo;
-        int yellowAmmo;
-        boolean powerup;
 
         public List<SimpleWeapon> getWeapons() {
             return weapons;
@@ -40,6 +81,37 @@ public class ClientModel {
         public void setWeapons(List<SimpleWeapon> weapons) {
             this.weapons = weapons;
         }
+
+        public void removeWeapon(String name){
+            for(SimpleWeapon w : weapons){
+                if(w.getName()==name){
+                    weapons.remove(w);
+                    return;
+                }
+            }
+        }
+
+    }
+
+
+    /**
+     * A simplified version of AmmpSquare, containing only the things the user should see.
+     */
+    public class SimpleAmmoSquare extends SimpleSquare{
+
+        public SimpleAmmoSquare(int id, int blueAmmo, int redAmmo, int yellowAmmo, boolean powerup) {
+            super(id);
+            this.blueAmmo = blueAmmo;
+            this.redAmmo = redAmmo;
+            this.yellowAmmo = yellowAmmo;
+            this.powerup = powerup;
+
+        }
+
+        int blueAmmo;
+        int redAmmo;
+        int yellowAmmo;
+        boolean powerup;
 
         public int getBlueAmmo() {
             return blueAmmo;
@@ -73,39 +145,28 @@ public class ClientModel {
             this.powerup = powerup;
         }
 
-        public void SetId(int id) {
-            this.id = id;
-        }
-
-        public int getId(){
-            return id;
-        }
-
-        public void removeWeapon(String name){
-            for(SimpleWeapon w : weapons){
-                if(w.getName()==name){
-                    weapons.remove(w);
-                    return;
-                }
-            }
-        }
     }
 
+
+    /**
+     * A simplified version of Player, containing only the other players information that the user should see.
+     */
     public class SimplePlayer{
         private int id;
         private String color;
         private int cardNumber;
-        private List<SimplePlayer> damage;
-        private List<SimplePlayer> marks;
+        private List<Integer> damage;
+        private List<Integer> marks;
         private List<SimpleWeapon> weapons;
         private SimpleSquare position;
-        private String name;
+        private String username;
         private int blueAmmo;
         private int redAmmo;
         private int yellowAmmo;
         private boolean flipped;
+        private boolean inGame;
 
-        public SimplePlayer(int id, String color, int cardNumber, List<SimplePlayer> damage, List<SimplePlayer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String name, int blueAmmo, int redAmmo, int yellowAmmo) {
+        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped) {
             this.id = id;
             this.color = color;
             this.cardNumber = cardNumber;
@@ -113,15 +174,19 @@ public class ClientModel {
             this.marks = marks;
             this.weapons = weapons;
             this.position = position;
-            this.name = name;
+            this.username = username;
             this.blueAmmo = blueAmmo;
             this.redAmmo = redAmmo;
             this.yellowAmmo = yellowAmmo;
+            this.inGame = inGame;
+            this.flipped = flipped;
         }
 
         public void flip(){
             this.flipped = !flipped;
         }
+
+        public void setInGame(boolean inGame){this.inGame = inGame;}
 
         public int getId() {
             return id;
@@ -147,19 +212,19 @@ public class ClientModel {
             this.cardNumber = cardNumber;
         }
 
-        public List<SimplePlayer> getDamage() {
+        public List<Integer> getDamage() {
             return damage;
         }
 
-        public void setDamage(List<SimplePlayer> damage) {
+        public void setDamage(List<Integer> damage) {
             this.damage = damage;
         }
 
-        public List<SimplePlayer> getMarks() {
+        public List<Integer> getMarks() {
             return marks;
         }
 
-        public void setMarks(List<SimplePlayer> marks) {
+        public void setMarks(List<Integer> marks) {
             this.marks = marks;
         }
 
@@ -179,18 +244,18 @@ public class ClientModel {
             this.position = position;
         }
 
-        public String getName() {
-            return name;
+        public String getUsername() {
+            return username;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setUsername(String username) {
+            this.username = username;
         }
 
         public void pickUpWeapon(String name){
-            for(SimpleWeapon w : this.position.getWeapons()){
+            for(SimpleWeapon w : ((SimpleWeaponSquare)this.position).getWeapons()){
                 if(w.getName().equals(name)){
-                    this.position.getWeapons().remove(w);
+                    ((SimpleWeaponSquare)this.position).getWeapons().remove(w);
                     this.weapons.add(w);
                     return;
                 }
@@ -198,9 +263,9 @@ public class ClientModel {
         }
 
         public void discardWeapon(String name){
-            for(SimpleWeapon w : this.position.getWeapons()){
+            for(SimpleWeapon w : ((SimpleWeaponSquare)this.position).getWeapons()){
                 if(w.getName().equals(name)){
-                    this.position.getWeapons().add(w);
+                    ((SimpleWeaponSquare)this.position).getWeapons().add(w);
                     this.weapons.remove(w);
                     return;
                 }
@@ -235,6 +300,10 @@ public class ClientModel {
         }
     }
 
+
+    /**
+     * A simplified version of Square, containing only the things the user should see.
+     */
     public class SimpleWeapon{
         String name;
         boolean loaded;
@@ -260,18 +329,6 @@ public class ClientModel {
             this.loaded = loaded;
         }
     }
-
-    private List<SimpleSquare> squares;
-    private List<SimplePlayer> players;
-
-    private int weaponCardsLeft;
-    private int powerUpCardsLeft;
-    private int ammoTilesLeft;
-
-    private int mapID;
-    private SimplePlayer currentPlayer;
-    private List<SimplePlayer> killShotTrack;
-    private List<String> powerUpInHand;
 
 
     public List<SimpleSquare> getSquares() {
@@ -346,6 +403,10 @@ public class ClientModel {
         this.powerUpInHand = powerUpInHand;
     }
 
+    public int getSkullsLeft() {return skullsLeft;}
+
+    public void setSkullsLeft(int skullsLeft) {this.skullsLeft = skullsLeft;}
+
     public void removeSkulls(int n){
         //do something with killshottrack
     }
@@ -361,18 +422,18 @@ public class ClientModel {
     }
 
     public void damage(int player, JsonArray damage){
-        List<SimplePlayer> list = getPlayer(player).getDamage();
+        List<Integer> list = getPlayer(player).getDamage();
         list.clear();
         for(JsonElement j : damage){
-            list.add(getPlayer(j.getAsInt()));
+            list.add((j.getAsInt()));
         }
     }
 
     public void mark(int player, JsonArray marks){
-        List<SimplePlayer> list = getPlayer(player).getMarks();
+        List<Integer> list = getPlayer(player).getMarks();
         list.clear();
         for(JsonElement j : marks){
-            list.add(getPlayer(j.getAsInt()));
+            list.add((j.getAsInt()));
         }
     }
 
@@ -395,6 +456,35 @@ public class ClientModel {
         return squares.get(0);
     }
 
+    public static SimpleWeapon toSimpleWeapon(Weapon weapon){
+        return new ClientModel().new SimpleWeapon(weapon.toString(), weapon.isLoaded());
+    }
+
+    public static SimpleSquare toSimpleWeaponSquare(WeaponSquare square){
+        List<SimpleWeapon> weapons = new ArrayList<>();
+        for (Weapon weapon : square.getWeapons()){
+            weapons.add(toSimpleWeapon(weapon));
+        }
+        return new ClientModel().new SimpleWeaponSquare(square.getId(), weapons);
+    }
+
+    public static SimpleSquare toSimpleAmmoSquare(AmmoSquare square){
+        int redAmmo =0;
+        int blueAmmo =0;
+        int yellowAmmo =0;
+        boolean powerUp = false;
+        try {
+            AmmoTile ammoTile = square.getAmmoTile();
+            redAmmo = ammoTile.getAmmoPack().getRedAmmo();
+            blueAmmo = ammoTile.getAmmoPack().getBlueAmmo();
+            yellowAmmo = ammoTile.getAmmoPack().getYellowAmmo();
+            powerUp = ammoTile.hasPowerUp();
+
+        } catch (NotAvailableAttributeException e){
+            LOGGER.log(Level.FINE, "No ammotile on the square: 0,0,0, false is displayed.");
+        }
+        return new ClientModel().new SimpleAmmoSquare(square.getId(), redAmmo, blueAmmo, yellowAmmo, powerUp);
+    }
 
     public static String getEscapeCode(String color){
         if(color==null){

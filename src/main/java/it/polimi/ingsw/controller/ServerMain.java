@@ -203,6 +203,9 @@ public class ServerMain {
                 players.remove(p);
                 waitingPlayers.remove(p);
                 LOGGER.log(Level.INFO, "{0} was removed", p.getName());
+                for (VirtualView dest : players){
+                    dest.display("user " + p.getName() + " was suspended");
+                }
             }
         }
     }
@@ -224,10 +227,11 @@ public class ServerMain {
             ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.FINE);
             FileHandler fileHandler = new FileHandler("serverLog.txt");
-            fileHandler.setLevel(Level.FINE);
+            LOGGER.setLevel(Level.FINE);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
             LOGGER.addHandler(consoleHandler);
+            LOGGER.setUseParentHandlers(false);
         }catch (IOException ex){LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);}
         LOGGER.setLevel(Level.ALL);
     }

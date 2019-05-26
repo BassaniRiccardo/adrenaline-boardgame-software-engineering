@@ -3,18 +3,19 @@ package it.polimi.ingsw.model;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.model.board.Board;
-import it.polimi.ingsw.model.board.Player;
-import it.polimi.ingsw.model.board.Square;
-import it.polimi.ingsw.model.board.WeaponSquare;
+import it.polimi.ingsw.model.board.*;
 import it.polimi.ingsw.model.cards.AmmoPack;
 import it.polimi.ingsw.model.cards.PowerUp;
 import it.polimi.ingsw.model.cards.Weapon;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.view.ClientModel;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
 
 public class Updater {
 
@@ -170,11 +171,99 @@ public class Updater {
         return j;
     }
 
-    public static JsonObject getModel(Board board) {
+
+    /**
+     * Updates the ClientModel of the specified player on the specified board and returns it.
+     *
+     * @param board         the game board.
+     * @param player        the player who will receive the updated model.
+     * @return              the updated model.
+     */
+    public static JsonObject getModel(Board board, Player player) {
+
+        //TODO: fill up client model. It should be ok.
+
 
         ClientModel cm = new ClientModel();
 
-        //TODO: fill up client model
+        //simpleSquares
+        List<ClientModel.SimpleSquare> simpleSquares = new ArrayList<>();
+        for (Square s : board.getMap()){
+            if (board.getSpawnPoints().contains(s))     simpleSquares.add(ClientModel.toSimpleWeaponSquare((WeaponSquare)s));
+            else  simpleSquares.add(ClientModel.toSimpleAmmoSquare((AmmoSquare) s));
+        }
+        cm.setSquares(simpleSquares);
+
+
+        //simplePlayers, currentPlayer, killShotTrack
+        List<ClientModel.SimplePlayer> simplePlayers = new ArrayList<>();
+        List<ClientModel.SimplePlayer> killers = new ArrayList<>();
+
+        for (Player p : board.getPlayers()){
+
+            //create a new simplePlayer
+            List<Integer> damages = new ArrayList<>();
+            for (Player shooter : p.getDamages()){
+                damages.add(shooter.getId());
+            }
+            List<Integer> marks = new ArrayList<>();
+            for (Player marker : p.getMarks()){
+                marks.add(marker.getId());
+            }
+            List<ClientModel.SimpleWeapon> weapons = new ArrayList<>();
+            for (Weapon weapon : p.getWeaponList()){
+                weapons.add(ClientModel.toSimpleWeapon(weapon));
+            }
+            ClientModel.SimpleSquare position = null;
+            boolean isInGame = false;
+            try {
+                if (board.getSpawnPoints().contains(p.getPosition())) position = ClientModel.toSimpleWeaponSquare((WeaponSquare)p.getPosition());
+                else position = ClientModel.toSimpleAmmoSquare((AmmoSquare)p.getPosition());
+                isInGame = true;
+
+            } catch (NotAvailableAttributeException e) {
+                LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
+            }
+            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped());
+
+            //currentPlayer
+            if (p.equals(board.getCurrentPlayer())){
+                cm.setCurrentPlayer(simplePlayer);
+            }
+
+            //killShotTrack
+            try {
+                for (Player killer : board.getKillShotTrack().getKillers()) {
+                    if (killer.equals(p)) {
+                        killers.add(board.getKillShotTrack().getKillers().indexOf(killer), simplePlayer);
+                    }
+                }
+            } catch (NotAvailableAttributeException e){e.printStackTrace();}
+
+        }
+        cm.setPlayers(simplePlayers);
+        cm.setKillShotTrack(killers);
+        try {
+            cm.setSkullsLeft(board.getKillShotTrack().getSkullsLeft());
+        } catch (NotAvailableAttributeException e) {
+            LOGGER.log(Level.SEVERE, "Impossible to get the number of skulls left, all skulls removed.");
+            cm.setSkullsLeft(0);
+        }
+
+
+        //decks size
+        cm.setPowerUpCardsLeft(board.getWeaponDeck().getDrawable().size());
+        cm.setWeaponCardsLeft(board.getPowerUpDeck().getDrawable().size());
+        cm.setAmmoTilesLeft(board.getAmmoDeck().getDrawable().size());
+        cm.setMapID(board.getId());
+
+
+        //powerUpInHand (of the selected player)
+        List<String> powerUpInHand = new ArrayList<>();
+        for (PowerUp powerUp: player.getPowerUpList()){
+            powerUpInHand.add(powerUp.toString());
+        }
+        cm.setPowerUpInHand(powerUpInHand);
 
         Gson gson = new Gson();
         String json = gson.toJson(cm);

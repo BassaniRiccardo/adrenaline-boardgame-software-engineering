@@ -238,11 +238,12 @@ public class ClientMain {
                 //redraw model
                 break;
             case ("weaponRemoved"):
-                clientModel.getSquare(j.get("square").getAsInt()).removeWeapon(j.get("weapon").getAsString());
+                ((ClientModel.SimpleWeaponSquare)clientModel.getSquare(j.get("square").getAsInt())).removeWeapon(j.get("weapon").getAsString());
                 //redraw model
                 break;
             case ("mod"):
                 setClientModel(new Gson().fromJson(j.get("mod"), ClientModel.class));
+                ui.render();
                 //ui.onUpdate();
                 //wait a little
                 break;
@@ -272,7 +273,7 @@ public class ClientMain {
                 JsonArray squares = j.getAsJsonArray("squares");
                 JsonArray weaponInSquare = j.getAsJsonArray("weaponsinsquare");
                 for(JsonElement e : squares) {
-                    List<ClientModel.SimpleWeapon> list = clientModel.getSquare(e.getAsInt()).getWeapons();
+                    List<ClientModel.SimpleWeapon> list = ((ClientModel.SimpleWeaponSquare)clientModel.getSquare(e.getAsInt())).getWeapons();
                     list.clear();
                     for(JsonElement f : weaponInSquare) {
                         list.add(clientModel.new SimpleWeapon(f.getAsString(), false));

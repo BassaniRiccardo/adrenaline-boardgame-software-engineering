@@ -38,7 +38,7 @@ public class WeaponFactoryTest {
             w.getHolder();
         }catch (NotAvailableAttributeException e){}
         FireMode f = w.getFireModeList().get(0);
-        assertTrue(f.getName() == FireMode.FireModeName.MAIN);
+        assertTrue(f.getUsername() == FireMode.FireModeName.MAIN);
         assertTrue(f.getMaxTargets()==1);
         assertTrue(f.getCost().getRedAmmo() == 0);
         assertTrue(f.getCost().getBlueAmmo() == 0);
@@ -46,7 +46,7 @@ public class WeaponFactoryTest {
         assertTrue(f.getDestinationFinder()!=null&&f.getTargetFinder()!=null&&f.getEffect()!=null);
 
         f = w.getFireModeList().get(1);
-        assertTrue(f.getName() == FireMode.FireModeName.OPTION1);
+        assertTrue(f.getUsername() == FireMode.FireModeName.OPTION1);
         assertTrue(f.getMaxTargets()== 1);
         assertTrue(f.getCost().getRedAmmo() == 1);
         assertTrue(f.getCost().getBlueAmmo() == 0);
@@ -100,9 +100,9 @@ public class WeaponFactoryTest {
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.RAILGUN);
         FireMode f = w.getFireModeList().get(0);
-        assertTrue(f.getName() == FireMode.FireModeName.MAIN);
+        assertTrue(f.getUsername() == FireMode.FireModeName.MAIN);
         f = w.getFireModeList().get(1);
-        assertTrue(f.getName() == FireMode.FireModeName.SECONDARY);
+        assertTrue(f.getUsername() == FireMode.FireModeName.SECONDARY);
         assertEquals(2,w.getFireModeList().size());
     }*/
 

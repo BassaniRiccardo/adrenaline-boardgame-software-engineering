@@ -50,6 +50,7 @@ public class Player {
 
     private final int id;
     private final HeroName name;
+    private String username;
     private Status status;
     private int points;
     private boolean dead;
@@ -90,6 +91,7 @@ public class Player {
 
         this.id = id;
         this.name = name;
+        this.username = "anonymous";
         this.board = board;
         this.status = Status.BASIC;
         this.points = 0;
@@ -208,6 +210,8 @@ public class Player {
 
     public Board getBoard() {return board; }
 
+    public String getUsername() { return username; }
+
     /**
      * Setters
      *
@@ -256,6 +260,10 @@ public class Player {
     }
 
     public void setAmmoPack(AmmoPack ammoPack) { this.ammoPack = ammoPack; }
+
+    public void setMarks(List<Player> marks) { this.marks = marks;  }
+
+    public void setUsername(String username) {this.username = username; }
 
     /**
      * Adds damages to the player.
@@ -877,6 +885,15 @@ public class Player {
         }
         return collectible;
 
+    }
+
+    public String getstringColor(){
+        if (name==HeroName.D_STRUCT_OR) return "yellow";
+        if (name==HeroName.BANSHEE) return "blue";
+        if (name==HeroName.DOZER) return "grey";
+        if (name==HeroName.SPROG) return "green";
+        if (name==HeroName.VIOLET) return "purple";
+        else return "wrong hero name: no color";
     }
 
 

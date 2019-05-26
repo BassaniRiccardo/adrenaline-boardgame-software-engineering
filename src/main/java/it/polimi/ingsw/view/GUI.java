@@ -99,7 +99,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             stage.setTitle("Adrenaline");
             BorderPane pane = new BorderPane();
             pane.setBackground(new Background(new BackgroundFill(color, null, null)));
-            Scene scene = new Scene(pane, 500, 50);
+            Scene scene = new Scene(pane, 500, 160);
             stage.setScene(scene);
             Label label = new Label("Entering the configuration phase...");
             pane.setCenter(label);
@@ -132,13 +132,29 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             else if (message.contains("D_struct_or"))   this.color = Color.YELLOW;
 
             Label label = new Label(message);
-            StackPane layout = new StackPane();
+            VBox layout = new VBox();
             layout.setBackground(new Background(new BackgroundFill(color, null, null)));
             layout.getChildren().add(label);
-            Scene scene = new Scene(layout, 500, 500, color);
+            layout.setAlignment(Pos.CENTER);
+            Scene scene = new Scene(layout, 500, 160, color);
             Stage msgStage = new Stage();
-            stage.setScene(scene);
-            stage.show();
+
+            if (message.contains("suspended")){
+                msgStage.setScene(scene);
+                msgStage.show();
+                Button close = new Button("ok");
+                close.setAlignment(Pos.CENTER);
+                layout.getChildren().add(close);
+                layout.setAlignment(Pos.CENTER);
+                layout.setSpacing(40);
+                close.setOnAction(e -> msgStage.close());
+            }
+
+            else {
+                stage.setScene(scene);
+                stage.show();
+
+            }
 
         });
 
@@ -188,7 +204,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     }
             );
 
-            Scene info = new Scene(request, 400, 300, color);
+            Scene info = new Scene(request, 500, 160, color);
             stage.setScene(info);
             stage.show();
 
@@ -240,7 +256,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             optionList.getChildren().addAll(buttons);
             options.getChildren().add(optionList);
 
-            Scene scene = new Scene(options, 600,600, color);
+            Scene scene = new Scene(options, 500,160, color);
             stage.setScene(scene);
 
             stage.show();
@@ -338,7 +354,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      */
     @Override
     public void render() {
-
+        display("MAPPA DISEGNATA");
     }
 
 

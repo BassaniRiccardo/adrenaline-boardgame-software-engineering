@@ -49,7 +49,8 @@ public class CLI implements UI{
     @Override
     public void display(String message) {
         drawModel();
-        System.out.println(message);}
+        System.out.println(message);
+    }
 
     @Override
     public void display(String message, String max){

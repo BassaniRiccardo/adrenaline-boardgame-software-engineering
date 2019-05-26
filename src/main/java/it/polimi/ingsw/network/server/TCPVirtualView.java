@@ -157,6 +157,7 @@ public class TCPVirtualView extends VirtualView {
         LOGGER.log(Level.FINE, "Sending a message over TCP connection");    }
 
     public void update (JsonObject jsonObject){
+        System.out.println("updateTCPVirtualView");
         send(jsonObject);
     }
 }

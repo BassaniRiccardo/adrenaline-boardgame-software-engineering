@@ -224,14 +224,14 @@ public class Updater {
             } catch (NotAvailableAttributeException e) {
                 LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
             }
-            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.toString(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped());
+            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped());
 
             //currentPlayer
             if (p.equals(board.getCurrentPlayer())){
                 cm.setCurrentPlayer(simplePlayer);
             }
 
-            //killShottrack
+            //killShotTrack
             try {
                 for (Player killer : board.getKillShotTrack().getKillers()) {
                     if (killer.equals(p)) {
@@ -243,6 +243,12 @@ public class Updater {
         }
         cm.setPlayers(simplePlayers);
         cm.setKillShotTrack(killers);
+        try {
+            cm.setSkullsLeft(board.getKillShotTrack().getSkullsLeft());
+        } catch (NotAvailableAttributeException e) {
+            LOGGER.log(Level.SEVERE, "Impossible to get the number of skulls left, all skulls removed.");
+            cm.setSkullsLeft(0);
+        }
 
 
         //decks size
@@ -257,6 +263,7 @@ public class Updater {
         for (PowerUp powerUp: player.getPowerUpList()){
             powerUpInHand.add(powerUp.toString());
         }
+        cm.setPowerUpInHand(powerUpInHand);
 
         Gson gson = new Gson();
         String json = gson.toJson(cm);

@@ -5,7 +5,6 @@ package it.polimi.ingsw.view;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import it.polimi.ingsw.model.board.AmmoSquare;
-import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.board.WeaponSquare;
 import it.polimi.ingsw.model.cards.AmmoTile;
 import it.polimi.ingsw.model.cards.Weapon;
@@ -13,7 +12,6 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +21,8 @@ import java.util.logging.Logger;
  * @author  marcobaga
  */
 public class ClientModel {
+
+    //TODO righe&Colonne
 
     private List<SimpleSquare> squares;
     private List<SimplePlayer> players;
@@ -34,9 +34,11 @@ public class ClientModel {
     private int mapID;
     private SimplePlayer currentPlayer;
     private List<SimplePlayer> killShotTrack;
+    private int skullsLeft;
     private List<String> powerUpInHand;
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
+
 
     /**
      * A simplified version of Square, containing only the things the user should see.
@@ -57,6 +59,7 @@ public class ClientModel {
         }
 
     }
+
 
     /**
      * A simplified version of WeaponSquare, containing only the things the user should see.
@@ -89,6 +92,7 @@ public class ClientModel {
         }
 
     }
+
 
     /**
      * A simplified version of AmmpSquare, containing only the things the user should see.
@@ -155,14 +159,14 @@ public class ClientModel {
         private List<Integer> marks;
         private List<SimpleWeapon> weapons;
         private SimpleSquare position;
-        private String name;
+        private String username;
         private int blueAmmo;
         private int redAmmo;
         private int yellowAmmo;
         private boolean flipped;
         private boolean inGame;
 
-        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String name, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped) {
+        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped) {
             this.id = id;
             this.color = color;
             this.cardNumber = cardNumber;
@@ -170,7 +174,7 @@ public class ClientModel {
             this.marks = marks;
             this.weapons = weapons;
             this.position = position;
-            this.name = name;
+            this.username = username;
             this.blueAmmo = blueAmmo;
             this.redAmmo = redAmmo;
             this.yellowAmmo = yellowAmmo;
@@ -240,12 +244,12 @@ public class ClientModel {
             this.position = position;
         }
 
-        public String getName() {
-            return name;
+        public String getUsername() {
+            return username;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setUsername(String username) {
+            this.username = username;
         }
 
         public void pickUpWeapon(String name){
@@ -398,6 +402,10 @@ public class ClientModel {
     public void setPowerUpInHand(List<String> powerUpInHand) {
         this.powerUpInHand = powerUpInHand;
     }
+
+    public int getSkullsLeft() {return skullsLeft;}
+
+    public void setSkullsLeft(int skullsLeft) {this.skullsLeft = skullsLeft;}
 
     public void removeSkulls(int n){
         //do something with killshottrack

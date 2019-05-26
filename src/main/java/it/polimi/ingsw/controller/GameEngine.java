@@ -175,10 +175,12 @@ public class GameEngine implements Runnable{
         statusSaver = new StatusSaver(board);
         LOGGER.log(Level.INFO,"\n");
 
+        /*
         for(VirtualView p : players) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()));
         }
         board.notifyObservers();
+        */
 
     }
 
@@ -255,6 +257,7 @@ public class GameEngine implements Runnable{
             System.out.println("setplayer");
             board.getPlayers().add(p.getModel());
             System.out.println("added");
+            p.getModel().setUsername(p.getName());
             heroList.remove(selectedName);
             LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
             p.display("You selected " + selectedName);

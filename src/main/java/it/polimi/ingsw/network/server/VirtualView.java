@@ -24,6 +24,7 @@ public abstract class VirtualView implements Runnable{
     protected GameEngine game;
     protected String name;
     boolean suspended;
+    boolean justSuspended;
     private Player model;
     static final Logger LOGGER = Logger.getLogger("serverLogger");
 
@@ -31,6 +32,7 @@ public abstract class VirtualView implements Runnable{
         this.game = null;
         this.name = null;
         this.suspended = false;
+        this.justSuspended = false;
         this.model = null;
     }
 
@@ -61,7 +63,7 @@ public abstract class VirtualView implements Runnable{
     /**
      * Checks for connection with client and forwards messages
      */
-    public void refresh(){}
+    abstract public void refresh();
 
     /**
      * Getters and Setters
@@ -86,8 +88,19 @@ public abstract class VirtualView implements Runnable{
     }
 
     public void suspend() {
-        this.suspended = true;
-        LOGGER.log(Level.INFO,"Player {0} was suspended", name);
+        if(!suspended) {
+            this.suspended = true;
+            this.justSuspended = true;
+            LOGGER.log(Level.INFO, "Player {0} was suspended", name);
+        }
+    }
+
+    public boolean isJustSuspended(){
+        return justSuspended;
+    }
+
+    public void setJustSuspended(boolean justSuspended){
+        this.justSuspended = justSuspended;
     }
 
     abstract public void choose(String msg, List<?> options);

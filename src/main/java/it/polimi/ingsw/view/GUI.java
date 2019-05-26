@@ -10,7 +10,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
 
-import it.polimi.ingsw.controller.Encoder;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;

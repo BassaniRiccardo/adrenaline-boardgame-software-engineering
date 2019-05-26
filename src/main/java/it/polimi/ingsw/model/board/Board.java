@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.board;
 
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.network.server.VirtualView;
 
@@ -42,7 +43,9 @@ public class Board {
     //depends on skullsNumber, set by the BoardConfigurer
     private KillShotTrack killShotTrack;
 
-    private List<VirtualView> observers = new ArrayList<>();
+    private List<VirtualView> observers;
+    private Map<VirtualView, List<JsonObject>> updates;
+
 
 
     /**
@@ -64,6 +67,8 @@ public class Board {
 
         this.killShotTrack = new KillShotTrack(0, this);
 
+        this.observers = new ArrayList<>();
+        this.updates = new HashMap<>();
     }
 
 
@@ -652,14 +657,9 @@ public class Board {
         return id;
     }
 
-
-    private Map<VirtualView, List<JsonObject>> updates = new HashMap<>();
-
-    //for virtualview in player map.put(v, new ArrayList)
-
-
     public void registerObserver(VirtualView p){
         observers.add(p);
+        updates.put(p, new ArrayList<>());
     }
 
     public void removeObserver(VirtualView p){
@@ -676,6 +676,7 @@ public class Board {
         for(JsonObject update : updates.get(p)) {
             p.update(update);
         }
+        updates.get(p).clear();
     }
 
     public void addToUpdateQueue(JsonObject jsonObject){
@@ -688,6 +689,7 @@ public class Board {
         for(VirtualView other : updates.keySet()){
             updates.get(other).clear();
         }
-        //v.update(Encoder.getRevertUpdate());
+        v.update(Updater.getRevert(this));
     }
+
 }

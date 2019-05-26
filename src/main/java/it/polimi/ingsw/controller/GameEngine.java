@@ -202,6 +202,7 @@ public class GameEngine implements Runnable{
 
         for(VirtualView p : players) {
             board.registerObserver(p);
+            //adds virtual view as observer to board and adds another queue of updates
         }
 
         LOGGER.log(Level.INFO,() -> "Players voted: map " + mapId + " selected.");
@@ -403,6 +404,7 @@ public class GameEngine implements Runnable{
     public String waitShort(VirtualView current, int timeout){
         long start = System.currentTimeMillis();
         while(!hasAnswered(current)){
+            checkForSuspension();
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             }catch(InterruptedException ex){
@@ -419,6 +421,7 @@ public class GameEngine implements Runnable{
 
     public String wait(VirtualView current) throws SlowAnswerException{
         while(!hasAnswered(current)){
+            checkForSuspension();
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             }catch(InterruptedException ex){
@@ -438,6 +441,7 @@ public class GameEngine implements Runnable{
         boolean loop = true;
         List<VirtualView> list = new ArrayList<>();
         while(loop){
+            checkForSuspension();
             loop = false;
             for(VirtualView p : players){
                 if(!hasAnswered(p)&&!p.isSuspended()){
@@ -474,6 +478,23 @@ public class GameEngine implements Runnable{
     public Map<VirtualView, String> getNotifications(){
         //also set waitin to true?
         return notifications;
+    }
+
+    private void checkForSuspension(){
+        List<VirtualView> justSuspended = new ArrayList<>();
+        for(VirtualView v : players){
+            if(v.isJustSuspended()) {
+                justSuspended.add(v);
+                v.setJustSuspended(false);
+            }
+        }
+        for(VirtualView v : justSuspended){
+            for(VirtualView p : players){
+                p.display("Player " + v.getName() + " was disconnected");
+            }
+        }
+
+        //other behaviours depending on n of connected players
     }
 
 }

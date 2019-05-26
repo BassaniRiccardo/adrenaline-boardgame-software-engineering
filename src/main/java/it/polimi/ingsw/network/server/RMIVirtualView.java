@@ -39,7 +39,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void refresh(){
-        if(!suspended){
+        if(!isSuspended()){
             try{
                 remoteView.ping();
             }catch (RemoteException ex){

@@ -11,10 +11,7 @@ import it.polimi.ingsw.model.board.KillShotTrack;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
-<<<<<<< Updated upstream
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
-=======
->>>>>>> Stashed changes
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import org.junit.Test;
 
@@ -24,8 +21,6 @@ public class GUITest {
 
     @Test
     public void render() throws UnacceptableItemNumberException, NoMoreCardsException {
-<<<<<<< Updated upstream
-=======
 
        /* Board board = BoardConfigurer.configureMap(4);
         WeaponFactory weaponFactory = new WeaponFactory(board);
@@ -51,9 +46,6 @@ public class GUITest {
         board.getPlayers().get(0).setUsername("Giuliano");
         board.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.POWER_GLOVE));
         board.getSpawnPoints().get(2).addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));*/
->>>>>>> Stashed changes
-
-        Board board = BoardConfigurer.simulateScenario();
 
        Board board = BoardConfigurer.simulateScenario();
 

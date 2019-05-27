@@ -235,7 +235,7 @@ public class ClientMain {
                 //redraw model
                 break;
             case ("weaponRemoved"):
-                ((ClientModel.SimpleWeaponSquare)clientModel.getSquare(j.get("square").getAsInt())).removeWeapon(j.get("weapon").getAsString());
+                ((ClientModel.SimpleSquare)clientModel.getSquare(j.get("square").getAsInt())).removeWeapon(j.get("weapon").getAsString());
                 //redraw model
                 break;
             case ("mod"):
@@ -277,7 +277,7 @@ public class ClientMain {
                 JsonArray squares = j.getAsJsonArray("squares");
                 JsonArray weaponInSquare = j.getAsJsonArray("weaponsinsquare");
                 for(JsonElement e : squares) {
-                    List<ClientModel.SimpleWeapon> list = ((ClientModel.SimpleWeaponSquare)clientModel.getSquare(e.getAsInt())).getWeapons();
+                    List<ClientModel.SimpleWeapon> list = ((ClientModel.SimpleSquare)clientModel.getSquare(e.getAsInt())).getWeapons();
                     list.clear();
                     for(JsonElement f : weaponInSquare) {
                         list.add(clientModel.new SimpleWeapon(f.getAsString(), false));

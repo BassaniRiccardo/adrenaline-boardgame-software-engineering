@@ -189,8 +189,8 @@ public class Updater {
         //simpleSquares
         List<ClientModel.SimpleSquare> simpleSquares = new ArrayList<>();
         for (Square s : board.getMap()){
-            if (board.getSpawnPoints().contains(s))     simpleSquares.add(ClientModel.toSimpleWeaponSquare((WeaponSquare)s));
-            else  simpleSquares.add(ClientModel.toSimpleAmmoSquare((AmmoSquare) s));
+            if (board.getSpawnPoints().contains(s))     simpleSquares.add(ClientModel.toSimpleSquare((WeaponSquare)s));
+            else  simpleSquares.add(ClientModel.toSimpleSquare((AmmoSquare) s));
         }
         cm.setSquares(simpleSquares);
 
@@ -217,15 +217,15 @@ public class Updater {
             ClientModel.SimpleSquare position = null;
             boolean isInGame = false;
             try {
-                if (board.getSpawnPoints().contains(p.getPosition())) position = ClientModel.toSimpleWeaponSquare((WeaponSquare)p.getPosition());
-                else position = ClientModel.toSimpleAmmoSquare((AmmoSquare)p.getPosition());
+                if (board.getSpawnPoints().contains(p.getPosition())) position = ClientModel.toSimpleSquare((WeaponSquare)p.getPosition());
+                else position = ClientModel.toSimpleSquare((AmmoSquare)p.getPosition());
                 isInGame = true;
 
             } catch (NotAvailableAttributeException e) {
                 LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
             }
-            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped());
-
+            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints());
+            simplePlayers.add(simplePlayer);
             //currentPlayer
             if (p.equals(board.getCurrentPlayer())){
                 cm.setCurrentPlayer(simplePlayer);
@@ -252,8 +252,8 @@ public class Updater {
 
 
         //decks size
-        cm.setPowerUpCardsLeft(board.getWeaponDeck().getDrawable().size());
-        cm.setWeaponCardsLeft(board.getPowerUpDeck().getDrawable().size());
+        cm.setPowerUpCardsLeft(board.getPowerUpDeck().getDrawable().size());
+        cm.setWeaponCardsLeft(board.getWeaponDeck().getDrawable().size());
         cm.setAmmoTilesLeft(board.getAmmoDeck().getDrawable().size());
         cm.setMapID(board.getId());
 

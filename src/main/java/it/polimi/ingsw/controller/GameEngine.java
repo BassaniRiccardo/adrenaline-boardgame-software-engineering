@@ -181,7 +181,6 @@ public class GameEngine implements Runnable{
         System.out.println("about to notify");
         board.notifyObservers();
 
-
     }
 
 
@@ -210,6 +209,7 @@ public class GameEngine implements Runnable{
             board.registerObserver(p);
             //adds virtual view as observer to board and adds another queue of updates
         }
+
 
         LOGGER.log(Level.INFO,() -> "Players voted: map " + mapId + " selected.");
 

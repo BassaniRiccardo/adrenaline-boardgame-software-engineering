@@ -139,7 +139,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             Scene scene = new Scene(layout, 500, 160, color);
             Stage msgStage = new Stage();
 
-            if (message.contains("suspended")){
+            if (message.contains("disconnected")){
                 msgStage.setScene(scene);
                 msgStage.show();
                 Button close = new Button("ok");

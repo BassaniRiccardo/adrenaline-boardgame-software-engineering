@@ -42,29 +42,31 @@ public class UpdaterTest {
         System.out.println(modelString);
         assertEquals("{\"head\":\"UPD\",\"type\":\"mod\",\"mod\":\"" +
                 "{\\\"squares\\\":[" +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":0,\\\"spawnPoint\\\":false}," +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":1,\\\"spawnPoint\\\":false}," +
-                    "{\\\"weapons\\\":[],\\\"id\\\":2,\\\"spawnPoint\\\":true}," +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":3,\\\"spawnPoint\\\":false}," +
-                    "{\\\"weapons\\\":[],\\\"id\\\":4,\\\"spawnPoint\\\":true}," +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":5,\\\"spawnPoint\\\":false}," +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":6,\\\"spawnPoint\\\":false}," +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":7,\\\"spawnPoint\\\":false}," +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":8,\\\"spawnPoint\\\":false}," +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":9,\\\"spawnPoint\\\":false}," +
-                    "{\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false,\\\"id\\\":10,\\\"spawnPoint\\\":false}," +
-                    "{\\\"weapons\\\":[{\\\"name\\\":\\\"Lock rifle\\\",\\\"loaded\\\":false}],\\\"id\\\":11,\\\"spawnPoint\\\":true}]," +
+                    "{\\\"id\\\":0,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":1,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":2,\\\"spawnPoint\\\":true,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":3,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":4,\\\"spawnPoint\\\":true,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":5,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":6,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":7,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":8,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":9,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":10,\\\"spawnPoint\\\":false,\\\"weapons\\\":[],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}," +
+                    "{\\\"id\\\":11,\\\"spawnPoint\\\":true,\\\"weapons\\\":[{\\\"name\\\":\\\"Lock rifle\\\",\\\"loaded\\\":false}],\\\"blueAmmo\\\":0,\\\"redAmmo\\\":0,\\\"yellowAmmo\\\":0,\\\"powerup\\\":false}]," +
+                    "" +
                 "\\\"players\\\":[" +
                     "{\\\"id\\\":1,\\\"color\\\":\\\"blue\\\",\\\"cardNumber\\\":0,\\\"damage\\\":[],\\\"marks\\\":[],\\\"weapons\\\":[{\\\"name\\\":\\\"Power glove\\\",\\\"loaded\\\":false}],\\\"username\\\":\\\"Giuliano\\\",\\\"blueAmmo\\\":1,\\\"redAmmo\\\":1,\\\"yellowAmmo\\\":1,\\\"flipped\\\":false,\\\"inGame\\\":false,\\\"points\\\":0}," +
                     "{\\\"id\\\":2,\\\"color\\\":\\\"grey\\\",\\\"cardNumber\\\":0,\\\"damage\\\":[],\\\"marks\\\":[],\\\"weapons\\\":[],\\\"username\\\":\\\"anonymous\\\",\\\"blueAmmo\\\":1,\\\"redAmmo\\\":1,\\\"yellowAmmo\\\":1,\\\"flipped\\\":false,\\\"inGame\\\":false,\\\"points\\\":0}]," +
-                "\\\"weaponCardsLeft\\\":24," +
-                "\\\"powerUpCardsLeft\\\":21," +
+                "\\\"weaponCardsLeft\\\":21," +
+                "\\\"powerUpCardsLeft\\\":24," +
                 "\\\"ammoTilesLeft\\\":36," +
                 "\\\"mapID\\\":4," +
                 "\\\"killShotTrack\\\":[]," +
                 "\\\"skullsLeft\\\":7," +
                 "\\\"powerUpInHand\\\":[]}\"}",
                 modelString);
+
 
     }
 }

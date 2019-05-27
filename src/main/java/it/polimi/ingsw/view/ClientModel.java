@@ -43,47 +43,54 @@ public class ClientModel {
     /**
      * A simplified version of Square, containing only the things the user should see.
      */
-    public abstract class SimpleSquare {
+    public class SimpleSquare {
 
 
-        public SimpleSquare(int id, boolean spawnPoint) {
+        public SimpleSquare(int id, boolean spawnPoint, List<SimpleWeapon> weapons, int blueAmmo, int redAmmo, int yellowAmmo, boolean powerup) {
             this.id = id;
             this.spawnPoint = spawnPoint;
+            this.weapons = weapons;
+            this.blueAmmo = blueAmmo;
+            this.redAmmo = redAmmo;
+            this.yellowAmmo = yellowAmmo;
+            this.powerup = powerup;
         }
 
         int id;
         boolean spawnPoint;
-        public void SetId(int id) {
-            this.id = id;
-        }
-        public int getId(){
-            return id;
-        }
-        public boolean isSpawnPoint() {return spawnPoint;}
-
-    }
-
-
-    /**
-     * A simplified version of WeaponSquare, containing only the things the user should see.
-     */
-    public class SimpleWeaponSquare extends SimpleSquare{
-
-        public SimpleWeaponSquare(int id, boolean spawnPoint, List<SimpleWeapon> weapons) {
-            super(id, spawnPoint);
-            this.weapons = weapons;
-
-        }
-
         List<SimpleWeapon> weapons;
+        int blueAmmo;
+        int redAmmo;
+        int yellowAmmo;
+        boolean powerup;
 
-        public List<SimpleWeapon> getWeapons() {
-            return weapons;
+        public int getBlueAmmo() {
+            return blueAmmo;
         }
-
-        public void setWeapons(List<SimpleWeapon> weapons) {
-            this.weapons = weapons;
+        public void setBlueAmmo(int blueAmmo) {
+            this.blueAmmo = blueAmmo;
         }
+        public int getRedAmmo() {
+            return redAmmo;
+        }
+        public void setRedAmmo(int redAmmo) {
+            this.redAmmo = redAmmo;
+        }
+        public int getYellowAmmo() {
+            return yellowAmmo;
+        }
+        public void setYellowAmmo(int yellowAmmo) {
+            this.yellowAmmo = yellowAmmo;
+        }
+        public boolean isPowerup() {
+            return powerup;
+        }
+        public void setPowerup(boolean powerup) {this.powerup = powerup;}
+        public void SetId(int id) { this.id = id;  }
+        public int getId(){return id;}
+        public boolean isSpawnPoint() {return spawnPoint;}
+        public List<SimpleWeapon> getWeapons() {       return weapons;    }
+        public void setWeapons(List<SimpleWeapon> weapons) {   this.weapons = weapons; }
 
         public void removeWeapon(String name){
             for(SimpleWeapon w : weapons){
@@ -95,61 +102,6 @@ public class ClientModel {
         }
 
     }
-
-
-    /**
-     * A simplified version of AmmpSquare, containing only the things the user should see.
-     */
-    public class SimpleAmmoSquare extends SimpleSquare{
-
-        public SimpleAmmoSquare(int id, boolean spawnPoint, int blueAmmo, int redAmmo, int yellowAmmo, boolean powerup) {
-            super(id, spawnPoint);
-            this.blueAmmo = blueAmmo;
-            this.redAmmo = redAmmo;
-            this.yellowAmmo = yellowAmmo;
-            this.powerup = powerup;
-
-        }
-
-        int blueAmmo;
-        int redAmmo;
-        int yellowAmmo;
-        boolean powerup;
-
-        public int getBlueAmmo() {
-            return blueAmmo;
-        }
-
-        public void setBlueAmmo(int blueAmmo) {
-            this.blueAmmo = blueAmmo;
-        }
-
-        public int getRedAmmo() {
-            return redAmmo;
-        }
-
-        public void setRedAmmo(int redAmmo) {
-            this.redAmmo = redAmmo;
-        }
-
-        public int getYellowAmmo() {
-            return yellowAmmo;
-        }
-
-        public void setYellowAmmo(int yellowAmmo) {
-            this.yellowAmmo = yellowAmmo;
-        }
-
-        public boolean isPowerup() {
-            return powerup;
-        }
-
-        public void setPowerup(boolean powerup) {
-            this.powerup = powerup;
-        }
-
-    }
-
 
     /**
      * A simplified version of Player, containing only the other players information that the user should see.
@@ -262,9 +214,9 @@ public class ClientModel {
         public void setPoints(int points) {this.points = points;}
 
         public void pickUpWeapon(String name){
-            for(SimpleWeapon w : ((SimpleWeaponSquare)this.position).getWeapons()){
+            for(SimpleWeapon w : this.position.getWeapons()){
                 if(w.getName().equals(name)){
-                    ((SimpleWeaponSquare)this.position).getWeapons().remove(w);
+                    this.position.getWeapons().remove(w);
                     this.weapons.add(w);
                     return;
                 }
@@ -272,9 +224,9 @@ public class ClientModel {
         }
 
         public void discardWeapon(String name){
-            for(SimpleWeapon w : ((SimpleWeaponSquare)this.position).getWeapons()){
+            for(SimpleWeapon w : this.position.getWeapons()){
                 if(w.getName().equals(name)){
-                    ((SimpleWeaponSquare)this.position).getWeapons().add(w);
+                    this.position.getWeapons().add(w);
                     this.weapons.remove(w);
                     return;
                 }
@@ -469,15 +421,15 @@ public class ClientModel {
         return new ClientModel().new SimpleWeapon(weapon.toString(), weapon.isLoaded());
     }
 
-    public static SimpleSquare toSimpleWeaponSquare(WeaponSquare square){
+    public static SimpleSquare toSimpleSquare(WeaponSquare square){
         List<SimpleWeapon> weapons = new ArrayList<>();
         for (Weapon weapon : square.getWeapons()){
             weapons.add(toSimpleWeapon(weapon));
         }
-        return new ClientModel().new SimpleWeaponSquare(square.getId(), true, weapons);
+        return new ClientModel().new SimpleSquare(square.getId(), true, weapons, 0, 0, 0, false);
     }
 
-    public static SimpleSquare toSimpleAmmoSquare(AmmoSquare square){
+    public static SimpleSquare toSimpleSquare(AmmoSquare square){
         int redAmmo =0;
         int blueAmmo =0;
         int yellowAmmo =0;
@@ -492,7 +444,7 @@ public class ClientModel {
         } catch (NotAvailableAttributeException e){
             LOGGER.log(Level.FINE, "No ammotile on the square: 0,0,0, false is displayed.");
         }
-        return new ClientModel().new SimpleAmmoSquare(square.getId(), false, redAmmo, blueAmmo, yellowAmmo, powerUp);
+        return new ClientModel().new SimpleSquare(square.getId(), false, new ArrayList<>(), redAmmo, blueAmmo, yellowAmmo, powerUp);
     }
 
     public static String getEscapeCode(String color){

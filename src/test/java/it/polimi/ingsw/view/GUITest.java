@@ -3,6 +3,7 @@ package it.polimi.ingsw.view;
 import it.polimi.ingsw.controller.BoardConfigurer;
 import it.polimi.ingsw.controller.PowerUpFactory;
 import it.polimi.ingsw.controller.WeaponFactory;
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Deck;
 import it.polimi.ingsw.model.board.KillShotTrack;
@@ -43,5 +44,6 @@ public class GUITest {
         board.getPlayers().get(0).setUsername("Giuliano");
         board.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.POWER_GLOVE));
         board.getSpawnPoints().get(2).addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+
     }
 }

@@ -61,6 +61,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     public static final CountDownLatch latch = new CountDownLatch(1);
     public static GUI GUI = null;
     private ClientModel clientModel;
+    private VBox messagePanel;
 
 
     public ClientMain getClientMain() {
@@ -118,6 +119,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
+            //da cancellare
             stage = primaryStage;
             stage.setOnCloseRequest(e -> {System.exit(0);});
             stage.setTitle("Adrenaline");
@@ -128,6 +130,24 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             Label label = new Label("Entering the configuration phase...");
             pane.setCenter(label);
             stage.show();
+
+            /*
+            lo stage deve essere fullScreen fin da qui e composto da:
+            -   messagePanel, per mostrare i messaggi
+            -   il resto dello schermo va riempito in modo appropriato fin da ora (immagine e/o scritta+colore)
+                e andrá poi rimepito con la mappa dal render
+             */
+
+            /*
+            Qui la parte con cui sostituire la parte sopra. Manca l'inizializzazione dello stage come sopra descritto
+
+            stage = primaryStage;
+            stage.setOnCloseRequest(e -> {System.exit(0);});
+            stage.setTitle("Adrenaline");
+            messagePanel.setBackground(new Background(new BackgroundFill(color, null, null)));
+            Label label = new Label("Entering the configuration phase...");
+            messagePanel.getChildren().add(label);
+            */
 
 
         });
@@ -716,11 +736,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             else if (message.contains("D_struct_or"))   this.color = Color.YELLOW;
 
             Label label = new Label(message);
-            VBox layout = new VBox();
-            layout.setBackground(new Background(new BackgroundFill(color, null, null)));
-            layout.getChildren().add(label);
-            layout.setAlignment(Pos.CENTER);
-            Scene scene = new Scene(layout, 500, 250, color);
+            VBox msg = new VBox();
+            msg.setBackground(new Background(new BackgroundFill(color, null, null)));
+            msg.getChildren().add(label);
+            msg.setAlignment(Pos.CENTER);
+            Scene scene = new Scene(msg, 500, 250, color);
             Stage msgStage = new Stage();
 
             if (message.contains("disconnected")){
@@ -728,13 +748,18 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 msgStage.show();
                 Button close = new Button("ok");
                 close.setAlignment(Pos.CENTER);
-                layout.getChildren().add(close);
-                layout.setAlignment(Pos.CENTER);
-                layout.setSpacing(40);
+                msg.getChildren().add(close);
+                msg.setAlignment(Pos.CENTER);
+                msg.setSpacing(40);
                 close.setOnAction(e -> msgStage.close());
             }
 
             else {
+
+                //da aggiungere
+                //messagePanel = msg;
+
+                //da togliere
                 stage.setScene(scene);
                 stage.show();
 
@@ -761,26 +786,26 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
-            VBox request = new VBox();
-            request.setBackground(new Background(new BackgroundFill(color, null, null)));
+            VBox req = new VBox();
+            req.setBackground(new Background(new BackgroundFill(color, null, null)));
             VBox quest = new VBox();
             quest.setSpacing(10);
             quest.setAlignment(Pos.CENTER);
             Label label1 = new Label(question);
             Label label2 = new Label("(max " + maxLength + " characters)");
             quest.getChildren().addAll(label1, label2);
-            request.getChildren().add(quest);
+            req.getChildren().add(quest);
 
             TextField textField = new TextField();
             textField.setAlignment(Pos.CENTER);
             textField.setMaxSize(200, 50);
-            request.getChildren().add(textField);
+            req.getChildren().add(textField);
 
             Button requestButton = new Button("confirm");
             requestButton.setAlignment(Pos.CENTER);
-            request.getChildren().add(requestButton);
-            request.setAlignment(Pos.CENTER);
-            request.setSpacing(40);
+            req.getChildren().add(requestButton);
+            req.setAlignment(Pos.CENTER);
+            req.setSpacing(40);
             Stage reqStage = new Stage();
 
             requestButton.setOnAction(e ->
@@ -793,7 +818,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     }
             );
 
-            Scene info = new Scene(request, 500, 250, color);
+            //da aggiungere
+            //messagePanel = req;
+
+            //da togliere
+            Scene info = new Scene(req, 500, 250, color);
             stage.setScene(info);
             stage.show();
 
@@ -818,12 +847,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
-            VBox options = new VBox();
-            options.setBackground(new Background(new BackgroundFill(color, null, null)));
+            VBox opt = new VBox();
+            opt.setBackground(new Background(new BackgroundFill(color, null, null)));
             Label label = new Label(message);
-            options.getChildren().add(label);
-            options.setAlignment(Pos.CENTER);
-            options.setSpacing(40);
+            opt.getChildren().add(label);
+            opt.setAlignment(Pos.CENTER);
+            opt.setSpacing(40);
 
             HBox optionList = new HBox();
             optionList.setAlignment(Pos.CENTER);
@@ -843,9 +872,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 });
             }
             optionList.getChildren().addAll(buttons);
-            options.getChildren().add(optionList);
+            opt.getChildren().add(optionList);
 
-            Scene scene = new Scene(options, 500,250, color);
+            //da aggiungere
+            //messagePanel = opt;
+
+            //da togliere
+            Scene scene = new Scene(opt, 500,250, color);
             stage.setScene(scene);
 
             stage.show();

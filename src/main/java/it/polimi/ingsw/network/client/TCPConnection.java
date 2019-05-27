@@ -93,6 +93,7 @@ public class TCPConnection implements Runnable {
             case "MSG" :    clientMain.display(jMessage.get("text").getAsString());
                             break;
             case "REQ" :    String msg = clientMain.getInput(jMessage.get("text").getAsString(),Integer.valueOf(jMessage.get("length").getAsString()));
+                            System.out.println("about to send response msg");
                             send(msg);
                             break;
             case "OPT" :    List<String> list = new ArrayList<>();
@@ -100,6 +101,7 @@ public class TCPConnection implements Runnable {
                                 list.add(j.getAsString());
                             }
                             int choice = clientMain.choose(jMessage.get("text").getAsString(), list);
+                            System.out.println("about to send response msg opt");
                             send(String.valueOf(choice));
                             break;
             case "UPD" :    clientMain.update(jMessage);

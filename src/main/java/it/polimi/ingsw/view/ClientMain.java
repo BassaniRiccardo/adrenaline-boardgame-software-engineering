@@ -1,9 +1,6 @@
 package it.polimi.ingsw.view;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
 
@@ -242,7 +239,14 @@ public class ClientMain {
                 //redraw model
                 break;
             case ("mod"):
-                setClientModel(new Gson().fromJson(j.get("mod"), ClientModel.class));
+                System.out.println("about to deserialize json");
+                try {
+                    JsonObject mod = new JsonParser().parse(j.get("mod").getAsString()).getAsJsonObject();
+                    setClientModel(new Gson().fromJson(mod, ClientModel.class));
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+                System.out.println("about to render");
                 ui.render();
                 //ui.onUpdate();
                 //wait a little

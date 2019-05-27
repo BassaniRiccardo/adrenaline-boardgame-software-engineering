@@ -658,8 +658,11 @@ public class Board {
     }
 
     public void registerObserver(VirtualView p){
+        System.out.println("inside registerobserver");
         observers.add(p);
+        System.out.println("added to observer");
         updates.put(p, new ArrayList<>());
+        System.out.println("put in update");
     }
 
     public void removeObserver(VirtualView p){
@@ -674,6 +677,7 @@ public class Board {
 
     public void notifyObserver(VirtualView p){
         for(JsonObject update : updates.get(p)) {
+            System.out.println("Notifying player" + p);
             p.update(update);
         }
         updates.get(p).clear();

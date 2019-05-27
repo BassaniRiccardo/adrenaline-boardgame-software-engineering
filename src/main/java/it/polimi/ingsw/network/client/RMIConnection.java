@@ -1,6 +1,7 @@
 package it.polimi.ingsw.network.client;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import it.polimi.ingsw.network.server.RemoteController;
 import it.polimi.ingsw.network.server.RemoteServer;
 import it.polimi.ingsw.view.ClientMain;
@@ -89,10 +90,15 @@ public class RMIConnection implements Runnable, RemoteView {
         return clientMain.getInput(msg, max);
     }
 
-    public void ping(){}
+    public void ping() throws RemoteException{}
 
-    public void update(JsonObject jsonObject){
-        clientMain.update(jsonObject);
+    public void update(String jsonObject) throws RemoteException{
+        try {
+            clientMain.update(new JsonParser().parse(jsonObject).getAsJsonObject());
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        //do not instantiate a json parse each time
     }
 
 }

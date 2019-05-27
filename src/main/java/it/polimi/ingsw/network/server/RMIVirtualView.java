@@ -9,6 +9,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +51,11 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     public void choose(String msg, List<?> options){
-        game.getNotifications().remove(this);
+        try {
+            game.getNotifications().remove(this);
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+        }
         executor.submit(
             ()-> {
                 try {
@@ -73,7 +78,11 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     public void getInput(String msg, int max){
-        game.getNotifications().remove(this);
+        try {
+            game.getNotifications().remove(this);
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+        }
         executor.submit(()-> {
                     try {
                         String ans = remoteView.getInput(msg, max);
@@ -85,8 +94,11 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     public String getInputNow(String msg, int max) {
-        //game.getNotifications().remove(this);
         try {
+            game.getNotifications().remove(this);
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+        }        try {
             return remoteView.getInput(msg, max);
         } catch (RemoteException ex) {
             suspend();
@@ -95,7 +107,11 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     public int chooseNow(String msg, List<?> options){
-        game.getNotifications().remove(this);
+        try {
+            game.getNotifications().remove(this);
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+        }
         try {
             return remoteView.choose(msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
         }catch(RemoteException ex){
@@ -111,9 +127,12 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     public void update(JsonObject jsonObject){
+        System.out.print("almost calling remote update");
         try {
-            remoteView.update(jsonObject);
+            System.out.print("calling remote update");
+            remoteView.update(jsonObject.toString());
         } catch (RemoteException ex) {
+            ex.printStackTrace();
             suspend();
         }
     }

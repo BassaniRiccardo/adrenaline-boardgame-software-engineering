@@ -40,10 +40,12 @@ public class ClientModel {
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
 
 
+    public ClientModel(){}
+
     /**
      * A simplified version of Square, containing only the things the user should see.
      */
-    public abstract class SimpleSquare {
+    public class SimpleSquare {
 
 
         public SimpleSquare(int id) {

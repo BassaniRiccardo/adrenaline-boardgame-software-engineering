@@ -175,12 +175,12 @@ public class GameEngine implements Runnable{
         statusSaver = new StatusSaver(board);
         LOGGER.log(Level.INFO,"\n");
 
-        /*
         for(VirtualView p : players) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()));
         }
+        System.out.println("about to notify");
         board.notifyObservers();
-        */
+
 
     }
 

@@ -16,7 +16,7 @@ public interface RemoteView extends Remote {
 
     String getInput(String msg, int max) throws RemoteException;
 
-    void update(JsonObject jsonObject) throws RemoteException;
+    void update(String json) throws RemoteException;
 
     void ping() throws RemoteException;
 

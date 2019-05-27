@@ -280,7 +280,7 @@ public class ServerMain {
      */
     private void refreshConnections(){
         for (VirtualView p : new ArrayList<>(this.players)) {
-            if(p.isSuspended()){
+            if(!p.isSuspended()){
                 p.refresh();
             }
         }

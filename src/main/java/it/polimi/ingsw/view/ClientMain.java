@@ -150,6 +150,10 @@ public class ClientMain {
 
     }
 
+    public void render() {
+        ui.render();
+    }
+
     public String getInput(String msg, int max){
         ui.display(msg, Integer.toString(max));
         return ui.get(Integer.toString(max));

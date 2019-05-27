@@ -325,4 +325,5 @@ public class CLI implements UI{
         render = addFrame(join(false,join(true,  MapRenderer.getMap(model), WeaponRenderer.get(model), false), PlayersRenderer.get(model), true));
     }
 
+    public void render(ClientModel clientModel){}
 }

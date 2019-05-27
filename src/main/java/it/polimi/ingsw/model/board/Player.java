@@ -335,7 +335,9 @@ public class Player {
      */
     public void addWeapon(Weapon addedWeapon) throws UnacceptableItemNumberException {
 
-        if (this.weaponList.size()>J.getInt("maxWeapons")) throw new UnacceptableItemNumberException("A player can hold up to 3 weapons; 4 are allowed while choosing which one to discard.");
+        if (this.weaponList.size()>J.getInt("maxWeapons"))
+            throw new UnacceptableItemNumberException("A player can hold up to 3 weapons; 4 are allowed while choosing " +
+                    "which one to discard.");
         addedWeapon.setHolder(this);
         weaponList.add(addedWeapon);
         board.addToUpdateQueue(Updater.get("pickUpWeapon", this, addedWeapon));
@@ -383,7 +385,9 @@ public class Player {
      */
     public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
-        if (this.powerUpList.size() > 4) throw new UnacceptableItemNumberException("A player can normally hold up to 3 power ups; 4 are allowed in the process of rebirth. More than 4 are never allowed.");
+        if (this.powerUpList.size() > 4)
+            throw new UnacceptableItemNumberException("A player can normally hold up to 3 power ups; 4 are allowed in " +
+                    "the process of rebirth. More than 4 are never allowed.");
         if (this.board.getPowerUpDeck().getDrawable().isEmpty()){
             this.board.getPowerUpDeck().regenerate();
             board.addToUpdateQueue(Updater.get("pDeckRegen", board.getPowerUpDeck().getDrawable().size()));
@@ -857,7 +861,8 @@ public class Player {
                     if (board.getDistance(s, position) > 2) possibleDest.remove(s);
                 } else if (status == Status.FRENZY_2 && board.getDistance(s, position) > 3) possibleDest.remove(s);
             }
-            if (possibleDest.contains(s) && board.getSpawnPoints().contains(s) && getCollectibleWeapons((WeaponSquare)s).isEmpty()) possibleDest.remove(s);
+            if (possibleDest.contains(s) && board.getSpawnPoints().contains(s) && getCollectibleWeapons((WeaponSquare)s)
+                    .isEmpty()) possibleDest.remove(s);
 
         }
 

@@ -116,4 +116,6 @@ public abstract class VirtualView implements Runnable{
 
     abstract public void update(JsonObject jsonObject);
 
+    abstract public void render();
+
 }

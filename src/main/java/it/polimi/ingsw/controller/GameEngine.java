@@ -181,6 +181,11 @@ public class GameEngine implements Runnable{
         System.out.println("about to notify");
         board.notifyObservers();
 
+
+        for (VirtualView p: players){
+            p.render();
+        }
+
     }
 
 

@@ -14,28 +14,30 @@ import org.junit.Test;
 
 import javax.swing.text.StyledEditorKit;
 
+import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class GUITest {
 
     @Test
-    public void render() throws UnacceptableItemNumberException {
+    public void rendervero() throws UnacceptableItemNumberException {
         Board board = BoardConfigurer.configureMap(4);
         WeaponFactory weaponFactory = new WeaponFactory(board);
         PowerUpFactory powerUpFactory = new PowerUpFactory(board);
         Deck wd = new Deck();
-        for (int i = 0; i<21; i++) {
+        for (int i = 0; i < 21; i++) {
             wd.addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
         }
         board.setWeaponDeck(wd);
         Deck pd = new Deck();
-        for (int i = 0; i<24; i++) {
+        for (int i = 0; i < 24; i++) {
             pd.addCard(powerUpFactory.createPowerUp(PowerUp.PowerUpName.TELEPORTER, Color.RED));
         }
         board.setPowerUpDeck(pd);
         Deck ad = new Deck();
-        for (int i = 0; i<36; i++) {
-            ad.addCard(new AmmoTile(true,new AmmoPack(1,2,0)));
+        for (int i = 0; i < 36; i++) {
+            ad.addCard(new AmmoTile(true, new AmmoPack(1, 2, 0)));
         }
         board.setAmmoDeck(ad);
         board.setKillShotTrack(new KillShotTrack(7, board));
@@ -44,6 +46,35 @@ public class GUITest {
         board.getPlayers().get(0).setUsername("Giuliano");
         board.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.POWER_GLOVE));
         board.getSpawnPoints().get(2).addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+        Updater updater = new Updater();
+        ClientModel clientModel = updater.getModel2(board, board.getPlayers().get(0));
+        javafx.application.Application.launch(GUI.class);
+
+        GUI gui = GUI.waitGUI();
+        gui.setClientModel(clientModel);
+        gui.render();
+    }
+
+    @Test
+    public void render(){
+
+                javafx.application.Application.launch(GUI.class);
+
+        GUI gui = GUI.waitGUI();
+        gui.render();
+    }
+
+    @Test
+    public void display(){
+        new Thread() {
+            @Override
+            public void run() {
+                javafx.application.Application.launch(GUI.class);
+            }
+        }.start();
+        GUI gui = GUI.waitGUI();
+        gui.display("ciao");
+
 
     }
 }

@@ -261,6 +261,18 @@ public class ClientModel {
             }
             return new SimpleWeapon("error", false);
         }
+
+        public int getBlueAmmo() {
+            return blueAmmo;
+        }
+
+        public int getRedAmmo() {
+            return redAmmo;
+        }
+
+        public int getYellowAmmo() {
+            return yellowAmmo;
+        }
     }
 
 

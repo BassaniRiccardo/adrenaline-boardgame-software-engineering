@@ -2,6 +2,10 @@ package it.polimi.ingsw.view;
 
 //TODO: implement
 
+import java.awt.*;
+import java.awt.ScrollPane;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,16 +14,25 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
 
+import it.polimi.ingsw.model.board.Player;
+
+import it.polimi.ingsw.model.board.Square;
+import it.polimi.ingsw.model.cards.Weapon;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
 
@@ -47,6 +60,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     public static final CountDownLatch latch = new CountDownLatch(1);
     public static GUI GUI = null;
+    private ClientModel clientModel;
+
 
     /**
      *
@@ -77,7 +92,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         setGUI(this);
     }
 
-    public void setClientMain(ClientMain clientMain) { this.clientMain = clientMain; }
+    public void setClientMain(ClientMain clientMain) {
+        this.clientMain = clientMain;
+        this.clientModel=clientMain.getClientModel();}
+
+    public void setClientModel(ClientModel cm) { this.clientModel=cm;}
 
     /*
     public static void main(String[] args){
@@ -103,13 +122,567 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             stage.setScene(scene);
             Label label = new Label("Entering the configuration phase...");
             pane.setCenter(label);
+            render();
             stage.show();
 
         });
-
     }
 
+    @Override
+    public void render(){
+        Platform.runLater( () -> {
+                    try {
+                        FileInputStream mapLeft;
+                        FileInputStream mapRight;
+                        mapLeft = new FileInputStream("src/main/resources/images/miscellaneous/mapLeft2.png");
+                        mapRight = new FileInputStream("src/main/resources/images/miscellaneous/mapRight2.png");
+                        Image imageMapLeft = new Image(mapLeft);
+                        Image imageMapRight = new Image(mapRight);
+                        ImageView viewMapLeft = new ImageView(imageMapLeft);
+                        ImageView viewMapRight = new ImageView(imageMapRight);
+                        viewMapLeft.setFitHeight(800);
+                        viewMapRight.setFitHeight(800);
+                        viewMapLeft.setPreserveRatio(true);
+                        viewMapRight.setPreserveRatio(true);
+                        List<ImageView> playerView = new ArrayList<>();
+                        FileInputStream player = new FileInputStream("src/main/resources/images/miscellaneous/Banshee.png");
+                        Image imagePlayer = new Image(player);
+                        playerView.add(new ImageView(imagePlayer));
+                        playerView.get(0).setFitWidth(500);
+                        playerView.get(0).setPreserveRatio(true);
+                        VBox playerBoard = new VBox();
+                        playerBoard.getChildren().addAll(playerView);
 
+                        List<ImageView> skulls = new ArrayList<>();
+                        FileInputStream skullFile = new FileInputStream("src/main/resources/images/miscellaneous/skull.png");
+                        int skullNumber=5;
+                        Image skull = new Image(skullFile);
+                        skulls.add(new ImageView(skull));
+                        skulls.add(new ImageView(skull));
+                        skulls.add(new ImageView(skull));
+                        skulls.add(new ImageView(skull));
+                        skulls.add(new ImageView(skull));
+
+                        if(skullNumber>5){
+                            skulls.add(new ImageView(skull));
+                        }
+                        if(skullNumber>6){
+                            skulls.add(new ImageView(skull));
+                        }
+                        if(skullNumber>7){
+                            skulls.add(new ImageView(skull));
+                        }
+
+                        for(ImageView s : skulls){
+                            s.setFitWidth(44.5);
+                            s.setPreserveRatio(true);
+                        }
+                        GridPane skullsGrid = new GridPane();
+                        List<ColumnConstraints> columnConstraints = new ArrayList<>();
+                        for(int i=0; i<8-skullNumber;i++){
+                            columnConstraints.add(new ColumnConstraints(44.5));
+                            skullsGrid.getColumnConstraints().add(columnConstraints.get(i));
+                        }
+                        for(int i=8-skullNumber; i<8;i++)
+                            skullsGrid.add(skulls.get(i-(8-skullNumber)),i,0,1,1);
+
+                        //weapons
+                        FileInputStream weaponFile = new FileInputStream("src/main/resources/images/cards/Furnace.png");
+                        Image weaponImage = new Image(weaponFile);
+
+                        GridPane weaponsGrid1 = new GridPane();
+                        GridPane weaponsGrid2 = new GridPane();
+                        GridPane weaponsGrid3 = new GridPane();
+                        List<ImageView> weaponsList1 = new ArrayList<>();
+                        List<ImageView> weaponsList2 = new ArrayList<>();
+                        List<ImageView> weaponsList3 = new ArrayList<>();
+                        for(int i=0; i<3; i++){
+                            //1 top spawning point
+                            weaponsList1.add(new ImageView(weaponImage));
+                            weaponsList1.get(i).setFitHeight(160);
+                            weaponsList1.get(i).setPreserveRatio(true);
+                            weaponsGrid1.add(weaponsList1.get(i),i,0,1,1);
+                            weaponsGrid1.setMargin(weaponsList1.get(i),new javafx.geometry.Insets(0,0,0,19));
+                            //2 right spawning point
+                            weaponsList2.add(new ImageView(weaponImage));
+                            weaponsList2.get(i).setFitHeight(160);
+                            weaponsList2.get(i).setPreserveRatio(true);
+                            weaponsGrid2.add(weaponsList2.get(i),i,0,1,1);
+                            weaponsGrid2.setMargin(weaponsList2.get(i),new javafx.geometry.Insets(0,0,0,19));
+                            //3 left spawning point
+                            weaponsList3.add(new ImageView(weaponImage));
+                            weaponsList3.get(i).setFitHeight(160);
+                            weaponsList3.get(i).setPreserveRatio(true);
+                            weaponsGrid3.add(weaponsList3.get(i),i,0,1,1);
+                            weaponsGrid3.setMargin(weaponsList3.get(i),new javafx.geometry.Insets(0,0,0,19));
+                        }
+
+                        //rooms
+                        int mapId = 1;
+
+                        FileInputStream ammoBackFile = new FileInputStream("src/main/resources/images/ammo/ammoBack.png");
+                        Image ammoBackImage = new Image(ammoBackFile);
+                        GridPane roomsGrid = new GridPane();
+                        List<ImageView> ammoBackList = new ArrayList<>();
+                        int k=0;
+                        columnConstraints.add(new ColumnConstraints(44.5));
+                        ColumnConstraints emptyRoom1 = new ColumnConstraints(120);
+                        ColumnConstraints emptyRoom2 = new ColumnConstraints(120);
+                        if(mapId==1||mapId==3)
+                            roomsGrid.getColumnConstraints().add(emptyRoom1);
+
+                        for(int i=0;i<4;i++)
+                            for(int j=0;j<3;j++){
+                                ammoBackList.add(new ImageView(ammoBackImage));
+                                ammoBackList.get(k).setFitWidth(65);
+                                ammoBackList.get(k).setPreserveRatio(true);
+                                roomsGrid.add(ammoBackList.get(k),i,j);
+                                roomsGrid.setMargin(ammoBackList.get(k),new javafx.geometry.Insets(55,55,55,55));
+                                k++;
+                            }
+
+                        //decks
+                        FileInputStream pUDeckFile = new FileInputStream("src/main/resources/images/cards/pUBack.png");
+                        Image pUDeckImage = new Image(pUDeckFile);
+                        ImageView  pUDeckView = new ImageView(pUDeckImage);
+                        pUDeckView.setFitHeight(110);
+                        pUDeckView.setPreserveRatio(true);
+                        Label cardsRemainingPU = new Label("10");
+                        FileInputStream weaponDeckFile = new FileInputStream("src/main/resources/images/cards/wBack.png");
+                        Image weaponDeckImage = new Image(weaponDeckFile);
+                        ImageView weaponDeckView = new ImageView(weaponDeckImage);
+                        weaponDeckView.setFitHeight(160);
+                        weaponDeckView.setPreserveRatio(true);
+                        Label cardsRemainingWeapons = new Label("10");
+
+                        //ammos
+                        GridPane playerAmmo = new GridPane();
+                        FileInputStream redAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/redAmmo.png");
+                        FileInputStream blueAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/blueAmmo.png");
+                        FileInputStream yellowAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/yellowAmmo.png");
+                        Image redAmmoImage=new Image(redAmmoFile);
+                        List<ImageView> redAmmoView = new ArrayList<>();
+                        Image blueAmmoImage=new Image(blueAmmoFile);
+                        List<ImageView> blueAmmoView = new ArrayList<>();
+                        Image yellowAmmoImage=new Image(yellowAmmoFile);
+                        List<ImageView> yellowAmmoView = new ArrayList<>();
+                        for(int i=0;i<3;i++){
+                            redAmmoView.add(new ImageView(redAmmoImage));
+                            redAmmoView.get(i).setFitWidth(20);
+                            redAmmoView.get(i).setPreserveRatio(true);
+                            playerAmmo.add(redAmmoView.get(i),i,0);
+                            playerAmmo.setMargin(redAmmoView.get(i),new Insets(0,0,5,5));
+                            blueAmmoView.add(new ImageView(blueAmmoImage));
+                            blueAmmoView.get(i).setFitWidth(20);
+                            blueAmmoView.get(i).setPreserveRatio(true);
+                            playerAmmo.add(blueAmmoView.get(i),i,1);
+                            playerAmmo.setMargin(blueAmmoView.get(i),new Insets(0,0,5,5));
+                            yellowAmmoView.add(new ImageView(yellowAmmoImage));
+                            yellowAmmoView.get(i).setFitWidth(20);
+                            yellowAmmoView.get(i).setPreserveRatio(true);
+                            playerAmmo.add(yellowAmmoView.get(i),i,2);
+                            playerAmmo.setMargin(yellowAmmoView.get(i),new Insets(0,0,5,5));
+                            }
+
+                        //button hands
+                        Button handButton = new Button("CARTE");
+                        handButton.setOnAction(actionEvent ->  {
+                            Stage handStage = new Stage();
+                            handStage.setTitle("CARTE IN MANO");
+                            BorderPane handPane = new BorderPane();
+                        });
+                       /* stage = primaryStage;
+                        stage.setTitle("Adrenaline");
+                        BorderPane pane = new BorderPane();
+                        pane.setBackground(new Background(new BackgroundFill(color, null, null)));
+                        Scene scene = new Scene(pane, 500, 160);
+                        stage.setScene(scene);
+                        Label label = new Label("Entering the configuration phase...");
+                        pane.setCenter(label);
+
+                        stage.show();*/
+
+                        StackPane playerBoardAndStuffAbove = new StackPane();
+                        playerBoardAndStuffAbove.getChildren().addAll(playerBoard,playerAmmo,handButton);
+                        playerAmmo.setTranslateX(400);
+                        HBox map =new HBox();
+                        map.getChildren().addAll(viewMapLeft, viewMapRight);
+                        StackPane mapAndStuffAbove = new StackPane();
+                        mapAndStuffAbove.getChildren().addAll(map,skullsGrid,weaponsGrid1,weaponsGrid2,weaponsGrid3,roomsGrid,
+                                weaponDeckView,pUDeckView,cardsRemainingPU,cardsRemainingWeapons);
+                        pUDeckView.setTranslateX(453);
+                        pUDeckView.setTranslateY(-332);
+                        weaponDeckView.setTranslateX(440);
+                        weaponDeckView.setTranslateY(-132);
+                        cardsRemainingPU.setTranslateX(450);
+                        cardsRemainingPU.setTranslateY(-330);
+                        cardsRemainingPU.setTextFill(Color.web("#F8F8FF"));
+                        cardsRemainingWeapons.setTranslateX(440);
+                        cardsRemainingWeapons.setTranslateY(-130);
+                        cardsRemainingWeapons.setTextFill(Color.web("#F8F8FF"));
+
+                        HBox board = new HBox();
+                        board.getChildren().addAll(mapAndStuffAbove, playerBoardAndStuffAbove);
+
+                        skullsGrid.setTranslateX(70);
+                        skullsGrid.setTranslateY(50);
+                        weaponsGrid1.setTranslateX(540);
+                        weaponsGrid2.setRotate(270);
+                        weaponsGrid2.setTranslateX(800);
+                        weaponsGrid2.setTranslateY(-160);
+                        weaponsGrid3.setRotate(90);
+                        weaponsGrid3.setTranslateX(-800);
+                        weaponsGrid3.setTranslateY(370);
+                        roomsGrid.setTranslateX(180);
+                        roomsGrid.setTranslateY((200));
+                        Scene sceneMap = new Scene(board, 1200, 800);
+                        stage.setScene(sceneMap);
+                        stage.setFullScreen(true);
+                        stage.show();
+
+
+                    }catch (FileNotFoundException e){
+                        e.printStackTrace();
+                    }
+        });
+    }
+    /**
+     * Displays a simplified model containing all the information the user needs.
+     */
+   /* @Override
+    public void render() {
+        while (stage==null){
+            try {
+                Thread.sleep(2000);
+            }catch (InterruptedException e){e.printStackTrace();}
+        }
+
+        Platform.runLater( () -> {
+            try {
+                FileInputStream mapLeft;
+                FileInputStream mapRight;
+                if(clientModel.getMapID()==1||clientModel.getMapID()==3){
+                    mapLeft = new FileInputStream("src/main/resources/images/miscellaneous/mapLeft1.png");
+                }else {
+                    mapLeft = new FileInputStream("src/main/resources/images/miscellaneous/mapLeft2.png");
+                }
+                if(clientModel.getMapID()==3||clientModel.getMapID()==4){
+                    mapRight = new FileInputStream("src/main/resources/images/miscellaneous/mapRight2.png");
+                }else{
+                    mapRight = new FileInputStream("src/main/resources/images/miscellaneous/mapRight1.png");}
+                Image imageMapLeft = new Image(mapLeft);
+                Image imageMapRight = new Image(mapRight);
+                ImageView viewMapLeft = new ImageView(imageMapLeft);
+                ImageView viewMapRight = new ImageView(imageMapRight);
+                viewMapLeft.setFitHeight(800);
+                viewMapRight.setFitHeight(800);
+                viewMapLeft.setPreserveRatio(true);
+                viewMapRight.setPreserveRatio(true);
+
+                //rooms
+                int mapId = clientModel.getMapID();
+                List<ClientModel.SimpleSquare> squares = clientModel.getSquares();
+                GridPane roomsGrid = new GridPane();
+                ColumnConstraints emptyRoom1 = new ColumnConstraints(120);
+                ColumnConstraints emptyRoom2 = new ColumnConstraints(120);
+                ColumnConstraints emptyRoom3 = new ColumnConstraints(120);
+                ColumnConstraints emptyRoom4 = new ColumnConstraints(120);
+                ColumnConstraints emptyRoom5 = new ColumnConstraints(120);
+                List<ImageView> ammoView = new ArrayList<>();
+                int k=0;
+                int column=0;
+                int row=0;
+                int spawningPoint=1;
+                int ammoViewIndex=0;
+                for(ClientModel.SimpleSquare s : squares) {
+                    if ((mapId == 1 || mapId == 3) && column == 0 && row == 0) {
+                        roomsGrid.getColumnConstraints().add(emptyRoom1);
+                    }else if (!((clientModel.getSquares().get(k)).isSpawnPoint())) {
+                        ammoView.add(getImageOfSquare(s));
+                        roomsGrid.add(ammoView.get(ammoViewIndex), column, row);
+                        ammoView.get(ammoViewIndex).setFitWidth(65);
+                        ammoView.get(ammoViewIndex).setPreserveRatio(true);
+                        roomsGrid.setMargin(ammoView.get(ammoViewIndex), new javafx.geometry.Insets(55, 55, 55, 55));
+                        ammoViewIndex++;
+                    }
+                    else if (spawningPoint==1){
+                        roomsGrid.getColumnConstraints().add(emptyRoom3);
+                        spawningPoint++;
+                    }
+                    else if (spawningPoint==2){
+                        roomsGrid.getColumnConstraints().add(emptyRoom4);
+                        spawningPoint++;
+                    }else
+                        roomsGrid.getColumnConstraints().add(emptyRoom5);
+                    if(column==3)
+                        column = 0;
+                    else
+                        column++;
+                    if(row==2)
+                        row = 0;
+                    else
+                        row++;
+                    k++;
+                }
+                if (mapId == 1 || mapId == 2)
+                    roomsGrid.getColumnConstraints().add(emptyRoom2);
+
+                //decks
+                FileInputStream pUDeckFile = new FileInputStream("src/main/resources/images/cards/pUBack.png");
+                Image pUDeckImage = new Image(pUDeckFile);
+                ImageView pUDeckView = new ImageView(pUDeckImage);
+                pUDeckView.setFitHeight(110);
+                pUDeckView.setPreserveRatio(true);
+                Label cardsRemainingPU = new Label(Integer.toString(clientModel.getPowerUpCardsLeft()));
+                FileInputStream weaponDeckFile = new FileInputStream("src/main/resources/images/cards/wBack.png");
+                Image weaponDeckImage = new Image(weaponDeckFile);
+                ImageView weaponDeckView = new ImageView(weaponDeckImage);
+                weaponDeckView.setFitHeight(160);
+                weaponDeckView.setPreserveRatio(true);
+                Label cardsRemainingWeapons = new Label(Integer.toString(clientModel.getWeaponCardsLeft()));
+
+                //players
+                List<ImageView> playerView = new ArrayList<>();
+                List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
+                int playerIndex = 0;
+                for (ClientModel.SimplePlayer p : players) {
+                    playerView.add(getImageOfPlayer(p));
+                    playerView.get(playerIndex).setFitWidth(500);
+                    playerView.get(playerIndex).setPreserveRatio(true);
+                    playerIndex++;
+                }
+                VBox playerBoard = new VBox();
+                playerBoard.getChildren().addAll(playerView);
+
+                //skulls
+                List<ImageView> skulls = new ArrayList<>();
+                FileInputStream skullFile = new FileInputStream("src/main/resources/images/miscellaneous/skull.png");
+                int skullNumber=clientModel.getSkullsLeft();
+                Image skullImage = new Image(skullFile);
+                for(int i=0; i<skullNumber;i++)
+                    skulls.add(new ImageView(skullImage));
+
+                for(ImageView s : skulls){
+                    s.setFitWidth(44.5);
+                    s.setPreserveRatio(true);
+                }
+                GridPane skullsGrid = new GridPane();
+                List<ColumnConstraints> columnConstraints = new ArrayList<>();
+                for(int i=0; i<8-skullNumber;i++){
+                    columnConstraints.add(new ColumnConstraints(44.5));
+                    skullsGrid.getColumnConstraints().add(columnConstraints.get(i));
+                }
+                for(int i=8-skullNumber; i<8;i++)
+                    skullsGrid.add(skulls.get(i-(8-skullNumber)),i,0,1,1);
+
+                //ammos
+                List<GridPane> playerAmmoGrid = new ArrayList<>();
+                FileInputStream redAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/redAmmo.png");
+                FileInputStream blueAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/blueAmmo.png");
+                FileInputStream yellowAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/yellowAmmo.png");
+                Image redAmmoImage=new Image(redAmmoFile);
+                List<ArrayList<ImageView>> redAmmoView = new ArrayList<>(); //doppie liste
+                Image blueAmmoImage=new Image(blueAmmoFile);
+                List<ArrayList<ImageView>> blueAmmoView = new ArrayList<>();
+                Image yellowAmmoImage=new Image(yellowAmmoFile);
+                List<ArrayList<ImageView>> yellowAmmoView = new ArrayList<>();
+                int gridIndex=0;
+                for(ClientModel.SimplePlayer p : players) {
+                    playerAmmoGrid.add(new GridPane());
+                    redAmmoView.add(new ArrayList<>());
+                    int rAmmo = p.getRedAmmo();
+                    for (int i = 0; i < rAmmo; i++) {
+                        redAmmoView.get(gridIndex).add(new ImageView(redAmmoImage));
+                        redAmmoView.get(gridIndex).get(i).setFitWidth(20);
+                        redAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
+                        playerAmmoGrid.get(gridIndex).add(redAmmoView.get(gridIndex).get(i), i, 0);
+                        playerAmmoGrid.get(gridIndex).setMargin(redAmmoView.get(gridIndex).get(i),new Insets(0,0,5,5));
+                    }
+                    blueAmmoView.add(new ArrayList<>());
+                    int bAmmo = p.getBlueAmmo();
+                    for (int i = 0; i < bAmmo; i++) {
+                        blueAmmoView.get(gridIndex).add(new ImageView(blueAmmoImage));
+                        blueAmmoView.get(gridIndex).get(i).setFitWidth(20);
+                        blueAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
+                        playerAmmoGrid.get(gridIndex).add(blueAmmoView.get(gridIndex).get(i), i, 0);
+                        playerAmmoGrid.get(gridIndex).setMargin(blueAmmoView.get(gridIndex).get(i),new Insets(0,0,5,5));
+                    }
+                    yellowAmmoView.add(new ArrayList<>());
+                    int yAmmo = p.getYellowAmmo();
+                    for (int i = 0; i < yAmmo; i++) {
+                        yellowAmmoView.get(gridIndex).add(new ImageView(yellowAmmoImage));
+                        yellowAmmoView.get(gridIndex).get(i).setFitWidth(20);
+                        yellowAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
+                        playerAmmoGrid.get(gridIndex).add(yellowAmmoView.get(gridIndex).get(i), i, 0);
+                        playerAmmoGrid.get(gridIndex).setMargin(yellowAmmoView.get(gridIndex).get(i),new Insets(0,0,5,5));
+                    }
+                }
+
+                //weapons
+                FileInputStream weaponFile = new FileInputStream("src/main/resources/images/cards/Furnace.png");
+                Image weaponImage = new Image(weaponFile);
+
+                GridPane weaponsGrid1 = new GridPane();
+                GridPane weaponsGrid2 = new GridPane();
+                GridPane weaponsGrid3 = new GridPane();
+                List<ImageView> weaponsList1 = new ArrayList<>();
+                List<ImageView> weaponsList2 = new ArrayList<>();
+                List<ImageView> weaponsList3 = new ArrayList<>();
+                int spawnpointIndex=1;
+                for(ClientModel.SimpleSquare s : squares){
+                    if(s.isSpawnPoint()) {
+                        if (spawnpointIndex == 1) {
+                            for (int i = 0; i < 3; i++) {
+                                weaponsList1.add(getImageOfWeaponsInSquare(s).get(i));
+                                weaponsList1.get(i).setFitHeight(160);
+                                weaponsList1.get(i).setPreserveRatio(true);
+                                weaponsGrid1.add(weaponsList1.get(i),i,0,1,1);
+                                weaponsGrid1.setMargin(weaponsList1.get(i),new javafx.geometry.Insets(0,0,0,19));
+                            }
+                        } else if (spawningPoint == 2) {
+                            for (int i = 0; i < 3; i++) {
+                                weaponsList2.add(getImageOfWeaponsInSquare(s).get(i));
+                                weaponsList2.get(i).setFitHeight(160);
+                                weaponsList2.get(i).setPreserveRatio(true);
+                                weaponsGrid2.add(weaponsList2.get(i),i,0,1,1);
+                                weaponsGrid2.setMargin(weaponsList2.get(i),new javafx.geometry.Insets(0,0,0,19));
+                            }
+                        }else{
+                            for (int i = 0; i < 3; i++) {
+                                weaponsList3.add(getImageOfWeaponsInSquare(s).get(i));
+                                weaponsList3.get(i).setFitHeight(160);
+                                weaponsList3.get(i).setPreserveRatio(true);
+                                weaponsGrid3.add(weaponsList3.get(i),i,0,1,1);
+                                weaponsGrid3.setMargin(weaponsList3.get(i),new javafx.geometry.Insets(0,0,0,19));
+                            }
+                        }
+                    }
+                }
+
+                //layout
+                StackPane playerBoardAndStuffAbove = new StackPane();
+               // playerBoardAndStuffAbove.getChildren().addAll(playerBoard, playerAmmoGrid);
+                for(GridPane g : playerAmmoGrid)
+                    g.setTranslateX(400);
+                HBox map =new HBox();
+                map.getChildren().addAll(viewMapLeft, viewMapRight);
+                StackPane mapAndStuffAbove = new StackPane();
+                mapAndStuffAbove.getChildren().addAll(map,skullsGrid,weaponsGrid1,weaponsGrid2,weaponsGrid3,roomsGrid,
+                        weaponDeckView,pUDeckView,cardsRemainingPU,cardsRemainingWeapons);
+                pUDeckView.setTranslateX(453);
+                pUDeckView.setTranslateY(-332);
+                weaponDeckView.setTranslateX(440);
+                weaponDeckView.setTranslateY(-132);
+                cardsRemainingPU.setTranslateX(450);
+                cardsRemainingPU.setTranslateY(-330);
+                cardsRemainingPU.setTextFill(Color.web("#F8F8FF"));
+                cardsRemainingWeapons.setTranslateX(440);
+                cardsRemainingWeapons.setTranslateY(-130);
+                cardsRemainingWeapons.setTextFill(Color.web("#F8F8FF"));
+
+                HBox board = new HBox();
+                board.getChildren().addAll(mapAndStuffAbove, playerBoardAndStuffAbove);
+
+                skullsGrid.setTranslateX(70);
+                skullsGrid.setTranslateY(50);
+                weaponsGrid1.setTranslateX(540);
+                weaponsGrid2.setRotate(270);
+                weaponsGrid2.setTranslateX(800);
+                weaponsGrid2.setTranslateY(-160);
+                weaponsGrid3.setRotate(90);
+                weaponsGrid3.setTranslateX(-800);
+                weaponsGrid3.setTranslateY(370);
+                roomsGrid.setTranslateX(180);
+                roomsGrid.setTranslateY((200));
+                Scene sceneMap = new Scene(board, 1200, 800);
+                stage.setScene(sceneMap);
+                stage.setFullScreen(true);
+                stage.show();
+
+                }catch (FileNotFoundException e){
+                e.printStackTrace();
+            }
+        });
+    }*/
+
+    private List<ImageView> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
+        List<ImageView> weaponView = new ArrayList<>();
+        int o=square.getId();
+        List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(o)).getWeapons();
+        try{
+            for(ClientModel.SimpleWeapon w : weaponList){
+                String key= w.getName();
+                FileInputStream weaponFile = new FileInputStream("src/main/resources/images/miscellaneous/ammo"+key+".png");
+                Image weaponImage = new Image(weaponFile);
+                ImageView weaponImageView = new ImageView(weaponImage);
+                weaponView.add(weaponImageView);
+            }
+
+            return weaponView;
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private ImageView getImageOfSquare(ClientModel.SimpleSquare square){
+        int r,b,y;
+        boolean pU;
+        String key="";
+        int o=square.getId();
+        r=(clientModel.getSquares().get(o)).getRedAmmo();
+        b=(clientModel.getSquares().get(o)).getBlueAmmo();
+        y=(clientModel.getSquares().get(o)).getYellowAmmo();
+        pU=(clientModel.getSquares().get(o)).isPowerup();
+        if(pU)
+            key=key+"P";
+        if(r==1)
+            key=key+"R";
+        if(r==2)
+            key=key+"R";
+        if(b==1)
+            key=key+"B";
+        if(b==2)
+            key=key+"B";
+        if(y==1)
+            key=key+"Y";
+        if(y==2)
+            key=key+"Y";
+        try{
+            FileInputStream ammoFile = new FileInputStream("src/main/resources/images/ammo/ammo"+key+".png");
+            Image ammoImage = new Image(ammoFile);
+            ImageView ammoView = new ImageView(ammoImage);
+            return ammoView;
+        }catch (FileNotFoundException e){
+        e.printStackTrace();
+        }
+        return null;
+    }
+
+    private ImageView getImageOfPlayer(ClientModel.SimplePlayer player){
+        String key,color;
+        color=player.getColor();
+        if(color=="Green")
+            key="Sprog";
+        if(color=="Grey")
+            key="Dozer";
+        if(color=="Yellow")
+            key="D_struct_or";
+        if(color=="Blue")
+            key="Banshee";
+        else
+            key="Violet";
+
+        try{
+            FileInputStream playerFile = new FileInputStream("src/main/resources/images/miscellaneous/"+key+".png");
+            Image playerImage = new Image(playerFile);
+            ImageView playerView = new ImageView(playerImage);
+            return playerView;
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
     /**
      * Displays a MSG message
      *
@@ -347,16 +920,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     public void handle(Event event) {
 
     }
-
-
-    /**
-     * Displays a simplified model containing all the information the user needs.
-     */
-    @Override
-    public void render() {
-        display("MAPPA DISEGNATA");
-    }
-
 
     /**
      * Class storing the values the get() method must return.

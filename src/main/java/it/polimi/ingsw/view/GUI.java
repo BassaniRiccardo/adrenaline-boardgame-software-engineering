@@ -3,7 +3,6 @@ package it.polimi.ingsw.view;
 //TODO: implement
 
 import java.awt.*;
-import java.awt.ScrollPane;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -13,28 +12,25 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
-
-import it.polimi.ingsw.model.board.Player;
-
-import it.polimi.ingsw.model.board.Square;
-import it.polimi.ingsw.model.cards.Weapon;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
 import javafx.application.Platform;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
-
 
 
 /**
@@ -61,8 +57,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     public static final CountDownLatch latch = new CountDownLatch(1);
     public static GUI GUI = null;
     private ClientModel clientModel;
-    private VBox messagePanel;
-
+    private final int widthDef=1920;
+    private final int heightDef=1080;
 
     public ClientMain getClientMain() {
         return clientMain;
@@ -119,7 +115,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
-            //da cancellare
             stage = primaryStage;
             stage.setOnCloseRequest(e -> {System.exit(0);});
             stage.setTitle("Adrenaline");
@@ -131,34 +126,17 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             pane.setCenter(label);
             stage.show();
 
-            /*
-            lo stage deve essere fullScreen fin da qui e composto da:
-            -   messagePanel, per mostrare i messaggi
-            -   il resto dello schermo va riempito in modo appropriato fin da ora (immagine e/o scritta+colore)
-                e andrá poi rimepito con la mappa dal render
-             */
-
-            /*
-            Qui la parte con cui sostituire la parte sopra. Manca l'inizializzazione dello stage come sopra descritto
-
-            stage = primaryStage;
-            stage.setOnCloseRequest(e -> {System.exit(0);});
-            stage.setTitle("Adrenaline");
-            messagePanel.setBackground(new Background(new BackgroundFill(color, null, null)));
-            Label label = new Label("Entering the configuration phase...");
-            messagePanel.getChildren().add(label);
-            */
-
 
         });
     }
 
-    /*
-
-    @Override
+   /* @Override
     public void render(){
         Platform.runLater( () -> {
                     try {
+                        Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+                        double wScale = screenSize.getWidth() / widthDef;
+                        double hScale = screenSize.getHeight() / heightDef;
                         FileInputStream mapLeft;
                         FileInputStream mapRight;
                         mapLeft = new FileInputStream("src/main/resources/images/miscellaneous/mapLeft2.png");
@@ -252,12 +230,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         GridPane roomsGrid = new GridPane();
                         List<ImageView> ammoBackList = new ArrayList<>();
                         int k=0;
-                        columnConstraints.add(new ColumnConstraints(44.5));
-                        ColumnConstraints emptyRoom1 = new ColumnConstraints(120);
-                        ColumnConstraints emptyRoom2 = new ColumnConstraints(120);
-                        if(mapId==1||mapId==3)
-                            roomsGrid.getColumnConstraints().add(emptyRoom1);
-
                         for(int i=0;i<4;i++)
                             for(int j=0;j<3;j++){
                                 ammoBackList.add(new ImageView(ammoBackImage));
@@ -312,26 +284,30 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                             }
 
                         //button hands
-                        Button handButton = new Button("CARTE");
-                        handButton.setOnAction(actionEvent ->  {
-                            Stage handStage = new Stage();
-                            handStage.setTitle("CARTE IN MANO");
-                            BorderPane handPane = new BorderPane();
+                        Stage popupStage = new Stage();
+                        Popup popup = new Popup();
+                        popup.setX(300);
+                        popup.setY(200);
+                        Button hide = new Button("CHIUDI");
+                        Button show = new Button("CARTE");
+                        popup.getContent().addAll(new Circle(25, 25, 50, Color.AQUAMARINE),hide);
+                        show.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override public void handle(ActionEvent event) {
+                                popup.show(popupStage);
+                            }
                         });
-                        stage = primaryStage;
-                        stage.setTitle("Adrenaline");
-                        BorderPane pane = new BorderPane();
-                        pane.setBackground(new Background(new BackgroundFill(color, null, null)));
-                        Scene scene = new Scene(pane, 500, 160);
-                        stage.setScene(scene);
-                        Label label = new Label("Entering the configuration phase...");
-                        pane.setCenter(label);
 
-                        stage.show();
+                        hide.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override public void handle(ActionEvent event) {
+                                popup.hide();
+                            }
+                        });
 
                         StackPane playerBoardAndStuffAbove = new StackPane();
-                        playerBoardAndStuffAbove.getChildren().addAll(playerBoard,playerAmmo,handButton);
+                        playerBoardAndStuffAbove.getChildren().addAll(playerBoard,playerAmmo,show);
                         playerAmmo.setTranslateX(400);
+                        show.setTranslateX(190);
+                        show.setTranslateY(-330);
                         HBox map =new HBox();
                         map.getChildren().addAll(viewMapLeft, viewMapRight);
                         StackPane mapAndStuffAbove = new StackPane();
@@ -362,7 +338,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         weaponsGrid3.setTranslateY(370);
                         roomsGrid.setTranslateX(180);
                         roomsGrid.setTranslateY((200));
-                        Scene sceneMap = new Scene(board, 1200, 800);
+                        Scene sceneMap = new Scene(board, 1920, 1080);
                         stage.setScene(sceneMap);
                         stage.setFullScreen(true);
                         stage.show();
@@ -372,14 +348,19 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         e.printStackTrace();
                     }
         });
-    }
 
-    */
+    }*/
+
     /**
      * Displays a simplified model containing all the information the user needs.
      */
     @Override
+
     public void render() {
+
+        Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        double wScale = screenSize.getWidth() / widthDef;
+        double hScale = screenSize.getHeight() / heightDef;
         while (stage==null){
             try {
                 Thread.sleep(2000);
@@ -414,21 +395,25 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 int mapId = clientModel.getMapID();
                 List<ClientModel.SimpleSquare> squares = clientModel.getSquares();
                 GridPane roomsGrid = new GridPane();
-                ColumnConstraints emptyRoom1 = new ColumnConstraints(120);
-                ColumnConstraints emptyRoom2 = new ColumnConstraints(120);
-                ColumnConstraints emptyRoom3 = new ColumnConstraints(120);
-                ColumnConstraints emptyRoom4 = new ColumnConstraints(120);
-                ColumnConstraints emptyRoom5 = new ColumnConstraints(120);
+                Pane  emptyRoom1 = new Pane();
+                Pane  emptyRoom2 = new Pane();
+                Pane  emptyRoom3 = new Pane();
+                Pane  emptyRoom4 = new Pane();
+                Pane  emptyRoom5 = new Pane();
+                emptyRoom1.setMinSize(175, 175);
+                emptyRoom2.setMinSize(175, 175);
+                emptyRoom3.setMinSize(175, 175);
+                emptyRoom4.setMinSize(175, 175);
+                emptyRoom5.setMinSize(175, 175);
                 List<ImageView> ammoView = new ArrayList<>();
-                int k=0;
-                int column=0;
+                int column=3;
                 int row=0;
                 int spawningPoint=1;
                 int ammoViewIndex=0;
                 for(ClientModel.SimpleSquare s : squares) {
-                    if ((mapId == 1 || mapId == 3) && column == 0 && row == 0) {
-                        roomsGrid.getColumnConstraints().add(emptyRoom1);
-                    }else if (!((clientModel.getSquares().get(k)).isSpawnPoint())) {
+                    if ((mapId == 1 || mapId == 3) && column == 3 && row == 0) {
+                        roomsGrid.add(emptyRoom1,column,row);
+                    }else if (!s.isSpawnPoint()) {
                         ammoView.add(getImageOfSquare(s));
                         roomsGrid.add(ammoView.get(ammoViewIndex), column, row);
                         ammoView.get(ammoViewIndex).setFitWidth(65);
@@ -437,26 +422,25 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         ammoViewIndex++;
                     }
                     else if (spawningPoint==1){
-                        roomsGrid.getColumnConstraints().add(emptyRoom3);
+                        roomsGrid.add(emptyRoom3,column,row);
                         spawningPoint++;
                     }
                     else if (spawningPoint==2){
-                        roomsGrid.getColumnConstraints().add(emptyRoom4);
+                        roomsGrid.add(emptyRoom4,column,row);
                         spawningPoint++;
                     }else
-                        roomsGrid.getColumnConstraints().add(emptyRoom5);
-                    if(column==3)
-                        column = 0;
+                        roomsGrid.add(emptyRoom5,column,row);
+                    if(column==0)
+                        column = 3;
                     else
-                        column++;
+                        column--;
                     if(row==2)
                         row = 0;
                     else
                         row++;
-                    k++;
                 }
                 if (mapId == 1 || mapId == 2)
-                    roomsGrid.getColumnConstraints().add(emptyRoom2);
+                    roomsGrid.add(emptyRoom2,column,row);
 
                 //decks
                 FileInputStream pUDeckFile = new FileInputStream("src/main/resources/images/cards/pUBack.png");
@@ -483,7 +467,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     playerIndex++;
                 }
                 VBox playerBoard = new VBox();
-                playerBoard.getChildren().addAll(playerView);
+                playerBoard.getChildren().addAll(playerView.toArray(new ImageView[playerView.size()]));
 
                 //skulls
                 List<ImageView> skulls = new ArrayList<>();
@@ -547,6 +531,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         playerAmmoGrid.get(gridIndex).add(yellowAmmoView.get(gridIndex).get(i), i, 0);
                         playerAmmoGrid.get(gridIndex).setMargin(yellowAmmoView.get(gridIndex).get(i),new Insets(0,0,5,5));
                     }
+                    gridIndex++;
                 }
 
                 //weapons
@@ -559,25 +544,25 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 List<ImageView> weaponsList1 = new ArrayList<>();
                 List<ImageView> weaponsList2 = new ArrayList<>();
                 List<ImageView> weaponsList3 = new ArrayList<>();
-                int spawnpointIndex=1;
+                int spawnPointIndex=1;
                 for(ClientModel.SimpleSquare s : squares){
                     if(s.isSpawnPoint()) {
-                        if (spawnpointIndex == 1) {
+                        if (spawnPointIndex == 1) {
                             for (int i = 0; i < 3; i++) {
                                 weaponsList1.add(getImageOfWeaponsInSquare(s).get(i));
                                 weaponsList1.get(i).setFitHeight(160);
                                 weaponsList1.get(i).setPreserveRatio(true);
                                 weaponsGrid1.add(weaponsList1.get(i),i,0,1,1);
                                 weaponsGrid1.setMargin(weaponsList1.get(i),new javafx.geometry.Insets(0,0,0,19));
-                            }
-                        } else if (spawningPoint == 2) {
+                            }spawnPointIndex++;
+                        } else if (spawnPointIndex == 2) {
                             for (int i = 0; i < 3; i++) {
                                 weaponsList2.add(getImageOfWeaponsInSquare(s).get(i));
                                 weaponsList2.get(i).setFitHeight(160);
                                 weaponsList2.get(i).setPreserveRatio(true);
                                 weaponsGrid2.add(weaponsList2.get(i),i,0,1,1);
                                 weaponsGrid2.setMargin(weaponsList2.get(i),new javafx.geometry.Insets(0,0,0,19));
-                            }
+                            }spawnPointIndex++;
                         }else{
                             for (int i = 0; i < 3; i++) {
                                 weaponsList3.add(getImageOfWeaponsInSquare(s).get(i));
@@ -590,9 +575,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     }
                 }
 
-                //layout
+                //layout     playerAmmoGrid MISSING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
                 StackPane playerBoardAndStuffAbove = new StackPane();
-               // playerBoardAndStuffAbove.getChildren().addAll(playerBoard, playerAmmoGrid);
+                playerBoardAndStuffAbove.getChildren().addAll(playerBoard);
                 for(GridPane g : playerAmmoGrid)
                     g.setTranslateX(400);
                 HBox map =new HBox();
@@ -626,11 +611,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 roomsGrid.setTranslateX(180);
                 roomsGrid.setTranslateY((200));
                 Scene sceneMap = new Scene(board, 1200, 800);
-                stage.setScene(sceneMap);
-                stage.setFullScreen(true);
-                stage.show();
+                Stage mapStage = new Stage();
+                mapStage.setScene(sceneMap);
+                mapStage.setFullScreen(true);
+                mapStage.show();
 
-                }catch (FileNotFoundException e){
+            }catch (FileNotFoundException e){
                 e.printStackTrace();
             }
         });
@@ -643,7 +629,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         try{
             for(ClientModel.SimpleWeapon w : weaponList){
                 String key= w.getName();
-                FileInputStream weaponFile = new FileInputStream("src/main/resources/images/miscellaneous/ammo"+key+".png");
+                FileInputStream weaponFile = new FileInputStream("src/main/resources/images/cards/"+key.replace(" ","_")+".png");
                 Image weaponImage = new Image(weaponFile);
                 ImageView weaponImageView = new ImageView(weaponImage);
                 weaponView.add(weaponImageView);
@@ -659,33 +645,34 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private ImageView getImageOfSquare(ClientModel.SimpleSquare square){
         int r,b,y;
         boolean pU;
-        String key="";
+        String k1="",k2="",k3="",k4="",k5="",k6="",k7="";
         int o=square.getId();
-        r=(clientModel.getSquares().get(o)).getRedAmmo();
-        b=(clientModel.getSquares().get(o)).getBlueAmmo();
-        y=(clientModel.getSquares().get(o)).getYellowAmmo();
-        pU=(clientModel.getSquares().get(o)).isPowerup();
+
+        r = square.getRedAmmo();
+        b = square.getBlueAmmo();
+        y = square.getYellowAmmo();
+        pU = square.isPowerup();
         if(pU)
-            key=key+"P";
-        if(r==1)
-            key=key+"R";
+            k1="P";
+        if(r>=1)
+            k2="R";
         if(r==2)
-            key=key+"R";
-        if(b==1)
-            key=key+"B";
+            k3="R";
+        if(b>=1)
+            k4="B";
         if(b==2)
-            key=key+"B";
-        if(y==1)
-            key=key+"Y";
+            k5="B";
+        if(y>=1)
+            k6="Y";
         if(y==2)
-            key=key+"Y";
+            k7="Y";
         try{
-            FileInputStream ammoFile = new FileInputStream("src/main/resources/images/ammo/ammo"+key+".png");
+            FileInputStream ammoFile = new FileInputStream("src/main/resources/images/ammo/ammo"+k1+k2+k3+k4+k5+k6+k7+".png");
             Image ammoImage = new Image(ammoFile);
             ImageView ammoView = new ImageView(ammoImage);
             return ammoView;
         }catch (FileNotFoundException e){
-        e.printStackTrace();
+            e.printStackTrace();
         }
         return null;
     }
@@ -693,16 +680,23 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private ImageView getImageOfPlayer(ClientModel.SimplePlayer player){
         String key,color;
         color=player.getColor();
-        if(color=="Green")
-            key="Sprog";
-        if(color=="Grey")
-            key="Dozer";
-        if(color=="Yellow")
-            key="D_struct_or";
-        if(color=="Blue")
-            key="Banshee";
-        else
-            key="Violet";
+        System.out.println(color);
+        switch (color){
+            case "green":
+                key="Sprog";
+                break;
+            case "grey":
+                key="Dozer";
+                break;
+            case "yellow":
+                key="D_struct_or";
+                break;
+            case"blue":
+                key="Banshee";
+                break;
+            default:
+                key="Violet";
+        }
 
         try{
             FileInputStream playerFile = new FileInputStream("src/main/resources/images/miscellaneous/"+key+".png");
@@ -736,11 +730,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             else if (message.contains("D_struct_or"))   this.color = Color.YELLOW;
 
             Label label = new Label(message);
-            VBox msg = new VBox();
-            msg.setBackground(new Background(new BackgroundFill(color, null, null)));
-            msg.getChildren().add(label);
-            msg.setAlignment(Pos.CENTER);
-            Scene scene = new Scene(msg, 500, 250, color);
+            VBox layout = new VBox();
+            layout.setBackground(new Background(new BackgroundFill(color, null, null)));
+            layout.getChildren().add(label);
+            layout.setAlignment(Pos.CENTER);
+            Scene scene = new Scene(layout, 500, 250, color);
             Stage msgStage = new Stage();
 
             if (message.contains("disconnected")){
@@ -748,25 +742,18 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 msgStage.show();
                 Button close = new Button("ok");
                 close.setAlignment(Pos.CENTER);
-                msg.getChildren().add(close);
-                msg.setAlignment(Pos.CENTER);
-                msg.setSpacing(40);
+                layout.getChildren().add(close);
+                layout.setAlignment(Pos.CENTER);
+                layout.setSpacing(40);
                 close.setOnAction(e -> msgStage.close());
             }
 
             else {
-
-                //da aggiungere
-                //messagePanel = msg;
-
-                //da togliere
                 stage.setScene(scene);
                 stage.show();
 
             }
-
         });
-
     }
 
 
@@ -786,26 +773,26 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
-            VBox req = new VBox();
-            req.setBackground(new Background(new BackgroundFill(color, null, null)));
+            VBox request = new VBox();
+            request.setBackground(new Background(new BackgroundFill(color, null, null)));
             VBox quest = new VBox();
             quest.setSpacing(10);
             quest.setAlignment(Pos.CENTER);
             Label label1 = new Label(question);
             Label label2 = new Label("(max " + maxLength + " characters)");
             quest.getChildren().addAll(label1, label2);
-            req.getChildren().add(quest);
+            request.getChildren().add(quest);
 
             TextField textField = new TextField();
             textField.setAlignment(Pos.CENTER);
             textField.setMaxSize(200, 50);
-            req.getChildren().add(textField);
+            request.getChildren().add(textField);
 
             Button requestButton = new Button("confirm");
             requestButton.setAlignment(Pos.CENTER);
-            req.getChildren().add(requestButton);
-            req.setAlignment(Pos.CENTER);
-            req.setSpacing(40);
+            request.getChildren().add(requestButton);
+            request.setAlignment(Pos.CENTER);
+            request.setSpacing(40);
             Stage reqStage = new Stage();
 
             requestButton.setOnAction(e ->
@@ -818,11 +805,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     }
             );
 
-            //da aggiungere
-            //messagePanel = req;
-
-            //da togliere
-            Scene info = new Scene(req, 500, 250, color);
+            Scene info = new Scene(request, 500, 250, color);
             stage.setScene(info);
             stage.show();
 
@@ -847,12 +830,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
-            VBox opt = new VBox();
-            opt.setBackground(new Background(new BackgroundFill(color, null, null)));
+            VBox options = new VBox();
+            options.setBackground(new Background(new BackgroundFill(color, null, null)));
             Label label = new Label(message);
-            opt.getChildren().add(label);
-            opt.setAlignment(Pos.CENTER);
-            opt.setSpacing(40);
+            options.getChildren().add(label);
+            options.setAlignment(Pos.CENTER);
+            options.setSpacing(40);
 
             HBox optionList = new HBox();
             optionList.setAlignment(Pos.CENTER);
@@ -872,13 +855,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 });
             }
             optionList.getChildren().addAll(buttons);
-            opt.getChildren().add(optionList);
+            options.getChildren().add(optionList);
 
-            //da aggiungere
-            //messagePanel = opt;
-
-            //da togliere
-            Scene scene = new Scene(opt, 500,250, color);
+            Scene scene = new Scene(options, 500,250, color);
             stage.setScene(scene);
 
             stage.show();
@@ -976,7 +955,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      */
     public void renderTest() {
 
-            display("MAPPA DISEGNATA");
+        display("MAPPA DISEGNATA");
         //ClientModel cm = clientMain.getClientModel();
         System.out.println(clientMain.getClientModel().getSquares());
         System.out.println(clientMain.getClientModel().getPlayers());

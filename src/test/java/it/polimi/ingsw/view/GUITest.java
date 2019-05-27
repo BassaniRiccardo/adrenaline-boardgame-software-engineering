@@ -34,9 +34,9 @@ public class GUITest {
         ClientMain clientMain = new ClientMain();
         ((GUI) ui).setClientMain(clientMain);
         ((GUI)ui).getClientMain().setClientModel(Updater.getModelObject(board, board.getPlayers().get(0)));
-        ((GUI) ui).renderTest();
+        ((GUI) ui).render();
         try {
-            Thread.sleep(4000);
+            Thread.sleep(10000);
         } catch (InterruptedException e){}
 
     }

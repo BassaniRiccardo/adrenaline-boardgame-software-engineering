@@ -61,7 +61,7 @@ public abstract class VirtualView implements Runnable{
             playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
             name=getInputNow("Name already taken. Try another one.\n"+playersAlreadyConnected, 16);
         }
-        display("Name accepted.");
+        display("Name accepted. Waiting for the voting to start...");
     }
 
     /**

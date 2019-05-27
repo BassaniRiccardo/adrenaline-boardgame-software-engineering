@@ -34,3 +34,4 @@
 !pom.xml
 !Deliverables/
 !*.properties
+!out/

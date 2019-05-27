@@ -1,6 +1,7 @@
 package it.polimi.ingsw.network.server;
 
 import com.google.gson.*;
+import it.polimi.ingsw.view.ClientModel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -161,4 +162,6 @@ public class TCPVirtualView extends VirtualView {
     public void update (JsonObject jsonObject){
         send(jsonObject);
     }
+    void render(ClientModel clientModel){}
+
 }

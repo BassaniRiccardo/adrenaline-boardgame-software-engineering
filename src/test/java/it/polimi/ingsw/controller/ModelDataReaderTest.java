@@ -14,43 +14,63 @@ import static org.junit.Assert.*;
  */
 public class ModelDataReaderTest {
 
+    /**
+     * Tests the method getIntBC(String)
+     */
     @Test
     public void getIntBC() {
         ModelDataReader modelDataReader = new ModelDataReader();
         assertEquals(4,modelDataReader.getIntBC("columnsNumber"));
     }
 
+    /**
+     * Tests the method getBC(String,String,int)
+     */
     @Test
     public void getIntBC1() {
         ModelDataReader modelDataReader = new ModelDataReader();
         assertEquals(3,modelDataReader.getIntBC("wSNumber","boards",1));
     }
 
+    /**
+     * Tests the method getBooleanBC(String,String,int)
+     */
     @Test
     public void getBooleanBC() {
         ModelDataReader modelDataReader = new ModelDataReader();
         assertTrue(modelDataReader.getBooleanBC("wallT12","boards",1));
     }
 
+    /**
+     * Tests the method getInt(String)
+     */
     @Test
     public void getInt() {
         ModelDataReader modelDataReader = new ModelDataReader();
         assertEquals(3,modelDataReader.getInt("newtonMaxDistance"));
     }
 
+    /**
+     * Tests the method getInt(String,String,int)
+     */
     @Test
     public void getInt1() {
         ModelDataReader modelDataReader = new ModelDataReader();
         assertEquals(3,modelDataReader.getInt("numberOfActions","status",0));
     }
 
+    /**
+     * Tests the method getBoolean(String,String,int)
+     */
     @Test
     public void getBoolean() {
         ModelDataReader modelDataReader = new ModelDataReader();
         assertTrue(modelDataReader.getBoolean("collect2","status",2));
     }
 
-
+    /**
+     * Tests the method getColorBC(String,String,int)
+     */
     @Test
     public void getColorBC() {
         ModelDataReader modelDataReader = new ModelDataReader();
@@ -59,7 +79,7 @@ public class ModelDataReaderTest {
 
 
     /**
-     * Tests the method getColor()
+     * Tests the method getColor(Weapon.WeaponName)
      */
     @Test
     public void getColor() {
@@ -70,7 +90,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getCostRed()
+     * Tests the method getCostRed(Weapon.WeaponName)
      */
     @Test
     public void getFullCostRed() {
@@ -81,7 +101,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getCostBlue()
+     * Tests the method getCostBlue(Weapon.WeaponName)
      */
     @Test
     public void getFullCostBlue() {
@@ -92,7 +112,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getCostYellow()
+     * Tests the method getCostYellow(Weapon.WeaponName)
      */
     @Test
     public void getFullCostYellow() {
@@ -103,7 +123,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getFireModeList()
+     * Tests the method getFireModeList(Weapon.WeaponName)
      */
     @Test
     public void getNameList() {
@@ -114,7 +134,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getTargetNumber()
+     * Tests the method getTargetNumber(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getTargetNumber() {
@@ -125,7 +145,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getFireModeCostRed()
+     * Tests the method getFireModeCostRed(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getFireModeCostRed() {
@@ -136,7 +156,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getFireModeCostBlue()
+     * Tests the method getFireModeCostBlue(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getFireModeCostBlue() {
@@ -147,7 +167,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getFireModeCostYellow()
+     * Tests the method getFireModeCostYellow(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getFireModeCostYellow() {
@@ -158,7 +178,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getMove()
+     * Tests the method getMove(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getMove() {
@@ -169,7 +189,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getDmg()
+     * Tests the method getDmg(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getDmg() {
@@ -180,7 +200,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getMark()
+     * Tests the method getMark(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getMark() {
@@ -191,7 +211,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getEff()
+     * Tests the method getEff(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getEff() {
@@ -202,7 +222,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getWhere()
+     * Tests the method getWhere(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getWhere() {
@@ -213,7 +233,7 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getMoveType()
+     * Tests the method getMoveType(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test
     public void getMoveType() {
@@ -222,10 +242,5 @@ public class ModelDataReaderTest {
         out= modelDataReader.getMoveType(Weapon.WeaponName.VORTEX_CANNON, FireMode.FireModeName.OPTION1);
         assertEquals("vortex2",out);
     }
-
-
-
-//-----Methods for BoardConfigurer-----------------------------------------------------------------------------------------------------------
-
 
 }

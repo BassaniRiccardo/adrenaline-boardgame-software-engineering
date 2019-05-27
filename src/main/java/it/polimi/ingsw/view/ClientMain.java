@@ -98,10 +98,10 @@ public class ClientMain {
         Properties prop = loadConfig(args);
 
         Scanner in = new Scanner(System.in);
-        System.out.println("Client avviato. Che interfaccia grafica vuoi utilizzare (GUI/CLI)?");
+        System.out.println("Client started. Which interface do you want to use (GUI/CLI)?");
         String buff = in.nextLine();
         while (!(buff.equals("GUI") || buff.equals("CLI"))) {
-            System.out.println("Scelta non valida. Riprovare.");
+            System.out.println("Invalid choice. Try again.");
             buff = in.nextLine();
         }
         String selectedInterface;
@@ -112,10 +112,9 @@ public class ClientMain {
                     javafx.application.Application.launch(GUI.class);
                 }
             }.start();
-            GUI gui = GUI.waitGUI();
-            ui = gui;
-            ((GUI) ui).setClientMain(this);
-            selectedInterface = "GUI selezionata.";
+            ui = GUI.waitGUI();
+            ((GUI)ui).setClientMain(this);
+            selectedInterface = "GUI selected.";
         }else{
             System.out.println("CLI momentaneamente non disponibile. Avvio GUI.");
             //ui = new CLI(this);
@@ -134,10 +133,10 @@ public class ClientMain {
         executor.submit(ui);
         ui.display(selectedInterface);
 
-        ui.display("Che tipo di connessione vuoi utilizzare?", new ArrayList<>(Arrays.asList("Socket", "RMI")));
+        ui.display("Which type of connection do you want to use?", new ArrayList<>(Arrays.asList("Socket", "RMI")));
         buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         while (!(buff.equals("1") || buff.equals("2"))) {
-            ui.display("Scelta non valida. Riprovare.");
+            ui.display("Invalid choice. Try again.");
             buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         }
         if (buff.equals("2")) {
@@ -157,6 +156,10 @@ public class ClientMain {
     public void display(String msg) {
         ui.display(msg);
 
+    }
+
+    public void render() {
+        ui.render();
     }
 
     public String getInput(String msg, int max){

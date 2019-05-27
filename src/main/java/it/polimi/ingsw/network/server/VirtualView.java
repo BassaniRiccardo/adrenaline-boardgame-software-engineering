@@ -58,7 +58,7 @@ public abstract class VirtualView implements Runnable{
             }
             name=getInputNow("Name already taken. Try another one", 16);
         }
-        display("Name accepted.");
+        display("Name accepted. Waiting for the voting to start...");
     }
 
     /**

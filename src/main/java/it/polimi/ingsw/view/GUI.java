@@ -115,15 +115,17 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Platform.runLater( () -> {
 
             stage = primaryStage;
+            stage.setOnCloseRequest(e -> {System.exit(0);});
             stage.setTitle("Adrenaline");
             BorderPane pane = new BorderPane();
             pane.setBackground(new Background(new BackgroundFill(color, null, null)));
-            Scene scene = new Scene(pane, 500, 160);
+            Scene scene = new Scene(pane, 500, 250);
             stage.setScene(scene);
             Label label = new Label("Entering the configuration phase...");
             pane.setCenter(label);
             render();
             stage.show();
+
 
         });
     }
@@ -709,7 +711,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             layout.setBackground(new Background(new BackgroundFill(color, null, null)));
             layout.getChildren().add(label);
             layout.setAlignment(Pos.CENTER);
-            Scene scene = new Scene(layout, 500, 160, color);
+            Scene scene = new Scene(layout, 500, 250, color);
             Stage msgStage = new Stage();
 
             if (message.contains("disconnected")){
@@ -752,8 +754,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             VBox request = new VBox();
             request.setBackground(new Background(new BackgroundFill(color, null, null)));
-            Label label = new Label(question + " (max " + maxLength + " characters)");
-            request.getChildren().add(label);
+            VBox quest = new VBox();
+            quest.setSpacing(10);
+            quest.setAlignment(Pos.CENTER);
+            Label label1 = new Label(question);
+            Label label2 = new Label("(max " + maxLength + " characters)");
+            quest.getChildren().addAll(label1, label2);
+            request.getChildren().add(quest);
 
             TextField textField = new TextField();
             textField.setAlignment(Pos.CENTER);
@@ -777,7 +784,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     }
             );
 
-            Scene info = new Scene(request, 500, 160, color);
+            Scene info = new Scene(request, 500, 250, color);
             stage.setScene(info);
             stage.show();
 
@@ -829,7 +836,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             optionList.getChildren().addAll(buttons);
             options.getChildren().add(optionList);
 
-            Scene scene = new Scene(options, 500,160, color);
+            Scene scene = new Scene(options, 500,250, color);
             stage.setScene(scene);
 
             stage.show();

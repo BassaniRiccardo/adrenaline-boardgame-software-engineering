@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view;
 
+import com.google.gson.Gson;
 import it.polimi.ingsw.controller.BoardConfigurer;
 import it.polimi.ingsw.controller.PowerUpFactory;
 import it.polimi.ingsw.controller.WeaponFactory;
@@ -12,14 +13,11 @@ import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import org.junit.Test;
 
-import javax.swing.text.StyledEditorKit;
-
-import static org.junit.Assert.*;
-
 public class GUITest {
 
     @Test
     public void render() throws UnacceptableItemNumberException {
+
         Board board = BoardConfigurer.configureMap(4);
         WeaponFactory weaponFactory = new WeaponFactory(board);
         PowerUpFactory powerUpFactory = new PowerUpFactory(board);
@@ -44,6 +42,22 @@ public class GUITest {
         board.getPlayers().get(0).setUsername("Giuliano");
         board.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.POWER_GLOVE));
         board.getSpawnPoints().get(2).addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
+
+        ClientMain clientMain = new ClientMain();
+        clientMain.setClientModel(new Gson().fromJson(Updater.getModel(board, board.getPlayers().get(0)), ClientModel.class));
+
+        new Thread() {
+            @Override
+            public void run() {
+                javafx.application.Application.launch(GUI.class);
+            }
+        }.start();
+        UI ui = GUI.waitGUI();
+        ((GUI)ui).setClientMain(clientMain);
+        ui.render();
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e){}
 
     }
 }

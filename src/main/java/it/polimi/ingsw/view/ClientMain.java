@@ -4,7 +4,6 @@ import com.google.gson.*;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -79,7 +78,8 @@ public class ClientMain {
             prop.put("RMIPort", args[1]);
             prop.put("TCPPort", args[1]);
         } else {
-            try (InputStream input = new FileInputStream("client.properties")) {
+            try{
+                InputStream input = getClass().getResourceAsStream("/client.properties");
                 prop.load(input);
             } catch (IOException ex) {
                 LOGGER.log(Level.SEVERE, "Cannot load client config from file", ex);
@@ -117,8 +117,19 @@ public class ClientMain {
             ((GUI) ui).setClientMain(this);
             selectedInterface = "GUI selezionata.";
         }else{
-            ui = new CLI(this);
+            System.out.println("CLI momentaneamente non disponibile. Avvio GUI.");
+            //ui = new CLI(this);
             selectedInterface = "CLI selezionata.";
+
+            new Thread() {
+                @Override
+                public void run() {
+                    javafx.application.Application.launch(GUI.class);
+                }
+            }.start();
+            GUI gui = GUI.waitGUI();
+            ui = gui;
+            ((GUI) ui).setClientMain(this);
         }
         executor.submit(ui);
         ui.display(selectedInterface);
@@ -131,10 +142,8 @@ public class ClientMain {
         }
         if (buff.equals("2")) {
             connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
-            //ui.display("RMI selezionata.");
         } else {
             connection = new TCPConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("TCPPort", "5000")));
-            //ui.display("Socket selezionata.");
         }
         executor.submit(connection);
     }
@@ -239,14 +248,12 @@ public class ClientMain {
                 //redraw model
                 break;
             case ("mod"):
-                System.out.println("about to deserialize json");
                 try {
                     JsonObject mod = new JsonParser().parse(j.get("mod").getAsString()).getAsJsonObject();
                     setClientModel(new Gson().fromJson(mod, ClientModel.class));
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
-                System.out.println("about to render");
                 ui.render();
                 //ui.onUpdate();
                 //wait a little

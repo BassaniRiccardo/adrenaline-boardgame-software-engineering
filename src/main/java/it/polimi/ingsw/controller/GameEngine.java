@@ -1,6 +1,5 @@
 package it.polimi.ingsw.controller;
 
-import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.KillShotTrack;
@@ -26,9 +25,6 @@ import static java.util.Collections.frequency;
  * @author BassaniRiccardo
  */
 
-//TODO: implement the connection with the client. Finish testing.
-//      understand why handleUsingPowerUp, ConvertPowerUp and Reload are sometimes called unexpectedly (maybe it is solved now).
-
 public class GameEngine implements Runnable{
 
     private List<VirtualView> players;
@@ -39,7 +35,7 @@ public class GameEngine implements Runnable{
     private boolean frenzy;
     private StatusSaver statusSaver;
     private Map<VirtualView, String> notifications;
-    private Timer timer = new Timer(120);
+    private Timer timer;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
@@ -52,16 +48,17 @@ public class GameEngine implements Runnable{
      */
     public GameEngine(List<VirtualView> players){
         this.players = players;
-        currentPlayer = null;
-        board = null;
-        gameOver = false;
-        killShotTrack = null;
-        frenzy = false;
+        this.currentPlayer = null;
+        this.board = null;
+        this.gameOver = false;
+        this.killShotTrack = null;
+        this.frenzy = false;
         this.statusSaver = null;
         for(VirtualView p : players){
             p.setGame(this);
         }
-        notifications = new HashMap<>();
+        this.notifications = new HashMap<>();
+        this.timer = new Timer(120);
     }
 
     /**
@@ -175,6 +172,7 @@ public class GameEngine implements Runnable{
         statusSaver = new StatusSaver(board);
         LOGGER.log(Level.INFO,"\n");
 
+        //send model to each client
         for(VirtualView p : players) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()));
         }
@@ -192,7 +190,6 @@ public class GameEngine implements Runnable{
         List<Integer> mapIDs = new ArrayList<>(Arrays.asList(1,2,3,4));
         List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
-
         for(VirtualView p : players) {
             p.choose("Vote for the map you want:", mapIDs);
         }
@@ -207,9 +204,7 @@ public class GameEngine implements Runnable{
 
         for(VirtualView p : players) {
             board.registerObserver(p);
-            //adds virtual view as observer to board and adds another queue of updates
         }
-
 
         LOGGER.log(Level.INFO,() -> "Players voted: map " + mapId + " selected.");
 
@@ -405,28 +400,47 @@ public class GameEngine implements Runnable{
                 LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
             }
         }
-
     }
+
+
+    /**
+     * Wait for a player's input. If player takes too long to answer, default answer "1" is returned.
+     *
+     * @param current       player to wait for
+     * @param timeout       timeout
+     * @throws SlowAnswerException      if the turn timer runs out
+     * @return answer
+     */
 
     public String waitShort(VirtualView current, int timeout){
         long start = System.currentTimeMillis();
+        LOGGER.log(Level.INFO ,"Waiting for " + current);
         while(!hasAnswered(current)){
             checkForSuspension();
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             }catch(InterruptedException ex){
-                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                LOGGER.log(Level.FINE,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
             if(System.currentTimeMillis()>start+timeout*10000){
-                return "1"; //what to return?
+                LOGGER.log(Level.INFO,"Timeout ran out while waiting for " + current.getName() +". Returning default value");
+                return "1";
             }
         }
-        //check how many players are left!
+        LOGGER.log(Level.INFO, "Done waiting");
         return notifications.remove(current);
     }
 
+    /**
+     * Wait for a player's input for as long as needed.
+     *
+     * @param current       player to wait for
+     * @throws SlowAnswerException      if the turn timer runs out
+     * @return answer
+     */
     public String wait(VirtualView current) throws SlowAnswerException{
+        LOGGER.log(Level.INFO ,"Waiting for " + current);
         while(!hasAnswered(current)){
             checkForSuspension();
             try {
@@ -439,14 +453,23 @@ public class GameEngine implements Runnable{
                 throw new SlowAnswerException();
             }
         }
-        //check how many players are left!
+        LOGGER.log(Level.INFO, "Done waiting");
         return notifications.remove(current);
     }
 
-    public List<VirtualView> waitAll(int timeout) {
+    /**
+     * Wait for all players' answers. Returns a list of all players that have answered by the timeout.
+     *
+     * @param timeout       max waiting time
+     * @throws SlowAnswerException      if the turn timer runs out
+     *
+     * @return      list of players that answered
+     */
+    public List<VirtualView> waitAll(int timeout) throws SlowAnswerException{
         long start = System.currentTimeMillis();
         boolean loop = true;
         List<VirtualView> list = new ArrayList<>();
+        LOGGER.log(Level.INFO, "Starting to wait for all players");
         while(loop){
             checkForSuspension();
             loop = false;
@@ -463,30 +486,55 @@ public class GameEngine implements Runnable{
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
+            if(timer.isOver()){
+                throw new SlowAnswerException();
+            }
             if(System.currentTimeMillis()>start+timeout*1000){
                 break;
             }
         }
-        return list;    //contains only virtualviews that answered
+        LOGGER.log(Level.INFO, "Finished waiting for all players");
+        //TODO: check how many players are left for game continuation
+        return list;
     }
 
-
-        public boolean hasAnswered(VirtualView p){
+    /**
+     * States if a certain player's answer has not been checked yet.
+     *
+     * @param p       player to check
+     * @return      true if player has answered, else false
+     */
+    public boolean hasAnswered(VirtualView p){
         return notifications.containsKey(p);
     }
 
+
+    /**
+     * Method called externally to notify changes in an observed object
+     * @param p         observer player that has input
+     * @param message   input message
+     */
     public void notify(VirtualView p, String message){
-        //only do if it is waiting for a message!
-        notifications.putIfAbsent(p, message);
-        //catch exceptions
-        //if a message is already there, it is ignored
+        try {
+            notifications.putIfAbsent(p, message);
+        }catch (Exception ex){
+            LOGGER.log(Level.SEVERE, "Issue with being notified by " + p, ex);
+        }
+        LOGGER.log(Level.INFO, p + "just notified the GameEngine");
+        //TODO: handle incoming messages in particular cases (e.g. messages already in queue)
     }
 
+    /**
+     * Getter for notifications
+     * @return      mapping of players to incoming messages
+     */
     public Map<VirtualView, String> getNotifications(){
-        //also set waiting to true?
         return notifications;
     }
 
+    /**
+     * Checks if a player wa suspended recently
+     */
     private void checkForSuspension(){
         List<VirtualView> justSuspended = new ArrayList<>();
         for(VirtualView v : players){
@@ -500,8 +548,8 @@ public class GameEngine implements Runnable{
                 p.display("Player " + v.getName() + " was disconnected");
             }
         }
-
-        //other behaviours depending on n of connected players
+        LOGGER.log(Level.INFO, "Notified players of the disconnection of " + justSuspended);
+        //TODO: check how many players are left for game continuation
     }
 
 }

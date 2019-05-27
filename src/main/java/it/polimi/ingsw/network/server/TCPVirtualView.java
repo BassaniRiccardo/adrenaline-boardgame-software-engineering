@@ -60,12 +60,10 @@ public class TCPVirtualView extends VirtualView {
     @Override
     public synchronized void refresh() {
         if(!suspended) {
-            System.out.println("refreshing");
             try {
                 String message = in.readLine();
                 if (message == null) {
                     suspend();
-                    System.out.println("sospeso per message null");
                 } else {
                     LOGGER.log(Level.FINE, "Received a message over TCP connection");
                     if(waiting){
@@ -95,7 +93,6 @@ public class TCPVirtualView extends VirtualView {
         }
         jsonObject.add("options", array);
 
-        System.out.println("Sending choose message");
         send(jsonObject);
     }
 
@@ -124,13 +121,11 @@ public class TCPVirtualView extends VirtualView {
     public String getInputNow(String msg, int max){
         getInput(msg, max);
         waiting = true;
-        //wait for refresh
         return receive();
     }
 
     public void notifyObservers(String ans){
         if(game!=null) {
-            System.out.println("notifying TCP");
             game.notify(this, ans);
         }
     }
@@ -151,31 +146,6 @@ public class TCPVirtualView extends VirtualView {
             }
         }
         return answer;
-
-        /*
-        while (true) {
-            try {
-                String message = in.readLine();
-                System.out.println("just  received "+message);
-                if (message == null) {
-                    suspend();
-                } else {
-                    LOGGER.log(Level.FINE, "Received a message over TCP connection");
-                    return message;
-                }
-            } catch (SocketTimeoutException ex) {
-                LOGGER.log(Level.FINEST, "No incoming message from TCPVirtualView", ex);
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, "Cannot reach client", ex);
-                suspend();
-            }
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException ex) {
-                LOGGER.log(Level.INFO, "Skipped waiting time.");
-                Thread.currentThread().interrupt();
-            }
-        }*/
     }
 
     private void send (JsonObject jmessage){
@@ -189,7 +159,6 @@ public class TCPVirtualView extends VirtualView {
         LOGGER.log(Level.FINE, "Sending a message over TCP connection");    }
 
     public void update (JsonObject jsonObject){
-        System.out.println("updateTCPVirtualView");
         send(jsonObject);
     }
 }

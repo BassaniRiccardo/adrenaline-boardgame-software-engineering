@@ -105,12 +105,10 @@ public class CLI implements UI{
             try{
                 if (in.ready()) {
                     String msg = in.readLine();
-                    //System.out.println("Ho letto " + msg);
                     if(msg.equals("q")){
                         display("CLI: quitting");
-                        //quit
+                        System.exit(0);
                     }else if(receiving&&!justReceived) {
-                        //System.out.println("Ho salvato come answer " + msg);
                         answer = msg;
                         justReceived = true;
                     }else{
@@ -119,7 +117,7 @@ public class CLI implements UI{
                 }
             }catch(IOException e){
                 LOGGER.log(Level.SEVERE, "Cannot retrieve input from keyboard, quitting");
-                //quit
+                System.exit(0);
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
@@ -157,7 +155,6 @@ public class CLI implements UI{
 
     @Override
     public String get(String m){
-        System.out.println("hai chiamato il metodo giusto");
         receiving = true;
         boolean verified = false;
         int max = Integer.parseInt(m);

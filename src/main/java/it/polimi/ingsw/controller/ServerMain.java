@@ -102,7 +102,7 @@ public class ServerMain {
         LOGGER.log(Level.INFO,"Main method started");
         LOGGER.log(Level.FINE, "Logger initialized");
 
-        Properties prop = ServerMain.loadConfig();
+        Properties prop = this.loadConfig();
         LOGGER.log(Level.FINE, "Config read from file");
 
         this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", "5000")));
@@ -241,9 +241,10 @@ public class ServerMain {
      *
      * @return              the loaded properties or empty properties if failed
      */
-    public static Properties loadConfig(){
+    public Properties loadConfig(){
         Properties prop = new Properties();
-        try (InputStream input = new FileInputStream("server.properties")) {
+        try {
+            InputStream input = getClass().getResourceAsStream("/server.properties");
             prop.load(input);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "IOException while loading config", ex);
@@ -305,5 +306,22 @@ public class ServerMain {
         } else if (waitingPlayers.size() > 2 && !timer.isRunning()) {
             timer.start();
         }
+    }
+
+    /**
+     * Returns a list of waiting players
+     *
+     * @return      a String containing all players already logged in
+     */
+    public String getAlreadyConnected(){
+        if(waitingPlayers.isEmpty()){
+            return "";
+        }
+        String res = "Connected players: ";
+        for(VirtualView v : waitingPlayers){
+            res = res + v.getName()+" ";
+        }
+        res = res + "\n";
+        return res;
     }
 }

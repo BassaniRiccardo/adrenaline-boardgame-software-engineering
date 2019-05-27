@@ -250,6 +250,7 @@ public class ClientMain {
                     ex.printStackTrace();
                 }
                 System.out.println("about to render");
+                System.out.println(clientModel.getSquares());
                 ui.render();
                 //ui.onUpdate();
                 //wait a little

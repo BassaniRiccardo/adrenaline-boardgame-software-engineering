@@ -194,6 +194,5 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
     void render(ClientModel clientModel){}
-    public void render(){}
 
 }

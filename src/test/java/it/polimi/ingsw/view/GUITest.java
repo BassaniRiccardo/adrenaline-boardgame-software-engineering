@@ -44,38 +44,7 @@ public class GUITest {
         board.getPlayers().get(0).setUsername("Giuliano");
         board.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.POWER_GLOVE));
         board.getSpawnPoints().get(2).addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
-        Updater updater = new Updater();
-        ClientModel clientModel = updater.getModel2(board, board.getPlayers().get(0));
-        javafx.application.Application.launch(GUI.class);
 
-        GUI gui = GUI.waitGUI();
-        gui.setClientModel(clientModel);
-        gui.render();
-    }
-
-    @Test
-    public void renderFake(){
-
-                javafx.application.Application.launch(GUI.class);
-
-        GUI gui = GUI.waitGUI();
-        gui.render();
-    }
-
-    @Test
-    public void display(){
-        new Thread() {
-            @Override
-            public void run() {
-                javafx.application.Application.launch(GUI.class);
-            }
-        }.start();
-        GUI gui = GUI.waitGUI();
-        gui.display("ciao");
-
-        Board board = BoardConfigurer.configureMap(4);
-        ClientMain clientMain = new ClientMain();
-        clientMain.setClientModel(new Gson().fromJson(Updater.getModel(board, board.getPlayers().get(0)), ClientModel.class));
 
         new Thread() {
             @Override
@@ -84,11 +53,28 @@ public class GUITest {
             }
         }.start();
         UI ui = GUI.waitGUI();
-        ((GUI)ui).setClientMain(clientMain);
-        ui.render();
+        ClientMain clientMain = new ClientMain();
+        ((GUI) ui).setClientMain(clientMain);
+        ((GUI)ui).getClientMain().setClientModel(Updater.getModelObject(board, board.getPlayers().get(0)));
+        ((GUI) ui).renderTest();
         try {
-            Thread.sleep(10000);
+            Thread.sleep(4000);
         } catch (InterruptedException e){}
+
+    }
+
+
+
+    @Test
+    public void display() {
+        new Thread() {
+            @Override
+            public void run() {
+                javafx.application.Application.launch(GUI.class);
+            }
+        }.start();
+        GUI gui = GUI.waitGUI();
+        gui.display("ciao");
 
     }
 }

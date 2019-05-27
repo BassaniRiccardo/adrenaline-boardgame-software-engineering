@@ -63,6 +63,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private ClientModel clientModel;
 
 
+    public ClientMain getClientMain() {
+        return clientMain;
+    }
+
     /**
      *
      * @return
@@ -123,12 +127,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             stage.setScene(scene);
             Label label = new Label("Entering the configuration phase...");
             pane.setCenter(label);
-            render();
             stage.show();
 
 
         });
     }
+
+    /*
 
     @Override
     public void render(){
@@ -293,7 +298,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                             handStage.setTitle("CARTE IN MANO");
                             BorderPane handPane = new BorderPane();
                         });
-                       /* stage = primaryStage;
+                        stage = primaryStage;
                         stage.setTitle("Adrenaline");
                         BorderPane pane = new BorderPane();
                         pane.setBackground(new Background(new BackgroundFill(color, null, null)));
@@ -302,7 +307,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         Label label = new Label("Entering the configuration phase...");
                         pane.setCenter(label);
 
-                        stage.show();*/
+                        stage.show();
 
                         StackPane playerBoardAndStuffAbove = new StackPane();
                         playerBoardAndStuffAbove.getChildren().addAll(playerBoard,playerAmmo,handButton);
@@ -348,10 +353,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     }
         });
     }
+
+    */
     /**
      * Displays a simplified model containing all the information the user needs.
      */
-   /* @Override
+    @Override
     public void render() {
         while (stage==null){
             try {
@@ -361,6 +368,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
             try {
+
+                clientModel = clientMain.getClientModel();
                 FileInputStream mapLeft;
                 FileInputStream mapRight;
                 if(clientModel.getMapID()==1||clientModel.getMapID()==3){
@@ -605,7 +614,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 e.printStackTrace();
             }
         });
-    }*/
+    }
 
     private List<ImageView> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
         List<ImageView> weaponView = new ArrayList<>();
@@ -927,6 +936,20 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     public void handle(Event event) {
 
     }
+
+
+    /**
+     * Displays a simplified model containing all the information the user needs.
+     */
+    public void renderTest() {
+
+            display("MAPPA DISEGNATA");
+        //ClientModel cm = clientMain.getClientModel();
+        System.out.println(clientMain.getClientModel().getSquares());
+        System.out.println(clientMain.getClientModel().getPlayers());
+
+    }
+
 
     /**
      * Class storing the values the get() method must return.

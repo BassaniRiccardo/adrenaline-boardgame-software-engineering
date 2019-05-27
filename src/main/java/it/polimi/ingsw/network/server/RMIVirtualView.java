@@ -139,5 +139,4 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
 
     public void ping(){}
 
-    public void render(){}
 }

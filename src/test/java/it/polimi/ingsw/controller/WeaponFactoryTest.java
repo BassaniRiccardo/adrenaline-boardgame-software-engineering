@@ -1,6 +1,7 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.*;
 import org.junit.Test;
@@ -151,5 +152,21 @@ public class WeaponFactoryTest {
             System.out.println(weaponName);
             //for (FireMode.FireModeName fireModeName : weaponName.getFireModeList)
         }
+    }
+
+    @Test
+    public void lockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
+        Board b = BoardConfigurer.simulateScenario();
+        Player shooter = b.getPlayers().get(0);
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+        shooter.addWeapon(lockRifle);
+        //MAIN TARGETS
+        assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer]]",lockRifle.getFireModeList().get(0).findTargets().toString());
+        //MAIN DESTINATIONS
+
+        //SECONDARY TARGETS
+
+        //SECONDARY DESTINATIONS
     }
 }

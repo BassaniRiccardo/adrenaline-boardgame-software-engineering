@@ -5,6 +5,8 @@ package it.polimi.ingsw.view;
 import java.awt.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -368,20 +370,20 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         }
 
         Platform.runLater( () -> {
-            try {
+            //try {
 
                 clientModel = clientMain.getClientModel();
-                FileInputStream mapLeft;
-                FileInputStream mapRight;
+                InputStream mapLeft;
+                InputStream mapRight;
                 if(clientModel.getMapID()==1||clientModel.getMapID()==3){
-                    mapLeft = new FileInputStream("src/main/resources/images/miscellaneous/mapLeft1.png");
+                    mapLeft = this.getClass().getResourceAsStream("/images/miscellaneous/mapLeft1.png");
                 }else {
-                    mapLeft = new FileInputStream("src/main/resources/images/miscellaneous/mapLeft2.png");
+                    mapLeft = this.getClass().getResourceAsStream("/images/miscellaneous/mapLeft2.png");
                 }
                 if(clientModel.getMapID()==3||clientModel.getMapID()==4){
-                    mapRight = new FileInputStream("src/main/resources/images/miscellaneous/mapRight2.png");
+                    mapRight = this.getClass().getResourceAsStream("/images/miscellaneous/mapRight2.png");
                 }else{
-                    mapRight = new FileInputStream("src/main/resources/images/miscellaneous/mapRight1.png");}
+                    mapRight = this.getClass().getResourceAsStream("/images/miscellaneous/mapRight1.png");}
                 Image imageMapLeft = new Image(mapLeft);
                 Image imageMapRight = new Image(mapRight);
                 ImageView viewMapLeft = new ImageView(imageMapLeft);
@@ -443,13 +445,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     roomsGrid.add(emptyRoom2,column,row);
 
                 //decks
-                FileInputStream pUDeckFile = new FileInputStream("src/main/resources/images/cards/pUBack.png");
+                InputStream pUDeckFile = this.getClass().getResourceAsStream("/images/cards/pUBack.png");
                 Image pUDeckImage = new Image(pUDeckFile);
                 ImageView pUDeckView = new ImageView(pUDeckImage);
                 pUDeckView.setFitHeight(110);
                 pUDeckView.setPreserveRatio(true);
                 Label cardsRemainingPU = new Label(Integer.toString(clientModel.getPowerUpCardsLeft()));
-                FileInputStream weaponDeckFile = new FileInputStream("src/main/resources/images/cards/wBack.png");
+                InputStream weaponDeckFile = this.getClass().getResourceAsStream("/images/cards/wBack.png");
                 Image weaponDeckImage = new Image(weaponDeckFile);
                 ImageView weaponDeckView = new ImageView(weaponDeckImage);
                 weaponDeckView.setFitHeight(160);
@@ -471,7 +473,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
                 //skulls
                 List<ImageView> skulls = new ArrayList<>();
-                FileInputStream skullFile = new FileInputStream("src/main/resources/images/miscellaneous/skull.png");
+                InputStream skullFile = this.getClass().getResourceAsStream("/images/miscellaneous/skull.png");
                 int skullNumber=clientModel.getSkullsLeft();
                 Image skullImage = new Image(skullFile);
                 for(int i=0; i<skullNumber;i++)
@@ -492,9 +494,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
                 //ammos
                 List<GridPane> playerAmmoGrid = new ArrayList<>();
-                FileInputStream redAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/redAmmo.png");
-                FileInputStream blueAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/blueAmmo.png");
-                FileInputStream yellowAmmoFile=new FileInputStream("src/main/resources/images/miscellaneous/yellowAmmo.png");
+                InputStream redAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/redAmmo.png");
+                InputStream blueAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/blueAmmo.png");
+                InputStream yellowAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/yellowAmmo.png");
                 Image redAmmoImage=new Image(redAmmoFile);
                 List<ArrayList<ImageView>> redAmmoView = new ArrayList<>(); //doppie liste
                 Image blueAmmoImage=new Image(blueAmmoFile);
@@ -535,7 +537,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 }
 
                 //weapons
-                FileInputStream weaponFile = new FileInputStream("src/main/resources/images/cards/Furnace.png");
+                InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/Furnace.png");
                 Image weaponImage = new Image(weaponFile);
 
                 GridPane weaponsGrid1 = new GridPane();
@@ -616,9 +618,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 mapStage.setFullScreen(true);
                 mapStage.show();
 
-            }catch (FileNotFoundException e){
-                e.printStackTrace();
-            }
+            //}catch (FileNotFoundException e){
+            //    e.printStackTrace();
+            //}
         });
     }
 
@@ -626,20 +628,20 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         List<ImageView> weaponView = new ArrayList<>();
         int o=square.getId();
         List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(o)).getWeapons();
-        try{
+        //try{
             for(ClientModel.SimpleWeapon w : weaponList){
                 String key= w.getName();
-                FileInputStream weaponFile = new FileInputStream("src/main/resources/images/cards/"+key.replace(" ","_")+".png");
+                InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png");
                 Image weaponImage = new Image(weaponFile);
                 ImageView weaponImageView = new ImageView(weaponImage);
                 weaponView.add(weaponImageView);
             }
 
             return weaponView;
-        }catch (FileNotFoundException e){
-            e.printStackTrace();
-        }
-        return null;
+        //}catch (FileNotFoundException e){
+        //    e.printStackTrace();
+        //}
+        //return null;
     }
 
     private ImageView getImageOfSquare(ClientModel.SimpleSquare square){
@@ -666,15 +668,15 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             k6="Y";
         if(y==2)
             k7="Y";
-        try{
-            FileInputStream ammoFile = new FileInputStream("src/main/resources/images/ammo/ammo"+k1+k2+k3+k4+k5+k6+k7+".png");
+        //try{
+            InputStream ammoFile = this.getClass().getResourceAsStream("/images/ammo/ammo"+k1+k2+k3+k4+k5+k6+k7+".png");
             Image ammoImage = new Image(ammoFile);
             ImageView ammoView = new ImageView(ammoImage);
             return ammoView;
-        }catch (FileNotFoundException e){
-            e.printStackTrace();
-        }
-        return null;
+        //}catch (FileNotFoundException e){
+        //    e.printStackTrace();
+        //}
+        //return null;
     }
 
     private ImageView getImageOfPlayer(ClientModel.SimplePlayer player){
@@ -698,15 +700,15 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 key="Violet";
         }
 
-        try{
-            FileInputStream playerFile = new FileInputStream("src/main/resources/images/miscellaneous/"+key+".png");
+        //try{
+            InputStream playerFile = this.getClass().getResourceAsStream("/images/miscellaneous/"+key+".png");
             Image playerImage = new Image(playerFile);
             ImageView playerView = new ImageView(playerImage);
             return playerView;
-        }catch (FileNotFoundException e){
-            e.printStackTrace();
-        }
-        return null;
+        //}catch (FileNotFoundException e){
+        //    e.printStackTrace();
+        //}
+        //return null;
     }
     /**
      * Displays a MSG message

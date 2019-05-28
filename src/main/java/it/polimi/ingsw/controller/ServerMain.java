@@ -105,6 +105,8 @@ public class ServerMain {
         Properties prop = this.loadConfig();
         LOGGER.log(Level.FINE, "Config read from file");
 
+        System.setProperty("java.rmi.server.hostname",prop.getProperty("myIP", "localhost"));
+
         this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", "5000")));
         this.executor.submit(this.tcpServer);
         this.rmiServer = new RMIServer(Integer.parseInt(prop.getProperty("RMIPort", "1420")));

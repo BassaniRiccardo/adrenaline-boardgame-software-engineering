@@ -52,7 +52,7 @@ public class TCPConnection implements Runnable {
             socket.setSoTimeout(100);
             LOGGER.log(Level.INFO, "Connected to TCP server");
         }catch (ConnectException ex){
-            LOGGER.log(Level.INFO, "Cannot connect to server. Closing");
+            LOGGER.log(Level.SEVERE, "Cannot connect to server. Closing", ex);
             System.exit(0);
         }catch (IOException ex) {
             LOGGER.log(Level.INFO, "Cannot read or write to connection. Closing");

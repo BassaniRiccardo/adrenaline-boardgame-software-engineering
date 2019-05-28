@@ -41,8 +41,11 @@ public class RMIConnection implements Runnable, RemoteView {
         this.clientMain = clientMain;
         this.jsonParser = new JsonParser();
         try {
+            System.out.println("1: port: " + port + "\taddress:" + address);
             Registry reg = LocateRegistry.getRegistry(address, port);
+            System.out.println("2: port: " + port + "\taddress:" + address);
             RemoteServer serverStub = (RemoteServer) reg.lookup("RMIServer");
+            System.out.println("3: port: " + port + "\taddress:" + address);
             String pcLookup = serverStub.getPlayerController((RemoteView) UnicastRemoteObject.exportObject(this, 0));
             //LOGGER.log(Level.SEVERE, "Name received for RMI PC lookup: " + pcLookup);
             playerStub = (RemoteController) reg.lookup(pcLookup);

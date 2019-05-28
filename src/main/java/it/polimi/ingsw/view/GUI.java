@@ -97,7 +97,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     public void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
-        this.clientModel=clientMain.getClientModel();}
+        this.clientModel=clientMain.getClientModel();
+    }
 
     public void setClientModel(ClientModel cm) { this.clientModel=cm;}
 
@@ -621,6 +622,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             //}catch (FileNotFoundException e){
             //    e.printStackTrace();
             //}
+
         });
     }
 
@@ -677,6 +679,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         //    e.printStackTrace();
         //}
         //return null;
+
     }
 
     private ImageView getImageOfPlayer(ClientModel.SimplePlayer player){

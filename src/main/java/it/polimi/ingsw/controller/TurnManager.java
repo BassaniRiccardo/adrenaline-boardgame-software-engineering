@@ -28,6 +28,7 @@ import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 //      - Implement the connection with the server.
 //      - Finish testing.
 //      - Use a logger (also in other classes).
+//      - WaitAll for grenade
 
 
 public class TurnManager implements Runnable{
@@ -962,7 +963,7 @@ public class TurnManager implements Runnable{
             List<String> optionsGrenade = toStringList(p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE));
             optionsGrenade.add("reset");
             player.choose("Which tagback grenade do you want to use?", optionsGrenade);
-            int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+            int selected = Integer.parseInt(gameEngine.wait(player));
             if (selected == optionsGrenade.size()){
                 return (handleTagbackGrenade(p));
             }

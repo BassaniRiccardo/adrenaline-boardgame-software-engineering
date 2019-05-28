@@ -141,8 +141,10 @@ public class ClientMain {
         }
         if (buff.equals("2")) {
             connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
+            //connection=new RMIConnection(this, "192.168.43.244", 1420);
         } else {
             connection = new TCPConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("TCPPort", "5000")));
+            //connection=new TCPConnection(this, "192.168.43.244", 5000);
         }
         executor.submit(connection);
     }
@@ -287,7 +289,7 @@ public class ClientMain {
                 JsonArray squares = j.getAsJsonArray("squares");
                 JsonArray weaponInSquare = j.getAsJsonArray("weaponsinsquare");
                 for(JsonElement e : squares) {
-                    List<ClientModel.SimpleWeapon> list = ((ClientModel.SimpleSquare)clientModel.getSquare(e.getAsInt())).getWeapons();
+                    List<ClientModel.SimpleWeapon> list = clientModel.getSquare(e.getAsInt()).getWeapons();
                     list.clear();
                     for(JsonElement f : weaponInSquare) {
                         list.add(clientModel.new SimpleWeapon(f.getAsString(), false));

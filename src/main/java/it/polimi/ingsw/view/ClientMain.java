@@ -192,65 +192,78 @@ public class ClientMain {
                 clientModel.removeSkulls(j.get("number").getAsInt());
                 //add to killshottrack simpleplayers
                 //redraw model
+                ui.render();
                 break;
             case ("pDeckRegen"):
                 clientModel.setPowerUpCardsLeft(j.get("number").getAsInt());
                 //redraw
+                ui.render();
                 break;
             case ("drawPowerUp"):
                 clientModel.setPowerUpCardsLeft(clientModel.getPowerUpCardsLeft()-1);
                 clientModel.getCurrentPlayer().setCardNumber(clientModel.getCurrentPlayer().getCardNumber()+1);
                 clientModel.getPowerUpInHand().add(j.get("powerup").getAsString());
                 //redraw model
+                ui.render();
                 break;
             case ("discardPowerUp"):
                 clientModel.getCurrentPlayer().setCardNumber(clientModel.getCurrentPlayer().getCardNumber()-1);
                 clientModel.getPowerUpInHand().remove(j.get("powerup").getAsString());
                 //redraw model
+                ui.render();
                 break;
             case ("pickUpWeapon"):
                 clientModel.getCurrentPlayer().pickUpWeapon(j.get("weapon").getAsString());
                 //ui.flash(j.get("weapon").getAsString());
                 //wait a little
                 //redraw model
+                ui.render();
                 break;
             case ("discardWeapon"):
                 clientModel.getCurrentPlayer().discardWeapon(j.get("weapon").getAsString());
                 //redraw model
+                ui.render();
                 break;
             case ("useAmmo"):
                 clientModel.getCurrentPlayer().subAmmo(j.get("blueammo").getAsInt(), j.get("redammo").getAsInt(), j.get("yellowammo").getAsInt());
                 //redraw model
+                ui.render();
                 break;
             case ("addAmmo"):
                 clientModel.getCurrentPlayer().addAmmo(j.get("blueammo").getAsInt(), j.get("redammo").getAsInt(), j.get("yellowammo").getAsInt());
                 //redraw model
+                ui.render();
                 break;
             case ("move"):
                 clientModel.moveTo(j.get("player").getAsInt(), j.get("square").getAsInt());
                 //ui.move(j.get("player").getAsInt(), j.get("square").getAsInt());
                 //wait a little
                 //redraw model
+                ui.render();
                 break;
             case ("flip"):
                 clientModel.flip(j.get("player").getAsInt());
                 //redraw model
+                ui.render();
                 break;
             case ("damaged"):
                 clientModel.damage(j.get("player").getAsInt(), j.getAsJsonArray("list"));
                 //ui.flash(j.get("player"));
                 //wait a little
                 //redraw model
+                ui.render();
                 break;
             case ("marked"):
                 clientModel.mark(j.get("player").getAsInt(), j.getAsJsonArray("list"));
                 //ui.flash(j.get("player"));
                 //wait a little
                 //redraw model
+                ui.render();
                 break;
             case ("weaponRemoved"):
                 ((ClientModel.SimpleSquare)clientModel.getSquare(j.get("square").getAsInt())).removeWeapon(j.get("weapon").getAsString());
                 //redraw model
+                ui.render();
                 break;
             case ("mod"):
                 try {
@@ -298,6 +311,7 @@ public class ClientMain {
                 //ui.onUpdate();
                 //wait a little
                 //redraw model
+                ui.render();
                 break;
             default: //fill in
         }

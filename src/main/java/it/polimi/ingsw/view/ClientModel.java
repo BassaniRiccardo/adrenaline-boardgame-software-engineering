@@ -36,9 +36,12 @@ public class ClientModel {
     private List<SimplePlayer> killShotTrack;
     private int skullsLeft;
     private List<String> powerUpInHand;
+    private int playerID;
+    private int deaths;
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
 
+    //TODO ADD PLAYER ID AND NUMBER OF DEATHS
 
     public ClientModel(){}
 
@@ -388,6 +391,16 @@ public class ClientModel {
     public int getSkullsLeft() {return skullsLeft;}
 
     public void setSkullsLeft(int skullsLeft) {this.skullsLeft = skullsLeft;}
+
+    public int getPlayerID() {return playerID;}
+
+    public void setPlayerID(int playerID) {this.playerID = playerID;}
+
+    public int getDeaths() {return deaths;}
+
+    public void setDeaths(int deaths) {
+        this.deaths = deaths;
+    }
 
     public void removeSkulls(int n){
         //do something with killshottrack

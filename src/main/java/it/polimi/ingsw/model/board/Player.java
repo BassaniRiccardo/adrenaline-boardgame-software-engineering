@@ -71,6 +71,7 @@ public class Player {
     private List<Player> mainTargets;
     private List<Player> optionalTargets;
 
+    private int deaths;
     private int pointsToGive;
     private boolean justDamaged;
     private boolean overkilled;
@@ -112,6 +113,7 @@ public class Player {
         this.mainTargets=new ArrayList<>();
         this.optionalTargets=new ArrayList<>();
 
+        this.deaths = 0;
         this.pointsToGive=8;
         this.justDamaged=false;
         this.overkilled = false;
@@ -147,6 +149,7 @@ public class Player {
         this.mainTargets= toCopy.getMainTargets();
         this.optionalTargets= toCopy.getOptionalTargets();
 
+        this. pointsToGive = toCopy.getPointsToGive();
         this.pointsToGive= toCopy.getPointsToGive();
         this.justDamaged=toCopy.isJustDamaged();
         this.overkilled = toCopy.isOverkilled();
@@ -188,6 +191,8 @@ public class Player {
     public AmmoPack getAmmoPack(){return ammoPack;}
 
     public int getPointsToGive() {return pointsToGive;}
+
+    public int getDeaths() {return deaths;}
 
     public boolean isJustDamaged(){return justDamaged;}
 
@@ -619,6 +624,7 @@ public class Player {
     public void updateAwards() throws WrongTimeException{
 
         if (!this.isDead()) throw new WrongTimeException("The points given for a death are updated only after a player dies.");
+        this.deaths++;
         if (pointsToGive!=1){
             if (pointsToGive==2) pointsToGive-= 1;
             else pointsToGive -= 2;

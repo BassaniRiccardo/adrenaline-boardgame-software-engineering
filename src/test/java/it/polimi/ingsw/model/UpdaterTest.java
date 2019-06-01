@@ -35,6 +35,7 @@ public class UpdaterTest {
         board.setKillShotTrack(new KillShotTrack(7, board));
         board.getPlayers().add(new Player(1, Player.HeroName.BANSHEE, board));
         board.getPlayers().add(new Player(2, Player.HeroName.DOZER, board));
+        board.setCurrentPlayer(board.getPlayers().get(0));
         board.getPlayers().get(0).setUsername("Giuliano");
         board.getPlayers().get(0).addWeapon(weaponFactory.createWeapon(Weapon.WeaponName.POWER_GLOVE));
         board.getSpawnPoints().get(2).addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
@@ -62,9 +63,12 @@ public class UpdaterTest {
                 "\\\"powerUpCardsLeft\\\":24," +
                 "\\\"ammoTilesLeft\\\":36," +
                 "\\\"mapID\\\":4," +
+                "\\\"currentPlayer\\\":{\\\"id\\\":1,\\\"color\\\":\\\"blue\\\",\\\"cardNumber\\\":0,\\\"damage\\\":[],\\\"marks\\\":[],\\\"weapons\\\":[{\\\"name\\\":\\\"Power glove\\\",\\\"loaded\\\":false}],\\\"username\\\":\\\"Giuliano\\\",\\\"blueAmmo\\\":1,\\\"redAmmo\\\":1,\\\"yellowAmmo\\\":1,\\\"flipped\\\":false,\\\"inGame\\\":false,\\\"points\\\":0}," +
                 "\\\"killShotTrack\\\":[]," +
                 "\\\"skullsLeft\\\":7," +
-                "\\\"powerUpInHand\\\":[]}\"}",
+                "\\\"powerUpInHand\\\":[]," +
+                "\\\"playerID\\\":1," +
+                "\\\"deaths\\\":0}\"}",
                 modelString);
 
 

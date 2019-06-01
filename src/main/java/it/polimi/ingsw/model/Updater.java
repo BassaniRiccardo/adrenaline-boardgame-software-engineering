@@ -181,9 +181,6 @@ public class Updater {
      */
     public static JsonObject getModel(Board board, Player player) {
 
-        //TODO: fill up client model. It should be ok.
-
-
         ClientModel cm = new ClientModel();
 
         //simpleSquares
@@ -227,9 +224,9 @@ public class Updater {
             ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints());
             simplePlayers.add(simplePlayer);
             //currentPlayer
-            if (p.equals(board.getCurrentPlayer())){
+            /*if (p.equals(board.getCurrentPlayer())){
                 cm.setCurrentPlayer(simplePlayer);
-            }
+            }*/
 
             //killShotTrack
             try {
@@ -242,6 +239,10 @@ public class Updater {
 
         }
         cm.setPlayers(simplePlayers);
+        cm.setCurrentPlayer(cm.getPlayer(board.getCurrentPlayer().getId()));
+        cm.setPlayerID(player.getId());
+        cm.setDeaths(player.getDeaths());
+
         cm.setKillShotTrack(killers);
         try {
             cm.setSkullsLeft(board.getKillShotTrack().getSkullsLeft());
@@ -249,7 +250,6 @@ public class Updater {
             LOGGER.log(Level.SEVERE, "Impossible to get the number of skulls left, all skulls removed.");
             cm.setSkullsLeft(0);
         }
-
 
         //decks size
         cm.setPowerUpCardsLeft(board.getPowerUpDeck().getDrawable().size());

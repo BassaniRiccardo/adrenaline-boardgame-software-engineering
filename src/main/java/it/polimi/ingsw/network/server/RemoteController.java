@@ -10,7 +10,5 @@ import java.rmi.RemoteException;
  */
 public interface RemoteController extends Remote{
 
-    void notifyObservers(String msg) throws RemoteException;
-
     void ping() throws RemoteException;
 }

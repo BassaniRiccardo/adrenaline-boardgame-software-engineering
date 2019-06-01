@@ -39,7 +39,7 @@ public interface UI extends Runnable {
      *
      * @return the string typed or chosen by the user
      */
-    String get();
+    //String get();
 
     String get(String max);
 

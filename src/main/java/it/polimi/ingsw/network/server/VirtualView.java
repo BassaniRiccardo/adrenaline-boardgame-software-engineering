@@ -27,6 +27,9 @@ public abstract class VirtualView implements Runnable{
     boolean justSuspended;
     private Player model;
     static final Logger LOGGER = Logger.getLogger("serverLogger");
+    boolean busy;
+    boolean timeout;
+    long timestamp;
 
     VirtualView(){
         this.game = null;
@@ -34,6 +37,9 @@ public abstract class VirtualView implements Runnable{
         this.suspended = false;
         this.justSuspended = false;
         this.model = null;
+        this.busy = false;
+        this.timeout = false;
+        this.timestamp = 0;
     }
 
     /**
@@ -42,7 +48,6 @@ public abstract class VirtualView implements Runnable{
     public void run(){
 
         String playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
-        //TODO: notify players of other connected players in real time
         name = getInputNow("Select a name.\n"+playersAlreadyConnected, 16);
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
@@ -99,10 +104,16 @@ public abstract class VirtualView implements Runnable{
         this.justSuspended = justSuspended;
     }
 
+    public void setSuspended(boolean suspended){
+        this.suspended = suspended;
+    }
+
     /**
      * Suspends related player
      */
     public void suspend() {
+        display("You have been suspended. Close the game and log with the same name to resume");
+        busy=false;
         if(!suspended) {
             this.suspended = true;
             this.justSuspended = true;
@@ -118,20 +129,14 @@ public abstract class VirtualView implements Runnable{
      */
     abstract public void choose(String msg, List<?> options);
 
+    abstract public void choose(String msg, List<?> options, int timeoutSec);
+
     /**
      * Displays a message to the player
      *
      * @param msg       message to display
      */
     abstract public void display(String msg);
-
-    /**
-     * Fetches input from the player as a String (sends a request and returns immediately)
-     *
-     * @param msg       message to display
-     * @param max       max length of the answer
-     */
-    abstract public void getInput(String msg, int max);
 
     /**
      * Fetches input, but waits for an answer

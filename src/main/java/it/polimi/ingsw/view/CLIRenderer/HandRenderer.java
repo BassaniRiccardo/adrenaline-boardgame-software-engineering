@@ -11,18 +11,17 @@ public class HandRenderer {
     public static String[][] get(ClientModel clientModel) {
 
         String[][] box = new String[3][60];
-        //List<String> list = clientModel.getPowerUpinHand();
-        List<String> list = new ArrayList<>();
+        List<String> list = clientModel.getPowerUpInHand();
         String ans = "Hand: ";
 
         if (list.isEmpty()) {
-            ans.concat("empty");
+            ans = ans.concat("empty");
         }
 
         for (int i = 0; i < list.size(); i++) {
-            ans.concat(list.get(i));
+            ans = ans.concat(list.get(i));
             if (i != list.size() - 1) {
-                ans.concat(", ");
+                ans = ans.concat(", ");
             }
         }
 

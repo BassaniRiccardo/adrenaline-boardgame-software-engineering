@@ -15,11 +15,16 @@ import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of Socket connection to server
@@ -33,6 +38,7 @@ public class TCPConnection implements Runnable {
     private PrintWriter out;
     private ClientMain clientMain;
     static final Logger LOGGER = Logger.getLogger("clientLogger");
+    private ExecutorService executor = Executors.newCachedThreadPool();
 
 
     /**
@@ -97,15 +103,23 @@ public class TCPConnection implements Runnable {
         switch(head){
             case "MSG" :    clientMain.display(jMessage.get("text").getAsString());
                             break;
-            case "REQ" :    String msg = clientMain.getInput(jMessage.get("text").getAsString(),Integer.valueOf(jMessage.get("length").getAsString()));
-                            send(msg);
+            case "REQ" :    executor.submit(
+                                ()-> {
+                                    String msg = clientMain.getInput(jMessage.get("text").getAsString(),Integer.valueOf(jMessage.get("length").getAsString()));
+                                    send(msg);
+                                }
+                            );
                             break;
             case "OPT" :    List<String> list = new ArrayList<>();
                             for(JsonElement j : jMessage.get("options").getAsJsonArray()){
                                 list.add(j.getAsString());
                             }
-                            int choice = clientMain.choose(jMessage.get("text").getAsString(), list);
-                            send(String.valueOf(choice));
+                            executor.submit(
+                                ()->{
+                                    int choice = clientMain.choose(jMessage.get("text").getAsString(), list);
+                                    send(String.valueOf(choice));
+                                }
+                            );
                             break;
             case "UPD" :    clientMain.update(jMessage);
                             break;

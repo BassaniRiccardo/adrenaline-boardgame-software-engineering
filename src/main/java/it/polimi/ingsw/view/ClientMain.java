@@ -116,19 +116,8 @@ public class ClientMain {
             ((GUI)ui).setClientMain(this);
             selectedInterface = "GUI selected.";
         }else{
-            System.out.println("CLI momentaneamente non disponibile. Avvio GUI.");
-            //ui = new CLI(this);
+            ui = new CLI(this);
             selectedInterface = "CLI selezionata.";
-
-            new Thread() {
-                @Override
-                public void run() {
-                    javafx.application.Application.launch(GUI.class);
-                }
-            }.start();
-            GUI gui = GUI.waitGUI();
-            ui = gui;
-            ((GUI) ui).setClientMain(this);
         }
         executor.submit(ui);
         ui.display(selectedInterface);
@@ -183,6 +172,8 @@ public class ClientMain {
     }
 
     public void update(JsonObject j) {
+
+        System.out.println("update received: " + j.get("type").getAsString());
 
         switch (j.get("type").getAsString()) {
 

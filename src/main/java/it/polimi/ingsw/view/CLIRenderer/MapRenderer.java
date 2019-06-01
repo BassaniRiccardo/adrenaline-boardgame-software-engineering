@@ -4,9 +4,11 @@ import it.polimi.ingsw.view.ClientModel;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -33,7 +35,7 @@ public class MapRenderer {
             players.add(new ArrayList<>());
             ammo.add(new ArrayList<>());
         }
-/*
+
         IntStream.range(0, 11).forEachOrdered(n -> {
 
             for(List<String> l : ammo){
@@ -44,40 +46,42 @@ public class MapRenderer {
                 l = new ArrayList<>();
             }
 
-            for(int i=0; i< model.getBlueAmmoOnGround().getOrDefault(n, 0); i++) {
+            for(int i=0; i< model.getSquare(n).getBlueAmmo(); i++) {
                 ammo.get(n).add(ClientModel.getEscapeCode("blue") + "❚" + "\u001b[0m");    //blue ammo!
             }
-            for(int i=0; i< model.getRedAmmoOnGround().getOrDefault(n, 0); i++) {
+            for(int i=0; i< model.getSquare(n).getRedAmmo(); i++) {
                 ammo.get(n).add(ClientModel.getEscapeCode("red")+"❚"+"\u001b[0m");    //red ammo!
             }
-            for(int i=0; i< model.getYellowAmmoOnGround().getOrDefault(n, 0); i++) {
+            for(int i=0; i< model.getSquare(n).getYellowAmmo(); i++) {
                 ammo.get(n).add(ClientModel.getEscapeCode("yellow")+"❚"+"\u001b[0m");    //yellow ammo!
             }
-            if(model.getPowerUpOnGround().getOrDefault(n, false)){
+            if(model.getSquare(n).isPowerup()){
                 ammo.get(n).add("⚡");    //powerup!
             }
 
-            weaponNum[n] = model.getWeaponsOnGround().getOrDefault(n, new ArrayList<>(0)).size();  //weapons on ground
+            weaponNum[n] = model.getSquare(n).getWeapons().size();  //weapons on ground
 
         });
 
-        for(int playerID : model.getPlayerPosition().keySet()){
+        for(int playerID : model.getPlayers().stream().map(x->x.getId()).collect(Collectors.toList())){
             String color = "";
             String mark = "";
-            if(playerID == model.getCurrentPlayer()){
+            if(playerID == model.getCurrentPlayer().getId()){//maybe the actual player
                 mark = "◯";
             } else {
                 mark = "◯";
             }
-            color = ClientModel.getEscapeCode(model.getPlayerColor().get(playerID));
-            players.get(model.getPlayerPosition().get(playerID)).add(color + mark + "\u001b[0m");
+            color = ClientModel.getEscapeCode(model.getPlayer(playerID).getColor());
+            if(model.getPlayer(playerID).getPosition()!=null) {
+                players.get(model.getPlayer(playerID).getPosition().getId()).add(color + mark + "\u001b[0m");
+            }
         }
 
         for(int n : getRoomSet(mapID)){
             squares[n] = new SquareRenderer(n, ammo.get(n), weaponNum[n], players.get(n));
             placeSquareOnMap(map, squares[n], n);
         };
-*/
+
         return map;
     }
 
@@ -102,10 +106,10 @@ public class MapRenderer {
 
         String[][] map = new String[18][55];
 
-        String fileName = "src/main/resources/map"+ id + ".map";
+        String fileName = "/map"+ id + ".map";
 
         try{
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        BufferedReader br = new BufferedReader(new InputStreamReader(MapRenderer.class.getResourceAsStream(fileName)));
         for(int i=0; i<18; i++){
             for(int j=0; j<55; j++){
                 String buff = br.readLine().replace("\\u001B", "\u001B").concat("\u001B[0m");

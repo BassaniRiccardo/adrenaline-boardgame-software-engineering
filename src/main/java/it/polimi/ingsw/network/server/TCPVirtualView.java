@@ -24,8 +24,6 @@ public class TCPVirtualView extends VirtualView {
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
-    private List<String> incoming;
-    private List<String> outgoing;
     boolean waiting;
     String answer;
 
@@ -33,8 +31,6 @@ public class TCPVirtualView extends VirtualView {
     public TCPVirtualView(Socket socket){
         super();
         this.socket = socket;
-        this.incoming = new ArrayList<>();
-        this.outgoing = new ArrayList<>();
         this.waiting = false;
         this.answer = "default";
     }
@@ -70,7 +66,16 @@ public class TCPVirtualView extends VirtualView {
                     if(waiting){
                         answer = message;
                         waiting = false;
+                        return;
                     }
+                    if(timeout){
+                        timeout = false;
+                        if(System.currentTimeMillis()>timestamp) {
+                            return;
+                        }
+                    }
+                    if(!busy) return;
+                    busy = false;
                     notifyObservers(message);
                 }
             } catch (SocketTimeoutException ex) {
@@ -83,7 +88,10 @@ public class TCPVirtualView extends VirtualView {
     }
 
     public void choose(String msg, List<?> options){
-
+        if(busy){
+            return;
+        }
+        busy = true;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "OPT");
         jsonObject.addProperty("text", msg);
@@ -97,6 +105,11 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
 
+    public void choose(String msg, List<?> options, int timeoutSec){
+        choose(msg, options);
+        timeout = true;
+        timestamp = timeoutSec*1000 + System.currentTimeMillis();
+    }
 
     public int chooseNow(String msg, List<?> options){
         choose(msg, options);
@@ -111,16 +124,12 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
 
-    public void getInput(String msg, int max){
+    public String getInputNow(String msg, int max){
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "REQ");
         jsonObject.addProperty("text", msg);
         jsonObject.addProperty("length", String.valueOf(max));
         send(jsonObject);
-    }
-
-    public String getInputNow(String msg, int max){
-        getInput(msg, max);
         waiting = true;
         return receive();
     }
@@ -162,6 +171,13 @@ public class TCPVirtualView extends VirtualView {
     public void update (JsonObject jsonObject){
         send(jsonObject);
     }
-    void render(ClientModel clientModel){}
 
+    public void suspend(){
+        super.suspend();
+        try {
+            socket.close();
+        }catch (IOException ex){
+            //manage
+        }
+    }
 }

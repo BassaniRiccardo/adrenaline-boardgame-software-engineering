@@ -51,21 +51,41 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     public void choose(String msg, List<?> options){
-        try {
-            game.getNotifications().remove(this);
-        }catch(NullPointerException ex){
-            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
-        }
+        if(busy) return;
+        busy=true;
+        game.getNotifications().remove(this);
         executor.submit(
             ()-> {
                 try {
                     int i = remoteView.choose(msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
-                    //if timer has not run out
-                    notifyObservers(String.valueOf(i));
+                    if(busy) {
+                        busy=false;
+                        notifyObservers(String.valueOf(i));
+                    }
                 } catch (RemoteException ex) {
                     suspend();
                 }
             }
+        );
+    }
+
+    public void choose(String msg, List<?> options, int timeoutSec){
+        if(busy) return;
+        busy=true;
+        long timestamp = System.currentTimeMillis() + timeoutSec*1000;
+        game.getNotifications().remove(this);
+        executor.submit(
+                ()-> {
+                    try {
+                        int i = remoteView.choose(msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
+                        if(busy&&System.currentTimeMillis()<timestamp) {
+                            busy=false;
+                            notifyObservers(String.valueOf(i));
+                        }
+                    } catch (RemoteException ex) {
+                        suspend();
+                    }
+                }
         );
     }
 
@@ -77,28 +97,8 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         }
     }
 
-    public void getInput(String msg, int max){
-        try {
-            game.getNotifications().remove(this);
-        }catch(NullPointerException ex){
-            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
-        }
-        executor.submit(()-> {
-                    try {
-                        String ans = remoteView.getInput(msg, max);
-                        notifyObservers(ans);
-                    } catch (RemoteException ex) {
-                        suspend();
-                    }
-                });
-    }
-
     public String getInputNow(String msg, int max) {
         try {
-            game.getNotifications().remove(this);
-        }catch(NullPointerException ex){
-            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
-        }        try {
             return remoteView.getInput(msg, max);
         } catch (RemoteException ex) {
             suspend();
@@ -108,11 +108,6 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
 
     public int chooseNow(String msg, List<?> options){
         try {
-            game.getNotifications().remove(this);
-        }catch(NullPointerException ex){
-            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
-        }
-        try {
             return remoteView.choose(msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
         }catch(RemoteException ex){
             suspend();
@@ -120,7 +115,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         return 0;
     }
 
-    public void notifyObservers(String msg) throws RemoteException{
+    public void notifyObservers(String msg){
         if(game!=null) {
             game.notify(this, msg);
         }
@@ -137,4 +132,9 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
 
     public void ping(){}
 
+
+    public void suspend(){
+        super.suspend();
+        executor.shutdownNow();
+    }
 }

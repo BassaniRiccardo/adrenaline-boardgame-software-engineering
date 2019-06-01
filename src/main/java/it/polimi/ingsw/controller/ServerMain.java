@@ -308,6 +308,10 @@ public class ServerMain {
         } else if (waitingPlayers.size() > 2 && !timer.isRunning()) {
             timer.start();
         }
+
+        for(VirtualView v : waitingPlayers){
+                v.display(getAlreadyConnected() + "Timer: " + timer.getTimeLeft());
+        }
     }
 
     /**

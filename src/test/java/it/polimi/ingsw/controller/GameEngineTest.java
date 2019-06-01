@@ -198,7 +198,7 @@ public class GameEngineTest {
         gameEngine.setBoard(b);
 
         gameEngine.setCurrentPlayer(connections.get(0));
-        connections.get(1).suspend();
+        connections.get(1).setSuspended(true);
         gameEngine.setCurrentPlayer(gameEngine.getNextPlayer());
         assertEquals(connections.get(2), gameEngine.getCurrentPlayer());
     }

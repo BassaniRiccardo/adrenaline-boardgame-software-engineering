@@ -425,11 +425,12 @@ public class GameEngine implements Runnable{
             }
             if(System.currentTimeMillis()>start+timeout*10000){
                 LOGGER.log(Level.INFO,"Timeout ran out while waiting for " + current.getName() +". Returning default value");
+                notifications.put(current, "1");
                 return "1";
             }
         }
         LOGGER.log(Level.INFO, "Done waiting");
-        return notifications.remove(current);
+        return notifications.get(current);
     }
 
     /**
@@ -454,49 +455,9 @@ public class GameEngine implements Runnable{
             }
         }
         LOGGER.log(Level.INFO, "Done waiting");
-        return notifications.remove(current);
+        return notifications.get(current);
     }
 
-    /**
-     * Wait for all players' answers. Returns a list of all players that have answered by the timeout.
-     *
-     * @param timeout       max waiting time
-     * @throws SlowAnswerException      if the turn timer runs out
-     *
-     * @return      list of players that answered
-     */
-    public List<VirtualView> waitAll(int timeout) throws SlowAnswerException{
-        long start = System.currentTimeMillis();
-        boolean loop = true;
-        List<VirtualView> list = new ArrayList<>();
-        LOGGER.log(Level.INFO, "Starting to wait for all players");
-        while(loop){
-            checkForSuspension();
-            loop = false;
-            for(VirtualView p : players){
-                if(!hasAnswered(p)&&!p.isSuspended()){
-                    loop=true;
-                } else if(!list.contains(p)){
-                    list.add(p);
-                }
-            }
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            }catch(InterruptedException ex){
-                LOGGER.log(Level.INFO,"Skipped waiting time.");
-                Thread.currentThread().interrupt();
-            }
-            if(timer.isOver()){
-                throw new SlowAnswerException();
-            }
-            if(System.currentTimeMillis()>start+timeout*1000){
-                break;
-            }
-        }
-        LOGGER.log(Level.INFO, "Finished waiting for all players");
-        //TODO: check how many players are left for game continuation
-        return list;
-    }
 
     /**
      * States if a certain player's answer has not been checked yet.
@@ -517,11 +478,10 @@ public class GameEngine implements Runnable{
     public void notify(VirtualView p, String message){
         try {
             notifications.putIfAbsent(p, message);
+            LOGGER.log(Level.INFO, p + "just notified the GameEngine");
         }catch (Exception ex){
             LOGGER.log(Level.SEVERE, "Issue with being notified by " + p, ex);
         }
-        LOGGER.log(Level.INFO, p + "just notified the GameEngine");
-        //TODO: handle incoming messages in particular cases (e.g. messages already in queue)
     }
 
     /**
@@ -546,6 +506,7 @@ public class GameEngine implements Runnable{
         for(VirtualView v : justSuspended){
             for(VirtualView p : players){
                 p.display("Player " + v.getName() + " was disconnected");
+                notifications.remove(p);
             }
             LOGGER.log(Level.INFO, "Notified players of the disconnection of " + justSuspended);
         }

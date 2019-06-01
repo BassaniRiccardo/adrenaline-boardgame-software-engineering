@@ -45,4 +45,8 @@ public class Timer {
         update();
         return over&&running;
     }
+
+    public long getTimeLeft(){
+        return TimeUnit.SECONDS.convert(System.nanoTime()-start, TimeUnit.NANOSECONDS);
+    }
 }

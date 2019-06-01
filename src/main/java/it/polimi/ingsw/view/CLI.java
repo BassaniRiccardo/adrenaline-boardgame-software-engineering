@@ -8,13 +8,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-//TODO: CLI rendering needs a major overhaul. Right now it should be considered an experimental package
-//TODO: access rendering functionalities from requests
 
 /**
  * Simple command line interface for the client's I/O operations
@@ -23,19 +19,18 @@ import java.util.logging.Logger;
  */
 public class CLI implements UI{
 
-    private Scanner in;
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private String[][] render;
     private String answer;
     private boolean receiving, justReceived;
+    String[][] messageBox;
 
 
     /**
      * Standard constructor
      */
     public CLI(ClientMain clientMain) {
-        this.in = new Scanner(System.in);
         this.clientMain = clientMain;
         receiving = false;
         justReceived = false;
@@ -48,51 +43,72 @@ public class CLI implements UI{
      */
     @Override
     public void display(String message) {
-        drawModel();
-        System.out.println(message);
+        //String toDisplay = message + "\n" + currentRequest;
+        int rows = 1;
+        int count = 0;
+        boolean attention = false;
+        for(int i = 0; i<message.length(); i++){
+            count++;
+            if(count>58){
+                count = 0;
+                rows++;
+                attention = false;
+            }
+            if(message.charAt(i)=='\\'){
+                attention = true;
+            }
+            if(attention&&message.charAt(i)=='n'){
+                count = 0;
+                rows++;
+                attention = false;
+            }
+        }
+
+        messageBox = new String[rows][60];
+
+        for(int i = 0; i<messageBox.length; i++){
+            for(int j = 0; j<messageBox[i].length; j++){
+                messageBox[i][j] = " ";
+            }
+        }
+
+        int row = 0;
+        int col = 0;
+        for(int i=0; i<message.length(); i++){
+            if(message.charAt(i)=='\\'){
+                attention = true;
+            } else if(attention&&message.charAt(i)=='n'){
+                row++;
+                attention = false;
+            } else {
+                messageBox[row][col] = String.valueOf(message.charAt(i));
+                attention = false;
+                col++;
+            }
+            if(col>58){
+                row++;
+                col=0;
+            }
+        }
+
+        render();
     }
 
     @Override
     public void display(String message, String max){
-        drawModel();
-        System.out.println(message + "[max. " + max + "caratteri]");
+        display(message + "[max. " + max + " characters]");
     }
 
     @Override
     public void display(String message, List<String> list) {
 
-        System.out.println(message);
-        drawModel();
-        System.out.println("Here are your choices:");
+        String line = message + "\nHere are your choices: ";
         for(int i = 0; i<list.size(); i++){
-            System.out.println((i+1) +") "+list.get(i));
-
+            line = line + "\n" + (i+1) +") "+list.get(i);
         }
-        System.out.println("Choose one");
-
-
+        display(line + "\nChoose one");
     }
 
-
-    /**
-     * Queries the user for input (blocking)
-     *
-     * @return              the user's input as a string
-     */
-    public String get() {
-        receiving = true;
-        while (!justReceived) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException ex) {
-                LOGGER.log(Level.INFO, "Skipped waiting time.");
-                Thread.currentThread().interrupt();
-            }
-        }
-        justReceived = false;
-        receiving = false;
-        return answer;
-    }
 
     /**
      * Main CLI loop checking for user input asynchronously from other threads, in particular for closing the client while awaiting a message.
@@ -171,7 +187,7 @@ public class CLI implements UI{
                 verified = true;
                 justReceived = false;
             } else{
-                System.out.println("Your answer must be shorter than " + max + " characters, try again");
+                display("Your answer must be shorter than " + max + " characters, try again");
             }
         }
         receiving = false;
@@ -182,6 +198,11 @@ public class CLI implements UI{
 
 
     private String[][] addFrame(String[][] base){
+        if(base.length==0){
+            String[][] res = new String [1][1];
+            res[0][0]="⊡";
+            return res;
+        }
 
         String[][] res = new String[base.length+2][base[0].length+4];
         for(int i=0;i<res[0].length;i++){
@@ -209,6 +230,11 @@ public class CLI implements UI{
 
     public String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
 
+        if(box1.length==0){
+            return box2;
+        } else if(box2.length==0){
+            return box1;
+        }
         String[][] res;
         if(vertical){
             if(separate) {
@@ -304,11 +330,10 @@ public class CLI implements UI{
 
     public void drawModel(){
         if(clientMain.getClientModel()==null){      //temporary
-            return;
+            render = messageBox;
         }
-        for(int i=0;i<100;i++){
-            System.out.print("\n");
-        }
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
         for(int i=0; i<render.length; i++){
             for(int j = 0; j<render[i].length; j++){
                 System.out.print(render[i][j]);
@@ -319,8 +344,12 @@ public class CLI implements UI{
 
     public void render(){
         ClientModel model = clientMain.getClientModel();
-        render = addFrame(join(false,join(true,  MapRenderer.getMap(model), WeaponRenderer.get(model), false), PlayersRenderer.get(model), true));
+        if(model==null){
+            render = messageBox;
+        } else {
+            render = join(true, (addFrame(join(false, join(true, MapRenderer.getMap(model), WeaponRenderer.get(model), false), PlayersRenderer.get(model), true))), messageBox, false);
+        }
+        drawModel();
     }
 
-    public void render(ClientModel clientModel){}
 }

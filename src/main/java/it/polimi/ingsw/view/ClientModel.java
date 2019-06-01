@@ -124,6 +124,9 @@ public class ClientModel {
         private boolean inGame;
         private int points;
 
+
+
+
         public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped, int points) {
             this.id = id;
             this.color = color;
@@ -140,6 +143,10 @@ public class ClientModel {
             this.flipped = flipped;
             this.points = points;
         }
+
+        public boolean isInGame() { return inGame; }
+
+        public boolean isFlipped() { return flipped; }
 
         public void flip(){
             this.flipped = !flipped;

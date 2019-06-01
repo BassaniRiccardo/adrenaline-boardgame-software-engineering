@@ -45,7 +45,7 @@ public class RMIServer implements RemoteServer {
             LocateRegistry.createRegistry(port);
             reg = LocateRegistry.getRegistry(port);
             reg.bind("RMIServer", stub);
-            LOGGER.log(Level.INFO, "RMIServer ready");
+            LOGGER.log(Level.INFO, "RMIServer ready on port "+ port);
         }catch(RemoteException ex) {LOGGER.log(Level.SEVERE, "Failed to retrieve RMI register for server binding", ex); //try again?
         }catch (AlreadyBoundException ex) {LOGGER.log(Level.SEVERE, "RMI server binding failed", ex);}
     }

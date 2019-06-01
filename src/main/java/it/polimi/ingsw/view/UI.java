@@ -52,11 +52,7 @@ public interface UI extends Runnable {
 
 
 /*
-
-La UI è una sorgente di eventi a ccui qualcuno si è registrato ("se succede qualcosa, avvisami e spiegamelo, io lo gestisco"
+La UI è una sorgente di eventi a cui qualcuno si è registrato ("se succede qualcosa, avvisami e spiegamelo, io lo gestisco"
 Un evento è una classe/scatola
-I listener ascoltano particolarei eventi
-
-
-
+I listener ascoltano particolarei eventi.
  */

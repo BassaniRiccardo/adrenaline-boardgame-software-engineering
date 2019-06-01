@@ -6,6 +6,10 @@ import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.*;
 import org.junit.Test;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.junit.Assert.*;
 
 //This class needs more in-depth testing once it has been fully implemented: only the first weapon has been tested so far
@@ -156,17 +160,126 @@ public class WeaponFactoryTest {
 
     @Test
     public void lockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
+
         Board b = BoardConfigurer.simulateScenario();
         Player shooter = b.getPlayers().get(0);
+        Player banshee = b.getPlayers().get(1);
+        Player dozer = b.getPlayers().get(2);
+        Player violet = b.getPlayers().get(3);
+        Player sprog = b.getPlayers().get(4);
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         shooter.addWeapon(lockRifle);
         //MAIN TARGETS
         assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer]]",lockRifle.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
+        assertTrue(lockRifle.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+        //OPTION 1 TARGETS
+        assertTrue(lockRifle.getFireModeList().get(1).findTargets().isEmpty());
+        shooter.addMainTarget(banshee);
+        assertEquals("[[Player 3 : Dozer]]",lockRifle.getFireModeList().get(1).findTargets().toString());
+        //OPTION 1 DESTINATIONS
+        assertTrue(lockRifle.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
 
-        //SECONDARY TARGETS
-
-        //SECONDARY DESTINATIONS
     }
+
+
+    @Test
+    public void machineGun() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
+
+        Board b = BoardConfigurer.simulateScenario();
+        Player shooter = b.getPlayers().get(0);
+        Player banshee = b.getPlayers().get(1);
+        Player dozer = b.getPlayers().get(2);
+        Player violet = b.getPlayers().get(3);
+        Player sprog = b.getPlayers().get(4);
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon machineGun = weaponFactory.createWeapon(Weapon.WeaponName.MACHINE_GUN);
+        shooter.addWeapon(machineGun);
+        //MAIN TARGETS
+        assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer], [Player 2 : Banshee, Player 3 : Dozer]]",machineGun.getFireModeList().get(0).findTargets().toString());
+        //MAIN DESTINATIONS
+        assertTrue(machineGun.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+        //OPTION 1 TARGETS
+        assertTrue(machineGun.getFireModeList().get(1).findTargets().isEmpty());
+        shooter.addMainTarget(banshee);
+        assertEquals("[[Player 2 : Banshee]]",machineGun.getFireModeList().get(1).findTargets().toString());
+        shooter.addMainTarget(dozer);
+        assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer]]",machineGun.getFireModeList().get(1).findTargets().toString());
+        //OPTION 1 DESTINATIONS
+        assertTrue(machineGun.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+        //OPTION 2 TARGETS
+        shooter.addOptionalTarget(banshee);
+        shooter.getMainTargets().remove(dozer);
+        assertEquals("[[Player 3 : Dozer]]",machineGun.getFireModeList().get(2).findTargets().toString());
+        //OPTION 2 DESTINATIONS
+        assertTrue(machineGun.getFireModeList().get(2).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+
+    }
+
+    @Test
+    public void furnace() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
+
+        Board b = BoardConfigurer.simulateScenario();
+        Player shooter = b.getPlayers().get(0);
+        Player banshee = b.getPlayers().get(1);
+        Player dozer = b.getPlayers().get(2);
+        Player violet = b.getPlayers().get(3);
+        Player sprog = b.getPlayers().get(4);
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon furnace = weaponFactory.createWeapon(Weapon.WeaponName.FURNACE);
+        shooter.addWeapon(furnace);
+        //MAIN TARGETS
+        assertEquals("[[Player 2 : Banshee, Player 3 : Dozer]]",furnace.getFireModeList().get(0).findTargets().toString());
+        //MAIN DESTINATIONS
+        assertTrue(furnace.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+        //SECONDARY TARGETS
+        assertEquals("[[Player 2 : Banshee]]",furnace.getFireModeList().get(1).findTargets().toString());
+        //SECONDAY DESTINATIONS
+        assertTrue(furnace.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+        //SECONDARY TARGETS shared square with shooter, no targets
+        banshee.setPosition(shooter.getPosition());
+        assertTrue(furnace.getFireModeList().get(1).findTargets().isEmpty());
+        //SECONDARY TARGETS two targets in an adiacent square, one target in another adiacent square
+        banshee.setPosition(b.getMap().get(1));
+        dozer.setPosition(b.getMap().get(1));
+        violet.setPosition(b.getMap().get(4));
+        assertEquals("[[Player 2 : Banshee, Player 3 : Dozer], [Player 4 : Violet]]",furnace.getFireModeList().get(1).findTargets().toString());
+    }
+
+    //plasma gun, rocket_launcher, grenade launcher
+
+    @Test
+    public void plasmaGun() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
+
+        Board b = BoardConfigurer.simulateScenario();
+        Player shooter = b.getPlayers().get(0);
+        Player banshee = b.getPlayers().get(1);
+        Player dozer = b.getPlayers().get(2);
+        Player violet = b.getPlayers().get(3);
+        Player sprog = b.getPlayers().get(4);
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon plasmaGun = weaponFactory.createWeapon(Weapon.WeaponName.PLASMA_GUN);
+        shooter.addWeapon(plasmaGun);
+        //MAIN TARGETS
+        assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer]]",plasmaGun.getFireModeList().get(0).findTargets().toString());
+        //MAIN DESTINATIONS
+        assertTrue(plasmaGun.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+        //OPTION 1 TARGETS
+        assertEquals("[[Player 1 : D_struct_or]]",plasmaGun.getFireModeList().get(1).findTargets().toString());
+        //OPTION 1 DESTINATIONS
+        assertEquals(new ArrayList<>(Arrays.asList(b.getMap().get(1),b.getMap().get(2),b.getMap().get(5))),plasmaGun.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))));
+        shooter.addMainTarget(banshee);
+        assertEquals(new ArrayList<>(Arrays.asList(b.getMap().get(1),b.getMap().get(2),b.getMap().get(4),b.getMap().get(5),b.getMap().get(8))),plasmaGun.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))));
+        //OPTION 2 TARGETS
+        shooter.getMainTargets().remove(banshee);
+        assertTrue(plasmaGun.getFireModeList().get(2).findTargets().isEmpty());
+        shooter.addMainTarget(banshee);
+        assertEquals("[[Player 2 : Banshee]]", plasmaGun.getFireModeList().get(2).findTargets().toString());
+        //OPTION 2 DESTINATIONS
+        assertTrue(plasmaGun.getFireModeList().get(2).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+
+    }
+
+
 }

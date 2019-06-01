@@ -6,6 +6,8 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.network.server.VirtualView;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static it.polimi.ingsw.model.cards.Color.*;
 import static java.util.Collections.frequency;
@@ -45,6 +47,9 @@ public class Board {
 
     private List<VirtualView> observers;
     private Map<VirtualView, List<JsonObject>> updates;
+
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
+
 
 
 
@@ -660,11 +665,9 @@ public class Board {
     }
 
     public void registerObserver(VirtualView p){
-        System.out.println("inside registerobserver");
+        LOGGER.log(Level.INFO, p + " registered as an observer to Board.");
         observers.add(p);
-        System.out.println("added to observer");
         updates.put(p, new ArrayList<>());
-        System.out.println("put in update");
     }
 
     public void removeObserver(VirtualView p){
@@ -678,14 +681,15 @@ public class Board {
     }
 
     public void notifyObserver(VirtualView p){
+        LOGGER.log(Level.INFO, "Notifying observer "+ p);
         for(JsonObject update : updates.get(p)) {
-            System.out.println("Notifying player" + p);
             p.update(update);
         }
         updates.get(p).clear();
     }
 
     public void addToUpdateQueue(JsonObject jsonObject){
+        LOGGER.log(Level.INFO, "Adding an update to all queues");
         for(VirtualView v : updates.keySet()){
             updates.get(v).add(jsonObject);
         }

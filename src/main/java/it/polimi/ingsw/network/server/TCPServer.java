@@ -34,7 +34,7 @@ public class TCPServer implements Runnable {
         try{
             serverSocket = new ServerSocket(port);
 
-            LOGGER.log(Level.INFO, "TCPServer ready");
+            LOGGER.log(Level.INFO, "TCPServer ready on port " + port);
 
             while (running){
                 Socket socket = serverSocket.accept();

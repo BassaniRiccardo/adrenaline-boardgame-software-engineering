@@ -594,6 +594,14 @@ public class Player {
         if (targets.contains(this)) throw new IllegalArgumentException("The player can not be in the list of his own targets.");
         this.mainTargets.addAll(targets); }
 
+    /**
+     * Adds a list of players to the optional targets.
+     *
+     * @param target         player added to the optional targets.
+     */
+    public void addOptionalTarget(Player target) {
+        this.optionalTargets.add(target); }
+
 
     /**
      * Adds a list of players to the optional targets.

@@ -1,12 +1,9 @@
 package it.polimi.ingsw.network.client;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.network.server.RemoteController;
 import it.polimi.ingsw.network.server.RemoteServer;
 import it.polimi.ingsw.view.ClientMain;
-import it.polimi.ingsw.view.ClientModel;
-import it.polimi.ingsw.view.UI;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -30,6 +27,7 @@ public class RMIConnection implements Runnable, RemoteView {
     private RemoteController playerStub;
     private ClientMain clientMain;
     static final Logger LOGGER = Logger.getLogger("clientLogger");
+    JsonParser jsonParser;
 
 
     /**
@@ -40,13 +38,16 @@ public class RMIConnection implements Runnable, RemoteView {
      * @param port              port to connect to
      */
     public RMIConnection(ClientMain clientMain, String address, int port){
-        System.out.println("address: " + address + "\nport: " + port);
         this.clientMain = clientMain;
+        this.jsonParser = new JsonParser();
         try {
+            System.out.println("1: port: " + port + "\taddress:" + address);
             Registry reg = LocateRegistry.getRegistry(address, port);
+            System.out.println("2: port: " + port + "\taddress:" + address);
             RemoteServer serverStub = (RemoteServer) reg.lookup("RMIServer");
+            System.out.println("3: port: " + port + "\taddress:" + address);
             String pcLookup = serverStub.getPlayerController((RemoteView) UnicastRemoteObject.exportObject(this, 0));
-            LOGGER.log(Level.SEVERE, "Name received for RMI PC lookup: " + pcLookup);
+            //LOGGER.log(Level.SEVERE, "Name received for RMI PC lookup: " + pcLookup);
             playerStub = (RemoteController) reg.lookup(pcLookup);
 
             ExecutorService executor = Executors.newCachedThreadPool();
@@ -74,31 +75,59 @@ public class RMIConnection implements Runnable, RemoteView {
         }
     }
 
-    public void run(){
-        System.out.println("RMIConnection running");
-    }
+    public void run(){}
 
+    /**
+     * Asks clientMain to carry out a decision
+     * @param msg       message to display
+     * @param options   options between which to choose
+     * @return          int corresponding to the choice
+     * @throws RemoteException
+     */
     public int choose(String msg, List<String> options) throws RemoteException{
         return clientMain.choose(msg, options);
     }
 
+    /**
+     * Asks clientMain to display a message
+     *
+     * @param msg           message to display
+     * @throws RemoteException
+     */
     public void display(String msg) throws RemoteException{
         clientMain.display(msg);
     }
 
+    /**
+     * Asks clientMain to provide a String
+     *
+     * @param msg       message to display
+     * @param max       max length of the answer
+     * @return          clientMain's response
+     * @throws RemoteException
+     */
     public String getInput(String msg, int max) throws RemoteException{
         return clientMain.getInput(msg, max);
     }
 
+    /**
+     * Remote methos to be called by the server to assert the state of the connection
+     * @throws RemoteException
+     */
     public void ping() throws RemoteException{}
 
+    /**
+     * Passes an update to clientMain
+     *
+     * @param jsonObject        encoded update
+     * @throws RemoteException
+     */
     public void update(String jsonObject) throws RemoteException{
         try {
-            clientMain.update(new JsonParser().parse(jsonObject).getAsJsonObject());
+            clientMain.update(jsonParser.parse(jsonObject).getAsJsonObject());
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        //do not instantiate a json parse each time
     }
 
 }

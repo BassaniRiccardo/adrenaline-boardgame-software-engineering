@@ -127,12 +127,10 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     public void update(JsonObject jsonObject){
-        System.out.print("almost calling remote update");
         try {
-            System.out.print("calling remote update");
             remoteView.update(jsonObject.toString());
         } catch (RemoteException ex) {
-            ex.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Error while updating", ex);
             suspend();
         }
     }

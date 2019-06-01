@@ -41,7 +41,9 @@ public abstract class VirtualView implements Runnable{
      */
     public void run(){
 
-        name = getInputNow("Select a name", 16);
+        String playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
+        //TODO: notify players of other connected players in real time
+        name = getInputNow("Select a name.\n"+playersAlreadyConnected, 16);
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
         while(!ServerMain.getInstance().login(name, this)){
@@ -56,7 +58,8 @@ public abstract class VirtualView implements Runnable{
                     }
                 }
             }
-            name=getInputNow("Name already taken. Try another one", 16);
+            playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
+            name=getInputNow("Name already taken. Try another one.\n"+playersAlreadyConnected, 16);
         }
         display("Name accepted. Waiting for the voting to start...");
     }
@@ -88,14 +91,6 @@ public abstract class VirtualView implements Runnable{
         this.model = model;
     }
 
-    public void suspend() {
-        if(!suspended) {
-            this.suspended = true;
-            this.justSuspended = true;
-            LOGGER.log(Level.INFO, "Player {0} was suspended", name);
-        }
-    }
-
     public boolean isJustSuspended(){
         return justSuspended;
     }
@@ -104,16 +99,62 @@ public abstract class VirtualView implements Runnable{
         this.justSuspended = justSuspended;
     }
 
+    /**
+     * Suspends related player
+     */
+    public void suspend() {
+        if(!suspended) {
+            this.suspended = true;
+            this.justSuspended = true;
+            LOGGER.log(Level.INFO, "Player {0} was suspended", name);
+        }
+    }
+
+    /**
+     * Asks a player to choose one among options (sends a request and returns immediately)
+     *
+     * @param msg       message to be displayed
+     * @param options   list of options to choose from
+     */
     abstract public void choose(String msg, List<?> options);
 
+    /**
+     * Displays a message to the player
+     *
+     * @param msg       message to display
+     */
     abstract public void display(String msg);
 
+    /**
+     * Fetches input from the player as a String (sends a request and returns immediately)
+     *
+     * @param msg       message to display
+     * @param max       max length of the answer
+     */
     abstract public void getInput(String msg, int max);
 
+    /**
+     * Fetches input, but waits for an answer
+     *
+     * @param msg       message to display
+     * @param max       max length of the answer
+     * @return          the answer
+     */
     abstract String getInputNow(String msg, int max);
 
+
+    /**
+     * Asks a player to choose one among options and waits for an answer
+     * @param msg       message to display
+     * @param options   options to choose from
+     * @return          the player's choice as the index of the list of options
+     */
     abstract int chooseNow(String msg, List<?> options);
 
+    /**
+     * Sends a request for an update to the client
+     *
+     * @param jsonObject    encoded update
+     */
     abstract public void update(JsonObject jsonObject);
-
 }

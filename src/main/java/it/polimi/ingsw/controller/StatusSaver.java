@@ -97,6 +97,8 @@ public class StatusSaver {
         LOGGER.log(Level.FINE, "updating checkpoint");
         LOGGER.log(Level.FINE, () -> "playersPowerups saved: " + playersPowerups);
 
+
+
     }
 
 

@@ -48,9 +48,9 @@ public class GUITest {
     @Test
     public void render() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException, WrongTimeException {
 
-         Board board = BoardConfigurer.simulateScenario();
-
-         board.getPlayers().get(0).sufferDamage(3,board.getPlayers().get(2));
+        Board board = BoardConfigurer.simulateScenario();
+        board.setCurrentPlayer(board.getPlayers().get(0));
+        board.getPlayers().get(0).sufferDamage(3,board.getPlayers().get(2));
         board.getPlayers().get(2).sufferDamage(12,board.getPlayers().get(1));
         board.getPlayers().get(0).addMarks(2,board.getPlayers().get(3));
         board.getPlayers().get(2).setDead(true);
@@ -69,10 +69,9 @@ public class GUITest {
 
         JsonObject mod = new JsonParser().parse((Updater.getModel(board, board.getPlayers().get(0))).get("mod").getAsString()).getAsJsonObject();
         ((GUI)ui).getClientMain().setClientModel(new Gson().fromJson(mod, ClientModel.class));
-        ((GUI)ui).getClientMain().getClientModel().setCurrentPlayer(((GUI)ui).getClientMain().getClientModel().getPlayer(1));
         ((GUI) ui).render();
         try {
-            Thread.sleep(1000000);
+            Thread.sleep(25000);
 
         } catch (InterruptedException e){}
 

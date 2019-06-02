@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -17,16 +19,16 @@ import java.util.stream.IntStream;
 //TODO: implement other maps
 public class MapRenderer {
 
+    private static final Logger LOGGER = Logger.getLogger("clientLogger");
+
     public static String[][] getMap(ClientModel model){
 
         SquareRenderer[] squares = new SquareRenderer[12];
 
-        String[][] map = new String[18][55];
-
         int mapID = model.getMapID();
 
 
-        map = loadMap(mapID);     //mapID needs to go here
+        String[][] map = loadMap(mapID);     //mapID needs to go here
 
         List<List<String>> ammo = new ArrayList<>(12);
         int[] weaponNum = new int[12];
@@ -47,16 +49,16 @@ public class MapRenderer {
             }
 
             for(int i=0; i< model.getSquare(n).getBlueAmmo(); i++) {
-                ammo.get(n).add(ClientModel.getEscapeCode("blue") + "❚" + "\u001b[0m");    //blue ammo!
+                ammo.get(n).add(ClientModel.getEscapeCode("blue") + "|" + "\u001b[0m");    //blue ammo!
             }
             for(int i=0; i< model.getSquare(n).getRedAmmo(); i++) {
-                ammo.get(n).add(ClientModel.getEscapeCode("red")+"❚"+"\u001b[0m");    //red ammo!
+                ammo.get(n).add(ClientModel.getEscapeCode("red")+"|"+"\u001b[0m");    //red ammo!
             }
             for(int i=0; i< model.getSquare(n).getYellowAmmo(); i++) {
-                ammo.get(n).add(ClientModel.getEscapeCode("yellow")+"❚"+"\u001b[0m");    //yellow ammo!
+                ammo.get(n).add(ClientModel.getEscapeCode("yellow")+"|"+"\u001b[0m");    //yellow ammo!
             }
             if(model.getSquare(n).isPowerup()){
-                ammo.get(n).add("⚡");    //powerup!
+                ammo.get(n).add("+");    //powerup!
             }
 
             weaponNum[n] = model.getSquare(n).getWeapons().size();  //weapons on ground
@@ -66,10 +68,10 @@ public class MapRenderer {
         for(int playerID : model.getPlayers().stream().map(x->x.getId()).collect(Collectors.toList())){
             String color = "";
             String mark = "";
-            if(playerID == model.getCurrentPlayer().getId()){//maybe the actual player
+            if(playerID == model.getPlayerID()){
                 mark = "◯";
             } else {
-                mark = "◯";
+                mark = "●";
             }
             color = ClientModel.getEscapeCode(model.getPlayer(playerID).getColor());
             if(model.getPlayer(playerID).getPosition()!=null) {
@@ -101,8 +103,6 @@ public class MapRenderer {
     public static String[][] loadMap(int id){
 
         //TODO: avoid reading map at all iterations
-        //TODO: move maps to resources
-        //TODO: draw other maps
 
         String[][] map = new String[18][55];
 
@@ -117,23 +117,10 @@ public class MapRenderer {
             }
         }
         }catch(Exception ex){
-            //LOGGER.Log(Level.SEVERE, "Issue loading map", ex);
+            LOGGER.log(Level.SEVERE, "Issue loading map", ex);
         }
         return map;
     }
-
-    public  void displayMap(String[][] map){
-        for(int i=0; i<map.length; i++){
-            for(int j=0; j<map[i].length; j++){
-                System.out.print(map[i][j]);
-            }
-            System.out.print("\n");
-        }
-    }
-
-    //public void setSquares(SquareRenderer[] squares){
-    //    this.squares = squares;
-    //}
 
     private static List<Integer>getRoomSet(int id){
         List<Integer> res  = new ArrayList<>(Arrays.asList(0,1,2,4,5,6,7,9,10,11));

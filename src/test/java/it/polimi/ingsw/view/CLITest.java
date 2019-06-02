@@ -11,6 +11,10 @@ import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
+import it.polimi.ingsw.view.CLIRenderer.HandRenderer;
+import it.polimi.ingsw.view.CLIRenderer.MapRenderer;
+import it.polimi.ingsw.view.CLIRenderer.PlayersRenderer;
+import it.polimi.ingsw.view.CLIRenderer.WeaponRenderer;
 import org.junit.Test;
 
 import java.util.*;
@@ -132,8 +136,28 @@ public class CLITest {
         JsonObject mod = new JsonParser().parse((Updater.getModel(board, board.getPlayers().get(0))).get("mod").getAsString()).getAsJsonObject();
         clientMain.setClientModel(new Gson().fromJson(mod, ClientModel.class));
         clientMain.getClientModel().setCurrentPlayer(clientMain.getClientModel().getPlayer(2));
+
+
+        String[][] s = HandRenderer.get(clientMain.getClientModel());
+        //draw(s);
+        s= WeaponRenderer.get(clientMain.getClientModel());
+        //draw(s);
+        s= PlayersRenderer.get(clientMain.getClientModel());
+        //draw(s);
+        s= MapRenderer.getMap(clientMain.getClientModel());
+        //draw(s);
+
         ui.render();
+
 
     }
 
+    private void draw(String[][] s){
+        for(int i=0; i<s.length; i++){
+            for(int j=0; j<s[i].length; j++){
+                System.out.print(s[i][j]);
+            }
+            System.out.print("\t "+ s[i].length+"\n");
+        }
+    }
 }

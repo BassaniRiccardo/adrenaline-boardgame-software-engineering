@@ -84,8 +84,8 @@ public class GameEngine implements Runnable{
     }
 
     public void setCurrentPlayer(VirtualView currentPlayer) {
-        this.board.setCurrentPlayer(currentPlayer.getModel());
         this.currentPlayer = currentPlayer;
+        this.board.setCurrentPlayer(currentPlayer.getModel());
     }
 
     /**

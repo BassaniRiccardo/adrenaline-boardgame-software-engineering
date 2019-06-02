@@ -93,7 +93,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         try{
             remoteView.display(msg);
         }catch(RemoteException ex){
-            suspend();
+            //suspend(); to avoid a loop
         }
     }
 

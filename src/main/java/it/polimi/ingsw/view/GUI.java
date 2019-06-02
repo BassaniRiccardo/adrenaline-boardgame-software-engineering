@@ -70,7 +70,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private final double developerPlayerBoardWidth = 486;
     double scalePB;
     double userPlayerBoardWidth;
-
+    private Stage mapStage;
+    private VBox messagePanel;
+    private boolean started;
 
     public ClientMain getClientMain() {
         return clientMain;
@@ -148,10 +150,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             //Qui la parte con cui sostituire la parte sopra. Manca l'inizializzazione dello stage come sopra descritto
 
+            mapStage = new Stage();
             stage = primaryStage;
             stage.setOnCloseRequest(e -> {System.exit(0);});
             stage.setTitle("Adrenaline");
-            HBox messagePanel = new HBox();
+            messagePanel = new VBox();
             messagePanel.setBackground(new Background(new BackgroundFill(color, null, null)));
             Label label = new Label("Entering the configuration phase...");
             messagePanel.getChildren().add(label);
@@ -676,54 +679,56 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             VBox playerSection = new VBox();
 
-                StackPane playerBoardAndStuffAbove = new StackPane();
-                playerBoardAndStuffAbove.getChildren().addAll(playerSection);
-                for(GridPane g : playerAmmoGrid)
-                    g.setTranslateX(400*scalePB);
+            StackPane playerBoardAndStuffAbove = new StackPane();
+            playerBoardAndStuffAbove.getChildren().addAll(playerSection);
+            for(GridPane g : playerAmmoGrid)
+                g.setTranslateX(400*scalePB);
 
             //layout
-                Pane mapAndStuffAbove = new Pane();
-            mapAndStuffAbove.getChildren().addAll(map,skullsGrid,weaponsGrid1,weaponsGrid2,weaponsGrid3,roomsGrid, //mettere virgola
-                      weaponDeckView,pUDeckView,cardsRemainingPU,cardsRemainingWeapons);
-                  pUDeckView.setTranslateX(453*scale);
-                pUDeckView.setTranslateY(-332*scale);
-                weaponDeckView.setTranslateX(440*scale);
-                weaponDeckView.setTranslateY(-132*scale);
-                cardsRemainingPU.setTranslateX(450*scale);
-                cardsRemainingPU.setTranslateY(-330*scale);
-                cardsRemainingPU.setTextFill(Color.web("#F8F8FF"));
-                cardsRemainingWeapons.setTranslateX(440*scale);
-                cardsRemainingWeapons.setTranslateY(-130*scale);
-                cardsRemainingWeapons.setTextFill(Color.web("#F8F8FF"));
-                for(ClientModel.SimplePlayer p : players) {
-                    if (!p.equals(clientModel.getCurrentPlayer()))
-                        playerSection.getChildren().add(playerBoards.get(players.indexOf(p)));
-                    else {
-                        mapAndStuffAbove.getChildren().add((playerBoards.get(players.indexOf(p))));//current player is added at the mapboard and translated at the bottom
-                        playerBoards.get(players.indexOf(p)).setTranslateX(300*scale);
-                        playerBoards.get(players.indexOf(p)).setTranslateY(740*scale);
-                      }
-                }
-                HBox board = new HBox();
-                board.getChildren().addAll(mapAndStuffAbove, playerBoardAndStuffAbove);
+            Pane mapAndStuffAbove = new Pane();
+            mapAndStuffAbove.getChildren().addAll(map,skullsGrid,weaponsGrid1,weaponsGrid2,weaponsGrid3,roomsGrid,weaponDeckView,pUDeckView,cardsRemainingPU,cardsRemainingWeapons);
+            pUDeckView.setTranslateX(453*scale);
+            pUDeckView.setTranslateY(-332*scale);
+            weaponDeckView.setTranslateX(440*scale);
+            weaponDeckView.setTranslateY(-132*scale);
+            cardsRemainingPU.setTranslateX(450*scale);
+            cardsRemainingPU.setTranslateY(-330*scale);
+            cardsRemainingPU.setTextFill(Color.web("#F8F8FF"));
+            cardsRemainingWeapons.setTranslateX(440*scale);
+            cardsRemainingWeapons.setTranslateY(-130*scale);
+            cardsRemainingWeapons.setTextFill(Color.web("#F8F8FF"));
+            for(ClientModel.SimplePlayer p : players) {
+                if (p.getId() != (clientModel.getPlayerID()))
+                    playerSection.getChildren().add(playerBoards.get(players.indexOf(p)));
+                else {
+                    mapAndStuffAbove.getChildren().add((playerBoards.get(players.indexOf(p))));//local player is added at the mapboard and translated at the bottom
+                    playerBoards.get(players.indexOf(p)).setTranslateX(300*scale);
+                    playerBoards.get(players.indexOf(p)).setTranslateY(740*scale);
+                  }
+            }
+            HBox board = new HBox();
+            board.getChildren().addAll(mapAndStuffAbove, playerBoardAndStuffAbove);
 
-                skullsGrid.setTranslateX(70*scale);
-                skullsGrid.setTranslateY(50*scale);
-                weaponsGrid1.setTranslateX(540*scale);
-                weaponsGrid2.setRotate(270);
-                weaponsGrid2.setTranslateX(803*scale);
-                weaponsGrid2.setTranslateY(550*scale);
-                weaponsGrid3.setRotate(90);
-                weaponsGrid3.setTranslateX(-98*scale);
-                weaponsGrid3.setTranslateY(380*scale);
-                roomsGrid.setTranslateX(180*scale);
-                roomsGrid.setTranslateY((200*scale));
+            skullsGrid.setTranslateX(70*scale);
+            skullsGrid.setTranslateY(50*scale);
+            weaponsGrid1.setTranslateX(540*scale);
+            weaponsGrid2.setRotate(270);
+            weaponsGrid2.setTranslateX(803*scale);
+            weaponsGrid2.setTranslateY(550*scale);
+            weaponsGrid3.setRotate(90);
+            weaponsGrid3.setTranslateX(-98*scale);
+            weaponsGrid3.setTranslateY(380*scale);
+            roomsGrid.setTranslateX(180*scale);
+            roomsGrid.setTranslateY((200*scale));
+
             board.setStyle("-fx-background-color: #000000");
             Scene sceneMap = new Scene(board, 1200*scale, 800*scale);
-                Stage mapStage = new Stage();
                 mapStage.setScene(sceneMap);
                 mapStage.setFullScreen(true);
-                mapStage.show();
+                if (!started){
+                    mapStage.show();
+                    started = true;
+                }
 
             //}catch (FileNotFoundException e){
             //    e.printStackTrace();

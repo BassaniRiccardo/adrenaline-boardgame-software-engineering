@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view;
 
+import it.polimi.ingsw.view.CLIRenderer.HandRenderer;
 import it.polimi.ingsw.view.CLIRenderer.MapRenderer;
 import it.polimi.ingsw.view.CLIRenderer.PlayersRenderer;
 import it.polimi.ingsw.view.CLIRenderer.WeaponRenderer;
@@ -12,6 +13,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+//FIXME: model does not show number of cards in hand correctly
+//fixme: model does not tell the correct ID
+
 /**
  * Simple command line interface for the client's I/O operations
  *
@@ -22,9 +26,10 @@ public class CLI implements UI{
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private String[][] render;
+    private String[][] messageBox;
+    private String lastRequest;
     private String answer;
     private boolean receiving, justReceived;
-    String[][] messageBox;
 
 
     /**
@@ -32,8 +37,12 @@ public class CLI implements UI{
      */
     public CLI(ClientMain clientMain) {
         this.clientMain = clientMain;
-        receiving = false;
-        justReceived = false;
+        this.receiving = false;
+        this.lastRequest = "";
+        this.answer = "";
+        this.render = new String[0][0];
+        this.messageBox = new String[0][0];
+        this.justReceived = false;
     }
 
     /**
@@ -43,28 +52,23 @@ public class CLI implements UI{
      */
     @Override
     public void display(String message) {
-        //String toDisplay = message + "\n" + currentRequest;
+        String toDisplay = message + "\n" + lastRequest;
         int rows = 1;
         int count = 0;
-        boolean attention = false;
-        for(int i = 0; i<message.length(); i++){
-            count++;
-            if(count>58){
+        for(int i = 0; i<toDisplay.length(); i++){
+            if(toDisplay.charAt(i)=='\n'){
                 count = 0;
                 rows++;
-                attention = false;
-            }
-            if(message.charAt(i)=='\\'){
-                attention = true;
-            }
-            if(attention&&message.charAt(i)=='n'){
-                count = 0;
-                rows++;
-                attention = false;
+            } else {
+                count++;
+                if (count > 53) {
+                    count = 0;
+                    rows++;
+                }
             }
         }
 
-        messageBox = new String[rows][60];
+        messageBox = new String[rows+2][60];
 
         for(int i = 0; i<messageBox.length; i++){
             for(int j = 0; j<messageBox[i].length; j++){
@@ -74,20 +78,17 @@ public class CLI implements UI{
 
         int row = 0;
         int col = 0;
-        for(int i=0; i<message.length(); i++){
-            if(message.charAt(i)=='\\'){
-                attention = true;
-            } else if(attention&&message.charAt(i)=='n'){
-                row++;
-                attention = false;
-            } else {
-                messageBox[row][col] = String.valueOf(message.charAt(i));
-                attention = false;
-                col++;
-            }
-            if(col>58){
+        for(int i=0; i<toDisplay.length(); i++){
+            if(toDisplay.charAt(i)=='\n'){
                 row++;
                 col=0;
+            } else {
+                messageBox[row+1][col+1] = String.valueOf(toDisplay.charAt(i));//+String.valueOf(col);
+                col++;
+                if(col>53){
+                    row++;
+                    col=0;
+                }
             }
         }
 
@@ -96,17 +97,20 @@ public class CLI implements UI{
 
     @Override
     public void display(String message, String max){
-        display(message + "[max. " + max + " characters]");
+        String fullRequest = message + "[max. " + max + " characters]";
+        lastRequest = fullRequest;
+        display("");
     }
 
     @Override
     public void display(String message, List<String> list) {
-
-        String line = message + "\nHere are your choices: ";
+        String fullRequest = message + "\nHere are your choices: ";
         for(int i = 0; i<list.size(); i++){
-            line = line + "\n" + (i+1) +") "+list.get(i);
+            fullRequest = fullRequest + "\n" + (i+1) +") "+list.get(i);
         }
-        display(line + "\nChoose one");
+        fullRequest = fullRequest + "\nChoose one";
+        lastRequest = fullRequest;
+        display("");
     }
 
 
@@ -157,14 +161,20 @@ public class CLI implements UI{
                     Thread.currentThread().interrupt();
                 }
             }
-            for(int i = 1; i<=list.size(); i++){
-                if(String.valueOf(i).equals(answer)) {
+            try {
+                if (Integer.parseInt(answer) <= list.size() && Integer.parseInt(answer) > 0) {
                     verified = true;
+                } else {
+                    display("Input not valid, try again.");
                 }
-                justReceived = false;
-                receiving = true;
+            }catch(NumberFormatException ex){
+                display("Input not valid, try again.");
             }
+            justReceived = false;
+            receiving = true;
         }
+        receiving = false;
+        lastRequest="";
         return answer;
     }
 
@@ -185,17 +195,16 @@ public class CLI implements UI{
             }
             if (answer.length()<max) {
                 verified = true;
-                justReceived = false;
             } else{
-                display("Your answer must be shorter than " + max + " characters, try again");
+                display("Your answer must be shorter than " + max + " characters, try again.");
             }
+            justReceived = false;
+            receiving = true;
         }
         receiving = false;
+        lastRequest="";
         return answer;
     }
-
-
-
 
     private String[][] addFrame(String[][] base){
         if(base.length==0){
@@ -242,7 +251,7 @@ public class CLI implements UI{
                 for(int i=0; i < res.length; i++){
                     for(int j=0; j<res[0].length;j++){
                         if(i>box1.length){
-                            if(j<box2[i-box1.length].length) {
+                            if(j<box2[i-(box1.length+1)].length) {
                                 res[i][j] = box2[i - (box1.length+1)][j];
                             } else {
                                 res[i][j] = " ";
@@ -268,7 +277,7 @@ public class CLI implements UI{
                             } else{
                                 res[i][j] = " ";
                             }
-                        } else{
+                        }else{
                             if(j<box1[i].length) {
                                 res[i][j] = box1[i][j];
                             }else {
@@ -283,22 +292,22 @@ public class CLI implements UI{
                 res = new String[Math.max(box1.length, box2.length)][box1[0].length+box2[0].length+3];
                 for(int i=0; i < res.length; i++){
                     for(int j=0; j<res[0].length;j++){
-                        if(j>box1[i].length+2){
-                            if(i<box2.length) {
-                                res[i][j] = box2[i][j - (box1[i].length+3)];
-                            }else{
+                        if(j<box1[0].length){
+                            if(i<box1.length){
+                                res[i][j] = box1[i][j];
+                            } else{
                                 res[i][j] = " ";
                             }
-                        } else if (j==box1[i].length) {
+                        } else if (j==box1[0].length){
                             res[i][j] = " ";
-                        }else if (j==box1[i].length+1) {
+                        } else if (j==box1[0].length+1) {
                             res[i][j] = "⊡";
-                        }else if (j==box1[i].length+2){
+                        } else if (j==box1[0].length+2) {
                             res[i][j] = " ";
-                        } else{
-                            if(i<box1.length) {
-                                res[i][j] = box1[i][j];
-                            }else {
+                        } else {
+                            if(i<box2.length){
+                                res[i][j] = box2[i][j-(box1[0].length+3)];
+                            } else {
                                 res[i][j] = " ";
                             }
                         }
@@ -308,9 +317,9 @@ public class CLI implements UI{
                 res = new String[Math.max(box1.length, box2.length)][box1[0].length+box2[0].length];
                 for(int i=0; i < res.length; i++){
                     for(int j=0; j<res[0].length;j++){
-                        if(j>=box1[i].length){
+                        if(j>=box1[0].length){
                             if(i<box2.length) {
-                                res[i][j] = box2[i][j - (box1[i].length + 1)];
+                                res[i][j] = box2[i][j - (box1[0].length)];
                             }else{
                                 res[i][j] = " ";
                             }
@@ -329,9 +338,6 @@ public class CLI implements UI{
     }
 
     public void drawModel(){
-        if(clientMain.getClientModel()==null){      //temporary
-            render = messageBox;
-        }
         System.out.print("\033[H\033[2J");
         System.out.flush();
         for(int i=0; i<render.length; i++){
@@ -347,9 +353,21 @@ public class CLI implements UI{
         if(model==null){
             render = messageBox;
         } else {
-            render = join(true, (addFrame(join(false, join(true, MapRenderer.getMap(model), WeaponRenderer.get(model), false), PlayersRenderer.get(model), true))), messageBox, false);
+            render = join(true,
+                        (addFrame(
+                            join(false,
+                                join(true,
+                                    MapRenderer.getMap(model),
+                                    WeaponRenderer.get(model),
+                                    false),
+                                join(true,
+                                    PlayersRenderer.get(model),
+                                    HandRenderer.get(model),
+                                    true),
+                                true))),
+                        messageBox,
+                        false);
         }
         drawModel();
     }
-
 }

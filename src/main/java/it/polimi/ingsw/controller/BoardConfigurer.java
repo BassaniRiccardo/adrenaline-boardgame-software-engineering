@@ -241,6 +241,7 @@ public class BoardConfigurer {
         for(int i=0;i<j.getIntBC("simulationPlayersNumber");i++)
             board.getPlayers().get(i).setPosition(board.getMap().get(j.getIntBC("simulationPositionPlayer"+i)));
 
+        board.setCurrentPlayer(board.getPlayers().get(0));
         return board;
 
     }

@@ -7,39 +7,9 @@ import java.util.stream.Collectors;
 
 public class PlayersRenderer {
 
-
-//TODO: rewrite all CLI rendering functions properly, make the code more robust
-    //TODO: adapt the class to work on any set of playerID
-    //required player id to be a continuous sequence between 1 and 3/4/5
-
     public static String[][] get(ClientModel clientModel){
 
-        String[][] box = new String[24][55];
-
-        List<Integer> players = clientModel.getPlayers().stream().map(x->x.getId()).collect(Collectors.toList());
-        int playerNum = players.size();
-        String[] names = new String[playerNum];
-        String[] weapons = new String[playerNum];
-        for(int i=0; i<playerNum; i++){
-            names[i] = "";
-            weapons[i] = "";
-        }
-
-
-        for(int i = 0; i<players.size(); i++){
-
-            int playerID = players.get(i);
-            names[i] = clientModel.getPlayer(playerID).getUsername();
-            weapons[i] ="Weapons: ";
-                List<ClientModel.SimpleWeapon> currentWeapons = clientModel.getPlayer(playerID).getWeapons();
-                for (int j = 0; j< currentWeapons.size(); j++){
-                    weapons[i] = weapons[i].concat(currentWeapons.get(j).getName());
-                    if(j!=currentWeapons.size()-1){
-                        weapons[i] = weapons[i].concat(", ");
-                    }
-                }
-        }
-
+        String[][] box = new String[25][55];
 
         for(int i=0; i<box.length; i++){
             for(int j =0; j<box[i].length; j++){
@@ -47,58 +17,107 @@ public class PlayersRenderer {
             }
         }
 
+        List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
+        int playerNum = players.size();
+        String[] names = new String[playerNum];
+        String[] weapons = new String[playerNum];
+        String[][] ammo = new String[playerNum][55];
         for(int i=0; i<playerNum; i++){
-
-            for(int j=0; j<names[i].length(); j++){
-                box[i*4 + 4][j+3] = ClientModel.getEscapeCode(clientModel.getPlayer(i).getColor()) + String.valueOf(names[i].charAt(j)) + "\u001b[0m";
-                //might cause issues
-            }
-
-            for(int j =0; j<"Life: ".length(); j++){
-                box[i*4+5][j+3] = String.valueOf("Life: ".charAt(j));
-            }
-
-
-            for(int j =0; j<"Marks: ".length(); j++){
-                box[i*4+5][j+23] = String.valueOf("Marks: ".charAt(j));
-            }
-
-            for(int j =0; j<weapons[i].length(); j++){
-                box[i*4+6][j+3] = String.valueOf(weapons[i].charAt(j));
-            }
-
-            int j=0;
-            for (int color : clientModel.getPlayer(i).getMarks()) {    //watch out in case getplayercolor returns null
-                box[i * 4 + 5][j + 29] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "◎" + "\u001b[0m";
-                j++;
-            }
-
-            j=0;
-            for (int color : clientModel.getPlayer(i).getDamage()) {
-                box[i * 4 + 5][j + 9] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "♥" + "\u001b[0m";
-                j++;
+            names[i] = "";
+            weapons[i] = "";
+            for(int j=0; j<ammo[i].length; j++){
+                ammo[i][j] = " ";
             }
         }
 
-        //resize
-        int max = 0;
-        for(int i=0; i<box.length; i++){
-            for(int j=0; j<box[i].length; j++){
-                if(!box[i][j].equals(" ")&&j>max){
-                    max = j;
+        for(int i = 0; i<playerNum; i++){
+            ClientModel.SimplePlayer p = players.get(i);
+            names[i] = p.getUsername();
+            if(clientModel.getCurrentPlayer().getId()==p.getId()){
+                names[i] = names[i] + " [current]";
+            }
+            weapons[i] ="Weapons: ";
+            List<ClientModel.SimpleWeapon> currentWeapons = p.getWeapons();
+            if(currentWeapons.isEmpty()){
+                weapons[i] = weapons[i] + "none";
+            } else {
+                for (int j = 0; j < currentWeapons.size(); j++) {
+                    weapons[i] = weapons[i] + currentWeapons.get(j).getName();
+                    if (currentWeapons.get(j).isLoaded()) {
+                        weapons[i] = weapons[i] + "*";
+                    }
+                    if (j != currentWeapons.size() - 1) {
+                        weapons[i] = weapons[i].concat(", ");
+                    }
                 }
             }
-        }
-        max = max + 3;
-
-        String[][] res = new String[24][max+1];
-        for(int i=0; i<res.length; i++) {
-            for (int j = 0; j < res[i].length; j++) {
-                res[i][j] = box[i][j];
+            int count;
+            for(count = 0; count<"Ammo: ".length(); count++){
+                ammo[i][count] = String.valueOf("Ammo: ".charAt(count));
+            }
+            for(int j=0; j<p.getBlueAmmo(); j++){
+                ammo[i][count] = clientModel.getEscapeCode("blue") + "|"+"\u001b[0m";
+                count++;
+            }
+            for(int j=0; j<p.getRedAmmo(); j++){
+                ammo[i][count] = clientModel.getEscapeCode("red") + "|"+"\u001b[0m";
+                count++;
+            }
+            for(int j=0; j<p.getYellowAmmo(); j++){
+                ammo[i][count] = clientModel.getEscapeCode("yellow") + "|"+"\u001b[0m";
+                count++;
             }
         }
 
-        return res;
+        int row =0;
+        for(int i=0; i<playerNum; i++){
+
+            if(i!=clientModel.getPlayerID()) {
+
+                for (int j = 0; j < names[i].length(); j++) {
+                    box[row * 6 + 1][j + 3] = ClientModel.getEscapeCode(clientModel.getPlayer(i).getColor()) + String.valueOf(names[i].charAt(j)) + "\u001b[0m";
+                    //might cause issues
+                }
+
+                for (int j = 0; j < "Damage: ".length(); j++) {
+                    box[row * 6 + 2][j + 3] = String.valueOf("Damage: ".charAt(j));
+                }
+
+                int k = 0;
+                for (int color : clientModel.getPlayer(i).getDamage()) {
+                    box[row * 6 + 2][k + 9] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "●" + "\u001b[0m";
+                    k++;
+                }
+
+                for (int j = 0; j < "Marks: ".length(); j++) {
+                    box[row * 6 + 2][j + 23] = String.valueOf("Marks: ".charAt(j));
+                }
+                k = 0;
+                for (int color : clientModel.getPlayer(i).getMarks()) {    //watch out in case getplayercolor returns null
+                    box[row * 6 + 2][k + 29] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "◎" + "\u001b[0m";
+                    k++;
+                }
+
+                for(int j = 0; j<ammo[i].length&&j<52; j++){
+                    box[row * 6 + 3][j+3] = ammo[i][j];
+                }
+
+                for (int j = 0; j < weapons[i].length()&&j<52; j++) {
+                    box[row * 6 + 4][j + 3] = String.valueOf(weapons[i].charAt(j));
+                }
+
+                String hand = "Cards in hand: " + clientModel.getPlayer(i).getCardNumber();
+                for(int j = 0; j < hand.length()&&j<21; j++){
+                    box[row * 6 + 5][j + 3] = String.valueOf(hand.charAt(j));
+                }
+            } else{
+                row--;
+            }
+            row++;
+        }
+
+
+        return box;
     }
 
 }

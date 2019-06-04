@@ -176,7 +176,6 @@ public class GameEngine implements Runnable{
         for(VirtualView p : players) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()));
         }
-        System.out.println("about to notify");
         board.notifyObservers();
 
     }
@@ -331,6 +330,10 @@ public class GameEngine implements Runnable{
      * @param frenzy                whether the frenzy is active during the turn.
      */
     public void runTurn (ExecutorService executor, int timeout, boolean frenzy){
+        for(VirtualView p : players) {
+            board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
+        }
+        board.notifyObservers();
         timer.start();
         new TurnManager(this, board, currentPlayer, players, statusSaver,  frenzy).run();
         timer.stop();

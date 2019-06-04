@@ -162,7 +162,7 @@ public class WeaponSquare extends Square {
     public void addCard(Weapon weapon) throws UnacceptableItemNumberException {
 
         if (weapons.size() >= 3) throw new UnacceptableItemNumberException("The square already contains three weapons.");
-
+        board.addToUpdateQueue(Updater.get("addWeapon", this, weapon));
         this.weapons.add(weapon);
 
     }

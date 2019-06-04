@@ -179,6 +179,8 @@ public class ClientMain {
 
             case("loaded"):
                 clientModel.getCurrentPlayer().getWeapon(j.get("weapon").getAsString()).setLoaded(j.get("loaded").getAsBoolean());
+                ui.render();
+                break;
             case ("skullRemoved"):
                 clientModel.removeSkulls(j.get("number").getAsInt());
                 //add to killshottrack simpleplayers
@@ -192,15 +194,17 @@ public class ClientMain {
                 break;
             case ("drawPowerUp"):
                 clientModel.setPowerUpCardsLeft(clientModel.getPowerUpCardsLeft()-1);
-                clientModel.getCurrentPlayer().setCardNumber(clientModel.getCurrentPlayer().getCardNumber()+1);
-                clientModel.getPowerUpInHand().add(j.get("powerup").getAsString());
-                //redraw model
+                clientModel.getPlayer(j.get("player").getAsInt()).setCardNumber(clientModel.getPlayer(j.get("player").getAsInt()).getCardNumber()+1);
+                if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
+                    clientModel.getPowerUpInHand().add(j.get("powerup").getAsString());
+                }//redraw model
                 ui.render();
                 break;
             case ("discardPowerUp"):
-                clientModel.getCurrentPlayer().setCardNumber(clientModel.getCurrentPlayer().getCardNumber()-1);
-                clientModel.getPowerUpInHand().remove(j.get("powerup").getAsString());
-                //redraw model
+                clientModel.getPlayer(j.get("player").getAsInt()).setCardNumber(clientModel.getPlayer(j.get("player").getAsInt()).getCardNumber()-1);
+                if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
+                    clientModel.getPowerUpInHand().remove(j.get("powerup").getAsString());
+                }                //redraw model
                 ui.render();
                 break;
             case ("pickUpWeapon"):
@@ -211,8 +215,13 @@ public class ClientMain {
                 ui.render();
                 break;
             case ("discardWeapon"):
-                clientModel.getCurrentPlayer().discardWeapon(j.get("weapon").getAsString());
+                clientModel.getPlayer(j.get("player").getAsInt()).discardWeapon(j.get("weapon").getAsString());
                 //redraw model
+                ui.render();
+                break;
+            case ("addWeapon"):
+                ClientModel.SimpleWeapon w = new ClientModel().new SimpleWeapon(j.get("weapon").getAsString(), true);
+                clientModel.getSquare(j.get("square").getAsInt()).getWeapons().add(w);
                 ui.render();
                 break;
             case ("useAmmo"):
@@ -252,9 +261,19 @@ public class ClientMain {
                 ui.render();
                 break;
             case ("weaponRemoved"):
-                ((ClientModel.SimpleSquare)clientModel.getSquare(j.get("square").getAsInt())).removeWeapon(j.get("weapon").getAsString());
+                (clientModel.getSquare(j.get("square").getAsInt())).removeWeapon(j.get("weapon").getAsString());
                 //redraw model
                 ui.render();
+                break;
+            case ("setInGame"):
+                clientModel.getPlayer(j.get("player").getAsInt()).setInGame(j.get("ingame").getAsBoolean());
+                ui.render();
+                break;
+            case ("removeAmmoTile"):
+                clientModel.getSquare(j.get("square").getAsInt()).setBlueAmmo(0);
+                clientModel.getSquare(j.get("square").getAsInt()).setYellowAmmo(0);
+                clientModel.getSquare(j.get("square").getAsInt()).setRedAmmo(0);
+                clientModel.getSquare(j.get("square").getAsInt()).setPowerup(false);
                 break;
             case ("mod"):
                 try {
@@ -267,6 +286,7 @@ public class ClientMain {
                 //ui.onUpdate();
                 //wait a little
                 break;
+                /*
             case ("revert"):
                 JsonArray players = j.get("players").getAsJsonArray();
                 for(int i = 0; i<players.size(); i++){
@@ -304,6 +324,7 @@ public class ClientMain {
                 //redraw model
                 ui.render();
                 break;
+                */
             default: //fill in
         }
 

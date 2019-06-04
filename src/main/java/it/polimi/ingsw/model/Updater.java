@@ -103,10 +103,25 @@ public class Updater {
         j.addProperty("square", sq.getId());
         j.addProperty("weapon", w.getWeaponName().toString());
         return j;
-        //weaponRemoved
+        //weaponRemoved & addWeapon
     }
 
-    public static JsonObject getRevert(Board board) {
+    public static JsonObject get(String s, Player p, boolean in) {
+        JsonObject j = getFreshUpdate(s);
+        j.addProperty("player", p.getId());
+        j.addProperty("ingame", in);
+        return j;
+        //setInGame
+    }
+
+    public static JsonObject get(String s, Square square){
+        JsonObject j = getFreshUpdate(s);
+        j.addProperty("player", square.getId());
+        return j;
+        //removeAmmoTile
+    }
+
+    /*public static JsonObject getRevert(Board board) {
         JsonObject j = getFreshUpdate("revert");
         JsonArray playerArray = new JsonArray();
         JsonArray positionArray = new JsonArray();
@@ -169,7 +184,7 @@ public class Updater {
         j.add("weaponsinsquare", weaponsInSquareArray);
 
         return j;
-    }
+    }*/
 
 
     /**

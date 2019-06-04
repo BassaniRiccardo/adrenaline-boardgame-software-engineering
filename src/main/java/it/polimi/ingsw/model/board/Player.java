@@ -249,7 +249,10 @@ public class Player {
     public void setFlipped(boolean flipped){this.flipped = flipped; board.addToUpdateQueue(Updater.get("flip", this));
     }
 
-    public void setInGame(boolean inGame) {this.inGame = inGame;  }
+    public void setInGame(boolean inGame) {
+        this.inGame = inGame;
+        board.addToUpdateQueue(Updater.get("setInGame", this, inGame));
+    }
 
     public void setDead(boolean dead) {this.dead = dead; board.addToUpdateQueue(Updater.get("die", this));}
 
@@ -368,6 +371,7 @@ public class Player {
 
         if (this.board.getSpawnPoints().contains(position)){
                 this.getAmmoPack().subAmmoPack(((Weapon)collectedCard).getReducedCost());
+                board.addToUpdateQueue(Updater.get("useAmmo", this, ((Weapon)collectedCard).getReducedCost()));
                 ((Weapon)collectedCard).setLoaded(true);
                 ((Weapon)collectedCard).setHolder(this);
                 addWeapon((Weapon) collectedCard);
@@ -513,13 +517,16 @@ public class Player {
     public void useAsAmmo(PowerUp p) {
 
         this.discardPowerUp(p);
+        AmmoPack ap;
         if (p.getColor() == RED) {
-            ammoPack.addAmmoPack(new AmmoPack(1, 0, 0));
+            ap= new AmmoPack(1, 0, 0);
         } else if ((p.getColor() == YELLOW)) {
-            ammoPack.addAmmoPack(new AmmoPack(0, 0, 1));
+            ap=new AmmoPack(0, 0, 1);
         } else {
-            ammoPack.addAmmoPack(new AmmoPack(0, 1, 0));
+            ap= new AmmoPack(0, 1, 0);
         }
+        ammoPack.addAmmoPack(ap);
+        board.addToUpdateQueue(Updater.get("addAmmo", this, ap));
 
     }
 

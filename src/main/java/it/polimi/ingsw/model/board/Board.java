@@ -689,6 +689,8 @@ public class Board {
     }
 
     public void addToUpdateQueue(JsonObject jsonObject){
+
+        System.out.println("Adding to update queue: " + jsonObject.toString());
         LOGGER.log(Level.INFO, "Adding an update to all queues");
         for(VirtualView v : updates.keySet()){
             updates.get(v).add(jsonObject);

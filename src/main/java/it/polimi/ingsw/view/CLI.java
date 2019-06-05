@@ -29,7 +29,8 @@ public class CLI implements UI{
     private String[][] messageBox;
     private String lastRequest;
     private String answer;
-    private boolean receiving, justReceived;
+    private boolean receiving, justReceived, info;
+    private String weaponRequested;
 
 
     /**
@@ -43,6 +44,8 @@ public class CLI implements UI{
         this.render = new String[0][0];
         this.messageBox = new String[0][0];
         this.justReceived = false;
+        this.info = false;
+        this.weaponRequested = "";
     }
 
     /**
@@ -125,13 +128,19 @@ public class CLI implements UI{
             try{
                 if (in.ready()) {
                     String msg = in.readLine();
-                    if(msg.equals("q")){
+                    if(msg.equals("q")) {
                         display("CLI: quitting");
                         System.exit(0);
+                    }else if(msg.startsWith("info")){
+                        info = true;
+                        weaponRequested = msg.substring(5);
+                        render();
                     }else if(receiving&&!justReceived) {
                         answer = msg;
                         justReceived = true;
+                        info = false;
                     }else{
+                        info = false;
                         display("Wait for your turn or press q to quit");
                     }
                 }
@@ -234,8 +243,6 @@ public class CLI implements UI{
 
         return res;
     }
-
-
 
     public String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
 
@@ -368,6 +375,52 @@ public class CLI implements UI{
                         messageBox,
                         false);
         }
+        if(info) {
+            render = getInfo(weaponRequested);
+        }
         drawModel();
     }
+
+     public String[][] getInfo (String name){
+         String toDisplay = "This is the info of the weapon requested.\nPress q to quit, any other key to get back to the game";
+         int rows = 1;
+         int count = 0;
+         for(int i = 0; i<toDisplay.length(); i++){
+             if(toDisplay.charAt(i)=='\n'){
+                 count = 0;
+                 rows++;
+             } else {
+                 count++;
+                 if (count > 53) {
+                     count = 0;
+                     rows++;
+                 }
+             }
+         }
+
+         String[][] res = new String[rows+2][60];
+
+         for(int i = 0; i<res.length; i++){
+             for(int j = 0; j<res[i].length; j++){
+                 res[i][j] = " ";
+             }
+         }
+
+         int row = 0;
+         int col = 0;
+         for(int i=0; i<toDisplay.length(); i++){
+             if(toDisplay.charAt(i)=='\n'){
+                 row++;
+                 col=0;
+             } else {
+                 res[row+1][col+1] = String.valueOf(toDisplay.charAt(i));//+String.valueOf(col);
+                 col++;
+                 if(col>53){
+                     row++;
+                     col=0;
+                 }
+             }
+         }
+         return res;
+     }
 }

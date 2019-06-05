@@ -228,6 +228,8 @@ public class Updater {
                 cm.setCurrentPlayer(simplePlayer);
             }*/
 
+
+
             //killShotTrack
             try {
                 for (Player killer : board.getKillShotTrack().getKillers()) {

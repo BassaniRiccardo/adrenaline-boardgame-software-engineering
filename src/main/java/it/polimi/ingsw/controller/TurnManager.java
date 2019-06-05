@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.*;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.*;
@@ -1129,6 +1130,9 @@ public class TurnManager implements Runnable{
 
     public void updateAndNotifyAll(){
         statusSaver.updateCheckpoint(false);
+        for(VirtualView p : playerConnections) {
+            board.addToUpdateQueue(Updater.getModel(board, p.getModel()));
+        }
         board.notifyObservers();
     }
 

@@ -59,6 +59,7 @@ public class GameEngine implements Runnable{
         }
         this.notifications = new HashMap<>();
         this.timer = new Timer(120);
+        LOGGER.log(Level.FINE, "Initialized GameEngine " + this);
     }
 
     /**
@@ -81,11 +82,13 @@ public class GameEngine implements Runnable{
      */
     public void setPlayers(List<VirtualView> players) {
         this.players = players;
+        LOGGER.log(Level.FINEST, "Set players to a new list sized " + players.size());
     }
 
     public void setCurrentPlayer(VirtualView currentPlayer) {
         this.currentPlayer = currentPlayer;
         this.board.setCurrentPlayer(currentPlayer.getModel());
+        LOGGER.log(Level.FINE, "CurrentPlayer set to " + currentPlayer.getName());
     }
 
     /**
@@ -113,18 +116,21 @@ public class GameEngine implements Runnable{
      */
     public void run(){
 
+        LOGGER.log(Level.FINE, "GameEngine running");
+
         final int TURN_TIME = 3;
         setup();
         ExecutorService executor = Executors.newCachedThreadPool();
         while (!gameOver){
+            LOGGER.log(Level.FINE, "Running turn");
             runTurn(executor, TURN_TIME, false);
             if (killShotTrack.getSkullsLeft() == 0) {
+                LOGGER.log(Level.FINE, "There are no skulls left, managing the end of the game");
                 manageGameEnd(executor);
             }
             changePlayer();
         }
         resolve();
-
     }
 
 
@@ -171,13 +177,6 @@ public class GameEngine implements Runnable{
         setCurrentPlayer(players.get(0));
         statusSaver = new StatusSaver(board);
         LOGGER.log(Level.INFO,"\n");
-
-        //send model to each client
-        for(VirtualView p : players) {
-            board.addToUpdateQueue(Updater.getModel(board, p.getModel()));
-        }
-        System.out.println("about to notify");
-        board.notifyObservers();
 
     }
 

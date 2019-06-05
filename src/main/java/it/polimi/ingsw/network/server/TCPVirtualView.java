@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+//TODO: set defines (final private static define)
+
+
 /**
  * Implementation of VirtualView communicating through a socket
  *
@@ -169,6 +172,7 @@ public class TCPVirtualView extends VirtualView {
         LOGGER.log(Level.FINE, "Sending a message over TCP connection");    }
 
     public void update (JsonObject jsonObject){
+        System.out.println("Sending the update " + jsonObject.toString() + " to " + this.getName());
         send(jsonObject);
     }
 

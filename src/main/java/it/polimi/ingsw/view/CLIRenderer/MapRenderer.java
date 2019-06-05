@@ -15,30 +15,44 @@ import java.util.stream.IntStream;
 
 
 //TODO: rewrite all CLI rendering functions properly, make the code more robust
-//TODO: only draw existing rooms
-//TODO: implement other maps
 public class MapRenderer {
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
+    private boolean firstCall;
+    private String[][] backup;
 
-    public static String[][] getMap(ClientModel model){
+    public MapRenderer(){
+        this.firstCall = true;
+        this.backup = new String[18][55];
+    }
 
-        SquareRenderer[] squares = new SquareRenderer[12];
+    public String[][] getMap(ClientModel model){
 
         int mapID = model.getMapID();
 
-
         String[][] map = loadMap(mapID);     //mapID needs to go here
 
-        List<List<String>> ammo = new ArrayList<>(12);
-        int[] weaponNum = new int[12];
-        List<List<String>> players = new ArrayList<>(12);
-        for(int i=0; i<12; i++){
+        int squareNumber;
+
+        if(mapID==1){
+            squareNumber = 10;
+        } else if(mapID==4){
+            squareNumber = 12;
+        } else{
+            squareNumber = 11;
+        }
+
+        SquareRenderer[] squares = new SquareRenderer[squareNumber];
+
+        List<List<String>> ammo = new ArrayList<>(squareNumber);
+        int[] weaponNum = new int[squareNumber];
+        List<List<String>> players = new ArrayList<>(squareNumber);
+        for(int i=0; i<squareNumber; i++){
             players.add(new ArrayList<>());
             ammo.add(new ArrayList<>());
         }
 
-        IntStream.range(0, 11).forEachOrdered(n -> {
+        IntStream.range(0, squareNumber-1).forEachOrdered(n -> {
 
             for(List<String> l : ammo){
                 l = new ArrayList<>();
@@ -79,10 +93,10 @@ public class MapRenderer {
             }
         }
 
-        for(int n : getRoomSet(mapID)){
+        for(int n=0; n<squareNumber; n++){
             squares[n] = new SquareRenderer(n, ammo.get(n), weaponNum[n], players.get(n));
-            placeSquareOnMap(map, squares[n], n);
-        };
+            placeSquareOnMap(map, squares[n], n, mapID);
+        }
 
         return map;
     }
@@ -96,42 +110,51 @@ public class MapRenderer {
         return box1;
     }
 
-    public static void placeSquareOnMap(String[][] map, SquareRenderer square, int index){
+    public static void placeSquareOnMap(String[][] map, SquareRenderer square, int index, int mapID){
+        switch (mapID){
+            case 1:
+                if(index>2) index++;
+                if(index>7) index++;
+                break;
+            case 2:
+                if(index>2) index++;
+                break;
+            case 3:
+                if(index>7) index++;
+                break;
+            case 4:
+                break;
+            default:
+                break;
+        }
         merge(map, square.getBox(), 1+6*(index/4), 1+14*(index%4));
     }
 
-    public static String[][] loadMap(int id){
-
-        //TODO: avoid reading map at all iterations
+    public String[][] loadMap(int id){
 
         String[][] map = new String[18][55];
 
         String fileName = "/map"+ id + ".map";
 
-        try{
-        BufferedReader br = new BufferedReader(new InputStreamReader(MapRenderer.class.getResourceAsStream(fileName)));
-        for(int i=0; i<18; i++){
-            for(int j=0; j<55; j++){
-                String buff = br.readLine().replace("\\u001B", "\u001B").concat("\u001B[0m");
-                map[i][j] = buff;
+        if(firstCall) {
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(MapRenderer.class.getResourceAsStream(fileName)));
+                for (int i = 0; i < 18; i++) {
+                    for (int j = 0; j < 55; j++) {
+                        String buff = br.readLine().replace("\\u001B", "\u001B").concat("\u001B[0m");
+                        map[i][j] = buff;
+                        backup[i][j] = buff;
+                    }
+                }
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "Issue loading map", ex);
             }
-        }
-        }catch(Exception ex){
-            LOGGER.log(Level.SEVERE, "Issue loading map", ex);
-        }
+        }else{
+            for (int i = 0; i < 18; i++) {
+                for (int j = 0; j < 55; j++) {
+                    map[i][j] = backup[i][j];
+                }
+            }        }
         return map;
     }
-
-    private static List<Integer>getRoomSet(int id){
-        List<Integer> res  = new ArrayList<>(Arrays.asList(0,1,2,4,5,6,7,9,10,11));
-        switch(id){
-            case 1: res.add(3); res.add(8); break;
-            case 2: break;
-            case 3: res.add(3); break;
-            case 4: res.add(8); break;
-            default: break;
-        }
-        return res;
-    }
-
 }

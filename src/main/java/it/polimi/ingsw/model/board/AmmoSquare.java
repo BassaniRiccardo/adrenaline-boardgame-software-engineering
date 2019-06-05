@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.board;
 
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.cards.AmmoTile;
 import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.cards.Color;
@@ -95,6 +96,7 @@ public class AmmoSquare extends Square  {
 
         Card collected = this.ammoTile;
         this.ammoTile = null;
+        board.addToUpdateQueue(Updater.get("removeAmmoTile", this));
         return collected;
 
     }

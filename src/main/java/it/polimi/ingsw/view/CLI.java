@@ -31,6 +31,7 @@ public class CLI implements UI{
     private String answer;
     private boolean receiving, justReceived, info;
     private String weaponRequested;
+    private MapRenderer mapRenderer;
 
 
     /**
@@ -46,6 +47,7 @@ public class CLI implements UI{
         this.justReceived = false;
         this.info = false;
         this.weaponRequested = "";
+        this.mapRenderer = new MapRenderer();
     }
 
     /**
@@ -364,7 +366,7 @@ public class CLI implements UI{
                         (addFrame(
                             join(false,
                                 join(true,
-                                    MapRenderer.getMap(model),
+                                    mapRenderer.getMap(model),
                                     WeaponRenderer.get(model),
                                     false),
                                 join(true,

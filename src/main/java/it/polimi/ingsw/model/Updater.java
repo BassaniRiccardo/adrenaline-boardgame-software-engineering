@@ -83,7 +83,7 @@ public class Updater {
         JsonObject j = getFreshUpdate(s);
         j.addProperty("player", p.getId());
         return j;
-        //flip
+        //flip, addDeath
     }
 
     public static JsonObject get(String s, Player p, List<Player> l) {
@@ -101,12 +101,27 @@ public class Updater {
     public static JsonObject get(String s, Square sq, Weapon w) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty("square", sq.getId());
-        j.addProperty("weapon", w.getWeaponName().toString());
+        j.addProperty("weapon", w.toString());
         return j;
-        //weaponRemoved
+        //weaponRemoved & addWeapon
     }
 
-    public static JsonObject getRevert(Board board) {
+    public static JsonObject get(String s, Player p, boolean in) {
+        JsonObject j = getFreshUpdate(s);
+        j.addProperty("player", p.getId());
+        j.addProperty("ingame", in);
+        return j;
+        //setInGame
+    }
+
+    public static JsonObject get(String s, Square square){
+        JsonObject j = getFreshUpdate(s);
+        j.addProperty("player", square.getId());
+        return j;
+        //removeAmmoTile
+    }
+
+    /*public static JsonObject getRevert(Board board) {
         JsonObject j = getFreshUpdate("revert");
         JsonArray playerArray = new JsonArray();
         JsonArray positionArray = new JsonArray();
@@ -169,7 +184,7 @@ public class Updater {
         j.add("weaponsinsquare", weaponsInSquareArray);
 
         return j;
-    }
+    }*/
 
 
     /**
@@ -221,7 +236,7 @@ public class Updater {
             } catch (NotAvailableAttributeException e) {
                 LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
             }
-            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints());
+            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
             simplePlayers.add(simplePlayer);
             //currentPlayer
             /*if (p.equals(board.getCurrentPlayer())){
@@ -243,7 +258,6 @@ public class Updater {
         cm.setPlayers(simplePlayers);
         cm.setCurrentPlayer(cm.getPlayer(board.getCurrentPlayer().getId()));
         cm.setPlayerID(player.getId());
-        cm.setDeaths(player.getDeaths());
 
         cm.setKillShotTrack(killers);
         try {
@@ -258,7 +272,8 @@ public class Updater {
         cm.setWeaponCardsLeft(board.getWeaponDeck().getDrawable().size());
         cm.setAmmoTilesLeft(board.getAmmoDeck().getDrawable().size());
         cm.setMapID(board.getId());
-
+        cm.setLeftWalls(board.getLeftWalls());
+        cm.setTopWalls(board.getTopWalls());
 
         //powerUpInHand (of the selected player)
         List<String> powerUpInHand = new ArrayList<>();

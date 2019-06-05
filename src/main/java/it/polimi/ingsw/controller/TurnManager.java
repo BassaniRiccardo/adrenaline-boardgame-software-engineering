@@ -81,7 +81,7 @@ public class TurnManager implements Runnable{
         dead.clear();
 
         //maybe not necessary
-        updateAndNotifyAll();
+        //updateAndNotifyAll();
 
         try {
 
@@ -93,8 +93,7 @@ public class TurnManager implements Runnable{
             if (currentPlayer.getStatus() == Player.Status.FRENZY_2) actionsLeft--;
             while (actionsLeft > 0) {
                 currentPlayer.refreshActionList();
-                //statusSaver.updateCheckpoint(false);
-                LOGGER.log(Level.FINE, "Actions left: " + actionsLeft);
+                LOGGER.log(Level.FINE, "Actions left: {0} ", actionsLeft);
                 if (executeAction()) {                  //confirm or go back------>checkpoint
                     actionsLeft--;
                     LOGGER.log(Level.FINE, "Action executed or reset:");
@@ -193,7 +192,7 @@ public class TurnManager implements Runnable{
         statusSaver.updatePowerups(false);
 
         //it could give some problems since not all the attributes are available
-        board.notifyObserver(getVirtualView(player));
+        board.notifyObservers();
 
         //asks the user which powerup he wants to discard
         currentPlayerConnection.choose("Which powerUp do you want to discard?", player.getPowerUpList());
@@ -204,7 +203,7 @@ public class TurnManager implements Runnable{
             LOGGER.log(Level.FINE, () -> player + " draws two powerups and discards a " + discarded.toStringLowerCase() + ".");
         else if (powerUpToDraw == 1)
             LOGGER.log(Level.FINE, () -> player  + " draws a powerup and discards a " + discarded.toStringLowerCase() + ".");
-        else if (powerUpToDraw == 1)
+        else if (powerUpToDraw == 0)
             LOGGER.log(Level.FINE, () -> player  + " discards a " + discarded.toStringLowerCase() + ".");
         Color birthColor = discarded.getColor();
         player.discardPowerUp(discarded);
@@ -325,8 +324,6 @@ public class TurnManager implements Runnable{
      */
     public boolean handleUsingPowerUp() throws SlowAnswerException{
 
-        //LOGGER.log(Level.SEVERE,"Entering in method handleUsingPowerUp" );
-
         reset = false;
 
         int answer = 1;
@@ -336,7 +333,6 @@ public class TurnManager implements Runnable{
         } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, EX_CAN_USE_POWERUP, e);}
 
         if (!possible) {
-            //LOGGER.log(Level.SEVERE, "Returning since no powerup can be used: no need for confirmation" );
             return false;
         }
 
@@ -532,12 +528,9 @@ public class TurnManager implements Runnable{
                 return;
             }
             Square dest = possibleDestinations.get(selected - 1);
-            if (!dest.equals(currentPlayer.getPosition())) {
-                currentPlayer.setPosition(dest);
-                board.notifyObserver(currentPlayerConnection);
-                LOGGER.log(Level.FINE, currentPlayer + " moves in " + currentPlayer.getPosition() + ".");
-            } else
-                LOGGER.log(Level.FINE, currentPlayer + " stays in " + currentPlayer.getPosition() + ".");
+            currentPlayer.setPosition(dest);
+            board.notifyObserver(currentPlayerConnection);
+            LOGGER.log(Level.FINE, currentPlayer + " moves in " + currentPlayer.getPosition() + ".");
             //update current player model
             if (!action.isShoot() && !action.isCollect()) {
                 if (!askConfirmation("Do you confirm the movement?")) resetAction();
@@ -581,6 +574,7 @@ public class TurnManager implements Runnable{
                     }
                     Weapon discardedWeapon = currentPlayer.getWeaponList().get(selected-1);
                     currentPlayer.discardWeapon(discardedWeapon);
+                    //todo maybe move to model
                     discardedWeapon.setLoaded(false);
                     ((WeaponSquare) currentPlayer.getPosition()).addCard(discardedWeapon);
                     board.notifyObserver(currentPlayerConnection);
@@ -597,7 +591,6 @@ public class TurnManager implements Runnable{
                     resetAction();
                     return;
                 }
-                updateAndNotifyAll();
                 AmmoTile toCollect = ((AmmoSquare) currentPlayer.getPosition()).getAmmoTile();
                 boolean tooManyPowerUps = !currentPlayer.collect(toCollect);
                 LOGGER.log(Level.FINE, () -> currentPlayer + " collects an ammo tile.");
@@ -695,6 +688,8 @@ public class TurnManager implements Runnable{
                 }
             }
         }
+
+        selectedWeapon.setLoaded(false);
 
         if (!askConfirmation("Do you confirm the shooting action?")){
             resetAction();
@@ -1065,7 +1060,8 @@ public class TurnManager implements Runnable{
         }
         //if the player is reborning, everything must be restored:  powerups        positions           isDead
         else statusSaver.restoreCheckpoint();
-        board.notifyObserver(getVirtualView(p));
+        board.revertUpdates(getVirtualView(p));
+        board.notifyObservers();
         joinBoard(p, 0, reborn);
     }
 
@@ -1076,6 +1072,8 @@ public class TurnManager implements Runnable{
     private void resetPowerUp() throws SlowAnswerException{
         LOGGER.log(Level.FINE, () -> currentPlayer + " resets the action");
         statusSaver.restoreCheckpoint();
+        board.revertUpdates(currentPlayerConnection);
+        board.notifyObservers();
         if (actionsLeft  == 0){
             handleUsingPowerUp();
         }
@@ -1088,6 +1086,8 @@ public class TurnManager implements Runnable{
     private boolean resetConvert() throws SlowAnswerException{
         LOGGER.log(Level.FINE, () -> currentPlayer + " resets the action");
         statusSaver.restoreCheckpoint();
+        board.revertUpdates(currentPlayerConnection);
+        board.notifyObservers();
         if (actionsLeft  == 0){
             boolean use1 = handleUsingPowerUp();
             boolean use2 = convertPowerUp();
@@ -1111,6 +1111,8 @@ public class TurnManager implements Runnable{
             reload(3);
         }
         else actionsLeft++;
+        board.revertUpdates(currentPlayerConnection);
+        board.notifyObservers();//notifyobserver could be enough
     }
 
     /**

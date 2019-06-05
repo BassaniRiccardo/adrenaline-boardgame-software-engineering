@@ -171,13 +171,13 @@ public class WeaponFactoryTest {
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         shooter.addWeapon(lockRifle);
         //MAIN TARGETS
-        assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer]]",lockRifle.getFireModeList().get(0).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee)], [Player 3 : anonymous(Dozer)]]",lockRifle.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
         assertTrue(lockRifle.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         //OPTION 1 TARGETS
         assertTrue(lockRifle.getFireModeList().get(1).findTargets().isEmpty());
         shooter.addMainTarget(banshee);
-        assertEquals("[[Player 3 : Dozer]]",lockRifle.getFireModeList().get(1).findTargets().toString());
+        assertEquals("[[Player 3 : anonymous(Dozer)]]",lockRifle.getFireModeList().get(1).findTargets().toString());
         //OPTION 1 DESTINATIONS
         assertTrue(lockRifle.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
 
@@ -197,21 +197,21 @@ public class WeaponFactoryTest {
         Weapon machineGun = weaponFactory.createWeapon(Weapon.WeaponName.MACHINE_GUN);
         shooter.addWeapon(machineGun);
         //MAIN TARGETS
-        assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer], [Player 2 : Banshee, Player 3 : Dozer]]",machineGun.getFireModeList().get(0).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee)], [Player 3 : anonymous(Dozer)], [Player 2 : anonymous(Banshee), Player 3 : anonymous(Dozer)]]",machineGun.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
         assertTrue(machineGun.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         //OPTION 1 TARGETS
         assertTrue(machineGun.getFireModeList().get(1).findTargets().isEmpty());
         shooter.addMainTarget(banshee);
-        assertEquals("[[Player 2 : Banshee]]",machineGun.getFireModeList().get(1).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee)]]",machineGun.getFireModeList().get(1).findTargets().toString());
         shooter.addMainTarget(dozer);
-        assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer]]",machineGun.getFireModeList().get(1).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee)], [Player 3 : anonymous(Dozer)]]",machineGun.getFireModeList().get(1).findTargets().toString());
         //OPTION 1 DESTINATIONS
         assertTrue(machineGun.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         //OPTION 2 TARGETS
         shooter.addOptionalTarget(banshee);
         shooter.getMainTargets().remove(dozer);
-        assertEquals("[[Player 3 : Dozer]]",machineGun.getFireModeList().get(2).findTargets().toString());
+        assertEquals("[[Player 3 : anonymous(Dozer)]]",machineGun.getFireModeList().get(2).findTargets().toString());
         //OPTION 2 DESTINATIONS
         assertTrue(machineGun.getFireModeList().get(2).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
 
@@ -230,11 +230,11 @@ public class WeaponFactoryTest {
         Weapon furnace = weaponFactory.createWeapon(Weapon.WeaponName.FURNACE);
         shooter.addWeapon(furnace);
         //MAIN TARGETS
-        assertEquals("[[Player 2 : Banshee, Player 3 : Dozer]]",furnace.getFireModeList().get(0).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee), Player 3 : anonymous(Dozer)]]",furnace.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
         assertTrue(furnace.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         //SECONDARY TARGETS
-        assertEquals("[[Player 2 : Banshee]]",furnace.getFireModeList().get(1).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee)]]",furnace.getFireModeList().get(1).findTargets().toString());
         //SECONDAY DESTINATIONS
         assertTrue(furnace.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         //SECONDARY TARGETS shared square with shooter, no targets
@@ -244,7 +244,7 @@ public class WeaponFactoryTest {
         banshee.setPosition(b.getMap().get(1));
         dozer.setPosition(b.getMap().get(1));
         violet.setPosition(b.getMap().get(4));
-        assertEquals("[[Player 2 : Banshee, Player 3 : Dozer], [Player 4 : Violet]]",furnace.getFireModeList().get(1).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee), Player 3 : anonymous(Dozer)], [Player 4 : anonymous(Violet)]]",furnace.getFireModeList().get(1).findTargets().toString());
     }
 
     //plasma gun, rocket_launcher, grenade launcher
@@ -262,11 +262,11 @@ public class WeaponFactoryTest {
         Weapon plasmaGun = weaponFactory.createWeapon(Weapon.WeaponName.PLASMA_GUN);
         shooter.addWeapon(plasmaGun);
         //MAIN TARGETS
-        assertEquals("[[Player 2 : Banshee], [Player 3 : Dozer]]",plasmaGun.getFireModeList().get(0).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee)], [Player 3 : anonymous(Dozer)]]",plasmaGun.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
         assertTrue(plasmaGun.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         //OPTION 1 TARGETS
-        assertEquals("[[Player 1 : D_struct_or]]",plasmaGun.getFireModeList().get(1).findTargets().toString());
+        assertEquals("[[Player 1 : anonymous(D_struct_or)]]",plasmaGun.getFireModeList().get(1).findTargets().toString());
         //OPTION 1 DESTINATIONS
         assertEquals(new ArrayList<>(Arrays.asList(b.getMap().get(1),b.getMap().get(2),b.getMap().get(5))),plasmaGun.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))));
         shooter.addMainTarget(banshee);
@@ -275,7 +275,7 @@ public class WeaponFactoryTest {
         shooter.getMainTargets().remove(banshee);
         assertTrue(plasmaGun.getFireModeList().get(2).findTargets().isEmpty());
         shooter.addMainTarget(banshee);
-        assertEquals("[[Player 2 : Banshee]]", plasmaGun.getFireModeList().get(2).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee)]]", plasmaGun.getFireModeList().get(2).findTargets().toString());
         //OPTION 2 DESTINATIONS
         assertTrue(plasmaGun.getFireModeList().get(2).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
 

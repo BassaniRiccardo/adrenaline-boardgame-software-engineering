@@ -182,6 +182,9 @@ public class Board {
         return currentPlayer;
     }
 
+    public boolean[][] getLeftWalls() { return leftWalls; }
+
+    public boolean[][] getTopWalls() { return topWalls; }
 
     /**
      * Setter for map.
@@ -697,11 +700,18 @@ public class Board {
         }
     }
 
+    public void addToUpdateQueue(JsonObject jsonObject, VirtualView v){
+        LOGGER.log(Level.INFO, "Adding an update to a single queues");
+        updates.get(v).add(jsonObject);
+    }
+
     public void revertUpdates(VirtualView v){
         for(VirtualView other : updates.keySet()){
-            updates.get(other).clear();
+            if(!other.equals(v)){
+                updates.get(other).clear();
+                System.out.println("Removed all updates outgoing to " + other.getName());
+            }
         }
-        v.update(Updater.getRevert(this));
     }
 
 }

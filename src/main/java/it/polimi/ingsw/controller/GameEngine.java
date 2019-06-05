@@ -177,7 +177,6 @@ public class GameEngine implements Runnable{
         setCurrentPlayer(players.get(0));
         statusSaver = new StatusSaver(board);
         LOGGER.log(Level.INFO,"\n");
-
     }
 
 
@@ -330,6 +329,10 @@ public class GameEngine implements Runnable{
      * @param frenzy                whether the frenzy is active during the turn.
      */
     public void runTurn (ExecutorService executor, int timeout, boolean frenzy){
+        for(VirtualView p : players) {
+            board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
+        }
+        board.notifyObservers();
         timer.start();
         new TurnManager(this, board, currentPlayer, players, statusSaver,  frenzy).run();
         timer.stop();

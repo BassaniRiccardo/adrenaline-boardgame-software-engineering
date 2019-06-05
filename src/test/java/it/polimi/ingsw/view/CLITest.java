@@ -144,7 +144,7 @@ public class CLITest {
         //draw(s);
         s= PlayersRenderer.get(clientMain.getClientModel());
         //draw(s);
-        s= MapRenderer.getMap(clientMain.getClientModel());
+        s= new MapRenderer().getMap(clientMain.getClientModel());
         //draw(s);
 
         ui.render();

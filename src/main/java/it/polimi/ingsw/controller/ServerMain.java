@@ -229,7 +229,7 @@ public class ServerMain {
             ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.FINE);
             FileHandler fileHandler = new FileHandler("serverLog.txt");
-            LOGGER.setLevel(Level.FINE);
+            LOGGER.setLevel(Level.INFO);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
             LOGGER.addHandler(consoleHandler);

@@ -689,6 +689,8 @@ public class TurnManager implements Runnable{
             }
         }
 
+        selectedWeapon.setLoaded(false);
+
         if (!askConfirmation("Do you confirm the shooting action?")){
             resetAction();
             return;

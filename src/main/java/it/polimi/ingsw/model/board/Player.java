@@ -273,6 +273,11 @@ public class Player {
 
     public void setUsername(String username) {this.username = username; }
 
+    public void addDeath() {
+        this.deaths++;
+        board.addToUpdateQueue(Updater.get("addDeath", this));
+    }
+
     /**
      * Adds damages to the player.
      * Every damage is a reference to the shooter.
@@ -631,7 +636,7 @@ public class Player {
     public void updateAwards() throws WrongTimeException{
 
         if (!this.isDead()) throw new WrongTimeException("The points given for a death are updated only after a player dies.");
-        this.deaths++;
+        this.addDeath();
         if (pointsToGive!=1){
             if (pointsToGive==2) pointsToGive-= 1;
             else pointsToGive -= 2;
@@ -930,7 +935,7 @@ public class Player {
      */
     @Override
     public String toString() {
-        return "Player " + id + " : " + name;
+        return "Player " + id + " : " + username + "(" + name + ")";
     }
 
 

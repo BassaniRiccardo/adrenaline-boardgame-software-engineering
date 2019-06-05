@@ -32,12 +32,14 @@ public class ClientModel {
     private int ammoTilesLeft;
 
     private int mapID;
+    private boolean[][] leftWalls;
+    private boolean[][] topWalls;
+
     private SimplePlayer currentPlayer;
     private List<SimplePlayer> killShotTrack;
     private int skullsLeft;
     private List<String> powerUpInHand;
     private int playerID;
-    private int deaths;
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
 
@@ -126,11 +128,9 @@ public class ClientModel {
         private boolean flipped;
         private boolean inGame;
         private int points;
+        private int deaths;
 
-
-
-
-        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped, int points) {
+        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped, int points, int deaths) {
             this.id = id;
             this.color = color;
             this.cardNumber = cardNumber;
@@ -145,6 +145,7 @@ public class ClientModel {
             this.inGame = inGame;
             this.flipped = flipped;
             this.points = points;
+            this.deaths = deaths;
         }
 
         public boolean isInGame() { return inGame; }
@@ -224,6 +225,12 @@ public class ClientModel {
         public int getPoints() {return points; }
 
         public void setPoints(int points) {this.points = points;}
+
+        public int getDeaths() {return deaths;}
+
+        public void setDeaths(int deaths) {this.deaths = deaths;}
+
+        public void addDeath(){this.deaths++;}
 
         public void pickUpWeapon(String name){
             for(SimpleWeapon w : this.position.getWeapons()){
@@ -396,11 +403,13 @@ public class ClientModel {
 
     public void setPlayerID(int playerID) {this.playerID = playerID;}
 
-    public int getDeaths() {return deaths;}
+    public boolean[][] getLeftWalls() { return leftWalls;}
 
-    public void setDeaths(int deaths) {
-        this.deaths = deaths;
-    }
+    public void setLeftWalls(boolean[][] leftWalls) { this.leftWalls = leftWalls; }
+
+    public boolean[][] getTopWalls() { return topWalls; }
+
+    public void setTopWalls(boolean[][] topWalls) { this.topWalls = topWalls;}
 
     public void removeSkulls(int n){
         //do something with killshottrack

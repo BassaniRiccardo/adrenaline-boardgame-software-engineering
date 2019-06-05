@@ -246,6 +246,11 @@ public class ClientMain {
                 //redraw model
                 ui.render();
                 break;
+            case ("addDeath"):
+                clientModel.getPlayer(j.get("player").getAsInt()).addDeath();
+                //redraw model
+                ui.render();
+                break;
             case ("damaged"):
                 clientModel.damage(j.get("player").getAsInt(), j.getAsJsonArray("list"));
                 //ui.flash(j.get("player"));

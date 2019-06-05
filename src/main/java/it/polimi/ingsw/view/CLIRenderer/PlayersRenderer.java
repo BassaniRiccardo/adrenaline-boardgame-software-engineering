@@ -32,7 +32,7 @@ public class PlayersRenderer {
 
         for(int i = 0; i<playerNum; i++){
             ClientModel.SimplePlayer p = players.get(i);
-            names[i] = p.getUsername();
+            names[i] = p.getUsername() + " " + p.getColor();
             if(clientModel.getCurrentPlayer().getId()==p.getId()){
                 names[i] = names[i] + " [current]";
             }
@@ -72,7 +72,7 @@ public class PlayersRenderer {
         int row =0;
         for(int i=0; i<playerNum; i++){
 
-            if(i!=clientModel.getPlayerID()) {
+            if(i+1 != clientModel.getPlayerID()) {
 
                 for (int j = 0; j < names[i].length(); j++) {
                     box[row * 6 + 1][j + 3] = ClientModel.getEscapeCode(clientModel.getPlayer(i).getColor()) + String.valueOf(names[i].charAt(j)) + "\u001b[0m";

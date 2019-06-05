@@ -182,6 +182,9 @@ public class Board {
         return currentPlayer;
     }
 
+    public boolean[][] getLeftWalls() { return leftWalls; }
+
+    public boolean[][] getTopWalls() { return topWalls; }
 
     /**
      * Setter for map.

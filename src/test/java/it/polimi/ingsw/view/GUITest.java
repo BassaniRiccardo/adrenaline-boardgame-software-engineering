@@ -4,14 +4,22 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.controller.BoardConfigurer;
+import it.polimi.ingsw.controller.ServerMain;
 import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.cards.AmmoPack;
+import it.polimi.ingsw.model.cards.Color;
+import it.polimi.ingsw.model.cards.FireMode;
+import it.polimi.ingsw.model.cards.Weapon;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class GUITest {
@@ -50,12 +58,49 @@ public class GUITest {
 
         Board board = BoardConfigurer.simulateScenario();
         board.setCurrentPlayer(board.getPlayers().get(0));
-        board.getPlayers().get(0).sufferDamage(3,board.getPlayers().get(2));
-        board.getPlayers().get(2).sufferDamage(12,board.getPlayers().get(1));
+
+       //damages
+        /*List<Player> shooters = new ArrayList<>();
+        shooters.add(board.getPlayers().get(0));
+        shooters.add(board.getPlayers().get(0));
+        shooters.add(board.getPlayers().get(1));
+        shooters.add(board.getPlayers().get(2));
+        board.getPlayers().get(3).setDamages(shooters);
+        List<Player> shooters2 = new ArrayList<>();
+        shooters2.add(board.getPlayers().get(3));
+        shooters2.add(board.getPlayers().get(4));
+        shooters2.add(board.getPlayers().get(1));
+        shooters2.add(board.getPlayers().get(2));
+        board.getPlayers().get(0).setDamages(shooters2);*/
+        board.getPlayers().get(2).sufferDamage(11,board.getPlayers().get(0));
+        board.getPlayers().get(1).sufferDamage(2,board.getPlayers().get(0));
+
+
+        //marks
         board.getPlayers().get(0).addMarks(2,board.getPlayers().get(3));
+        board.getPlayers().get(1).addMarks(2,board.getPlayers().get(3));
+        board.getPlayers().get(1).addMarks(1,board.getPlayers().get(3));
+        board.getPlayers().get(2).addMarks(2,board.getPlayers().get(0));
+        board.getPlayers().get(3).addMarks(2,board.getPlayers().get(4));
+
+        //kills
         board.getPlayers().get(2).setDead(true);
         board.getKillShotTrack().registerKill(board.getPlayers().get(0),board.getPlayers().get(2),false);
+        System.out.println(board.getKillShotTrack().getKillers());
+        board.getKillShotTrack().rewardKillers();
+
+        //ammopack
         board.getPlayers().get(2).setAmmoPack(new AmmoPack(1,2,3));
+
+        //points
+        board.getPlayers().get(0).setPoints(0);
+        board.getPlayers().get(1).setPoints(1);
+        board.getPlayers().get(2).setPoints(2);
+        board.getPlayers().get(3).setPoints(3);
+        board.getPlayers().get(4).setPoints(11);
+
+        //weapons and pu
+        board.getPlayers().get(0).drawPowerUp();
 
         new Thread() {
             @Override
@@ -71,14 +116,13 @@ public class GUITest {
         ((GUI)ui).getClientMain().setClientModel(new Gson().fromJson(mod, ClientModel.class));
         ((GUI) ui).render();
         try {
-            Thread.sleep(25000);
+            Thread.sleep(1000000);
 
         } catch (InterruptedException e){}
 
 
 
     }
-
 
 
     @Test

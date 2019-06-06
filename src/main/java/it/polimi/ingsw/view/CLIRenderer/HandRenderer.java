@@ -32,7 +32,7 @@ public class HandRenderer {
             box[2][i+3] = String.valueOf("Life: ".charAt(i));
         }
         int j=0;
-        for (int shooter : you.getDamage()) {
+        for (int shooter : you.getDamageID()) {
             try {
                 box[2][j + 9] = ClientModel.getEscapeCode(clientModel.getPlayer(shooter).getColor()) + "●" + "\u001b[0m";
             }catch(Exception ex){
@@ -45,7 +45,7 @@ public class HandRenderer {
             box[2][i+30] = String.valueOf("Marks: ".charAt(i));
         }
         j=0;
-        for (int shooter : you.getMarks()) {
+        for (int shooter : you.getMarksID()) {
             try {
                 box[2][j + 37] = ClientModel.getEscapeCode(clientModel.getPlayer(shooter).getColor()) + "◎" + "\u001b[0m";
             }catch(Exception ex){

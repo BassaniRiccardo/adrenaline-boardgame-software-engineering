@@ -182,7 +182,7 @@ public class ClientModel {
             this.cardNumber = cardNumber;
         }
 
-        public List<Integer> getDamage() {
+        public List<Integer> getDamageID() {
             return damage;
         }
 
@@ -190,7 +190,7 @@ public class ClientModel {
             this.damage = damage;
         }
 
-        public List<Integer> getMarks() {
+        public List<Integer> getMarksID() {
             return marks;
         }
 
@@ -221,6 +221,22 @@ public class ClientModel {
         public void setUsername(String username) {
             this.username = username;
         }
+
+        public List<SimplePlayer> toSimplePlayerList(List<Integer> IDs, List<SimplePlayer> players){
+
+            List<SimplePlayer> toReturn = new ArrayList();
+
+            for (Integer i: IDs){
+                for(SimplePlayer p : players)
+                    if(p.getId()==i)
+                        toReturn.add(p);
+            }
+            return toReturn;
+        }
+
+        public List<SimplePlayer> getDamage(List<SimplePlayer> players){ return toSimplePlayerList (damage, players); }
+
+        public List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
 
         public int getPoints() {return points; }
 
@@ -426,7 +442,7 @@ public class ClientModel {
     }
 
     public void damage(int player, JsonArray damage){
-        List<Integer> list = getPlayer(player).getDamage();
+        List<Integer> list = getPlayer(player).getDamageID();
         list.clear();
         for(JsonElement j : damage){
             list.add((j.getAsInt()));
@@ -434,7 +450,7 @@ public class ClientModel {
     }
 
     public void mark(int player, JsonArray marks){
-        List<Integer> list = getPlayer(player).getMarks();
+        List<Integer> list = getPlayer(player).getMarksID();
         list.clear();
         for(JsonElement j : marks){
             list.add((j.getAsInt()));

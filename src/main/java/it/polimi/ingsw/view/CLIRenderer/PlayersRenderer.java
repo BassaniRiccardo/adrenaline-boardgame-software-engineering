@@ -84,7 +84,7 @@ public class PlayersRenderer {
                 }
 
                 int k = 0;
-                for (int color : clientModel.getPlayer(i).getDamage()) {
+                for (int color : clientModel.getPlayer(i).getDamageID()) {
                     box[row * 6 + 2][k + 9] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "●" + "\u001b[0m";
                     k++;
                 }
@@ -93,7 +93,7 @@ public class PlayersRenderer {
                     box[row * 6 + 2][j + 23] = String.valueOf("Marks: ".charAt(j));
                 }
                 k = 0;
-                for (int color : clientModel.getPlayer(i).getMarks()) {    //watch out in case getplayercolor returns null
+                for (int color : clientModel.getPlayer(i).getMarksID()) {    //watch out in case getplayercolor returns null
                     box[row * 6 + 2][k + 29] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "◎" + "\u001b[0m";
                     k++;
                 }

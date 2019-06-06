@@ -58,8 +58,9 @@ public class GameEngine implements Runnable{
             p.setGame(this);
         }
         this.notifications = new HashMap<>();
-        this.timer = new Timer(120);
+        this.timer = new Timer(1000);
         LOGGER.log(Level.FINE, "Initialized GameEngine " + this);
+
     }
 
     /**

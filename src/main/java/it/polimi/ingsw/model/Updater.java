@@ -64,9 +64,9 @@ public class Updater {
     public static JsonObject get(String s, Player p, AmmoPack a) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty("player", p.getId());
-        j.addProperty("redAmmo", a.getRedAmmo());
-        j.addProperty("blueAmmo", a.getBlueAmmo());
-        j.addProperty("yellowAmmo", a.getYellowAmmo());
+        j.addProperty("redammo", a.getRedAmmo());
+        j.addProperty("blueammo", a.getBlueAmmo());
+        j.addProperty("yellowammo", a.getYellowAmmo());
         return j;
         //useAmmo, addAmmo
     }
@@ -116,7 +116,7 @@ public class Updater {
 
     public static JsonObject get(String s, Square square){
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("player", square.getId());
+        j.addProperty("square", square.getId());
         return j;
         //removeAmmoTile
     }

@@ -1133,7 +1133,7 @@ public class TurnManager implements Runnable{
     public void updateAndNotifyAll(){
         statusSaver.updateCheckpoint(false);
         for(VirtualView p : playerConnections) {
-            board.addToUpdateQueue(Updater.getModel(board, p.getModel()));
+            board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
         }
         board.notifyObservers();
     }

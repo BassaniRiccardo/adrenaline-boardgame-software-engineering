@@ -121,7 +121,8 @@ public class TCPConnection implements Runnable {
                                 }
                             );
                             break;
-            case "UPD" :    clientMain.update(jMessage);
+            case "UPD" :    System.out.println(jMessage);
+                            clientMain.update(jMessage);
                             break;
             default:        //do something
                             break;

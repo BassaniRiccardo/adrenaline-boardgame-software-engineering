@@ -75,7 +75,7 @@ public class PlayersRenderer {
             if(i+1 != clientModel.getPlayerID()) {
 
                 for (int j = 0; j < names[i].length(); j++) {
-                    box[row * 6 + 1][j + 3] = ClientModel.getEscapeCode(clientModel.getPlayer(i).getColor()) + String.valueOf(names[i].charAt(j)) + "\u001b[0m";
+                    box[row * 6 + 1][j + 3] = ClientModel.getEscapeCode(clientModel.getPlayer(i+1).getColor()) + (names[i].charAt(j)) + "\u001b[0m";
                     //might cause issues
                 }
 
@@ -84,7 +84,8 @@ public class PlayersRenderer {
                 }
 
                 int k = 0;
-                for (int color : clientModel.getPlayer(i).getDamageID()) {
+
+                for (int color : clientModel.getPlayer(i+1).getDamageID()) {
                     box[row * 6 + 2][k + 9] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "●" + "\u001b[0m";
                     k++;
                 }
@@ -93,7 +94,8 @@ public class PlayersRenderer {
                     box[row * 6 + 2][j + 23] = String.valueOf("Marks: ".charAt(j));
                 }
                 k = 0;
-                for (int color : clientModel.getPlayer(i).getMarksID()) {    //watch out in case getplayercolor returns null
+
+                for (int color : clientModel.getPlayer(i+1).getMarksID()) {    //watch out in case getplayercolor returns null
                     box[row * 6 + 2][k + 29] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "◎" + "\u001b[0m";
                     k++;
                 }
@@ -106,7 +108,7 @@ public class PlayersRenderer {
                     box[row * 6 + 4][j + 3] = String.valueOf(weapons[i].charAt(j));
                 }
 
-                String hand = "Cards in hand: " + clientModel.getPlayer(i).getCardNumber();
+                String hand = "Cards in hand: " + clientModel.getPlayer(i+1).getCardNumber();
                 for(int j = 0; j < hand.length()&&j<21; j++){
                     box[row * 6 + 5][j + 3] = String.valueOf(hand.charAt(j));
                 }

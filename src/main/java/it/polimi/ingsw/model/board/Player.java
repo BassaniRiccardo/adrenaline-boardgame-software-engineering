@@ -573,7 +573,7 @@ public class Player {
     public List<Weapon> getAvailableWeapons(){
         List<Weapon> available = new ArrayList<>();
         for(Weapon w: weaponList){
-            if(w.canFire()){
+            if(w.isLoaded() && w.canFire()){
                 available.add(w);
             }
         }

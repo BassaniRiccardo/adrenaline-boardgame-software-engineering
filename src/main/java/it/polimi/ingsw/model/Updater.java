@@ -47,7 +47,8 @@ public class Updater {
     public static JsonObject get(String s, Player p, PowerUp powerUp) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty("player", p.getId());
-        j.addProperty("powerup", powerUp.getName().toString());
+        j.addProperty("powerupname", powerUp.getName().toString());
+        j.addProperty("powerupcolor", powerUp.getColor().toStringLowerCase());
         return j;
         //drawPowerUp and discardPowerup
     }
@@ -277,10 +278,13 @@ public class Updater {
 
         //powerUpInHand (of the selected player)
         List<String> powerUpInHand = new ArrayList<>();
+        List<String> colorPowerUpInHand = new ArrayList<>();
         for (PowerUp powerUp: player.getPowerUpList()){
-            powerUpInHand.add(powerUp.toString());
+            powerUpInHand.add(powerUp.getName().toString());
+            colorPowerUpInHand.add(powerUp.getColor().toStringLowerCase());
         }
         cm.setPowerUpInHand(powerUpInHand);
+        cm.setColorPowerUpInHand(colorPowerUpInHand);
 
         Gson gson = new Gson();
         String json = gson.toJson(cm);

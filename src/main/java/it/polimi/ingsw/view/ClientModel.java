@@ -39,6 +39,7 @@ public class ClientModel {
     private List<SimplePlayer> killShotTrack;
     private int skullsLeft;
     private List<String> powerUpInHand;
+    private List<String> colorPowerUpInHand;
     private int playerID;
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
@@ -411,6 +412,10 @@ public class ClientModel {
         this.powerUpInHand = powerUpInHand;
     }
 
+    public List<String> getColorPowerUpInHand() {return colorPowerUpInHand;}
+
+    public void setColorPowerUpInHand(List<String> colorPowerUpInHand) {this.colorPowerUpInHand = colorPowerUpInHand;}
+
     public int getSkullsLeft() {return skullsLeft;}
 
     public void setSkullsLeft(int skullsLeft) {this.skullsLeft = skullsLeft;}
@@ -516,9 +521,9 @@ public class ClientModel {
             case "green": return "\u001b[32m";
             case "yellow": return "\u001b[33m";
             case "blue": return "\u001b[34m";
-            case "magenta": return "\u001b[35m";
+            case "purple": return "\u001b[35m";
             case "cyan": return "\u001b[36m";
-            case "white": return "\u001b[37m";
+            case "grey": return "\u001b[37m";           //actually white
             case "reset": return "\u001b[0m";
             default: return "";
         }

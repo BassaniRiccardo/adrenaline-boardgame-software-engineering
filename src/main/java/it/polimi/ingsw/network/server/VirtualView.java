@@ -162,4 +162,9 @@ public abstract class VirtualView implements Runnable{
      * @param jsonObject    encoded update
      */
     abstract public void update(JsonObject jsonObject);
+
+    @Override
+    public String toString() {
+        return name + " connection";
+    }
 }

@@ -196,7 +196,8 @@ public class ClientMain {
                 clientModel.setPowerUpCardsLeft(clientModel.getPowerUpCardsLeft()-1);
                 clientModel.getPlayer(j.get("player").getAsInt()).setCardNumber(clientModel.getPlayer(j.get("player").getAsInt()).getCardNumber()+1);
                 if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
-                    clientModel.getPowerUpInHand().add(j.get("powerup").getAsString());
+                    clientModel.getPowerUpInHand().add(j.get("powerupname").getAsString());
+                    clientModel.getColorPowerUpInHand().add(j.get("powerupcolor").getAsString());
                 }//redraw model
                 ui.render();
                 break;

@@ -95,7 +95,9 @@ public class HandRenderer {
             hand = hand + "empty";
         } else {
             for(int i=0; i<clientModel.getPowerUpInHand().size(); i++){
-                hand = hand + clientModel.getPowerUpInHand().get(i);
+                //String p = ClientModel.getEscapeCode(clientModel.getColorPowerUpInHand().get(i))  + clientModel.getPowerUpInHand().get(i) + "  " + "\u001b[0m";
+                String p = clientModel.getPowerUpInHand().get(i) + "  ";
+                hand = hand + p;
                 if(i!=clientModel.getPowerUpInHand().size()-1){
                     weapons = weapons + ", ";
                 }

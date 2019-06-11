@@ -5,7 +5,6 @@ package it.polimi.ingsw.view;
 import java.awt.*;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -20,25 +19,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.application.Platform;
 import javafx.event.Event;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.event.ActionEvent;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
-import javafx.event.*;
-import javafx.scene.control.*;
-import javafx.application.*;
-import javafx.stage.*;
-import javafx.scene.*;
-import javafx.scene.layout.*;
-import javafx.geometry.*;
-import javafx.scene.control.*;
 
 
 /**
@@ -60,22 +47,29 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private ClientMain clientMain;
     private Color color = Color.rgb(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256));
     private Stage stage;
-    DataSaver dataSaver = new DataSaver();
+    private Scene scene;
+    private BorderPane root;
+    private DataSaver dataSaver = new DataSaver();
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     public static final CountDownLatch latch = new CountDownLatch(1);
     public static GUI GUI = null;
     private ClientModel clientModel;
-    private final int developerWidthResolution=1536;
-    private final int developerHeightResolution=864;
-    private final double developerPlayerBoardWidth = 486;
-    double scalePB;
-    double userPlayerBoardWidth;
+    private static final int DEVELOPER_WIDTH_RESOLUTION =1536;
+    private static final int DEVELOPER_HEIGHT_RESOLUTION =864;
+    private static final double DEVELOPER_PLAYER_BOARD_WIDTH = 486;
+    private double scalePB;
+    private double userPlayerBoardWidth;
     private Stage mapStage;
     private Pane messagePanel;
     private boolean started;
     private ImageView welcomeView;
     private List<Integer> justDamaged;
-    private String previousMsg;
+    private double userWidthResolution;
+    private double userHeightResolution;
+    private double scale;
+    private MapBoardRenderer mapBoardRenderer;
+    private String renderMessage; //andrà cancellato credo
+    private boolean renderAlreadyLaunched;
   //  private BorderPane pane;
 
 
@@ -112,13 +106,16 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         setGUI(this);
         messagePanel = new Pane();
         justDamaged = new ArrayList<>();
-        previousMsg = null;
+        clientModel = null;
+        renderMessage = null;
+        renderAlreadyLaunched = false;
         //pane = new BorderPane();
     }
 
     public void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
-        this.clientModel=clientMain.getClientModel();}
+        this.clientModel=clientMain.getClientModel();   //potrebbe forse essere cancellato
+    }
 
     /**
      *
@@ -145,6 +142,20 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             -   il resto dello schermo va riempito in modo appropriato fin da ora (immagine e/o scritta+colore)
                 e andrá poi rimepito con la mappa dal render
              */
+
+            Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+            userWidthResolution = screenSize.getWidth();
+            userHeightResolution = screenSize.getHeight();
+            double fakeScale;
+            if(userWidthResolution/userHeightResolution>= DEVELOPER_WIDTH_RESOLUTION / DEVELOPER_HEIGHT_RESOLUTION)
+                fakeScale = userHeightResolution/ DEVELOPER_HEIGHT_RESOLUTION;
+            else
+                fakeScale = userWidthResolution/ DEVELOPER_WIDTH_RESOLUTION;
+            if(1050*fakeScale>userWidthResolution*3/4)
+                fakeScale = userWidthResolution*3/(4* DEVELOPER_WIDTH_RESOLUTION); //sets at 3/4 of the screen width
+            scale=fakeScale; //needed for lamba necessities
+            mapBoardRenderer = new MapBoardRenderer(scale, clientModel);
+
             mapStage = new Stage();
             stage = primaryStage;
             stage.setOnCloseRequest(e -> {System.exit(0);});
@@ -155,21 +166,27 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             messagePanel.getChildren().add(label);
             Image welcomeImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/welcome.jpg"));
             welcomeView = new ImageView(welcomeImage);
-            printer();
+            root = new BorderPane();
+            root.setCenter(welcomeView);
+            welcomeView.setFitHeight(600*scale);
+            welcomeView.setPreserveRatio(true);
+            root.setStyle("-fx-background-color: #000000");
+            root.setBottom(messagePanel);
+            scene = new Scene(root, 1000, 800);
+            stage.setScene(scene);
+            stage.setFullScreen(true);
+            stage.show();
         });
     }
 
     private void printer(){
-        BorderPane pane = new BorderPane();
-        pane.setCenter(welcomeView);
-        welcomeView.setFitHeight(600);
+        root = new BorderPane();
+        root.setCenter(welcomeView);
+        welcomeView.setFitHeight(600*scale);
         welcomeView.setPreserveRatio(true);
-        pane.setStyle("-fx-background-color: #000000");
-        pane.setBottom(messagePanel);
-        Scene scene = new Scene(pane, 500, 250);
-        stage.setScene(scene);
-        //stage.setFullScreen(true);
-        stage.show();
+        root.setStyle("-fx-background-color: #000000");
+        root.setBottom(messagePanel);
+        scene.setRoot(root);
     }
     /**
      * Displays a simplified model containing all the information the user needs.
@@ -178,18 +195,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     public void render() {
 
-        Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        double userWidthResolution = screenSize.getWidth();
-        double userHeightResolution = screenSize.getHeight();
-        double scale;
-        double fakeScale;
-        if(userWidthResolution/userHeightResolution>=developerWidthResolution/developerHeightResolution)
-            fakeScale = userHeightResolution/developerHeightResolution;
-        else
-            fakeScale = userWidthResolution/developerWidthResolution;
-        if(1050*fakeScale>userWidthResolution*3/4)
-            fakeScale = userWidthResolution*3/(4*developerWidthResolution); //sets at 3/4 of the screen width
-        scale=fakeScale; //needed for lamba necessities
         while (stage==null){
             try {
                 Thread.sleep(2000);
@@ -199,8 +204,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Platform.runLater( () -> {
             //try {
 
-                clientModel = clientMain.getClientModel();
-            MapBoardRenderer mapBoardRenderer = new MapBoardRenderer(scale, clientModel);
+            clientModel=clientMain.getClientModel(); //penso sia utile solo per il test
+            mapBoardRenderer.setClientModel(clientModel);
+            mapBoardRenderer.setRenderInstruction(renderMessage);
+
             Animations animation = new Animations();
 
          //map
@@ -210,77 +217,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             GridPane skullsGrid = mapBoardRenderer.killShotTrackRender(skullNumber);
          //rooms
             GridPane roomsGrid = mapBoardRenderer.roomRenderer();
-         //weapons  DOVRà RESTITUIRE UNA LISTA DI 3 GRIDPANE---------------------------------------------
-            GridPane weaponsGrid1 = new GridPane();
-            GridPane weaponsGrid2 = new GridPane();
-            GridPane weaponsGrid3 = new GridPane();
-            List<ImageView> weaponsList1 = new ArrayList<>();
-            List<ImageView> weaponsList2 = new ArrayList<>();
-            List<ImageView> weaponsList3 = new ArrayList<>();
-            List<ImageView> weaponsList1zoom = new ArrayList<>();   //popups
-            List<ImageView> weaponsList2zoom = new ArrayList<>();
-            List<ImageView> weaponsList3zoom = new ArrayList<>();
-            List<MenuItem> itemWeaponZoom1 = new ArrayList<>();
-            List<MenuItem> itemWeaponZoom2 = new ArrayList<>();
-            List<MenuItem> itemWeaponZoom3 = new ArrayList<>();
-            List<MenuButton> buttonWeaponZoom1 = new ArrayList<>();
-            List<MenuButton> buttonWeaponZoom2 = new ArrayList<>();
-            List<MenuButton> buttonWeaponZoom3 = new ArrayList<>();
-
-            List<ClientModel.SimpleSquare> squares = clientModel.getSquares();
-            int spawnPointIndex=1;
-            for(ClientModel.SimpleSquare s : squares){
-                if(s.isSpawnPoint()) {
-                    if (spawnPointIndex == 1) {
-                        for (int i = 0; i < 3; i++) {
-                            weaponsList1.add(getImageOfWeaponsInSquare(s).get(i));
-                            weaponsList1.get(i).setFitHeight(160*scale);
-                            weaponsList1.get(i).setPreserveRatio(true);
-                            weaponsGrid1.add(weaponsList1.get(i),i,0,1,1);
-                            weaponsGrid1.setMargin(weaponsList1.get(i),new javafx.geometry.Insets(0,0,0,19*scale));
-                            weaponsList1zoom.add(getImageOfWeaponsInSquare(s).get(i));
-                            itemWeaponZoom1.add(new MenuItem());
-                            itemWeaponZoom1.get(i).setGraphic(weaponsList1zoom.get(i));
-                            buttonWeaponZoom1.add(new MenuButton(" ",null,itemWeaponZoom1.get(i)));
-                            weaponsGrid1.add(buttonWeaponZoom1.get(i),i,0,1,1);
-                            buttonWeaponZoom1.get(i).setStyle("-fx-background-color: transparent;");
-                            buttonWeaponZoom1.get(i).setPrefHeight(160*scale);
-                            buttonWeaponZoom1.get(i).setPrefWidth(113*scale);
-                        }spawnPointIndex++;
-                    } else if (spawnPointIndex == 2) {
-                        for (int i = 0; i < 3; i++) {
-                            weaponsList2.add(getImageOfWeaponsInSquare(s).get(i));
-                            weaponsList2.get(i).setFitHeight(160*scale);
-                            weaponsList2.get(i).setPreserveRatio(true);
-                            weaponsGrid2.add(weaponsList2.get(i),i,0,1,1);
-                            weaponsGrid2.setMargin(weaponsList2.get(i),new javafx.geometry.Insets(0,0,0,19*scale));
-                            weaponsList2zoom.add(getImageOfWeaponsInSquare(s).get(i));
-                            itemWeaponZoom2.add(new MenuItem());
-                            itemWeaponZoom2.get(i).setGraphic(weaponsList2zoom.get(i));
-                            buttonWeaponZoom2.add(new MenuButton(" ",null,itemWeaponZoom2.get(i)));
-                            weaponsGrid2.add(buttonWeaponZoom2.get(i),i,0,1,1);
-                            buttonWeaponZoom2.get(i).setStyle("-fx-background-color: transparent;");
-                            buttonWeaponZoom2.get(i).setPrefHeight(160*scale);
-                            buttonWeaponZoom2.get(i).setPrefWidth(113*scale);                            }spawnPointIndex++;
-                    }else{
-                        for (int i = 0; i < 3; i++) {
-                            weaponsList3.add(getImageOfWeaponsInSquare(s).get(i));
-                            weaponsList3.get(i).setFitHeight(160*scale);
-                            weaponsList3.get(i).setPreserveRatio(true);
-                            weaponsGrid3.add(weaponsList3.get(i),i,0,1,1);
-                            weaponsGrid3.setMargin(weaponsList3.get(i),new javafx.geometry.Insets(0,0,0,19*scale));
-                            weaponsList3zoom.add(getImageOfWeaponsInSquare(s).get(i));
-                            itemWeaponZoom3.add(new MenuItem());
-                            itemWeaponZoom3.get(i).setGraphic(weaponsList3zoom.get(i));
-                            buttonWeaponZoom3.add(new MenuButton(" ",null,itemWeaponZoom3.get(i)));
-                            weaponsGrid3.add(buttonWeaponZoom3.get(i),i,0,1,1);
-                            buttonWeaponZoom3.get(i).setStyle("-fx-background-color: transparent;");
-                            buttonWeaponZoom3.get(i).setPrefHeight(160*scale);
-                            buttonWeaponZoom3.get(i).setPrefWidth(113*scale);
-                        }
-                    }
-                }
-            }
+         //weapons
+            List<GridPane> weaponGrid = mapBoardRenderer.weaponRenderer();
 
                 //players
             List<Pane> playerBoards = new ArrayList<>(); //every element will contain the image of the player board and all the tokens and the cards of it
@@ -307,8 +245,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 }
 
             userPlayerBoardWidth = playerView.get(0).getFitWidth();
-            scalePB= userPlayerBoardWidth/developerPlayerBoardWidth;
-            PlayerBoardRenderer playerBoardRenderer = new PlayerBoardRenderer(scalePB, players);
+            scalePB= userPlayerBoardWidth/ DEVELOPER_PLAYER_BOARD_WIDTH;
+            PlayerBoardRenderer playerBoardRenderer = new PlayerBoardRenderer(scalePB, players, clientModel);
 
             //icons
             List<ImageView> icons = mapBoardRenderer.iconsRenderer();
@@ -344,10 +282,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             List<Integer> deathsNumber = new ArrayList<>();
             for(ClientModel.SimplePlayer p : players){
                 deathsNumber.add(p.getDeaths());
-                System.out.println(deathsNumber.get(players.indexOf(p)));
                 //System.out.println(p.)
             }
-            System.out.println(clientModel.getKillShotTrack());
             List<GridPane> skullGrid = playerBoardRenderer.skullsPlayerRenderer(deathsNumber);
 
             for(int i=0; i<players.size(); i++) {
@@ -356,43 +292,19 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         skullGrid.get(i), handButtons.get(i), pointGrid.get(i));
             }
 
-        //decks
-            InputStream pUDeckFile = this.getClass().getResourceAsStream("/images/cards/pUBack.png");
-            Image pUDeckImage = new Image(pUDeckFile);
-            ImageView pUDeckView = new ImageView(pUDeckImage);
-            pUDeckView.setFitHeight(110*scale);
-            pUDeckView.setPreserveRatio(true);
-            Label cardsRemainingPU = new Label(Integer.toString(clientModel.getPowerUpCardsLeft()));
-            InputStream weaponDeckFile = this.getClass().getResourceAsStream("/images/cards/wBack.png");
-            Image weaponDeckImage = new Image(weaponDeckFile);
-            ImageView weaponDeckView = new ImageView(weaponDeckImage);
-            weaponDeckView.setFitHeight(160*scale);
-            weaponDeckView.setPreserveRatio(true);
-            Label cardsRemainingWeapons = new Label(Integer.toString(clientModel.getWeaponCardsLeft()));
-
-
             VBox playerSection = new VBox();
 
             StackPane playerBoardAndStuffAbove = new StackPane();
-            playerBoardAndStuffAbove.getChildren().addAll(playerSection);
+            playerBoardAndStuffAbove.getChildren().add(playerSection);
             for(GridPane g : playerAmmoGrid)
                 g.setTranslateX(400*scalePB);
 
-
             //layout
                 Pane mapAndStuffAbove = new Pane();
-            mapAndStuffAbove.getChildren().addAll(map,skullsGrid,weaponsGrid1,weaponsGrid2,weaponsGrid3,roomsGrid, //mettere virgola
-                      weaponDeckView,pUDeckView,cardsRemainingPU,cardsRemainingWeapons);
-                  pUDeckView.setTranslateX(945*scale);
-                pUDeckView.setTranslateY(45*scale);
-                weaponDeckView.setTranslateX(919*scale);
-                weaponDeckView.setTranslateY(220*scale);
-                cardsRemainingPU.setTranslateX(1000*scale);
-                cardsRemainingPU.setTranslateY(45*scale);
-                cardsRemainingPU.setTextFill(Color.web("#F8F8FF"));
-                cardsRemainingWeapons.setTranslateX(1000*scale);
-                cardsRemainingWeapons.setTranslateY(220*scale);
-                cardsRemainingWeapons.setTextFill(Color.web("#F8F8FF"));
+            mapAndStuffAbove.getChildren().addAll(map,skullsGrid,weaponGrid.get(0),weaponGrid.get(1),weaponGrid.get(2),roomsGrid);
+            //decks
+            mapAndStuffAbove = mapBoardRenderer.deckRenderer(mapAndStuffAbove);
+
                 for(ClientModel.SimplePlayer p : players) {
                     if (p.getId()!=clientModel.getPlayerID())
                         playerSection.getChildren().add(playerBoards.get(players.indexOf(p)));
@@ -400,92 +312,122 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         mapAndStuffAbove.getChildren().add((playerBoards.get(players.indexOf(p))));//current player is added at the mapboard and translated at the bottom
                         playerBoards.get(players.indexOf(p)).setTranslateX(300*scale);
                         playerBoards.get(players.indexOf(p)).setTranslateY(740*scale);
-                        System.out.println(p.getId());
                       }
                 }
                 playerSection.getChildren().add(messagePanel);
                 HBox board = new HBox();
                 board.getChildren().addAll(mapAndStuffAbove, playerBoardAndStuffAbove);
 
-
-                weaponsGrid1.setTranslateX(540*scale);
-                weaponsGrid2.setRotate(270);
-                weaponsGrid2.setTranslateX(803*scale);
-                weaponsGrid2.setTranslateY(550*scale);
-                weaponsGrid3.setRotate(90);
-                weaponsGrid3.setTranslateX(-98*scale);
-                weaponsGrid3.setTranslateY(380*scale);
-
             board.setStyle("-fx-background-color: #000000");
-            Scene sceneMap = new Scene(board, 1200*scale, 800*scale);
+            scene.setRoot(board);
+           /* Scene sceneMap = new Scene(board, 1500*scale, 900*scale);
                 mapStage.setScene(sceneMap);
                 mapStage.setFullScreen(true);
                 if (!started){
                     mapStage.show();
                     started = true;
-                }
-
+                }*/
+            renderMessage=null;
             //}catch (FileNotFoundException e){
             //    e.printStackTrace();
             //}
         });
     }
 
-    public List<ImageView> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
-        List<ImageView> weaponView = new ArrayList<>();
-        int index=square.getId();
-       // System.out.println(index);
-        List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(index)).getWeapons();
-        //try{
-        for(ClientModel.SimpleWeapon w : weaponList){
-            String key= w.getName();
-            InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png");
-            Image weaponImage = new Image(weaponFile);
-            ImageView weaponImageView = new ImageView(weaponImage);
-            weaponView.add(weaponImageView);
+
+    /**
+     * Displays a OPT message
+
+     * @param message   message to be displayed
+     * @param list      the option the user can choose among
+     */
+    public void display(String message, List<String> list) {
+
+        while (stage==null){
+            try {
+                Thread.sleep(2000);
+            }catch (InterruptedException e){e.printStackTrace();}
         }
 
-        return weaponView;
-        //}catch (FileNotFoundException e){
-        //    e.printStackTrace();
-        //}
-        //return null;
-    }
+        Platform.runLater( () -> {
 
+            VBox opt = new VBox();
+            opt.setBackground(new Background(new BackgroundFill(color, null, null)));
+            Label label = new Label(message);
+            opt.getChildren().add(label);
+            opt.setAlignment(Pos.CENTER);
+            opt.setSpacing(40);
+            List<String> labelButton = new ArrayList<>();
+            List<Button> inputButtons = new ArrayList<>();
 
+            if(list.get(0).contains("Square")){
+                System.out.println("SQUARE è GiuSTO");
+                Stage optStage = new Stage();
+                for (String item : list) {
+                    Button b = new Button(item);
+                    inputButtons.add(b);
+                    labelButton.add(item);
+                    b.setOnAction(e -> {
+                        System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
+                        dataSaver.message = message;
+                        dataSaver.answer = Integer.toString(inputButtons.indexOf(b) + 1);
+                        dataSaver.update = true;
+                        optStage.close();
+                    });
+                }
 
-    public ImageView getImageOfPlayer(ClientModel.SimplePlayer player){
-        String key,color;
-        color=player.getColor();
-        switch (color){
-            case "green":
-                key="Sprog";
-                break;
-            case "grey":
-                key="Dozer";
-                break;
-            case "yellow":
-                key="D_struct_or";
-                break;
-            case"blue":
-                key="Banshee";
-                break;
-            default:
-                key="Violet";
-        }
+                System.out.println(inputButtons);
+                System.out.println(labelButton);
+                mapBoardRenderer.setInputButtons(inputButtons);
+                mapBoardRenderer.setLabelButton(labelButton);
+                mapBoardRenderer.setRenderInstruction("Square");
+                renderMessage="Square";
 
-        if(player.isFlipped())
-            key=key+"Flipped";
+            } else {
+                HBox optionList = new HBox();
+                optionList.setAlignment(Pos.CENTER);
+                optionList.setSpacing(40 / list.size());
+                Stage optStage = new Stage();
 
-        //try{
-        InputStream playerFile = this.getClass().getResourceAsStream("/images/miscellaneous/"+key+".png");
-        Image playerImage = new Image(playerFile);
-        ImageView playerView = new ImageView(playerImage);
-        return playerView;
-        //}catch (FileNotFoundException e){
-        //    e.printStackTrace();
-        //}
-        //return null;
+                List<Button> buttons = new ArrayList<>();
+                for (String item : list) {
+                    Button b = new Button(item);
+                    buttons.add(b);
+                    b.setOnAction(e -> {
+                        System.out.println("OPT " + (buttons.indexOf(b) + 1) + ": you clicked me!");
+                        dataSaver.message = message;
+                        dataSaver.answer = Integer.toString(buttons.indexOf(b) + 1);
+                        dataSaver.update = true;
+                        optStage.close();
+                    });
+                }
+                optionList.getChildren().addAll(buttons);
+                opt.getChildren().add(optionList);
+            }
+            messagePanel = opt;
+          /* if(renderAlreadyLaunched)
+                render();
+            else {
+                clientModel = clientMain.getClientModel();
+                if (clientModel != null) {
+                    renderAlreadyLaunched = true;
+                    mapBoardRenderer = new MapBoardRenderer(scale, clientModel);
+                } else
+                    printer();
+            }
+*/
+            if(clientModel==null){
+                printer();
+            }else {
+                render();
+            }
+            //da togliere
+          //  Scene scene = new Scene(opt, 500,250, color);
+           // stage.setScene(scene);
+            //stage.show();
+
+        });
+
     }
 
     /**
@@ -532,13 +474,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
                 //da aggiungere
                 messagePanel = msg;
-                if(clientModel==null && message != previousMsg){
-                    previousMsg = message;
+                if(clientModel==null){
                     printer();
                 } else
                     render();
                 //da togliere
-               // stage.setScene(scene);
+                // stage.setScene(scene);
                 //stage.show();
 
             }
@@ -594,14 +535,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             //da aggiungere
             messagePanel = req;
-            if(clientModel==null && question != previousMsg){
-                previousMsg = question;
+            if(clientModel==null){
                 printer();
             }
             else
                 render();
             //da togliere
-          //  Scene info = new Scene(req, 500, 250, color);
+            //  Scene info = new Scene(req, 500, 250, color);
             //stage.setScene(info);
             //stage.show();
 
@@ -609,65 +549,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
-
-    /**
-     * Displays a OPT message
-
-     * @param message   message to be displayed
-     * @param list      the option the user can choose among
-     */
-    public void display(String message, List<String> list) {
-
-        while (stage==null){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
-
-        Platform.runLater( () -> {
-
-            VBox opt = new VBox();
-            opt.setBackground(new Background(new BackgroundFill(color, null, null)));
-            Label label = new Label(message);
-            opt.getChildren().add(label);
-            opt.setAlignment(Pos.CENTER);
-            opt.setSpacing(40);
-
-            HBox optionList = new HBox();
-            optionList.setAlignment(Pos.CENTER);
-            optionList.setSpacing(40 / list.size());
-            Stage optStage = new Stage();
-
-            List<Button> buttons = new ArrayList<>();
-            for (String item : list) {
-                Button b = new Button(item);
-                buttons.add(b);
-                b.setOnAction(e -> {
-                    System.out.println("OPT " + (buttons.indexOf(b)+1) + ": you clicked me!");
-                    dataSaver.message = message;
-                    dataSaver.answer = Integer.toString(buttons.indexOf(b) + 1);
-                    dataSaver.update = true;
-                    optStage.close();
-                });
-            }
-            optionList.getChildren().addAll(buttons);
-            opt.getChildren().add(optionList);
-
-            //da aggiungere
-            messagePanel = opt;
-            if(clientModel==null && message != previousMsg){
-                previousMsg = message;
-                printer();
-            }else
-                render();
-            //da togliere
-          //  Scene scene = new Scene(opt, 500,250, color);
-           // stage.setScene(scene);
-            //stage.show();
-
-        });
-
-    }
 
 
     /**
@@ -738,21 +619,14 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     /**
      * Main GUI loop
      */
-    public  void run(){
-    }
-
-
+    public  void run(){ }
     /**
      * Handles complex events
      *
      * @param event
      */
     @Override
-    public void handle(Event event) {
-
-    }
-
-
+    public void handle(Event event) { }
     /**
      * Displays a simplified model containing all the information the user needs.
      */
@@ -764,8 +638,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         System.out.println(clientMain.getClientModel().getPlayers());
 
     }
-
-
     /**
      * Class storing the values the get() method must return.
      */
@@ -775,11 +647,38 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         boolean update;
     }
 
-    //to delete
-    public String get(){
-        System.out.println("questo metodo non va chiamato");
-        return "";
-    }
+    public ImageView getImageOfPlayer(ClientModel.SimplePlayer player){
+        String key,color;
+        color=player.getColor();
+        switch (color){
+            case "green":
+                key="Sprog";
+                break;
+            case "grey":
+                key="Dozer";
+                break;
+            case "yellow":
+                key="D_struct_or";
+                break;
+            case"blue":
+                key="Banshee";
+                break;
+            default:
+                key="Violet";
+        }
 
+        if(player.isFlipped())
+            key=key+"Flipped";
+
+        //try{
+        InputStream playerFile = this.getClass().getResourceAsStream("/images/miscellaneous/"+key+".png");
+        Image playerImage = new Image(playerFile);
+        ImageView playerView = new ImageView(playerImage);
+        return playerView;
+        //}catch (FileNotFoundException e){
+        //    e.printStackTrace();
+        //}
+        //return null;
+    }
 
 }

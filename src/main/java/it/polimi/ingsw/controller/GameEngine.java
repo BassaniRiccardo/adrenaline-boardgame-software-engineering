@@ -161,18 +161,18 @@ public class GameEngine implements Runnable{
         int yes = 0;
         int no = 0;
         frenzyOptions.addAll(Arrays.asList("yes", "no"));
-        for (VirtualView p: players) {
-            p.choose("Do you want to play with the frenzy?", frenzyOptions);
-        }
-        for(VirtualView p : players){
-            if(Integer.parseInt(waitShort(p, 20))==1) yes++;
-            else no++;
-        }
-        if (yes>=no) {
-            frenzy=true;
-            LOGGER.log(Level.INFO,"Frenzy active.");
-        }
-        else  LOGGER.log(Level.INFO,"Frenzy not active.");
+        //for (VirtualView p: players) {
+        //    p.choose("Do you want to play with the frenzy?", frenzyOptions);
+        //}
+        //for(VirtualView p : players){
+        //    if(Integer.parseInt(waitShort(p, 20))==1) yes++;
+        //    else no++;
+        //}
+        //if (yes>=no) {
+        //    frenzy=true;
+        //    LOGGER.log(Level.INFO,"Frenzy active.");
+        //}
+        //else  LOGGER.log(Level.INFO,"Frenzy not active.");
 
 
         setCurrentPlayer(players.get(0));
@@ -189,15 +189,15 @@ public class GameEngine implements Runnable{
         List<Integer> mapIDs = new ArrayList<>(Arrays.asList(1,2,3,4));
         List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
-        for(VirtualView p : players) {
-            p.choose("Vote for the map you want:", mapIDs);
-        }
+        //for(VirtualView p : players) {
+        //    p.choose("Vote for the map you want:", mapIDs);
+        //}
 
-        for(VirtualView p : players) {
-            int vote = Integer.parseInt(waitShort(p, 20));
-            votes.set(vote-1, votes.get(vote-1)+1);
-        }
-        int mapId = votes.indexOf(Collections.max(votes)) + 1;
+        //for(VirtualView p : players) {
+        //    int vote = Integer.parseInt(waitShort(p, 20));
+        //    votes.set(vote-1, votes.get(vote-1)+1);
+        //}
+        int mapId = 2;//votes.indexOf(Collections.max(votes)) + 1;
 
         board = BoardConfigurer.configureMap(mapId);
 
@@ -217,15 +217,15 @@ public class GameEngine implements Runnable{
         List<Integer> skullsOptions = new ArrayList<>(Arrays.asList(5,6,7,8));
         int totalSkullNumber = 0;
 
-        for (VirtualView p : players) {
-            p.choose("How many skulls do you want?", skullsOptions);
-        }
-        for (VirtualView p : players) {
-            int selected = Integer.parseInt(waitShort(p, 20));
-            totalSkullNumber = totalSkullNumber + selected + 4;
-        }
+        //for (VirtualView p : players) {
+        //    p.choose("How many skulls do you want?", skullsOptions);
+        //}
+        //for (VirtualView p : players) {
+        //    int selected = Integer.parseInt(waitShort(p, 20));
+        //    totalSkullNumber = totalSkullNumber + selected + 4;
+        //}
 
-        int averageSkullNumber = Math.round((float)totalSkullNumber/(float)players.size());
+        int averageSkullNumber = 6;//Math.round((float)totalSkullNumber/(float)players.size());
         BoardConfigurer.configureKillShotTrack(averageSkullNumber, board);
         try {
             this.killShotTrack = board.getKillShotTrack();
@@ -244,10 +244,10 @@ public class GameEngine implements Runnable{
         int id = 1;
 
         for(VirtualView p : players) {
-            p.choose("What hero do you want?", heroList);
-            int selected = Integer.parseInt(waitShort(p, 20));
-            System.out.println("selected " + selected);
-            Player.HeroName selectedName = heroList.get(selected-1);
+            //p.choose("What hero do you want?", heroList);
+            //int selected = Integer.parseInt(waitShort(p, 20));
+            //System.out.println("selected " + selected);
+            Player.HeroName selectedName = heroList.get(players.indexOf(p));//heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
             System.out.println("setplayer");
             board.getPlayers().add(p.getModel());
@@ -257,7 +257,6 @@ public class GameEngine implements Runnable{
             LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
             p.display("You selected " + selectedName);
             id++;
-
         }
 
     }

@@ -1,40 +1,19 @@
 package it.polimi.ingsw.view;
 
-import javafx.animation.FadeTransition;
+import it.polimi.ingsw.model.cards.PowerUp;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.*;
 import javafx.scene.layout.*;
-import javafx.event.*;
 import javafx.scene.control.*;
-import javafx.application.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.*;
-import javafx.scene.*;
-import javafx.scene.layout.*;
-import javafx.geometry.*;
-import javafx.scene.control.*;
-import java.awt.*;
-import javafx.scene.layout.*;
-import javafx.event.*;
-import javafx.scene.control.*;
-import javafx.application.*;
-import javafx.stage.*;
-import javafx.scene.*;
-import javafx.scene.layout.*;
-import javafx.geometry.*;
-import javafx.scene.control.*;
-import javafx.util.Duration;
 
 /**
  * Class with methods used by render for rendering the player boards
@@ -45,11 +24,13 @@ public class PlayerBoardRenderer {
 
     private double scalePB;
     private List<ClientModel.SimplePlayer> players;
+    private ClientModel clientModel;
 
 
-    public PlayerBoardRenderer(double scPB, List<ClientModel.SimplePlayer> pl){
+    public PlayerBoardRenderer(double scPB, List<ClientModel.SimplePlayer> pl, ClientModel clientModel){
         this.scalePB=scPB;
         this.players = pl;
+        this.clientModel=clientModel;
     }
 
     public List<GridPane> ammoRender(){
@@ -179,15 +160,16 @@ public class PlayerBoardRenderer {
         List<HBox> handContainer = new ArrayList<>();
         List<MenuButton> handButton = new ArrayList<>();
         List<ClientModel.SimpleWeapon> weapons;
-        Image weapon;
+        Image weaponImage;
         Image puBackImage = new Image(getClass().getResourceAsStream("/images/cards/pUBack.png"));
         for(ClientModel.SimplePlayer p : players) {
             handContainer.add(new HBox());
             weaponHandView.add(new ArrayList<>());
             weapons = p.getWeapons();
             for (ClientModel.SimpleWeapon w : weapons) {
-                weapon = new Image(getClass().getResourceAsStream("/images/cads/" + w.getName() + ".png"));
-                weaponHandView.get(players.indexOf(p)).add(new ImageView(weapon));
+                String key = w.getName();
+                weaponImage = new Image(getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png"));
+                weaponHandView.get(players.indexOf(p)).add(new ImageView(weaponImage));
                 handContainer.get(players.indexOf(p)).getChildren().add(weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)));
             }
             puBackHandView.add(new ImageView(puBackImage));
@@ -195,7 +177,19 @@ public class PlayerBoardRenderer {
             puHandNumber.get(players.indexOf(p)).setFont(new Font("Arial", 60));
             puHandNumber.get(players.indexOf(p)).setTextFill(Color.web("#F8F8FF"));
             puHandNumber.get(players.indexOf(p)).setTranslateX(-50);
-            handContainer.get(players.indexOf(p)).getChildren().addAll(puBackHandView.get(players.indexOf(p)), puHandNumber.get(players.indexOf(p)));
+            if(p.getId() != clientModel.getPlayerID())
+                handContainer.get(players.indexOf(p)).getChildren().addAll(puBackHandView.get(players.indexOf(p)), puHandNumber.get(players.indexOf(p)));
+            else{
+                List<ImageView> puView = new ArrayList<>();
+                for(String pu : clientModel.getPowerUpInHand()){
+                    String color = clientModel.getColorPowerUpInHand().get(clientModel.getPowerUpInHand().indexOf(pu));
+                    System.out.println(color+pu.replace(" ","_"));
+                    Image puImage = new Image(getClass().getResourceAsStream("/images/cards/"+color+pu.replace(" ","_")+".png"));
+                    puView.add(new ImageView(puImage));
+                    handContainer.get(players.indexOf(p)).getChildren().add(puView.get(puView.size()-1));
+                }
+            }
+
             handItem.add(new MenuItem());
             handItem.get(players.indexOf(p)).setGraphic(handContainer.get(players.indexOf(p)));
             handButton.add(new MenuButton("CARTE", null, handItem.get(players.indexOf(p))));

@@ -88,4 +88,9 @@ public class AmmoPack {
         this.yellowAmmo -= aP.yellowAmmo;
 
     }
+
+    @Override
+    public String toString() {
+        return "r" + redAmmo + " b" + blueAmmo + " y" + yellowAmmo;
+    }
 }

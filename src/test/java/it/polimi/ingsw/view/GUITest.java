@@ -116,7 +116,7 @@ public class GUITest {
         ((GUI)ui).getClientMain().setClientModel(new Gson().fromJson(mod, ClientModel.class));
         ((GUI) ui).render();
         try {
-            Thread.sleep(1000000);
+            Thread.sleep(1000);
 
         } catch (InterruptedException e){}
 

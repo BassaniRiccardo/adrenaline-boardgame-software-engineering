@@ -238,9 +238,10 @@ public class BoardConfigurer {
         setAmmoTilesAndWeapons(board);
 
         //sets the players positions on the board
-        for(int i=0;i<j.getIntBC("simulationPlayersNumber");i++)
-            board.getPlayers().get(i).setPosition(board.getMap().get(j.getIntBC("simulationPositionPlayer"+i)));
-
+        for(int i=0;i<j.getIntBC("simulationPlayersNumber");i++) {
+            board.getPlayers().get(i).setPosition(board.getMap().get(j.getIntBC("simulationPositionPlayer" + i)));
+            board.getPlayers().get(i).setInGame(true);
+        }
         board.setCurrentPlayer(board.getPlayers().get(0));
         return board;
 

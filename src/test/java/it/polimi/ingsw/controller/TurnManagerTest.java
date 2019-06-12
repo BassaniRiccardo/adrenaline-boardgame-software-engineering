@@ -1,7 +1,12 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.network.server.TCPVirtualView;
+import it.polimi.ingsw.network.server.VirtualView;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 //Tests temporarily removed while switching protocol
@@ -12,22 +17,9 @@ public class TurnManagerTest {
      */
     @Test
     public void run() {
-/*
-        List<VirtualView> connections = new ArrayList<>();
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
 
-        GameEngine gameEngine = new GameEngine(connections);
-        System.out.println("\nSetup:");
-        gameEngine.setup();
 
-        TurnManager turnManager = new TurnManager(gameEngine.getBoard(), gameEngine.getCurrentPlayer(), false);
-        System.out.println("Player 1: first turn.");
-        turnManager.run();
-*/
+
     }
 
     /**

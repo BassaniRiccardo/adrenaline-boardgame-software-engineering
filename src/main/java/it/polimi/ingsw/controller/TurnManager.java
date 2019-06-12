@@ -189,14 +189,14 @@ public class TurnManager implements Runnable{
         }
 
         player.setInGame(true);
-        statusSaver.updatePowerups(false);
+        statusSaver.updatePowerups();
 
         //it could give some problems since not all the attributes are available
         board.notifyObservers();
 
         //asks the user which powerup he wants to discard
-        currentPlayerConnection.choose("Which powerUp do you want to discard?", player.getPowerUpList());
-        int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+        getVirtualView(player).choose("Which powerUp do you want to discard?", player.getPowerUpList());
+        int selected = Integer.parseInt(gameEngine.wait(getVirtualView(player)));
         PowerUp discarded = player.getPowerUpList().get(selected-1);
 
         if (powerUpToDraw == 2)
@@ -1131,7 +1131,7 @@ public class TurnManager implements Runnable{
 
 
     public void updateAndNotifyAll(){
-        statusSaver.updateCheckpoint(false);
+        statusSaver.updateCheckpoint();
         for(VirtualView p : playerConnections) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
         }

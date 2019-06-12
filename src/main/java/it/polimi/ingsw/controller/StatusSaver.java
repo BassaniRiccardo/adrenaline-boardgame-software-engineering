@@ -34,12 +34,44 @@ public class StatusSaver {
     private List<AmmoPack> playersAmmoPacks;
 
     private List<Weapon> currentPlayerWeapons;
-    private ArrayList<Boolean> currentPlayerLoadedWeapons;
+    private List<Boolean> currentPlayerLoadedWeapons;
 
     private List<List<Weapon>> squareWeapons;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
+
+    /**
+     * Getters
+     */
+
+    public List<Square> getPlayersPositions() {
+        return playersPositions;
+    }
+
+    public List<List<Player>> getPlayersDamages() {
+        return playersDamages;
+    }
+
+    public List<List<PowerUp>> getPlayersPowerups() {
+        return playersPowerups;
+    }
+
+    public List<AmmoPack> getPlayersAmmoPacks() {
+        return playersAmmoPacks;
+    }
+
+    public List<Weapon> getCurrentPlayerWeapons() {
+        return currentPlayerWeapons;
+    }
+
+    public List<Boolean> getCurrentPlayerLoadedWeapons() {
+        return currentPlayerLoadedWeapons;
+    }
+
+    public List<List<Weapon>> getSquareWeapons() {
+        return squareWeapons;
+    }
 
     /**
      * Constructs a StatusSaver with a reference to the board.
@@ -63,10 +95,8 @@ public class StatusSaver {
 
     /**
      * Updates the last checkpoint which will be restored by the method restoreCheckpoint().
-     *
-     * @param start
      */
-    public void updateCheckpoint(boolean start ) {
+    public void updateCheckpoint(){
 
         LOGGER.log(Level.FINE, () -> "playersPowerups saved: " + playersPowerups);
         try {
@@ -80,7 +110,7 @@ public class StatusSaver {
                 playersPositions.add(p.getPosition());
                 playersDamages.add(new ArrayList<>(p.getDamages()));
                 playersPowerups.add(new ArrayList<>(p.getPowerUpList()));
-                playersAmmoPacks.add(p.getAmmoPack());
+                playersAmmoPacks.add(new AmmoPack(p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getYellowAmmo()));
             }
             //current player
             currentPlayerWeapons = new ArrayList<>(board.getCurrentPlayer().getWeaponList());
@@ -90,8 +120,10 @@ public class StatusSaver {
             }
             //squares
             squareWeapons.clear();
-            for (Square s : board.getSpawnPoints()) {
-                squareWeapons.add(new ArrayList<>(((WeaponSquare)s).getWeapons()));
+            for (WeaponSquare s : board.getSpawnPoints()) {
+                List<Weapon> lw = new ArrayList<>();
+                lw.addAll(s.getWeapons());
+                squareWeapons.add(lw);
             }
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while updating the checkpoint", e);}
         LOGGER.log(Level.FINE, "updating checkpoint");
@@ -104,10 +136,8 @@ public class StatusSaver {
 
     /**
      * Updates the lists of power ups which will be restored by the method restorePowerUps().
-     *
-     * @param start
      */
-    public void updatePowerups(boolean start ) {
+    public void updatePowerups(){
         LOGGER.log(Level.FINE, () -> "playersPowerups: " + playersPowerups);
         playersPowerups.clear();
         for (Player p : board.getActivePlayers()) {
@@ -124,7 +154,7 @@ public class StatusSaver {
      */
     public void restoreCheckpoint(){
 
-        displayPowerUps();
+        //displayPowerUps();
         reset = true;
         int i;
         //attributes shared by all players
@@ -159,7 +189,7 @@ public class StatusSaver {
      */
     public void restorePowerUps(){
 
-        displayPowerUps();
+        //displayPowerUps();
         reset = true;
         for (Player p : board.getActivePlayers()) {
             p.setPowerUpList(new ArrayList<>(playersPowerups.get(board.getActivePlayers().indexOf(p))));

@@ -30,6 +30,7 @@ import static it.polimi.ingsw.model.cards.Color.*;
 
 //TODO
 // Look at the comments at line 246, 287/
+// "die" message should include whether the player is or is not dead, since it is sent every time an action in reset.
 
 public class Player {
 

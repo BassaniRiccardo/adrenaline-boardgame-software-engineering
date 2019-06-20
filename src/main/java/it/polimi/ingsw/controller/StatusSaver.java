@@ -13,17 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static it.polimi.ingsw.controller.TurnManager.reset;
 
 /**
  * Contains methods to save the status of the game and to restore the last saved status.
  *
  * @author BassaniRiccardo
  */
-
-//TODO: check if other attributes needs to be saved.
-//      check if the boolean parameter can be omitted.
-//      testing.
 
 public class StatusSaver {
 
@@ -154,8 +149,7 @@ public class StatusSaver {
      */
     public void restoreCheckpoint(){
 
-        //displayPowerUps();
-        reset = true;
+        board.setReset(true);
         int i;
         //attributes shared by all players
         for (Player p : board.getActivePlayers()) {
@@ -179,7 +173,6 @@ public class StatusSaver {
             ((WeaponSquare)s).setWeapons(new ArrayList<>(squareWeapons.get(board.getSpawnPoints().indexOf(s))));
         }
         LOGGER.log(Level.FINE, "Restoring checkpoint");
-        displayPowerUps();
 
     }
 
@@ -189,12 +182,10 @@ public class StatusSaver {
      */
     public void restorePowerUps(){
 
-        //displayPowerUps();
-        reset = true;
+        board.setReset(true);
         for (Player p : board.getActivePlayers()) {
             p.setPowerUpList(new ArrayList<>(playersPowerups.get(board.getActivePlayers().indexOf(p))));
         }
-        displayPowerUps();
     }
 
 
@@ -203,6 +194,6 @@ public class StatusSaver {
         for (Player p : board.getActivePlayers()) {
             powerups += p.getPowerUpList() + "  ";
         }
-        LOGGER.log(Level.FINE, "playersPowerups: " + powerups);
+        LOGGER.log(Level.FINE, "playersPowerups: {0}", powerups);
     }
 }

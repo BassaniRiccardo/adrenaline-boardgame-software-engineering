@@ -19,6 +19,13 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+/**
+ * Tests all the methods of the class StatusSaver.
+ * A dedicated test is present for every important information that needs to be updated or restored.
+ *
+ * @author BassaniRiccardo
+ */
+
 public class StatusSaverTest {
 
 
@@ -42,6 +49,7 @@ public class StatusSaverTest {
         assertEquals(inModel, ss.getPlayersPositions());
     }
 
+
     /**
      * Tests the method updateCheckpoint, checking whether the players' damages are correctly saved.
      *
@@ -61,6 +69,7 @@ public class StatusSaverTest {
         }
         assertEquals(inModel, ss.getPlayersDamages());
     }
+
 
     /**
      * Tests the method updateCheckpoint, checking whether the players' powerups are correctly saved.
@@ -83,6 +92,7 @@ public class StatusSaverTest {
         assertEquals(inModel, ss.getPlayersPowerups());
     }
 
+
     /**
      * Tests the method updateCheckpoint, checking whether the players' ammo are correctly saved.
      *
@@ -104,6 +114,7 @@ public class StatusSaverTest {
         }
 
     }
+
 
     /**
      * Tests the method updateCheckpoint, checking whether the current player's weapons are correctly saved.
@@ -151,6 +162,7 @@ public class StatusSaverTest {
         assertEquals(inModel, ss.getCurrentPlayerLoadedWeapons());
     }
 
+
     /**
      * Tests the method updateCheckpoint, checking whether the weapons in the spawn points are correctly saved.
      *
@@ -195,6 +207,7 @@ public class StatusSaverTest {
         }
         assertEquals(inModel, ss.getPlayersPowerups());
     }
+
 
     /**
      * Tests the methods restoreCheckpoint, checking whether the players' positions are correctly restored.
@@ -248,6 +261,7 @@ public class StatusSaverTest {
         assertEquals(0, p1.getDamages().size());
     }
 
+
     /**
      * Tests the methods restoreCheckpoint, checking whether the players' powerups are correctly restored.
      *
@@ -269,6 +283,7 @@ public class StatusSaverTest {
         ss.restoreCheckpoint();
         assertEquals(1, p1.getPowerUpList().size());
     }
+
 
     /**
      * Tests the methods restoreCheckpoint, checking whether the players' ammo are correctly restored.
@@ -320,6 +335,7 @@ public class StatusSaverTest {
 
     }
 
+
     /**
      * Tests the methods restoreCheckpoint, checking whether the current player's loaded weapons are correctly restored.
      *
@@ -347,6 +363,7 @@ public class StatusSaverTest {
         assertEquals(Arrays.asList(lockRifle), p1.getLoadedWeapons());
 
     }
+
 
     /**
      * Tests the methods restoreCheckpoint, checking whether the weapons in the spawn points are correctly restored.
@@ -376,8 +393,13 @@ public class StatusSaverTest {
     }
 
 
-
-
+    /**
+     * Tests the methods restorePowerups.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     * @throws WrongTimeException
+     */
     @Test
     public void restorePowerUps() throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException{
         Board b = BoardConfigurer.simulateScenario();

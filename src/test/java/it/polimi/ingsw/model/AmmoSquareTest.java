@@ -117,6 +117,7 @@ public class AmmoSquareTest {
         assertEquals(drawn, ammoSquare.getAmmoTile());
     }
 
+
     /**
      * Tests the method addAllCards(), when an exception should be thrown since the square already contains an ammo tile.
      *
@@ -166,6 +167,7 @@ public class AmmoSquareTest {
         assertNotEquals(ammoSquare1, ammoSquare4);
 
     }
+
 
     /**
      * Tests the method hashCode().

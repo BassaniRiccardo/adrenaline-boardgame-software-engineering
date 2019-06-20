@@ -507,7 +507,7 @@ public class GameEngine implements Runnable{
         }
         for(VirtualView v : justSuspended){
             for(VirtualView p : players){
-                p.display("Player " + v.getName() + " was disconnected");
+                p.display(P + v.getName() + " was disconnected");
                 notifications.remove(p);
             }
             LOGGER.log(Level.INFO, "Notified players of the disconnection of " + justSuspended);

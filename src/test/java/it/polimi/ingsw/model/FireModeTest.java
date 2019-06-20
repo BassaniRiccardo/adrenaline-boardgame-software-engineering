@@ -16,6 +16,7 @@ import java.util.List;
 
 public class FireModeTest {
 
+
     /**
      * Checks that a firemode is created correctly and available
      */
@@ -33,6 +34,7 @@ public class FireModeTest {
         assertTrue(f.isAvailable());
     }
 
+
     /**
      * Checks that a firemode is created correctly and not available
      */
@@ -48,6 +50,7 @@ public class FireModeTest {
         assertTrue(p.getWeaponList().get(0).getFireModeList().size()==2);
         assertFalse(f.isAvailable());
     }
+
 
     /**
      * Checks that the firemode applies its effect
@@ -67,6 +70,7 @@ public class FireModeTest {
         }
     }
 
+
     /**
      * Checks that targets are selected correctly when there are some
      */
@@ -81,6 +85,7 @@ public class FireModeTest {
         assertTrue(ap.contains(b.getPlayers().get(1)));
     }
 
+
     /**
      * Checks that targets are not selected when none is visible
      */
@@ -92,6 +97,7 @@ public class FireModeTest {
         FireMode f = b.getPlayers().get(4).getWeaponList().get(0).getFireModeList().get(0);
         assertTrue(f.findTargets().isEmpty());
     }
+
 
     /**
      * Checks that destinationFinder is working correctly (Note: the only weapon implemented so far always returns null as intended)
@@ -106,6 +112,7 @@ public class FireModeTest {
         List<Player> ap = f.findTargets().get(0);
         assertTrue(f.findDestinations(ap).isEmpty());
     }
+
 
     /**
      * Checks that destinationFinder is working correctly (Note: the only weapon implemented so far always returns null as intended)

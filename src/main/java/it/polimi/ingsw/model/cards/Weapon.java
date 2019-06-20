@@ -9,6 +9,8 @@ import it.polimi.ingsw.model.exceptions.WrongTimeException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class modeling a weapon card.
@@ -42,6 +44,8 @@ public class Weapon implements Card {
     private List<Player> mainTargets;
     private List<Player> optionalTargets;
     private Board board;
+
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
 
     /**
@@ -121,7 +125,6 @@ public class Weapon implements Card {
     }
 
     public void setHolder(Player holder) {
-        //if (!this.board.getPlayers().contains(holder)) throw new IllegalArgumentException("Only a player on the map can hold a weapon.");
         this.holder = holder;
     }
 
@@ -171,7 +174,7 @@ public class Weapon implements Card {
         try {
             return !listAvailableFireModes().isEmpty();
         }catch(NotAvailableAttributeException ex){
-            ex.printStackTrace();
+            LOGGER.log(Level.SEVERE, "NotAvailableAttribute thrown while checking if it is possible to shoot");
             return false;
         }
     }

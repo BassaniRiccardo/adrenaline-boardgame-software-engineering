@@ -5,8 +5,9 @@ import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents the kill shot track of the board.
@@ -22,6 +23,8 @@ public class KillShotTrack {
     private int skullsLeft;
     private List<Player> killers;
     private Board board;
+    private static final String SR = "skullRemoved";
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
 
     /**
@@ -73,7 +76,7 @@ public class KillShotTrack {
         if (quantity > skullsLeft) throw new UnacceptableItemNumberException("The number of skulls left must be major or equal to zero.");
         skullsLeft -= quantity;
 
-        board.addToUpdateQueue(Updater.get("skullRemoved", quantity));
+        board.addToUpdateQueue(Updater.get(SR, quantity));
 
     }
 
@@ -103,13 +106,13 @@ public class KillShotTrack {
         if (skullsLeft != 0) {
             dead.updateAwards();
             removeSkulls(1);
-            board.addToUpdateQueue(Updater.get("skullRemoved", 1, killer, ok));
-            System.out.println("Skulls left: " + skullsLeft + ".");
+            board.addToUpdateQueue(Updater.get(SR, 1, killer, ok));
+            LOGGER.log(Level.INFO, "Skulls left: " + skullsLeft + ".");
         }
         else {
             dead.setDead(false);
             dead.getDamages().clear();
-            board.addToUpdateQueue(Updater.get("skullRemoved", 0, killer, ok));
+            board.addToUpdateQueue(Updater.get(SR, 0, killer, ok));
         }
     }
 
@@ -122,20 +125,17 @@ public class KillShotTrack {
     public void rewardKillers() {
 
         //asks the board for the players
-        List<Player> playersToReward = new ArrayList<>();
-        playersToReward.addAll(this.board.getPlayers());
+        List<Player> playersToReward = new ArrayList<>(this.board.getPlayers());
 
         //properly orders the playersToReward
         board.sort(playersToReward, killers);
 
         //assigns the points
         int pointsToGive =8;
-        Iterator<Player> playerToAwardIt = playersToReward.iterator();
-        while(playerToAwardIt.hasNext()){
-            Player p = playerToAwardIt.next();
+        for(Player p : playersToReward){
             if (killers.contains(p)){
                 p.addPoints(pointsToGive);
-                System.out.println("Player " + p.getId() + " gains " + pointsToGive + " points.");
+                LOGGER.log(Level.INFO, p.getId() + " gains " + pointsToGive + " points.");
 
             }
             if (pointsToGive==2) pointsToGive-= 1;

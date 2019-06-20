@@ -16,8 +16,6 @@ import java.util.List;
 
 import static it.polimi.ingsw.model.board.Player.HeroName;
 
-import static it.polimi.ingsw.model.cards.Color.*;
-
 /**
  * Contains several methods to configure a board.
  * Only one instance of the board configurer is allowed.
@@ -30,6 +28,8 @@ public class BoardConfigurer {
 
     private static BoardConfigurer instance = null;
     private static ModelDataReader j = new ModelDataReader();
+    private static final String BOARDS = "boards";
+    private static final String AMMO_TILES = "ammoTiles";
 
     /**
      * Constructs a board configurer.
@@ -78,35 +78,36 @@ public class BoardConfigurer {
 
         for (int i = 1; i <= rowsNumber; i++) {
             for (int k = 1; k <= columnNumber; k++) {
-                topWall[i-1][k-1] = j.getBooleanBC("wallT"+i+k,"boards",b);
-                leftWall[i-1][k-1] = j.getBooleanBC("wallL"+i+k,"boards",b);
+                topWall[i-1][k-1] = j.getBooleanBC("wallT"+i+k,BOARDS,b);
+                leftWall[i-1][k-1] = j.getBooleanBC("wallL"+i+k,BOARDS,b);
             }
         }
 
-        int ammoSquareNumber = j.getIntBC("aSNumber","boards",b);
-        int weaponSquareNumber = j.getIntBC("wSNumber","boards",b);
+        int ammoSquareNumber = j.getIntBC("aSNumber",BOARDS,b);
+        int weaponSquareNumber = j.getIntBC("wSNumber",BOARDS,b);
 
-        int w=1; int a=1;
+        int w=1;
+        int a=1;
         for (int i = 0; i < weaponSquareNumber+ammoSquareNumber; i++){
-            if((j.getIntBC("wS"+w+"Id","boards",b))==i){
-                map.add(new WeaponSquare(board, j.getIntBC("wS"+w+"Id","boards",b),
-                        j.getIntBC("wS"+w+"RoomId","boards",b),
-                        j.getIntBC("wS"+w+"Row","boards",b),
-                        j.getIntBC("wS"+w+"Column","boards",b),
-                        j.getColorBC("wS"+w+"Color","boards",b)));
+            if((j.getIntBC("wS"+w+"Id",BOARDS,b))==i){
+                map.add(new WeaponSquare(board, j.getIntBC("wS"+w+"Id",BOARDS,b),
+                        j.getIntBC("wS"+w+"RoomId",BOARDS,b),
+                        j.getIntBC("wS"+w+"Row",BOARDS,b),
+                        j.getIntBC("wS"+w+"Column",BOARDS,b),
+                        j.getColorBC("wS"+w+"Color",BOARDS,b)));
                 w++;
             }else{
-                map.add(new AmmoSquare(board, j.getIntBC("aS"+a+"Id","boards",b),
-                        j.getIntBC("aS"+a+"RoomId","boards",b),
-                        j.getIntBC("aS"+a+"Row","boards",b),
-                        j.getIntBC("aS"+a+"Column","boards",b),
-                        j.getColorBC("aS"+a+"Color","boards",b)));
+                map.add(new AmmoSquare(board, j.getIntBC("aS"+a+"Id",BOARDS,b),
+                        j.getIntBC("aS"+a+"RoomId",BOARDS,b),
+                        j.getIntBC("aS"+a+"Row",BOARDS,b),
+                        j.getIntBC("aS"+a+"Column",BOARDS,b),
+                        j.getColorBC("aS"+a+"Color",BOARDS,b)));
                 a++;
             }
         }
 
         for(int i=1;i<=weaponSquareNumber;i++)
-            spawnPoints.add((WeaponSquare) map.get(j.getIntBC("wS"+i+"Id","boards",b)));
+            spawnPoints.add((WeaponSquare) map.get(j.getIntBC("wS"+i+"Id",BOARDS,b)));
 
         board.setMap(map);
         board.setSpawnPoints(spawnPoints);
@@ -149,12 +150,6 @@ public class BoardConfigurer {
         //configures the weapons deck
         WeaponFactory weaponFactory = new WeaponFactory(board);
         Deck weaponsDeck = new Deck();
-        /*
-        for (int i = 0; i < 21; i++){
-            weaponsDeck.addCard(weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE));
-
-        }
-        */
         for (Weapon.WeaponName weaponName : Weapon.WeaponName.values()) {
             weaponsDeck.addCard(weaponFactory.createWeapon(weaponName));
         }
@@ -164,11 +159,11 @@ public class BoardConfigurer {
         Deck ammoDeck = new Deck();
         int ammoTilesTypesNumber = j.getIntBC("ammoTilesTypesNumber");
         for(int i=0; i<ammoTilesTypesNumber;i++){
-            for(int k=0; k<j.getIntBC("quantity","ammoTiles",i); k++){
-                    ammoDeck.addCard((new AmmoTile((j.getBooleanBC("pU","ammoTiles",i)),
-                        new AmmoPack(j.getIntBC("r","ammoTiles",i),
-                                j.getIntBC("b","ammoTiles",i),
-                                j.getIntBC("y","ammoTiles",i)))));
+            for(int k = 0; k< j.getIntBC("quantity",AMMO_TILES,i); k++){
+                    ammoDeck.addCard((new AmmoTile((j.getBooleanBC("pU",AMMO_TILES,i)),
+                        new AmmoPack(j.getIntBC("r",AMMO_TILES,i),
+                                j.getIntBC("b",AMMO_TILES,i),
+                                j.getIntBC("y",AMMO_TILES,i)))));
             }
         }
         ammoDeck.shuffleDeck();
@@ -178,7 +173,7 @@ public class BoardConfigurer {
         Deck powerUpsDeck = new Deck();
         for (int i = 0; i< j.getIntBC("pUNumberPerColor"); i++) {
             for (PowerUp.PowerUpName powerUpName : PowerUp.PowerUpName.values()) {
-                for(int k=0; k<j.getIntBC("pUColorsNumber");k++) {
+                for(int k = 0; k< j.getIntBC("pUColorsNumber"); k++) {
                     powerUpsDeck.addCard(powerUpFactory.createPowerUp(powerUpName, j.getColorBC("pUColor"+k)));
                 }
             }
@@ -238,7 +233,7 @@ public class BoardConfigurer {
         setAmmoTilesAndWeapons(board);
 
         //sets the players positions on the board
-        for(int i=0;i<j.getIntBC("simulationPlayersNumber");i++) {
+        for(int i = 0; i< j.getIntBC("simulationPlayersNumber"); i++) {
             board.getPlayers().get(i).setPosition(board.getMap().get(j.getIntBC("simulationPositionPlayer" + i)));
             board.getPlayers().get(i).setInGame(true);
         }

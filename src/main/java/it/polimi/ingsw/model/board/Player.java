@@ -78,7 +78,7 @@ public class Player {
     private boolean overkilled;
 
     private boolean inGame;
-    private static ModelDataReader J = new ModelDataReader();
+    private static ModelDataReader j = new ModelDataReader();
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
 
@@ -108,7 +108,7 @@ public class Player {
 
         this.weaponList = new ArrayList<>();
         this.powerUpList = new ArrayList<>();
-        this.ammoPack =new AmmoPack(J.getInt("initialRAmmo"),J.getInt("initialBAmmo"),J.getInt("initialYAmmo"));
+        this.ammoPack =new AmmoPack(j.getInt("initialRAmmo"), j.getInt("initialBAmmo"), j.getInt("initialYAmmo"));
 
         this.actionList = new ArrayList<>();
         this.mainTargets=new ArrayList<>();
@@ -201,9 +201,10 @@ public class Player {
         if (position == null) throw new NotAvailableAttributeException("The player is not on the board.");
         return position;}
 
-    public Square getPreviousPosition() throws NotAvailableAttributeException  {
+    public Square getPreviousPosition() {
 
-        if (previousPosition == null) throw new NotAvailableAttributeException("The player was not on the board.");
+        if (previousPosition == null) return position;
+            //throw new NotAvailableAttributeException("The player was not on the board.");
         return previousPosition;}
 
     public List<Player> getMainTargets(){return mainTargets;}
@@ -330,11 +331,11 @@ public class Player {
      */
     public void addMarks(int amount, Player shooter){
 
-        if (amount < 1) throw new IllegalArgumentException("Not valid number of marks");
+        if (amount < 0) throw new IllegalArgumentException("Not valid number of marks");
         if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
 
         for (int i = 0; i< amount; i++){
-            if (frequency(marks, shooter) < J.getInt("maximumMarks")){
+            if (frequency(marks, shooter) < j.getInt("maximumMarks")){
                 marks.add(shooter);
             }
         }
@@ -349,7 +350,7 @@ public class Player {
      */
     public void addWeapon(Weapon addedWeapon) throws UnacceptableItemNumberException {
 
-        if (this.weaponList.size()>J.getInt("maxWeapons"))
+        if (this.weaponList.size()> j.getInt("maxWeapons"))
             throw new UnacceptableItemNumberException("A player can hold up to 3 weapons; 4 are allowed while choosing " +
                     "which one to discard.");
         addedWeapon.setHolder(this);
@@ -425,7 +426,7 @@ public class Player {
         /*
         try {
             removedWeapon.setHolder(null);
-        } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "This thype of card cannot have an holder");}
+        } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "This type of card cannot have an holder");}
         */
         board.addToUpdateQueue(Updater.get("discardWeapon", this, (Weapon)removedWeapon));
     }
@@ -713,43 +714,43 @@ public class Player {
 
         if (status == Status.BASIC) {
 
-            for(int i=1;i<=J.getInt("numberOfActions","status",0);i++)
-                actionList.add(new Action(J.getInt("steps"+i,"status",0),
-                        J.getBoolean("collect"+i,"status",0),
-                        J.getBoolean("shoot"+i,"status",0),
-                        J.getBoolean("reload"+i,"status",0)));
+            for(int i = 1; i<= j.getInt("numberOfActions","status",0); i++)
+                actionList.add(new Action(j.getInt("steps"+i,"status",0),
+                        j.getBoolean("collect"+i,"status",0),
+                        j.getBoolean("shoot"+i,"status",0),
+                        j.getBoolean("reload"+i,"status",0)));
 
         } else if (status == Status.ADRENALINE_1) {
 
-            for(int i=1;i<=J.getInt("numberOfActions","status",1);i++)
-                actionList.add(new Action(J.getInt("steps"+i,"status",1),
-                        J.getBoolean("collect"+i,"status",1),
-                        J.getBoolean("shoot"+i,"status",1),
-                        J.getBoolean("reload"+i,"status",1)));
+            for(int i = 1; i<= j.getInt("numberOfActions","status",1); i++)
+                actionList.add(new Action(j.getInt("steps"+i,"status",1),
+                        j.getBoolean("collect"+i,"status",1),
+                        j.getBoolean("shoot"+i,"status",1),
+                        j.getBoolean("reload"+i,"status",1)));
 
         } else if (status == Status.ADRENALINE_2) {
 
-            for(int i=1;i<=J.getInt("numberOfActions","status",2);i++)
-                actionList.add(new Action(J.getInt("steps"+i,"status",2),
-                        J.getBoolean("collect"+i,"status",2),
-                        J.getBoolean("shoot"+i,"status",2),
-                        J.getBoolean("reload"+i,"status",2)));
+            for(int i = 1; i<= j.getInt("numberOfActions","status",2); i++)
+                actionList.add(new Action(j.getInt("steps"+i,"status",2),
+                        j.getBoolean("collect"+i,"status",2),
+                        j.getBoolean("shoot"+i,"status",2),
+                        j.getBoolean("reload"+i,"status",2)));
 
         } else if (status == Status.FRENZY_1) {
 
-            for(int i=1;i<=J.getInt("numberOfActions","status",3);i++)
-                actionList.add(new Action(J.getInt("steps"+i,"status",3),
-                        J.getBoolean("collect"+i,"status",3),
-                        J.getBoolean("shoot"+i,"status",3),
-                        J.getBoolean("reload"+i,"status",3)));
+            for(int i = 1; i<= j.getInt("numberOfActions","status",3); i++)
+                actionList.add(new Action(j.getInt("steps"+i,"status",3),
+                        j.getBoolean("collect"+i,"status",3),
+                        j.getBoolean("shoot"+i,"status",3),
+                        j.getBoolean("reload"+i,"status",3)));
 
         } else if (status == Status.FRENZY_2) {
 
-            for(int i=1;i<=J.getInt("numberOfActions","status",4);i++)
-                actionList.add(new Action(J.getInt("steps"+i,"status",4),
-                        J.getBoolean("collect"+i,"status",4),
-                        J.getBoolean("shoot"+i,"status",4),
-                        J.getBoolean("reload"+i,"status",4)));
+            for(int i = 1; i<= j.getInt("numberOfActions","status",4); i++)
+                actionList.add(new Action(j.getInt("steps"+i,"status",4),
+                        j.getBoolean("collect"+i,"status",4),
+                        j.getBoolean("shoot"+i,"status",4),
+                        j.getBoolean("reload"+i,"status",4)));
 
         }
 

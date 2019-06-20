@@ -48,6 +48,8 @@ public class Board {
     private List<VirtualView> observers;
     private Map<VirtualView, List<JsonObject>> updates;
 
+    private boolean reset;
+
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
 
@@ -74,6 +76,10 @@ public class Board {
 
         this.observers = new ArrayList<>();
         this.updates = new HashMap<>();
+
+        this.reset = false;
+
+
     }
 
 
@@ -185,6 +191,8 @@ public class Board {
     public boolean[][] getLeftWalls() { return leftWalls; }
 
     public boolean[][] getTopWalls() { return topWalls; }
+
+    public boolean isReset() {return reset; }
 
     /**
      * Setter for map.
@@ -324,6 +332,7 @@ public class Board {
      */
     public void setCurrentPlayer(Player currentPlayer){this.currentPlayer= currentPlayer;}
 
+    public void setReset(boolean reset) {this.reset = reset; }
 
     /**
      * Returns the players in the specified square.

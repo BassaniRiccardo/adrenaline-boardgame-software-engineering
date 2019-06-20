@@ -20,10 +20,17 @@ import java.util.logging.Logger;
 public class Updater {
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
+    private static final String P = "player";
+    private static final String W = "weapon";
+    private static final String S = "square";
+
+
+
+    private Updater(){}
 
     public static JsonObject get(String msg, Weapon w, boolean loaded) {
         JsonObject j = getFreshUpdate(msg);
-        j.addProperty("weapon", w.getWeaponName().toString());
+        j.addProperty(W, w.getWeaponName().toString());
         j.addProperty("loaded", loaded);
         //loaded
         return j;
@@ -46,7 +53,7 @@ public class Updater {
 
     public static JsonObject get(String s, Player p, PowerUp powerUp) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("player", p.getId());
+        j.addProperty(P, p.getId());
         j.addProperty("powerupname", powerUp.getName().toString());
         j.addProperty("powerupcolor", powerUp.getColor().toStringLowerCase());
         return j;
@@ -55,8 +62,8 @@ public class Updater {
 
     public static JsonObject get(String s, Player p, Weapon w) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("player", p.getId());
-        j.addProperty("weapon", w.getWeaponName().toString());
+        j.addProperty(P, p.getId());
+        j.addProperty(W, w.getWeaponName().toString());
         return j;
         //discardWeapon and pickUpWeapon
     }
@@ -64,7 +71,7 @@ public class Updater {
 
     public static JsonObject get(String s, Player p, AmmoPack a) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("player", p.getId());
+        j.addProperty(P, p.getId());
         j.addProperty("redammo", a.getRedAmmo());
         j.addProperty("blueammo", a.getBlueAmmo());
         j.addProperty("yellowammo", a.getYellowAmmo());
@@ -74,22 +81,22 @@ public class Updater {
 
     public static JsonObject get(String s, Player p, Square square) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("player", p.getId());
-        j.addProperty("square", square.getId());
+        j.addProperty(P, p.getId());
+        j.addProperty(S, square.getId());
         return j;
         //move
     }
 
     public static JsonObject get(String s, Player p) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("player", p.getId());
+        j.addProperty(P, p.getId());
         return j;
         //flip, addDeath
     }
 
     public static JsonObject get(String s, Player p, List<Player> l) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("player", p.getId());
+        j.addProperty(P, p.getId());
         JsonArray array = new JsonArray();
         for (Player shooter : l) {
             array.add(shooter.getId());
@@ -101,15 +108,15 @@ public class Updater {
 
     public static JsonObject get(String s, Square sq, Weapon w) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("square", sq.getId());
-        j.addProperty("weapon", w.toString());
+        j.addProperty(S, sq.getId());
+        j.addProperty(W, w.toString());
         return j;
         //weaponRemoved & addWeapon
     }
 
     public static JsonObject get(String s, Player p, boolean in) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("player", p.getId());
+        j.addProperty(P, p.getId());
         j.addProperty("ingame", in);
         return j;
         //setInGame
@@ -117,7 +124,7 @@ public class Updater {
 
     public static JsonObject get(String s, Square square){
         JsonObject j = getFreshUpdate(s);
-        j.addProperty("square", square.getId());
+        j.addProperty(S, square.getId());
         return j;
         //removeAmmoTile
     }
@@ -239,11 +246,6 @@ public class Updater {
             }
             ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
             simplePlayers.add(simplePlayer);
-            //currentPlayer
-            /*if (p.equals(board.getCurrentPlayer())){
-                cm.setCurrentPlayer(simplePlayer);
-            }*/
-
 
 
             //killShotTrack
@@ -253,7 +255,7 @@ public class Updater {
                         killers.add(board.getKillShotTrack().getKillers().indexOf(killer), simplePlayer);
                     }
                 }
-            } catch (NotAvailableAttributeException e){e.printStackTrace();}
+            } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE, "NotAvailableAtribute exception thrown while getting the killshot track");}
 
         }
         cm.setPlayers(simplePlayers);

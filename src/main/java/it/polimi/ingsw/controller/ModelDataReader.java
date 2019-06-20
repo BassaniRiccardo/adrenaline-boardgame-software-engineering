@@ -100,10 +100,8 @@ public class ModelDataReader {
             return false;
         }
         int out=obj.get(key).getAsInt();
-        if(out==1)
-            return true;
-        else
-            return false;
+        return (out==1);
+
     }
 
     public int getInt(String key) {

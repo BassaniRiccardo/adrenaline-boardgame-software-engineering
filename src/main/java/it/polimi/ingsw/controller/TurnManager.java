@@ -44,11 +44,14 @@ public class TurnManager implements Runnable{
     private GameEngine gameEngine;
 
     private boolean frenzy;
-    static boolean reset;
     private int actionsLeft;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String EX_CAN_USE_POWERUP ="NotAvailableAttributeException thrown while checking if the player can use a powerup";
+    private static final String SELECT ="select";
+    private static final String RESET ="reset";
+    private static final String RESET_ACTION = " resets the action";
+
 
     /**
      * Constructs a turn manager with a reference to the board, the current player and the list of players.
@@ -69,7 +72,6 @@ public class TurnManager implements Runnable{
         } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while setting the kill shot track", e);}
         this.frenzy = frenzy;
         this.actionsLeft=2;
-        this.reset=false;
         LOGGER.setLevel(Level.FINE);
     }
 
@@ -79,9 +81,6 @@ public class TurnManager implements Runnable{
     public void run() {
 
         dead.clear();
-
-        //maybe not necessary
-        //updateAndNotifyAll();
 
         try {
 
@@ -97,7 +96,7 @@ public class TurnManager implements Runnable{
                 if (executeAction()) {                  //confirm or go back------>checkpoint
                     actionsLeft--;
                     LOGGER.log(Level.FINE, "Action executed or reset:");
-                    LOGGER.log(Level.FINE, "Actions left: " + actionsLeft);
+                    LOGGER.log(Level.FINE, "Actions left: {0}", actionsLeft);
                 }
             }
 
@@ -118,9 +117,9 @@ public class TurnManager implements Runnable{
 
             if (choice1 || choice2 || choice3) {
                 while (!askConfirmation("Do you confirm the ending phase?")) {
-                    LOGGER.log(Level.FINE, currentPlayer + " resets the action");
+                    LOGGER.log(Level.FINE,  "{0} resets the action", currentPlayer);
                     statusSaver.restoreCheckpoint();
-                    reset = false;
+                    board.setReset(false);
                     handleUsingPowerUp();
                     convertPowerUp();
                     reload(3);
@@ -131,7 +130,7 @@ public class TurnManager implements Runnable{
             for (Player deadPlayer : board.getActivePlayers()) {
                 if (dead.contains(deadPlayer.getId())) {
                     try {
-                        LOGGER.log(Level.FINE, "The killers are awarded for the death of " + deadPlayer + ".");
+                        LOGGER.log(Level.FINE, "The killers are awarded for the death of {0}.", deadPlayer);
                         for (Player p : board.getPlayers()) {
                             LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
                         }
@@ -236,7 +235,7 @@ public class TurnManager implements Runnable{
      */
     public boolean executeAction() throws SlowAnswerException{
 
-        reset = false;
+        board.setReset(false);
 
         boolean canUSePowerUp = false;
         List<Action> availableActions = new ArrayList<>();
@@ -290,11 +289,11 @@ public class TurnManager implements Runnable{
         if (action.getSteps() > 0) {
             handleMoving(action);
         }
-        if (reset) return;
+        if (board.isReset()) return;
         if (action.isCollect()) {
             handleCollecting();
         }
-        if (reset) return;
+        if (board.isReset()) return;
         if (action.isReload()) {
             try {
                 if (currentPlayer.getShootingSquares(0, currentPlayer.getLoadedWeapons()).isEmpty()) {
@@ -306,7 +305,7 @@ public class TurnManager implements Runnable{
             }  catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while reloading", e);}
 
         }
-        if (reset) return;
+        if (board.isReset()) return;
         if (action.isShoot()) {
             try {
                 handleShooting();
@@ -324,7 +323,7 @@ public class TurnManager implements Runnable{
      */
     public boolean handleUsingPowerUp() throws SlowAnswerException{
 
-        reset = false;
+        board.setReset(false);
 
         int answer = 1;
         boolean possible = false;
@@ -336,7 +335,7 @@ public class TurnManager implements Runnable{
             return false;
         }
 
-        while (possible && answer == 1 && !reset) {
+        while (possible && answer == 1 && !board.isReset()) {
 
             List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
@@ -363,7 +362,7 @@ public class TurnManager implements Runnable{
      */
     public void usePowerUp() throws SlowAnswerException{
 
-        reset = false;
+        board.setReset(false);
 
         LOGGER.log(Level.FINE, () -> currentPlayer  + " decides to use a powerup." );
 
@@ -379,7 +378,7 @@ public class TurnManager implements Runnable{
         usablePowerUps.removeAll(toRemove);
 
         List<String> optionsPowerUps = toStringList(usablePowerUps);
-        optionsPowerUps.add("reset");
+        optionsPowerUps.add(RESET);
 
         currentPlayerConnection.choose("Which powerup do you want to use?", optionsPowerUps);
         int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
@@ -393,7 +392,7 @@ public class TurnManager implements Runnable{
         if (powerUpToUse.getName() == PowerUp.PowerUpName.NEWTON) {
             try {
                 List<String> optionsTargets = toStringList(powerUpToUse.findTargets());
-                optionsTargets.add("reset");
+                optionsTargets.add(RESET);
                 currentPlayerConnection.choose("Who do you want to choose as a target?", optionsTargets);
                 selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
                 if (selected == optionsTargets.size()){
@@ -408,7 +407,7 @@ public class TurnManager implements Runnable{
 
         try {
             List<String> optionsDest = toStringList(powerUpToUse.findDestinations(targets));
-            optionsDest.add("reset");
+            optionsDest.add(RESET);
             currentPlayerConnection.choose("Choose a destination", optionsDest);
             selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsDest.size()) {
@@ -439,17 +438,14 @@ public class TurnManager implements Runnable{
      */
     public boolean convertPowerUp() throws SlowAnswerException{
 
-        //LOGGER.log(Level.SEVERE,"Entering in method convertPowerUp" );
-
-        reset = false;
+        board.setReset(false);
 
         int answer = 1;
         if (currentPlayer.getPowerUpList().isEmpty()){
-            //LOGGER.log(Level.SEVERE,"Returning since no powerup can be converted: no need to ask confirmation" );
             return false;
         }
 
-        while (!currentPlayer.getPowerUpList().isEmpty() && answer == 1 && !reset) {
+        while (!currentPlayer.getPowerUpList().isEmpty() && answer == 1 && !board.isReset()) {
 
             List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
@@ -465,7 +461,7 @@ public class TurnManager implements Runnable{
                 LOGGER.log(Level.FINE, () -> currentPlayer + " decides to convert a powerup.");
 
                 List<String> optionsConvert = toStringList(currentPlayer.getPowerUpList());
-                optionsConvert.add("reset");
+                optionsConvert.add(RESET);
 
                 currentPlayerConnection.choose("Which powerup do you want to convert?", optionsConvert);
                 int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
@@ -491,7 +487,7 @@ public class TurnManager implements Runnable{
     public void handleMoving(Action action) throws SlowAnswerException{
         try {
 
-            reset = false;
+            board.setReset(false);
 
             List<Square> possibleDestinations = board.getReachable(currentPlayer.getPosition(), (action.getSteps()));
             if (!action.isCollect() && !action.isShoot()){
@@ -518,7 +514,7 @@ public class TurnManager implements Runnable{
             }
 
             List<String> optionsDest = toStringList(possibleDestinations);
-            optionsDest.add("reset");
+            optionsDest.add(RESET);
 
             LOGGER.log(Level.FINE, currentPlayer + " is in " + currentPlayer.getPosition());
             currentPlayerConnection.choose("Where do you wanna move?", optionsDest);
@@ -547,12 +543,12 @@ public class TurnManager implements Runnable{
     public void handleCollecting() throws SlowAnswerException{
         try {
 
-            reset = false;
+            board.setReset(false);
 
             if (board.getSpawnPoints().contains(currentPlayer.getPosition())) {
                 List<Weapon> collectible = currentPlayer.getCollectibleWeapons((WeaponSquare)currentPlayer.getPosition());
                 List<String> optionsCollectible = toStringList(collectible);
-                optionsCollectible.add("reset");
+                optionsCollectible.add(RESET);
                 currentPlayerConnection.choose("Which weapon do you want to collect?", optionsCollectible);
                 int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
                 if (selected == optionsCollectible.size()){
@@ -565,7 +561,7 @@ public class TurnManager implements Runnable{
                 LOGGER.log(Level.FINE, () -> currentPlayer + " collects  " + collectedWeapon + ".");
                 if (currentPlayer.getWeaponList().size()>3){
                     List<String> optionsToDiscard = toStringList(currentPlayer.getWeaponList());
-                    optionsToDiscard.add("reset");
+                    optionsToDiscard.add(RESET);
                     currentPlayerConnection.choose("Which weapon do you want to discard?", optionsToDiscard);
                     selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
                     if(selected == optionsToDiscard.size()){
@@ -622,7 +618,7 @@ public class TurnManager implements Runnable{
 
         List<Weapon> availableWeapons = new ArrayList<>(currentPlayer.getAvailableWeapons());
         List<String> optionsWeapons = toStringList(availableWeapons);
-        optionsWeapons.add("reset");
+        optionsWeapons.add(RESET);
 
         currentPlayerConnection.choose("Choose your weapon", optionsWeapons);
         int selected1 = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
@@ -649,7 +645,7 @@ public class TurnManager implements Runnable{
             remainingFiremodes.removeAll(toRemove);
 
             List<String> options = toStringList(remainingFiremodes);
-            options.add("reset");
+            options.add(RESET);
             if (canStop){
                 options.add("none");
                 currentPlayerConnection.choose("If you want, select an additional firemode", options);
@@ -667,11 +663,11 @@ public class TurnManager implements Runnable{
             else {
                 FireMode selectedFireMode = remainingFiremodes.get(selected2 - 1);
                 if (selectedFireMode.getName() == MAIN || selectedFireMode.getName() == SECONDARY) canStop = true;
-                LOGGER.log(Level.FINE, () -> currentPlayer + " select " + selectedFireMode + " as firemode");
+                LOGGER.log(Level.FINE, () -> currentPlayer + SELECT + selectedFireMode + " as firemode");
                 usedFireModes.add(selectedFireMode.getName());
                 applyFireMode(selectedFireMode);
 
-                if (reset) return;
+                if (board.isReset()) return;
 
                 //targeting scope
                 List<Integer> newDamages = getDamagesList();
@@ -684,7 +680,7 @@ public class TurnManager implements Runnable{
                 while (currentPlayer.hasUsableTargetingScope() && !targets.isEmpty()){
                     //if he choose not to use it stop asking
                     if (!handleTargetingScope(currentPlayer, targets)) break;
-                    if (reset) return;
+                    if (board.isReset()) return;
                 }
             }
         }
@@ -707,11 +703,8 @@ public class TurnManager implements Runnable{
 
         //update deaths
         for (Player p: board.getActivePlayers()) {
-            //if (!p.equals(currentPlayer))  p.sufferDamage(1 + (new Random()).nextInt(3), currentPlayer);
-            //statusSaver.updateCheckpoint(false);
-
             //p.refreshActionList();
-            if (p.isDead() && !dead.contains(p)) {
+            if (p.isDead() && !dead.contains(p.getId())) {
                 dead.add(p.getId());
                 LOGGER.log(Level.FINE, () -> currentPlayer + " is dead.");
                 if (p.isOverkilled()) LOGGER.log(Level.FINE, "It is an overkill!!!");
@@ -723,7 +716,7 @@ public class TurnManager implements Runnable{
 
     private void applyFireMode(FireMode fireMode) throws NotAvailableAttributeException, SlowAnswerException {
 
-        reset = false;
+        board.setReset(false);
 
         List<List<Player>> targetsList = new ArrayList<>(fireMode.getTargetFinder().find(currentPlayer));
         List<List<Player>> toRemove = new ArrayList<>();
@@ -735,7 +728,7 @@ public class TurnManager implements Runnable{
         }
 
         List<String> optionsTarget = toStringList(targetsList);
-        optionsTarget.add("reset");
+        optionsTarget.add(RESET);
 
         currentPlayerConnection.choose("Choose targets", optionsTarget);
         int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
@@ -751,7 +744,7 @@ public class TurnManager implements Runnable{
         Square destination = board.getMap().get(0);
         if (!destinations.isEmpty()) {
             List<String> optionsDest = toStringList(destinations);
-            optionsDest.add("reset");
+            optionsDest.add(RESET);
             currentPlayerConnection.choose("Choose a destination", optionsDest);
             selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsDest.size()){
@@ -781,21 +774,18 @@ public class TurnManager implements Runnable{
      *                  false otherwise.
      */
     public boolean reload(int max) throws SlowAnswerException{
-
-        //LOGGER.log(Level.SEVERE,"Entering in method reload" );
-
+        
         int left = max;
 
-        reset = false;
+        board.setReset(false);
         if (currentPlayer.getReloadableWeapons().isEmpty()) {
-            //LOGGER.log(Level.SEVERE,"Returning since no weapons can be realoaded: no need to ask confirmation" );
             return false;
         }
         boolean none = false;
         while (!currentPlayer.getReloadableWeapons().isEmpty() && left > 0 && !none) {
             List<String> options = toStringList(currentPlayer.getReloadableWeapons());
             options.add("None");
-            options.add("reset");
+            options.add(RESET);
             currentPlayerConnection.choose("Which weapon do you want to reload?", options);
             int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == currentPlayer.getReloadableWeapons().size() + 2) {
@@ -831,7 +821,7 @@ public class TurnManager implements Runnable{
      */
     public void reloadMandatory() throws SlowAnswerException{
 
-        reset = false;
+        board.setReset(false);
 
         List<Weapon> reloadable = new ArrayList<>();
         for (Weapon w : currentPlayer.getReloadableWeapons()) {
@@ -842,7 +832,7 @@ public class TurnManager implements Runnable{
             } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while reloading", e);}
         }
         List<String> options = toStringList(reloadable);
-        options.add("reset");
+        options.add(RESET);
         currentPlayerConnection.choose("You have to reload one of these weapons to shoot. Which one do you choose?", options);
         int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (selected == options.size()){
@@ -865,8 +855,6 @@ public class TurnManager implements Runnable{
      * If the weapon deck is empty, the collected weapons are not replaced.
      */
     private void replaceWeapons() {
-
-        boolean stop;
 
         for (WeaponSquare s : board.getSpawnPoints()) {
             if (!board.getWeaponDeck().getDrawable().isEmpty()) {
@@ -925,12 +913,12 @@ public class TurnManager implements Runnable{
      */
     public boolean handleTargetingScope(Player currentPlayer, List<Player> targets ) throws SlowAnswerException{
 
-        reset = false;
+        board.setReset(false);
         currentPlayerConnection.choose("Do you want to use a targeting scope?", new ArrayList(Arrays.asList("yes", "no")));
         int answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         if (answer == 1){
             List<String> optionsPowerup = toStringList(currentPlayer.getPowerUps(PowerUp.PowerUpName.TARGETING_SCOPE));
-            optionsPowerup.add("reset");
+            optionsPowerup.add(RESET);
             currentPlayerConnection.choose("Which targeting scope do you want to use?", optionsPowerup);
             int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsPowerup.size()){
@@ -940,7 +928,7 @@ public class TurnManager implements Runnable{
             PowerUp targetingScope = currentPlayer.getPowerUps(PowerUp.PowerUpName.TARGETING_SCOPE).get(selected-1);
 
             List<String> optionsTargets = toStringList(targets);
-            optionsTargets.add("reset");
+            optionsTargets.add(RESET);
             currentPlayerConnection.choose("Who do you want to target?", optionsTargets);
             selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsTargets.size()){
@@ -978,7 +966,7 @@ public class TurnManager implements Runnable{
         if (answer == 1){
             LOGGER.log(Level.FINE, () -> p + "Decides to use a grenade" );
             List<String> optionsGrenade = toStringList(p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE));
-            optionsGrenade.add("reset");
+            optionsGrenade.add(RESET);
             player.choose("Which tagback grenade do you want to use?", optionsGrenade);
             int selected = Integer.parseInt(gameEngine.wait(player));
             if (selected == optionsGrenade.size()){
@@ -1051,7 +1039,7 @@ public class TurnManager implements Runnable{
      *                      false if the player is joining the board for the first time.
      */
     private void resetJoinBoard(Player p, boolean reborn) throws SlowAnswerException{
-        LOGGER.log(Level.FINE, () -> p + " resets the action");
+        LOGGER.log(Level.FINE, () -> p + RESET_ACTION);
         // if the player is entering the board for the first time only powerups can and must be restored
         // the player must also be set as out of the game (graphically he is removed form the map)
         if (!reborn) {
@@ -1070,7 +1058,7 @@ public class TurnManager implements Runnable{
      * Resets all players powerups.
      */
     private void resetPowerUp() throws SlowAnswerException{
-        LOGGER.log(Level.FINE, () -> currentPlayer + " resets the action");
+        LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
         statusSaver.restoreCheckpoint();
         board.revertUpdates(currentPlayerConnection);
         board.notifyObservers();
@@ -1084,7 +1072,7 @@ public class TurnManager implements Runnable{
      * Resets the effects of the last convertPowerUp call.
      */
     private boolean resetConvert() throws SlowAnswerException{
-        LOGGER.log(Level.FINE, () -> currentPlayer + " resets the action");
+        LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
         statusSaver.restoreCheckpoint();
         board.revertUpdates(currentPlayerConnection);
         board.notifyObservers();
@@ -1101,7 +1089,7 @@ public class TurnManager implements Runnable{
      * Resets the effects of the last action.
      */
     private void resetAction() throws SlowAnswerException{
-        LOGGER.log(Level.FINE, () -> currentPlayer + " resets the action");
+        LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
         statusSaver.restoreCheckpoint();
         board.notifyObserver(currentPlayerConnection);
         if (actionsLeft == 0)

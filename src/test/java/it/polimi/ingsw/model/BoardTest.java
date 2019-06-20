@@ -25,6 +25,8 @@ import static org.junit.Assert.*;
  * Tests all methods of the class Board.
  * The position of the squares in the map is shown using the notation map[row][column]
  * for a better readability.
+ *
+ * @author BassaniRiccardo
  */
 
 public class BoardTest {
@@ -168,6 +170,7 @@ public class BoardTest {
         assertEquals(expected, board1.getVisible(board1.getMap().get(5)));
     }
 
+
     /**
      * Tests the method getInRoom().
      */
@@ -188,9 +191,6 @@ public class BoardTest {
 
         assertEquals(expected, board1.getSquaresInRoom(2));
     }
-
-
-
 
 
     /**
@@ -359,6 +359,7 @@ public class BoardTest {
 
     }
 
+
     /**
      * Tests the method getDistance(), covering the left distance values.
      */
@@ -371,6 +372,7 @@ public class BoardTest {
         assertEquals(4, board1.getDistance(board1.getMap().get(1), board1.getMap().get(7) ));
 
     }
+
 
     /**
      * Tests the method getDistance(), when an exception should be thrown since a square does not belong to the map.
@@ -385,6 +387,7 @@ public class BoardTest {
 
     }
 
+
     /**
      * Tests the method setLeftWalls(), when a bad parameter is entered.
      */
@@ -396,6 +399,7 @@ public class BoardTest {
         boolean[][] walls = {{true,true,true,true},{false,false,false,false}};
         board1.setLeftWalls(walls);
     }
+
 
     /**
      * Tests the method setTopWalls(), when a bad parameter is entered.
@@ -423,6 +427,7 @@ public class BoardTest {
         board1.setSpawnPoints(spawnPoints);
     }
 
+
     /**
      * Tests the method setSpawnPoints(), when a bad parameter is entered: a color different from red, blue, green.
      */
@@ -437,6 +442,7 @@ public class BoardTest {
         spawnPoints.add(new WeaponSquare(board1, 3,3,3,3,BLUE));
         board1.setSpawnPoints(spawnPoints);
     }
+
 
     /**
      * Tests the method setSpawnPoints(), when a bad parameter is entered: two swap points have the same color.
@@ -453,6 +459,7 @@ public class BoardTest {
         board1.setSpawnPoints(spawnPoints);
     }
 
+
     /**
      * Tests the method setSpawnPoints(), when a bad parameter is entered: two swap points are in the same room.
      */
@@ -468,6 +475,7 @@ public class BoardTest {
         board1.setSpawnPoints(spawnPoints);
     }
 
+
     /**
      * Tests the method setPlayer(), when a bad parameter is entered: player number not between 3 and 5.
      */
@@ -480,6 +488,7 @@ public class BoardTest {
         players.add(new Player(1, Player.HeroName.BANSHEE, board1));
         board1.setPlayers(players);
     }
+
 
     /**
      * Tests the method setWeaponDeck(), when a bad parameter is entered: not 21 drawable cards.
@@ -495,6 +504,7 @@ public class BoardTest {
         board1.setWeaponDeck(weaponDeck);
     }
 
+
     /**
      * Tests the method setPowerUpDeck(), when a bad parameter is entered: not 24 drawable cards.
      */
@@ -508,6 +518,7 @@ public class BoardTest {
         for (int i = 0; i< 50; i++) powerUpDeck.addCard(powerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, RED));
         board1.setPowerUpDeck(powerUpDeck);
     }
+
 
     /**
      * Tests the method setAmmoDeck(), when a bad parameter is entered: not 0 discarded cards.
@@ -523,6 +534,7 @@ public class BoardTest {
         board1.setWeaponDeck(ammoDeck);
     }
 
+
     /**
      * Tests the method setKillShotTrack(), when a bad parameter is entered: less than 5 skulls.
      */
@@ -533,6 +545,7 @@ public class BoardTest {
 
         board1.setKillShotTrack(new KillShotTrack(3, board1));
     }
+
 
     /**
      * Tests the method setMap(), when a bad parameter is entered: less than 10 squares.

@@ -136,7 +136,6 @@ public abstract class Square {
      * @param p     the player to addList.
      */
     public void addPlayer(Player p) {
-//        if (!this.board.getPlayers().contains(p)) throw new IllegalArgumentException("Only players of the Board can be added to the Square");
         this.players.add(p);
     }
 
@@ -208,7 +207,7 @@ public abstract class Square {
         Square s = (Square) o;
 
         // Compares the IDs and the boards and returns accordingly
-        return s.getId() == getId() && s.getBoard().equals(s.getBoard());
+        return s.getId() == getId() && s.getBoard().equals(board);
     }
 
     /**

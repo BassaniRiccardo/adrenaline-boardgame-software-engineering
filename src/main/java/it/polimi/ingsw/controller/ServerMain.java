@@ -325,7 +325,8 @@ public class ServerMain {
         }
         String res = "Connected players: ";
         for(VirtualView v : waitingPlayers){
-            res = res + v.getName()+" ";
+            res = res + v.getName() + " ";
+
         }
         res = res + "\n";
         return res;

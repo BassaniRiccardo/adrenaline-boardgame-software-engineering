@@ -24,9 +24,12 @@ import static org.junit.Assert.*;
 /**
  * Tests all methods of the class Deck.
  * The methods are tested interchangeably with decks of weapon, ammoTile, powerUps.
+ *
+ * @author BassaniRiccardo
  */
 
 public class DeckTest {
+
 
     /**
      * Tests the method addAllCards() for a deck of weapons.
@@ -119,6 +122,7 @@ public class DeckTest {
         assertEquals(oldPowerUpDeck.getDrawable().size()-1, powerUpDeck.getDrawable().size());
 
     }
+
 
     /**
      * Tests the method drawCard() for a deck of powerUps, when an exception should be thrown since the deck is empty.
@@ -266,6 +270,7 @@ public class DeckTest {
         assertEquals(PowerUp.PowerUpName.values().length*numberOfColor*numberOfCopy, powerUpDeck.getDrawable().size());
     }
 
+
     /**
      * Tests the method regenerate() for a deck of power up, when an exception should be thrown since the deck is not empty.
      */
@@ -296,7 +301,6 @@ public class DeckTest {
 
         //checks that there are still 23 discarded cards, no cards have been added
         assertEquals(23, powerUpDeck.getDrawable().size());
-
 
     }
 }

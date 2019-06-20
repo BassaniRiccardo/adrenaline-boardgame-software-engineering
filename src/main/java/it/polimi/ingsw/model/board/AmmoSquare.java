@@ -9,6 +9,9 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Extends the class Square.
  * Can contain an ammo tile, that can be collected by a player.
@@ -20,6 +23,7 @@ import it.polimi.ingsw.model.exceptions.WrongTimeException;
 public class AmmoSquare extends Square  {
 
     private AmmoTile ammoTile;
+    private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
     /**
      * Constructs an AmmoSquare with a reference to the game board, an id, a room id, a row, a column, a color and an ammo tile.
@@ -116,7 +120,7 @@ public class AmmoSquare extends Square  {
             try {
                 this.getBoard().getAmmoDeck().regenerate();
             } catch (WrongTimeException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Exception thrown while regenerating the deck", e);
             }
         }
 

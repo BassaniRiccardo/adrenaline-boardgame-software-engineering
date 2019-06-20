@@ -16,6 +16,8 @@ import static org.junit.Assert.*;
 
 /**
  * Tests all methods of the class KillShotTrack.
+ *
+ * @author BassaniRiccardo
  */
 
 public class KillShotTrackTest {
@@ -31,6 +33,7 @@ public class KillShotTrackTest {
     public void constructorParameters() throws IllegalArgumentException {
         new KillShotTrack(21, new Board());
     }
+
 
     /**
      * Tests that an exception is thrown if the decrement of the number of skulls would make it negative.

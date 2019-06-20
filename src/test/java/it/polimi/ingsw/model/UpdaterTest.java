@@ -5,17 +5,27 @@ import it.polimi.ingsw.controller.PowerUpFactory;
 import it.polimi.ingsw.controller.WeaponFactory;
 import it.polimi.ingsw.model.board.*;
 import it.polimi.ingsw.model.cards.*;
-import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
-import it.polimi.ingsw.model.exceptions.WrongTimeException;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * Tests the method getModel of the class WeaponSquare.
+ * The method shared with the class AmmoSquare are tested in SquareTest.
+ *
+ * @author BassaniRiccardo
+ */
+
 public class UpdaterTest {
 
+    /**
+     * Tests the method getModel, simulating a game and checking that the client model is build correctly
+     *
+     * @throws UnacceptableItemNumberException
+     */
     @Test
-    public void getModel() throws  UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
+    public void getModel() throws  UnacceptableItemNumberException{
         Board board = BoardConfigurer.configureMap(4);
         WeaponFactory weaponFactory = new WeaponFactory(board);
         PowerUpFactory powerUpFactory = new PowerUpFactory(board);

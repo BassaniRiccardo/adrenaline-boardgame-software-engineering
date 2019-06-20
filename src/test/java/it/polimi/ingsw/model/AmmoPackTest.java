@@ -19,6 +19,7 @@ public class AmmoPackTest {
         AmmoPack ammoPack = new AmmoPack(3,5,78);
     }
 
+
     /**
      * Tests addAmmoPack() without reaching the maximum of the ammo.
      */
@@ -48,6 +49,7 @@ public class AmmoPackTest {
 
     }
 
+
     /**
      * Tests addAmmoPack() reaching the maximum of the ammo.
      */
@@ -76,6 +78,7 @@ public class AmmoPackTest {
                 3==ammoPack1.getYellowAmmo());
 
     }
+
 
     /**
      * Tests subAmmoPack() without going below 0 ammo.

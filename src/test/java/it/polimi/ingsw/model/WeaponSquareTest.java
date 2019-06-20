@@ -33,7 +33,7 @@ WeaponSquareTest {
     @Test
     public void removeWeapon() throws NoMoreCardsException, UnacceptableItemNumberException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         WeaponFactory weaponFactory = new WeaponFactory(board1);
 
         //creates a new weapon square with no weapons
@@ -64,7 +64,7 @@ WeaponSquareTest {
 
     public void removeWeaponEmptySquare() throws NoMoreCardsException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         WeaponFactory weaponFactory = new WeaponFactory(board1);
 
         //creates a new weapon square with no weapons
@@ -91,7 +91,7 @@ WeaponSquareTest {
     @Test
     public void addSingleWeapon() throws UnacceptableItemNumberException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         WeaponFactory weaponFactory = new WeaponFactory(board1);
 
         //creates a new weapon square with no weapons
@@ -126,9 +126,9 @@ WeaponSquareTest {
 
         //configures the map and the decks
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         WeaponFactory weaponFactory = new WeaponFactory(board1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        BoardConfigurer.configureDecks(board1);
 
         //creates a new weapon square with no weapons
         WeaponSquare weaponSquare = board1.getSpawnPoints().get(0);
@@ -169,9 +169,9 @@ WeaponSquareTest {
     public void addSingleWeaponFromDeckFullSquare() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //configures the map and the decks
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         WeaponFactory weaponFactory = new WeaponFactory(board1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        BoardConfigurer.configureDecks(board1);
 
         //creates a new weapon square with no weapons
         WeaponSquare weaponSquare = board1.getSpawnPoints().get(0);
@@ -207,11 +207,10 @@ WeaponSquareTest {
     @Test
     public void addStartingWeaponsFromDeck() throws UnacceptableItemNumberException, NoMoreCardsException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         WeaponFactory weaponFactory = new WeaponFactory(board1);
-        //configures the map and the decks
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        //configures the decks
+        BoardConfigurer.configureDecks(board1);
 
         //creates a new weapon square with no weapons
         WeaponSquare weaponSquare = board1.getSpawnPoints().get(0);
@@ -243,12 +242,12 @@ WeaponSquareTest {
     @Test(expected = UnacceptableItemNumberException.class)
     public void addStartingWeaponsFromDeckNotSetup() throws UnacceptableItemNumberException, NoMoreCardsException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         WeaponFactory weaponFactory = new WeaponFactory(board1);
 
         //configures the map and the decks
-        BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        BoardConfigurer.configureMap(1);
+        BoardConfigurer.configureDecks(board1);
 
         //creates a new weapon square with no weapons
         WeaponSquare weaponSquare = board1.getSpawnPoints().get(0);

@@ -586,7 +586,9 @@ public class WeaponFactory {
             }
             List<Player> l = new ArrayList<>(p.getMainTargets());
             for(Player player : p.getMainTargets()){
-                l.addAll(player.getPreviousPosition().getPlayers());
+                for (Player opt2target : player.getPreviousPosition().getPlayers())
+                    if (!l.contains(opt2target))
+                         l.add(opt2target);
             }
             return Arrays.asList(l);
         };

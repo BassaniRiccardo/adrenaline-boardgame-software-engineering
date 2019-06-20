@@ -137,7 +137,6 @@ public class FireMode implements Targeted {
             if (!targets.isEmpty()) return true;
         }
         return false;
-        //return !(findTargets().isEmpty());
     }
 
 

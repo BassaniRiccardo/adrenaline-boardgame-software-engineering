@@ -33,8 +33,8 @@ public class PlayerTest {
     @Before
     public void setup() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        Board board1 = BoardConfigurer.configureMap(1);
+        BoardConfigurer.configureDecks(board1);
     }
 
 
@@ -44,7 +44,7 @@ public class PlayerTest {
     @Test
     public void addMarks() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the player who takes damage and two shooters
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -64,7 +64,7 @@ public class PlayerTest {
     @Test
     public void addMarksMultipleShooters() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the player who takes damage and two shooters
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -89,7 +89,7 @@ public class PlayerTest {
     @Test
     public void addMarksMaximum3() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the player who takes damage and two shooters
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -110,7 +110,7 @@ public class PlayerTest {
     public void collectAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //simulates a scenario, all the squares are filled
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //a player with no ammo pack
         Player player = b.getPlayers().get(0);
@@ -138,11 +138,11 @@ public class PlayerTest {
     /**
      * Tests collect() in an ammo square, when no ammo tile is available.
      */
-    @Test
+    @Test(expected = NotAvailableAttributeException.class)
     public void collectNoAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
 
         //simulates a scenario, all the squares are filled
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //a player with no ammo pack
         Player player1 = b.getPlayers().get(0);
@@ -161,29 +161,17 @@ public class PlayerTest {
         player2.setPosition(player1.getPosition());
 
         //the second players try to collect the ammo tile and fails
-        try{
-            player2.collect(((AmmoSquare)player2.getPosition()).getAmmoTile());
-        }
-        catch (NotAvailableAttributeException notAvailableAttributeException) {
-        }
-        catch (NoMoreCardsException noMoreCardsException) {
-        }
+        player2.collect(((AmmoSquare)player2.getPosition()).getAmmoTile());
+
 
         //checks that the first player has some ammo
         assertFalse(player1.getAmmoPack().getBlueAmmo()==0 && player1.getAmmoPack().getRedAmmo()==0 &&
-                player1.getAmmoPack().getYellowAmmo()==0 );
+        player1.getAmmoPack().getYellowAmmo()==0 );
 
         //checks that the second player has no ammo
         assertEquals(0, player2.getAmmoPack().getBlueAmmo());
         assertEquals(0, player2.getAmmoPack().getRedAmmo());
         assertEquals(0, player2.getAmmoPack().getYellowAmmo());
-
-        //checks that the square has no ammo left
-        try{
-            ((AmmoSquare) player1.getPosition()).getAmmoTile();
-        }
-        catch (NotAvailableAttributeException notAvailableAttributeException) {
-        }
 
     }
 
@@ -193,7 +181,7 @@ public class PlayerTest {
     @Test
     public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, b);
@@ -216,7 +204,7 @@ public class PlayerTest {
     @Test
     public void drawPowerUpMultiple() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, b);
@@ -251,7 +239,7 @@ public class PlayerTest {
     @Test
     public void discardPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, b);
@@ -332,7 +320,7 @@ public class PlayerTest {
     @Test
     public void addPoints() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -352,7 +340,7 @@ public class PlayerTest {
     @Test
     public void addPointsMultiple() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -378,7 +366,7 @@ public class PlayerTest {
     public void addWeapon() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //simulates a scenario
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
 
         //instantiates the player
@@ -403,7 +391,7 @@ public class PlayerTest {
     public void addWeaponMultiple() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //simulates a scenario
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         //instantiates the player
         Player player = b.getPlayers().get(2);
@@ -431,7 +419,7 @@ public class PlayerTest {
     public void discardWeapon()  throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //simulates a scenario
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
 
         //instantiates the player
@@ -459,7 +447,7 @@ public class PlayerTest {
     @Test
     public void updateAwards() throws WrongTimeException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -518,7 +506,7 @@ public class PlayerTest {
     @Test
     public void useAsAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, b);
@@ -557,7 +545,7 @@ public class PlayerTest {
     @Test
     public void addAmmoPack() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -580,7 +568,7 @@ public class PlayerTest {
     @Test
     public void useAmmo() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -667,7 +655,7 @@ public class PlayerTest {
     @Test
     public void sufferDamage() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -690,7 +678,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageMultipleShooters() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -716,7 +704,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageJustDamaged() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -737,7 +725,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageNotOverkilled() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -758,7 +746,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageNotDead() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -779,7 +767,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageStatus1() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -799,7 +787,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageStatus2() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -821,7 +809,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageStatus3() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -842,7 +830,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageAndMarks() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -866,7 +854,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageDeath() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -887,7 +875,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageOverkilled() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -907,7 +895,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageMarksToOverkiller() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -927,7 +915,7 @@ public class PlayerTest {
     @Test
     public void sufferDamageMax12Dmgs() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -948,8 +936,8 @@ public class PlayerTest {
     @Test
     public void rewardKillers() throws WrongTimeException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configurePlayerOptions(3, board1);
+        Board board1 = BoardConfigurer.configureMap(1);
+        BoardConfigurer.configurePlayerOptions(3, board1);
 
         //instantiates the players
         Player player1 = board1.getPlayers().get(0);
@@ -976,8 +964,8 @@ public class PlayerTest {
     @Test
     public void rewardKillersManyShooters1() throws WrongTimeException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configurePlayerOptions(5, board1);
+        Board board1 = BoardConfigurer.configureMap(1);
+        BoardConfigurer.configurePlayerOptions(5, board1);
 
         //initializes the killShotTrack and five players, with 0 points
 
@@ -1013,8 +1001,8 @@ public class PlayerTest {
     @Test
     public void rewardKillersManyShooters2() throws WrongTimeException{
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configurePlayerOptions(5, board1);
+        Board board1 = BoardConfigurer.configureMap(1);
+        BoardConfigurer.configurePlayerOptions(5, board1);
 
         Player player = board1.getPlayers().get(0);
         Player shooter1 = board1.getPlayers().get(1);
@@ -1051,7 +1039,7 @@ public class PlayerTest {
     @Test
     public void refreshActionListBASIC() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -1073,7 +1061,7 @@ public class PlayerTest {
     @Test
     public void refreshActionListFRENZY_1() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -1098,7 +1086,7 @@ public class PlayerTest {
     @Test
     public void refreshActionListFRENZY_2() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -1122,7 +1110,7 @@ public class PlayerTest {
     @Test
     public void refreshActionListADRENALINE_1() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -1148,7 +1136,7 @@ public class PlayerTest {
     @Test
     public void refreshActionListADRENALINE_2() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //instantiates the players
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
@@ -1191,7 +1179,7 @@ public class PlayerTest {
     @Test
     public void getShootingSquares2LockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         lockRifle.setLoaded(true);
@@ -1216,7 +1204,7 @@ public class PlayerTest {
     @Test
     public void getShootingSquare1LockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         lockRifle.setLoaded(true);
@@ -1242,7 +1230,7 @@ public class PlayerTest {
     @Test
     public void getShootingSquare0LockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         lockRifle.setLoaded(true);
@@ -1266,7 +1254,7 @@ public class PlayerTest {
     @Test
     public void getShootingSquareNoWeapons() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         assertTrue(b.getPlayers().get(0).getShootingSquares(2, b.getPlayers().get(0).getLoadedWeapons()).isEmpty());
     }
 
@@ -1347,7 +1335,7 @@ public class PlayerTest {
     @Test
     public void removeCollectingActionPositive() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         b.getMap().get(0).removeCard(((AmmoSquare)b.getMap().get(0)).getAmmoTile());
         b.getMap().get(1).removeCard(((AmmoSquare)b.getMap().get(1)).getAmmoTile());
         Weapon weapon1 = ((WeaponSquare)b.getMap().get(4)).getWeapons().get(0);
@@ -1375,7 +1363,7 @@ public class PlayerTest {
     @Test
     public void getAvailableActionsBasic() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         lockRifle.setLoaded(true);
@@ -1402,7 +1390,7 @@ public class PlayerTest {
     @Test
     public void getAvailableActionsAdrenaline2() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         lockRifle.setLoaded(true);
@@ -1431,7 +1419,7 @@ public class PlayerTest {
     @Test
     public void removeShootingAction() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon lockRifle = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
         lockRifle.setLoaded(true);
@@ -1459,14 +1447,13 @@ public class PlayerTest {
      * Tests the method removeCollectingAction, when the collecting action must not be removed since the player can reach
      * squares with items to collect.
      *
-     * @throws NotAvailableAttributeException
      * @throws UnacceptableItemNumberException
      * @throws NoMoreCardsException
      */
     @Test
     public void removeCollectingAction() throws UnacceptableItemNumberException, NoMoreCardsException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         List<Action> expectedOld = new ArrayList<>(Arrays.asList(new Action(3, false, false, false), new Action(1, true, false, false), new Action(0,false, true, false)));
         List<Action> expectedNew = new ArrayList<>(Arrays.asList(new Action(3, false, false, false), new Action(1, true, false, false), new Action(0,false, true, false)));
@@ -1485,7 +1472,7 @@ public class PlayerTest {
     @Test
     public void getCollectibleWeapons()throws UnacceptableItemNumberException, NoMoreCardsException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         Player p = b.getPlayers().get(0);
         p.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
         WeaponSquare weaponSquare = b.getSpawnPoints().get(0);

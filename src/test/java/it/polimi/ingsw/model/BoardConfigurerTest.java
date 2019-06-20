@@ -19,8 +19,11 @@ import static org.junit.Assert.*;
  * The methods of BoardConfigurer are simply aggregations of setters of the class Board.
  * It is therefore opportune to test, instead of every single method, the method simulateScenario(),
  * to check that the configuration of the board in its whole  is correct.
+ *
+ * @author BassaniRiccardo
  */
 public class BoardConfigurerTest {
+
 
     /**
      * Tests if the size of the map is correctly set.
@@ -115,6 +118,7 @@ public class BoardConfigurerTest {
         assertEquals(11, board3.getMap().size());
     }
 
+
     /**
      * Tests if all the ammo tiles are correctly set on the board.
      *
@@ -133,7 +137,6 @@ public class BoardConfigurerTest {
         }
 
     }
-
 
 
 }

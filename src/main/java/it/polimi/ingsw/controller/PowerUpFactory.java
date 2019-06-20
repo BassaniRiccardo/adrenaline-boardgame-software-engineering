@@ -24,7 +24,7 @@ import static it.polimi.ingsw.model.board.Board.Direction;
 public class PowerUpFactory  {
 
     private Board board;
-    private static ModelDataReader J = new ModelDataReader();
+    private static ModelDataReader j = new ModelDataReader();
 
     /**
      * Constructs a PowerUpFactory with a reference to the game board
@@ -50,7 +50,7 @@ public class PowerUpFactory  {
         switch (powerUpName) {
             case TARGETING_SCOPE:
 
-                effect = (shooter, target, destination)-> target.sufferDamage(J.getInt("targetingScopeDmg"), shooter);
+                effect = (shooter, target, destination)-> target.sufferDamage(j.getInt("targetingScopeDmg"), shooter);
                 targetFinder = p -> board.getPlayers().stream()
                         .filter(x->x.isJustDamaged())
                         .distinct()
@@ -75,7 +75,7 @@ public class PowerUpFactory  {
                     res.add(center);
                     for (Direction d : Direction.values()) {
                         res.addAll(board.getSquaresInLine(center, d).stream()
-                                .filter(x->board.getDistance(center, x)<J.getInt("newtonMaxDistance"))
+                                .filter(x->board.getDistance(center, x)< j.getInt("newtonMaxDistance"))
                                 .collect(Collectors.toList()));
                     }
                     return res;
@@ -83,7 +83,7 @@ public class PowerUpFactory  {
                 break;
 
             case TAGBACK_GRENADE:
-                effect = (shooter, target, destination)-> target.addMarks(J.getInt("tagbackGrenadeMarks"), shooter);
+                effect = (shooter, target, destination)-> target.addMarks(j.getInt("tagbackGrenadeMarks"), shooter);
                 targetFinder = p -> p.isJustDamaged()? new ArrayList<>():Arrays.asList(Arrays.asList(board.getCurrentPlayer()));
                 destinationFinder = (p, t) -> new ArrayList<>();
                 break;

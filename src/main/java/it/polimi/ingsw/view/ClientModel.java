@@ -22,8 +22,6 @@ import java.util.logging.Logger;
  */
 public class ClientModel {
 
-    //TODO righe&Colonne
-
     private List<SimpleSquare> squares;
     private List<SimplePlayer> players;
 
@@ -223,6 +221,19 @@ public class ClientModel {
             this.username = username;
         }
 
+        public int getPoints() {return points; }
+
+        public void setPoints(int points) {this.points = points;}
+
+        public int getDeaths() {return deaths;}
+
+        public void setDeaths(int deaths) {this.deaths = deaths;}
+
+        public void addDeath(){this.deaths++;}
+
+        /**
+         * Complex getters and setters
+         */
         public List<SimplePlayer> toSimplePlayerList(List<Integer> IDs, List<SimplePlayer> players){
 
             List<SimplePlayer> toReturn = new ArrayList();
@@ -238,16 +249,6 @@ public class ClientModel {
         public List<SimplePlayer> getDamage(List<SimplePlayer> players){ return toSimplePlayerList (damage, players); }
 
         public List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
-
-        public int getPoints() {return points; }
-
-        public void setPoints(int points) {this.points = points;}
-
-        public int getDeaths() {return deaths;}
-
-        public void setDeaths(int deaths) {this.deaths = deaths;}
-
-        public void addDeath(){this.deaths++;}
 
         public void pickUpWeapon(String name){
             for(SimpleWeapon w : this.position.getWeapons()){
@@ -311,7 +312,7 @@ public class ClientModel {
 
 
     /**
-     * A simplified version of Square, containing only the things the user should see.
+     * A simplified version of Weapon, containing only the things the user should see.
      */
     public class SimpleWeapon{
         String name;

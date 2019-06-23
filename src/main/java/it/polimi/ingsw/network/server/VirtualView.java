@@ -163,8 +163,15 @@ public abstract class VirtualView implements Runnable{
      */
     abstract public void update(JsonObject jsonObject);
 
+    public void notifyObservers(String ans){
+        if(game!=null) {
+            game.notify(this, ans);
+        }
+    }
+
     @Override
     public String toString() {
         return name + " connection";
     }
+
 }

@@ -1,7 +1,5 @@
 package it.polimi.ingsw.controller;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import com.google.gson.*;
 import it.polimi.ingsw.model.cards.*;
 
@@ -18,6 +16,7 @@ import static it.polimi.ingsw.model.cards.Color.*;
  * @author  davidealde
  */
 
+//TODO remove targetnumbers from json file (they are not needed anymore)
 //TODO test the new methods
 //TODO check all the project for values that can be written in a json file
 
@@ -300,23 +299,6 @@ public class ModelDataReader {
          }
          return obj.get("type").getAsInt();
      }
-
-    /**
-     * Reads from the json file the number of the targets of the firemode of interest of the weapon of interest
-     *
-     * @param weaponName            the name of the weapon
-     * @param fireModeName          the firemode name
-     * @return                      the number of the targets of the firemode of the weapon
-     */
-    public int getTargetNumber(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
-
-        JsonObject obj = analyzer(weaponName, fireModeName);
-        if (obj == null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
-            return -1;
-        }
-        return obj.get("targetsN").getAsInt();
-    }
 
     /**
      * Reads from the json file the red cost of the firemode of interest of the weapon of interest

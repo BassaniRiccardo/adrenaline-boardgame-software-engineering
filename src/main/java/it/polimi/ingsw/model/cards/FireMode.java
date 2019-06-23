@@ -1,5 +1,3 @@
-//TODO addList a flag to each firemode signaling whether it can be used before and/or after the main firemode
-
 package it.polimi.ingsw.model.cards;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
@@ -23,7 +21,6 @@ public class FireMode implements Targeted {
     }
 
     private final FireModeName name;
-    private final int maxTargets;
     private final AmmoPack cost;
     private Weapon weapon;
 
@@ -37,17 +34,14 @@ public class FireMode implements Targeted {
      * the related destination finder, target finder and effect.
      *
      * @param name                  the firemode name.
-     * @param targetNumber          the number of targets.
      * @param cost                  the cost in ammo packs.
      * @param destinationFinder     the related destination finder.
      * @param targetFinder          the related target finder.
      * @param effect                the related effect.
      */
-    public FireMode(FireModeName name, int targetNumber, AmmoPack cost, DestinationFinder destinationFinder, TargetFinder targetFinder, Effect effect){
+    public FireMode(FireModeName name, AmmoPack cost, DestinationFinder destinationFinder, TargetFinder targetFinder, Effect effect){
 
-        if (targetNumber < 1) throw new IllegalArgumentException("A firemode must have at least one target.");
         this.name = name;
-        this.maxTargets = targetNumber;
         this.cost = cost;
         this.destinationFinder = destinationFinder;
         this.targetFinder = targetFinder;
@@ -59,13 +53,10 @@ public class FireMode implements Targeted {
      * Getters
      */
 
-    public int getMaxTargets(){ return maxTargets; }
 
     public AmmoPack getCost() { return cost; }
 
     public FireModeName getName() { return name; }
-
-    public Effect getEffect() { return effect; }
 
     public TargetFinder getTargetFinder() { return targetFinder; }
 
@@ -123,7 +114,7 @@ public class FireMode implements Targeted {
             throw new NullPointerException("The firemode must have some targets.");
         }
         List<Square> res = destinationFinder.find(weapon.getHolder(), targets);
-        LOGGER.log(Level.FINE, "Destinations found: " + res);
+        LOGGER.log(Level.FINE, "Destinations found: {0}", res);
         return res;
     }
 
@@ -132,7 +123,7 @@ public class FireMode implements Targeted {
      *
      * @return      true is this FireMode can be used
      */
-    public boolean isAvailable()throws NotAvailableAttributeException {
+    public boolean isAvailable() throws NotAvailableAttributeException {
         for (List<Player> targets : findTargets()){
             if (!targets.isEmpty()) return true;
         }

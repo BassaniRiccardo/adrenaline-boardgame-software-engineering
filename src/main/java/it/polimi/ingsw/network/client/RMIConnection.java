@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
 
 /**
  * Implementation of RMI connection to server
@@ -27,7 +28,7 @@ public class RMIConnection implements Runnable, RemoteView {
     private RemoteController playerStub;
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
-    JsonParser jsonParser;
+    private JsonParser jsonParser;
 
 
     /**
@@ -44,7 +45,7 @@ public class RMIConnection implements Runnable, RemoteView {
             Registry reg = LocateRegistry.getRegistry(address, port);
             RemoteServer serverStub = (RemoteServer) reg.lookup("RMIServer");
             String pcLookup = serverStub.getPlayerController((RemoteView) UnicastRemoteObject.exportObject(this, 0));
-            //LOGGER.log(Level.SEVERE, "Name received for RMI PC lookup: " + pcLookup);
+            //LOGGER.log(Level.INFO, "Name received for RMI PC lookup: " + pcLookup);
             playerStub = (RemoteController) reg.lookup(pcLookup);
 
             ExecutorService executor = Executors.newCachedThreadPool();
@@ -57,7 +58,7 @@ public class RMIConnection implements Runnable, RemoteView {
                         clientMain.shutdown();
                     }
                     try {
-                        TimeUnit.MILLISECONDS.sleep(100);
+                        TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
                     }catch(InterruptedException ex){
                         LOGGER.log(Level.INFO,"Skipped waiting time.");
                         Thread.currentThread().interrupt();
@@ -111,7 +112,9 @@ public class RMIConnection implements Runnable, RemoteView {
      * Remote methos to be called by the server to assert the state of the connection
      * @throws RemoteException
      */
-    public void ping() throws RemoteException{}
+    public void ping() throws RemoteException{
+        //empty method useful for checking whether the server can callback remote functions from the client
+    }
 
     /**
      * Passes an update to clientMain
@@ -123,7 +126,7 @@ public class RMIConnection implements Runnable, RemoteView {
         try {
             clientMain.update(jsonParser.parse(jsonObject).getAsJsonObject());
         }catch(Exception ex){
-            ex.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Exception in parsing jsonObject", ex);
         }
     }
 

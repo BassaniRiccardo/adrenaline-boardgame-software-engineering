@@ -20,8 +20,7 @@ import java.util.stream.Collectors;
 public class RMIVirtualView extends VirtualView implements RemoteController {
 
 //TODO:  an RMI player cannot try logging again if he picks a blocked name, but not always [BUG]
-//check instances are not garbage collected
-// implement shutdown
+//TODO: implement shutdown (graceful)
 
     private RemoteView remoteView;
     private ExecutorService executor = Executors.newCachedThreadPool();
@@ -50,10 +49,13 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         }
     }
 
+    @Override
     public void choose(String msg, List<?> options){
         if(busy) return;
         busy=true;
-        game.getNotifications().remove(this);
+        synchronized (game.getNotifications()) {
+            game.getNotifications().remove(this);
+        }
         executor.submit(
             ()-> {
                 try {
@@ -69,11 +71,14 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         );
     }
 
+    @Override
     public void choose(String msg, List<?> options, int timeoutSec){
         if(busy) return;
         busy=true;
         long timestamp = System.currentTimeMillis() + timeoutSec*1000;
-        game.getNotifications().remove(this);
+        synchronized (game.getNotifications()) {
+            game.getNotifications().remove(this);
+        }
         executor.submit(
                 ()-> {
                     try {
@@ -89,6 +94,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         );
     }
 
+    @Override
     public void display(String msg){
         try{
             remoteView.display(msg);
@@ -97,6 +103,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         }
     }
 
+    @Override
     public String getInputNow(String msg, int max) {
         try {
             return remoteView.getInput(msg, max);
@@ -106,6 +113,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         return "";
     }
 
+    @Override
     public int chooseNow(String msg, List<?> options){
         try {
             return remoteView.choose(msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
@@ -115,12 +123,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         return 0;
     }
 
-    public void notifyObservers(String msg){
-        if(game!=null) {
-            game.notify(this, msg);
-        }
-    }
-
+    @Override
     public void update(JsonObject jsonObject){
         try {
             remoteView.update(jsonObject.toString());
@@ -130,11 +133,12 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         }
     }
 
-    public void ping(){}
-
-
+    @Override
     public void suspend(){
         super.suspend();
         executor.shutdownNow();
     }
+
+    @Override
+    public void ping(){}
 }

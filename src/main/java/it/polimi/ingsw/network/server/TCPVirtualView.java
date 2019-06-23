@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-//TODO: set defines (final private static define)
-
-
 /**
  * Implementation of VirtualView communicating through a socket
  *
@@ -27,8 +24,8 @@ public class TCPVirtualView extends VirtualView {
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
-    boolean waiting;
-    String answer;
+    private boolean waiting;
+    private String answer;
 
 
     public TCPVirtualView(Socket socket){
@@ -90,6 +87,7 @@ public class TCPVirtualView extends VirtualView {
         }
     }
 
+    @Override
     public void choose(String msg, List<?> options){
         if(busy){
             return;
@@ -108,18 +106,21 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
 
+    @Override
     public void choose(String msg, List<?> options, int timeoutSec){
         choose(msg, options);
         timeout = true;
         timestamp = timeoutSec*1000 + System.currentTimeMillis();
     }
 
+    @Override
     public int chooseNow(String msg, List<?> options){
         choose(msg, options);
         waiting = true;
         return Integer.parseInt(receive());
     }
 
+    @Override
     public void display(String msg){
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "MSG");
@@ -127,6 +128,7 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
 
+    @Override
     public String getInputNow(String msg, int max){
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "REQ");
@@ -135,12 +137,6 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
         waiting = true;
         return receive();
-    }
-
-    public void notifyObservers(String ans){
-        if(game!=null) {
-            game.notify(this, ans);
-        }
     }
 
     /**
@@ -161,21 +157,30 @@ public class TCPVirtualView extends VirtualView {
         return answer;
     }
 
+    /**
+     * Sends a message serialized as a JsonObject through the socket
+     *
+     * @param jmessage  message to send
+     */
     private void send (JsonObject jmessage){
         try {
-            game.getNotifications().remove(this);
+            synchronized (game.getNotifications()){
+                game.getNotifications().remove(this);
+            }
         }catch(NullPointerException ex){
             LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
         }
         out.println(jmessage.toString());
         out.flush();
-        LOGGER.log(Level.FINE, "Sending a message over TCP connection");    }
+        LOGGER.log(Level.FINE, "Sending a message over TCP connection");
+    }
 
+    @Override
     public void update (JsonObject jsonObject){
-        System.out.println("Sending the update " + jsonObject.toString() + " to " + this.getName());
         send(jsonObject);
     }
 
+    @Override
     public void suspend(){
         super.suspend();
         try {

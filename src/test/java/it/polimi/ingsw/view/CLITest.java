@@ -131,7 +131,7 @@ public class CLITest {
         board.getPlayers().get(2).setAmmoPack(new AmmoPack(1,2,3));
 
         ClientMain clientMain = new ClientMain();
-        UI ui = new CLI(clientMain);
+        CLI cli = new CLI(clientMain);
 
         JsonObject mod = new JsonParser().parse((Updater.getModel(board, board.getPlayers().get(0))).get("mod").getAsString()).getAsJsonObject();
         clientMain.setClientModel(new Gson().fromJson(mod, ClientModel.class));
@@ -147,8 +147,16 @@ public class CLITest {
         s= new MapRenderer().getMap(clientMain.getClientModel());
         //draw(s);
 
-        ui.render();
 
+        cli.render();
+        cli.display("message 1");
+        cli.display("message 2");
+        cli.display("message 3");
+        cli.display("message 4");
+        cli.display("message 5");
+        cli.display("message 6");
+        System.out.println("adding request");
+        cli.display("request", "3");
 
     }
 

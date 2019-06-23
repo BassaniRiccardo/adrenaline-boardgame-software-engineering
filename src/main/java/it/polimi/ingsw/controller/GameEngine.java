@@ -16,6 +16,9 @@ import java.util.logging.*;
 
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
+import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
+
+//FIXME: game setup temporarily commented out to allow for quicker testing
 
 /**
  * Class responsible of running a game.
@@ -34,11 +37,12 @@ public class GameEngine implements Runnable{
     private KillShotTrack killShotTrack;
     private boolean frenzy;
     private StatusSaver statusSaver;
-    private Map<VirtualView, String> notifications;
+    private final Map<VirtualView, String> notifications;
     private Timer timer;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
+    private static final int TURN_DURATION = 60;
 
 
     /**
@@ -58,7 +62,8 @@ public class GameEngine implements Runnable{
             p.setGame(this);
         }
         this.notifications = new HashMap<>();
-        this.timer = new Timer(1000);
+        this.timer = new Timer(TURN_DURATION);
+        //todo: load from config
         LOGGER.log(Level.FINE, "Initialized GameEngine " + this);
 
     }
@@ -410,29 +415,34 @@ public class GameEngine implements Runnable{
      *
      * @param current       player to wait for
      * @param timeout       timeout
-     * @throws SlowAnswerException      if the turn timer runs out
      * @return answer
      */
 
     public String waitShort(VirtualView current, int timeout){
         long start = System.currentTimeMillis();
+        long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
         LOGGER.log(Level.INFO ,"Waiting for " + current);
         while(!hasAnswered(current)){
             checkForSuspension();
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             }catch(InterruptedException ex){
                 LOGGER.log(Level.FINE,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
-            if(System.currentTimeMillis()>start+timeout*10000){
+            if(System.currentTimeMillis()>start+timeoutMillis){
                 LOGGER.log(Level.INFO,"Timeout ran out while waiting for " + current.getName() +". Returning default value");
-                notifications.put(current, "1");
-                return "1";
+                synchronized (notifications){
+                    notifications.putIfAbsent(current, "1");
+                }
+                current.display("Your answer did not arrive in time. You have not been suspended, but a default value has been selected.");
             }
         }
         LOGGER.log(Level.INFO, "Done waiting");
-        return notifications.get(current);
+
+        synchronized (notifications) {
+            return notifications.get(current);
+        }
     }
 
     /**
@@ -443,11 +453,11 @@ public class GameEngine implements Runnable{
      * @return answer
      */
     public String wait(VirtualView current) throws SlowAnswerException{
-        LOGGER.log(Level.INFO ,"Waiting for " + current);
+        LOGGER.log(Level.INFO ,"Waiting for {0}", current);
         while(!hasAnswered(current)){
             checkForSuspension();
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             }catch(InterruptedException ex){
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
@@ -457,7 +467,9 @@ public class GameEngine implements Runnable{
             }
         }
         LOGGER.log(Level.INFO, "Done waiting");
-        return notifications.get(current);
+        synchronized (notifications) {
+            return notifications.get(current);
+        }
     }
 
 
@@ -468,7 +480,9 @@ public class GameEngine implements Runnable{
      * @return      true if player has answered, else false
      */
     public boolean hasAnswered(VirtualView p){
-        return notifications.containsKey(p);
+        synchronized (notifications) {
+            return notifications.containsKey(p);
+        }
     }
 
 
@@ -479,8 +493,10 @@ public class GameEngine implements Runnable{
      */
     public void notify(VirtualView p, String message){
         try {
-            notifications.putIfAbsent(p, message);
-            LOGGER.log(Level.INFO, p + "just notified the GameEngine");
+            synchronized (notifications) {
+                notifications.putIfAbsent(p, message);
+            }
+            LOGGER.log(Level.INFO, "{0} just notified the GameEngine", p);
         }catch (Exception ex){
             LOGGER.log(Level.SEVERE, "Issue with being notified by " + p, ex);
         }
@@ -491,13 +507,15 @@ public class GameEngine implements Runnable{
      * @return      mapping of players to incoming messages
      */
     public Map<VirtualView, String> getNotifications(){
-        return notifications;
+        synchronized (notifications) {
+            return notifications;
+        }
     }
 
     /**
-     * Checks if a player wa suspended recently
+     * Checks if a player was suspended recently
      */
-    private void checkForSuspension(){
+    private synchronized void checkForSuspension(){
         List<VirtualView> justSuspended = new ArrayList<>();
         for(VirtualView v : players){
             if(v.isJustSuspended()) {
@@ -508,9 +526,11 @@ public class GameEngine implements Runnable{
         for(VirtualView v : justSuspended){
             for(VirtualView p : players){
                 p.display(P + v.getName() + " was disconnected");
-                notifications.remove(p);
+                synchronized (notifications) {
+                    notifications.remove(p);
+                }
             }
-            LOGGER.log(Level.INFO, "Notified players of the disconnection of " + justSuspended);
+            LOGGER.log(Level.INFO, "Notified players of the disconnection of {0}", justSuspended);
         }
         //TODO: check how many players are left for game continuation
     }

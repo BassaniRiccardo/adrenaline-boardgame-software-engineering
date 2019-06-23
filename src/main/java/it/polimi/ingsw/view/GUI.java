@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view;
 
-//TODO: implement
+//TODO: create a package for gui classes
 
 import java.awt.*;
 import java.io.InputStream;
@@ -75,6 +75,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     public ClientMain getClientMain() {
         return clientMain;
+    }
+
+    @Override
+    public void setMessageMemory(int n) {
+        //TODO: implement
     }
 
     /**

@@ -27,7 +27,6 @@ public class PowerUp implements Targeted, Card {
     }
 
     private PowerUpName name;
-    private AmmoPack cost;
     private Player holder;
     private Color color;
     private Effect effect;
@@ -37,11 +36,9 @@ public class PowerUp implements Targeted, Card {
 
 
     /**
-     * Constructs a power up, with a name, the cost in ammo packs,
-     * the related destination finder, target finder and effect, the color and a reference to the game board.
+     * Constructs a power up, with a name, the related destination finder, target finder and effect, the color and a reference to the game board.
      *
      * @param powerUpName           the power up name.
-     * @param cost                  the cost in ammo packs.
      * @param destinationFinder     the related destination finder.
      * @param targetFinder          the related target finder.
      * @param effect                the related effect.
@@ -49,18 +46,15 @@ public class PowerUp implements Targeted, Card {
      * @param board                 the board of the game.
 
      */
-    public PowerUp(PowerUpName powerUpName, AmmoPack cost, DestinationFinder destinationFinder, TargetFinder targetFinder, Effect effect, Color color, Board board){
+    public PowerUp(PowerUpName powerUpName, DestinationFinder destinationFinder, TargetFinder targetFinder, Effect effect, Color color, Board board){
 
         this.name = powerUpName;
-        this.cost = cost;
         this.holder = null;
         this.color = color;
         this.destinationFinder = destinationFinder;
         this.targetFinder = targetFinder;
         this.effect = effect;
         this.board = board;
-
-
     }
 
     /**
@@ -96,8 +90,6 @@ public class PowerUp implements Targeted, Card {
         return color;
     }
 
-    public AmmoPack getCost(){ return cost;}
-
 
     /**
      * Applies the effects of this power up to targets chosen.
@@ -112,7 +104,6 @@ public class PowerUp implements Targeted, Card {
         for(Player p : playerList){
             effect.apply(holder, p, destination);
         }
-        holder.useAmmo(cost);
     }
 
     /**
@@ -145,7 +136,6 @@ public class PowerUp implements Targeted, Card {
      */
     public boolean isAvailable() throws NotAvailableAttributeException{
         return !(findTargets().isEmpty())&&!(name==PowerUpName.TARGETING_SCOPE&&holder.getAmmoPack().equals(new AmmoPack(0,0,0)));
-
     }
 
     @Override
@@ -153,6 +143,7 @@ public class PowerUp implements Targeted, Card {
         return (color.toString() + " " + name.toString().toLowerCase());
     }
 
+    //TODO: are both these methods necessary? remove one if not
     public String toStringLowerCase(){
         return (color.toString().toLowerCase() + " " + name.toString().toLowerCase());
     }

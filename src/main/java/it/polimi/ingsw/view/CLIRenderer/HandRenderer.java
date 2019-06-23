@@ -2,109 +2,124 @@ package it.polimi.ingsw.view.CLIRenderer;
 
 import it.polimi.ingsw.view.ClientModel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import static it.polimi.ingsw.view.CLIRenderer.MainRenderer.RESET;
 
-//TODO: rewrite all CLI rendering functions properly, make the code more robust
+/**
+ * Class creating a bidimensional String array containing data about the player using this client
+ */
 public class HandRenderer {
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
+    private static final int HAND_HEIGHT = 7;
+    private static final int HAND_WIDTH = 55;
+
+
+    private HandRenderer(){}
 
     public static String[][] get(ClientModel clientModel) {
 
-        String[][] box = new String[7][55];
+        String[][] box = new String[HAND_HEIGHT][HAND_WIDTH];
         for (int i = 0; i < box.length; i++) {
             for (int j = 0; j < box[i].length; j++) {
                 box[i][j] = " ";
             }
         }
 
+        if (HAND_HEIGHT<5 || HAND_WIDTH <50) {
+            return box;
+        }
+
+        //printing name
         ClientModel.SimplePlayer you = clientModel.getPlayer(clientModel.getPlayerID());
-
         String name =  "You (" + you.getUsername() + ")";
-        for(int i=0; i<name.length()&&i<55; i++){
-            box[1][i+3] = clientModel.getEscapeCode(you.getColor()) + String.valueOf(name.charAt(i)) + "\u001b[0m";
+        for(int i=0; i<name.length()&&i<HAND_WIDTH; i++){
+            box[1][i+3] = ClientModel.getEscapeCode(you.getColor()) + name.charAt(i) + RESET;
         }
 
-        for(int i =0; i<"Life: ".length()&&i<60; i++){
-            box[2][i+3] = String.valueOf("Life: ".charAt(i));
+        //printing life
+        String life = "Life: ";
+        for(int i =0; i<life.length()&&i+3<HAND_WIDTH; i++){
+            box[2][i+3] = String.valueOf(life.charAt(i));
         }
-        int j=0;
+        int j = life.length()+3;
         for (int shooter : you.getDamageID()) {
-            try {
-                box[2][j + 9] = ClientModel.getEscapeCode(clientModel.getPlayer(shooter).getColor()) + "●" + "\u001b[0m";
-            }catch(Exception ex){
-                LOGGER.log(Level.SEVERE, "Error while reading color", ex);
+            if(j>HAND_WIDTH-1){
+                break;
             }
+            box[2][j] = ClientModel.getEscapeCode(clientModel.getPlayer(shooter).getColor()) + "●" + RESET;
             j++;
         }
 
-        for(int i =0; i<"Marks: ".length(); i++){
-            box[2][i+30] = String.valueOf("Marks: ".charAt(i));
+        //printing marks
+        String marks = "Marks: ";
+        for(int i = 0; i<marks.length()&&i+30<HAND_WIDTH; i++){
+            box[2][i+30] = String.valueOf(marks.charAt(i));
         }
-        j=0;
+        j=marks.length()+30;
         for (int shooter : you.getMarksID()) {
-            try {
-                box[2][j + 37] = ClientModel.getEscapeCode(clientModel.getPlayer(shooter).getColor()) + "◎" + "\u001b[0m";
-            }catch(Exception ex){
-                LOGGER.log(Level.SEVERE, "Error while reading color", ex);
+            if(j>HAND_WIDTH-1){
+                break;
             }
+            box[2][j] = ClientModel.getEscapeCode(clientModel.getPlayer(shooter).getColor()) + "◎" + RESET;
             j++;
         }
 
-        for(int i=0; i<"Ammo: ".length(); i++){
+        //printing ammo
+        for(int i=0; i<"Ammo: ".length()&&i+3<HAND_WIDTH; i++){
             box[3][i+3] = String.valueOf("Ammo: ".charAt(i));
         }
-        j=0;
-        for(int i=0; i<you.getBlueAmmo(); i++){
-            box[3][j+9] = ClientModel.getEscapeCode("blue") + "|" + "\u001b[0m";
+        j=9;
+        for(int i=0; i<you.getBlueAmmo()&&j<HAND_WIDTH; i++){
+            box[3][j] = ClientModel.getEscapeCode("blue") + "|" + RESET;
             j++;
         }
-        for(int i=0; i<you.getRedAmmo(); i++){
-            box[3][j+9] = ClientModel.getEscapeCode("red") + "|" + "\u001b[0m";
+        for(int i=0; i<you.getRedAmmo()&&j<HAND_WIDTH; i++){
+            box[3][j] = ClientModel.getEscapeCode("red") + "|" + RESET;
             j++;
         }
-        for(int i=0; i<you.getYellowAmmo(); i++){
-            box[3][j+9] = ClientModel.getEscapeCode("yellow") + "|" + "\u001b[0m";
+        for(int i=0; i<you.getYellowAmmo()&&j<HAND_WIDTH; i++){
+            box[3][j] = ClientModel.getEscapeCode("yellow") + "|" + RESET;
             j++;
         }
 
-        String weapons = "Weapons: ";
+        //printing weapons
+        StringBuilder weapons = new StringBuilder();
+        weapons.append("Weapons: ");
         if(you.getWeapons().isEmpty()){
-            weapons = weapons + "none";
+            weapons.append("none");
         } else{
             for(int i=0; i<you.getWeapons().size(); i++){
                 ClientModel.SimpleWeapon w = you.getWeapons().get(i);
-                weapons = weapons + w.getName();
+                weapons.append(w.getName());
                 if(w.isLoaded()){
-                    weapons = weapons + "*";
+                    weapons.append("*");
                 }
                 if(i!=you.getWeapons().size()-1){
-                    weapons = weapons + ", ";
+                    weapons.append(", ");
                 }
             }
         }
-        for(int i=0; i<weapons.length()&&i<57; i++){
-            box[4][i+3] = String.valueOf(weapons.charAt(i));
+        for(int i=0; i<weapons.toString().length()&&i+3<HAND_WIDTH; i++){
+            box[4][i+3] = String.valueOf(weapons.toString().charAt(i));
         }
 
-        String hand = "Hand: ";
+        //printing hand
+        StringBuilder hand = new StringBuilder();
+        hand.append("Hand: ");
         if(clientModel.getPowerUpInHand().isEmpty()){
-            hand = hand + "empty";
+            hand.append("empty");
         } else {
             for(int i=0; i<clientModel.getPowerUpInHand().size(); i++){
-                //String p = ClientModel.getEscapeCode(clientModel.getColorPowerUpInHand().get(i))  + clientModel.getPowerUpInHand().get(i) + "  " + "\u001b[0m";
                 String p = clientModel.getPowerUpInHand().get(i) + "  ";
-                hand = hand + p;
+                hand.append(p);
                 if(i!=clientModel.getPowerUpInHand().size()-1){
-                    weapons = weapons + ", ";
+                    hand.append(", ");
                 }
             }
         }
-        for(int i=0; i<hand.length()&&i<57; i++){
-            box[5][i+3] = String.valueOf(hand.charAt(i));
+        for(int i=0; i<hand.toString().length()&&i+3<HAND_WIDTH; i++){
+            box[5][i+3] = String.valueOf(hand.toString().charAt(i));
         }
 
         return box;

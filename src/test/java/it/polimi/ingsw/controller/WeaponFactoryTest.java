@@ -131,8 +131,6 @@ public class WeaponFactoryTest {
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.RAILGUN);
-        int tN = weaponFactory.getTargetNumber(w.getWeaponName(), FireMode.FireModeName.SECONDARY);
-        assertEquals(2,tN);
     }
 
     /**

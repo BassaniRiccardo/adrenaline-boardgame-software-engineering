@@ -676,49 +676,78 @@ public class Board {
         return id;
     }
 
+    /**
+     * Registers VirtualView as an observer
+     * @param p     the registering VirtualView
+     */
     public void registerObserver(VirtualView p){
-        LOGGER.log(Level.INFO, p + " registered as an observer to Board.");
+        LOGGER.log(Level.INFO, "{0} registered as an observer to Board.", p);
         observers.add(p);
         updates.put(p, new ArrayList<>());
     }
 
+    /**
+     * Removes VirtualView p from list of observers
+     * @param p     the VirtualView to be removed
+     */
     public void removeObserver(VirtualView p){
         observers.remove(p);
     }
 
+    /**
+     * Notifies all observers with model update messages
+     */
     public void notifyObservers(){
         for(VirtualView p : observers){
             notifyObserver(p);
         }
     }
 
+    /**
+     * Notifies only VirtualView p
+     * @param p     the VirtualView to be notified
+     */
     public void notifyObserver(VirtualView p){
-        LOGGER.log(Level.INFO, "Notifying observer "+ p);
+        LOGGER.log(Level.INFO, "Notifying observer {0}", p);
         for(JsonObject update : updates.get(p)) {
             p.update(update);
         }
         updates.get(p).clear();
     }
 
+    /**
+     * Adds a single update to all update queues.
+     * @param jsonObject    the single update
+     */
     public void addToUpdateQueue(JsonObject jsonObject){
 
-        System.out.println("Adding to update queue: " + jsonObject.toString());
-        LOGGER.log(Level.INFO, "Adding an update to all queues");
+        LOGGER.log(Level.INFO, "Adding an update to all queues: {0}", jsonObject.toString());
+        System.out.println("Adding to all: " + jsonObject.toString());
         for(VirtualView v : updates.keySet()){
             updates.get(v).add(jsonObject);
         }
     }
 
+    /**
+     * Adds a single update to a single update queue
+     * @param jsonObject    the single update
+     * @param v             the VirtualView meant to receive the update
+     */
     public void addToUpdateQueue(JsonObject jsonObject, VirtualView v){
         LOGGER.log(Level.INFO, "Adding an update to a single queues");
+        System.out.println(v + " Adding update " + jsonObject.toString());
         updates.get(v).add(jsonObject);
     }
 
+    /**
+     * Removes updates to other players in case the current player reverts an action
+     * @param v     the current player
+     */
     public void revertUpdates(VirtualView v){
         for(VirtualView other : updates.keySet()){
             if(!other.equals(v)){
                 updates.get(other).clear();
-                System.out.println("Removed all updates outgoing to " + other.getName());
+                LOGGER.log(Level.INFO, "Removed all updates outgoing to {0}", other.getName());
             }
         }
     }

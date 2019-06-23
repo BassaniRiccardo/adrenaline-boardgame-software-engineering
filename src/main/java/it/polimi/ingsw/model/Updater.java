@@ -15,7 +15,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * Class containing static methods to build update messages to be sent to clients as JsonObjects
+ *
+ * @author marcobaga, BassaniRiccardo
+ */
 
 public class Updater {
 
@@ -24,9 +28,11 @@ public class Updater {
     private static final String W = "weapon";
     private static final String S = "square";
 
-
-
     private Updater(){}
+
+    /**
+     * All get methods take as input specific parameter related to the particular update being translated and output a serialization of the update.
+     */
 
     public static JsonObject get(String msg, Weapon w, boolean loaded) {
         JsonObject j = getFreshUpdate(msg);
@@ -129,7 +135,10 @@ public class Updater {
         //removeAmmoTile
     }
 
-    /*public static JsonObject getRevert(Board board) {
+    //the following block can be used if we decide to send messages to revert a not confirmed action
+    //right now this is carried out automatically when reverting changes on the server's model
+    /*
+    public static JsonObject getRevert(Board board) {
         JsonObject j = getFreshUpdate("revert");
         JsonArray playerArray = new JsonArray();
         JsonArray positionArray = new JsonArray();
@@ -196,7 +205,7 @@ public class Updater {
 
 
     /**
-     * Updates the ClientModel of the specified player on the specified board and returns it.
+     * Creates a message that updates the ClientModel of the specified player on the specified board and returns it.
      *
      * @param board         the game board.
      * @param player        the player who will receive the updated model.
@@ -248,7 +257,7 @@ public class Updater {
             simplePlayers.add(simplePlayer);
 
 
-            //killShotTrack
+            //creates the killShotTrack
             try {
                 for (Player killer : board.getKillShotTrack().getKillers()) {
                     if (killer.equals(p)) {
@@ -300,6 +309,11 @@ public class Updater {
     }
 
 
+    /**
+     * Helper method creating the common structure of most update messages.
+     * @param msg   type of the update message
+     * @return      a partial update message
+     */
     private static JsonObject getFreshUpdate(String msg) {
         JsonObject j = new JsonObject();
         j.addProperty("head", "UPD");

@@ -1,9 +1,6 @@
 package it.polimi.ingsw.view;
 
-import it.polimi.ingsw.view.CLIRenderer.HandRenderer;
-import it.polimi.ingsw.view.CLIRenderer.MapRenderer;
-import it.polimi.ingsw.view.CLIRenderer.PlayersRenderer;
-import it.polimi.ingsw.view.CLIRenderer.WeaponRenderer;
+import it.polimi.ingsw.view.CLIRenderer.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,8 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//FIXME: model does not show number of cards in hand correctly
-//fixme: model does not tell the correct ID
+import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
 
 /**
  * Simple command line interface for the client's I/O operations
@@ -25,13 +21,11 @@ public class CLI implements UI{
 
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
-    private String[][] render;
-    private String[][] messageBox;
-    private String lastRequest;
     private String answer;
-    private boolean receiving, justReceived, info;
-    private String weaponRequested;
-    private MapRenderer mapRenderer;
+    private boolean receiving;
+    private boolean justReceived;
+    private MainRenderer mainRenderer;
+    private BufferedReader in;
 
 
     /**
@@ -40,110 +34,31 @@ public class CLI implements UI{
     public CLI(ClientMain clientMain) {
         this.clientMain = clientMain;
         this.receiving = false;
-        this.lastRequest = "";
-        this.answer = "";
-        this.render = new String[0][0];
-        this.messageBox = new String[0][0];
         this.justReceived = false;
-        this.info = false;
-        this.weaponRequested = "";
-        this.mapRenderer = new MapRenderer();
+        this.answer = "";
+        this.mainRenderer = new MainRenderer(clientMain);
+        this.in = new BufferedReader(new InputStreamReader(System.in));
     }
-
-    /**
-     * Displays a certain message
-     *
-     * @param message       message to be displayed
-     */
-    @Override
-    public void display(String message) {
-        String toDisplay = message + "\n" + lastRequest;
-        int rows = 1;
-        int count = 0;
-        for(int i = 0; i<toDisplay.length(); i++){
-            if(toDisplay.charAt(i)=='\n'){
-                count = 0;
-                rows++;
-            } else {
-                count++;
-                if (count > 53) {
-                    count = 0;
-                    rows++;
-                }
-            }
-        }
-
-        messageBox = new String[rows+2][60];
-
-        for(int i = 0; i<messageBox.length; i++){
-            for(int j = 0; j<messageBox[i].length; j++){
-                messageBox[i][j] = " ";
-            }
-        }
-
-        int row = 0;
-        int col = 0;
-        for(int i=0; i<toDisplay.length(); i++){
-            if(toDisplay.charAt(i)=='\n'){
-                row++;
-                col=0;
-            } else {
-                messageBox[row+1][col+1] = String.valueOf(toDisplay.charAt(i));//+String.valueOf(col);
-                col++;
-                if(col>53){
-                    row++;
-                    col=0;
-                }
-            }
-        }
-
-        render();
-    }
-
-    @Override
-    public void display(String message, String max){
-        String fullRequest = message + "[max. " + max + " characters]";
-        lastRequest = fullRequest;
-        display("");
-    }
-
-    @Override
-    public void display(String message, List<String> list) {
-        String fullRequest = message + "\nHere are your choices: ";
-        for(int i = 0; i<list.size(); i++){
-            fullRequest = fullRequest + "\n" + (i+1) +") "+list.get(i);
-        }
-        fullRequest = fullRequest + "\nChoose one";
-        lastRequest = fullRequest;
-        display("");
-    }
-
 
     /**
      * Main CLI loop checking for user input asynchronously from other threads, in particular for closing the client while awaiting a message.
      */
     @Override
     public void run() {
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-
+        splashScreen();
         while(Thread.currentThread().isAlive()) {
             try{
                 if (in.ready()) {
                     String msg = in.readLine();
                     if(msg.equals("q")) {
-                        display("CLI: quitting");
-                        System.exit(0);
+                        handleQuitting();
                     }else if(msg.startsWith("info")){
-                        info = true;
-                        weaponRequested = msg.substring(5);
-                        render();
+                        handleInfo(msg.substring(5));
                     }else if(receiving&&!justReceived) {
                         answer = msg;
                         justReceived = true;
-                        info = false;
                     }else{
-                        info = false;
-                        display("Wait for your turn or press q to quit");
+                        displayWarning();
                     }
                 }
             }catch(IOException e){
@@ -151,7 +66,7 @@ public class CLI implements UI{
                 System.exit(0);
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             }catch(InterruptedException ex){
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
@@ -159,6 +74,12 @@ public class CLI implements UI{
         }
     }
 
+    /**
+     * Queries the user to choose amonga list of options
+     *
+     * @param list  list of options
+     * @return      a string containing the number of the option chosen
+     */
     @Override
     public String get(List<String> list){
         receiving = true;
@@ -185,11 +106,17 @@ public class CLI implements UI{
             receiving = true;
         }
         receiving = false;
-        lastRequest="";
+        mainRenderer.setCurrentRequest("");
         return answer;
     }
 
 
+    /**
+     * Queries the user for input
+     *
+     * @param m     max length of the input, as a string
+     * @return      user input
+     */
     @Override
     public String get(String m){
         receiving = true;
@@ -198,7 +125,7 @@ public class CLI implements UI{
         while(!verified) {
             while (!justReceived) {
                 try {
-                    TimeUnit.MILLISECONDS.sleep(100);
+                    TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
                 } catch (InterruptedException ex) {
                     LOGGER.log(Level.INFO, "Skipped waiting time.");
                     Thread.currentThread().interrupt();
@@ -213,216 +140,130 @@ public class CLI implements UI{
             receiving = true;
         }
         receiving = false;
-        lastRequest="";
+        mainRenderer.setCurrentRequest("");
         return answer;
     }
 
-    private String[][] addFrame(String[][] base){
-        if(base.length==0){
-            String[][] res = new String [1][1];
-            res[0][0]="⊡";
-            return res;
-        }
-
-        String[][] res = new String[base.length+2][base[0].length+4];
-        for(int i=0;i<res[0].length;i++){
-            res[0][i] = "⊡";
-            res[res.length-1][i] = "⊡";
-        }
-
-        for(int i=1;i<res.length-1;i++){
-            res[i][0] = "⊡";
-            res[i][1] = " ";
-            res[i][res[i].length-1] = "⊡";
-            res[i][res[i].length-2] = " ";
-        }
-
-        for(int i=0; i<base.length; i++){
-            for(int j = 0; j<base[i].length; j++){
-                res[i+1][j+2] = base[i][j];
-            }
-        }
-
-        return res;
+    /**
+     * Adds a message to the list of mesasges to be rendered
+     *
+     * @param message message to be displayed
+     */
+    @Override
+    public void display(String message) {
+        mainRenderer.addMessage(message);
+        render();
     }
 
-    public String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
-
-        if(box1.length==0){
-            return box2;
-        } else if(box2.length==0){
-            return box1;
-        }
-        String[][] res;
-        if(vertical){
-            if(separate) {
-                res = new String[box1.length+box2.length+1][Math.max(box1[0].length, box2[0].length)];
-                for(int i=0; i < res.length; i++){
-                    for(int j=0; j<res[0].length;j++){
-                        if(i>box1.length){
-                            if(j<box2[i-(box1.length+1)].length) {
-                                res[i][j] = box2[i - (box1.length+1)][j];
-                            } else {
-                                res[i][j] = " ";
-                            }
-                        } else if (i==box1.length){
-                            res[i][j] = "⊡";
-                        } else{
-                            if(j<box1[i].length) {
-                                res[i][j] = box1[i][j];
-                            }else{
-                                res[i][j] = " ";
-                            }
-                        }
-                    }
-                }
-            } else{
-                res = new String[box1.length+box2.length][Math.max(box1[0].length, box2[0].length)];
-                for(int i=0; i < res.length; i++){
-                    for(int j=0; j<res[i].length; j++){
-                        if(i>=box1.length){
-                            if(j<box2[i-box1.length].length) {
-                                res[i][j] = box2[i-box1.length][j];
-                            } else{
-                                res[i][j] = " ";
-                            }
-                        }else{
-                            if(j<box1[i].length) {
-                                res[i][j] = box1[i][j];
-                            }else {
-                                res[i][j] = " ";
-                            }
-                        }
-                    }
-                }
-            }
-        } else{
-            if(separate) {
-                res = new String[Math.max(box1.length, box2.length)][box1[0].length+box2[0].length+3];
-                for(int i=0; i < res.length; i++){
-                    for(int j=0; j<res[0].length;j++){
-                        if(j<box1[0].length){
-                            if(i<box1.length){
-                                res[i][j] = box1[i][j];
-                            } else{
-                                res[i][j] = " ";
-                            }
-                        } else if (j==box1[0].length){
-                            res[i][j] = " ";
-                        } else if (j==box1[0].length+1) {
-                            res[i][j] = "⊡";
-                        } else if (j==box1[0].length+2) {
-                            res[i][j] = " ";
-                        } else {
-                            if(i<box2.length){
-                                res[i][j] = box2[i][j-(box1[0].length+3)];
-                            } else {
-                                res[i][j] = " ";
-                            }
-                        }
-                    }
-                }
-            } else{
-                res = new String[Math.max(box1.length, box2.length)][box1[0].length+box2[0].length];
-                for(int i=0; i < res.length; i++){
-                    for(int j=0; j<res[0].length;j++){
-                        if(j>=box1[0].length){
-                            if(i<box2.length) {
-                                res[i][j] = box2[i][j - (box1[0].length)];
-                            }else{
-                                res[i][j] = " ";
-                            }
-                        } else{
-                            if(i<box1.length) {
-                                res[i][j] = box1[i][j];
-                            }else{
-                                res[i][j] = " ";
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return res;
+    /**
+     * Displays a request until another one arrives
+     *
+     * @param message request to be displayed
+     * @param max   max length of required input
+     */
+    @Override
+    public void display(String message, String max) {
+        mainRenderer.setCurrentRequest(message + "[max. " + max + " characters]");
+        render();
     }
 
-    public void drawModel(){
+    /**
+     * Displays a choice request
+     *
+     * @param message request to be displayed
+     * @param options options to be displayed
+     */
+    @Override
+    public void display(String message, List<String> options) {
+        StringBuilder bld = new StringBuilder();
+        bld.append(message);
+        bld.append("\nHere are your choices: ");
+        for(int i = 0; i<options.size(); i++){
+            bld.append("\n" + (i+1) +") "+options.get(i));
+        }
+        bld.append("\nChoose one");
+        mainRenderer.setCurrentRequest(bld.toString());
+        render();
+    }
+
+    /**
+     * Calls the main rendering method.
+     */
+    @Override
+    public void render() {
+        try {
+            mainRenderer.render();
+        }catch (Exception ex){
+            LOGGER.log(Level.SEVERE, "Error in rendering CLI", ex);
+        }
+    }
+
+    /**
+     * Shows the quitting screen and allows the player to quit
+     */
+    private void handleQuitting(){
+        mainRenderer.showQuitScreen();
+        try {
+            if (in.readLine().equalsIgnoreCase("y")) {
+                System.exit(0);
+                //TODO: implement graceful shutdown;
+            } else {
+                render();
+            }
+        }catch(IOException ex){
+            LOGGER.log(Level.SEVERE, "Exception while trying to quit", ex);
+        }
+    }
+
+    /**
+     * Shows the info screen
+     * @param weaponName    weapon looked up
+     */
+    private void handleInfo(String weaponName){
+        mainRenderer.showInfoScreen(weaponName);
+        try {
+            in.readLine();
+        }catch(IOException ex){
+            LOGGER.log(Level.SEVERE, "Exception while trying to quit", ex);
+        }
+        render();
+    }
+
+    /**
+     * Sets the maximum number of messages to be displayed
+     * @param n
+     */
+    @Override
+    public void setMessageMemory(int n){
+        mainRenderer.setMessageMemory(n);
+    }
+
+    /**
+     * Displays warning when input is given at wrong times
+     */
+    private void displayWarning(){
         System.out.print("\033[H\033[2J");
-        System.out.flush();
-        for(int i=0; i<render.length; i++){
-            for(int j = 0; j<render[i].length; j++){
-                System.out.print(render[i][j]);
-            }
-            System.out.print("\n");
+        System.out.println("\n Wait for your turn or press q to quit");
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        }catch(InterruptedException ex){
+            LOGGER.log(Level.INFO,"Skipped waiting time.");
+            Thread.currentThread().interrupt();
         }
+        render();
     }
 
-    public void render(){
-        ClientModel model = clientMain.getClientModel();
-        if(model==null){
-            render = messageBox;
-        } else {
-            render = join(true,
-                        (addFrame(
-                            join(false,
-                                join(true,
-                                    mapRenderer.getMap(model),
-                                    WeaponRenderer.get(model),
-                                    false),
-                                join(true,
-                                    PlayersRenderer.get(model),
-                                    HandRenderer.get(model),
-                                    true),
-                                true))),
-                        messageBox,
-                        false);
-        }
-        if(info) {
-            render = getInfo(weaponRequested);
-        }
-        drawModel();
+    /**
+     * Displays a splash screen while the game loads
+     */
+    private void splashScreen(){
+        System.out.print("\033[H\033[2J");
+        System.out.println(
+                "      _/_/    _/_/_/    _/_/_/    _/_/_/_/  _/      _/    _/_/    _/        _/_/_/  _/      _/  _/_/_/_/\n" +
+                "   _/    _/  _/    _/  _/    _/  _/        _/_/    _/  _/    _/  _/          _/    _/_/    _/  _/       \n" +
+                "  _/_/_/_/  _/    _/  _/_/_/    _/_/_/    _/  _/  _/  _/_/_/_/  _/          _/    _/  _/  _/  _/_/_/    \n" +
+                " _/    _/  _/    _/  _/    _/  _/        _/    _/_/  _/    _/  _/          _/    _/    _/_/  _/         \n" +
+                "_/    _/  _/_/_/    _/    _/  _/_/_/_/  _/      _/  _/    _/  _/_/_/_/  _/_/_/  _/      _/  _/_/_/_/    \n" +
+                "\na game by Philip Neduk, now loading");
     }
-
-     public String[][] getInfo (String name){
-         String toDisplay = "This is the info of the weapon requested.\nPress q to quit, any other key to get back to the game";
-         int rows = 1;
-         int count = 0;
-         for(int i = 0; i<toDisplay.length(); i++){
-             if(toDisplay.charAt(i)=='\n'){
-                 count = 0;
-                 rows++;
-             } else {
-                 count++;
-                 if (count > 53) {
-                     count = 0;
-                     rows++;
-                 }
-             }
-         }
-
-         String[][] res = new String[rows+2][60];
-
-         for(int i = 0; i<res.length; i++){
-             for(int j = 0; j<res[i].length; j++){
-                 res[i][j] = " ";
-             }
-         }
-
-         int row = 0;
-         int col = 0;
-         for(int i=0; i<toDisplay.length(); i++){
-             if(toDisplay.charAt(i)=='\n'){
-                 row++;
-                 col=0;
-             } else {
-                 res[row+1][col+1] = String.valueOf(toDisplay.charAt(i));//+String.valueOf(col);
-                 col++;
-                 if(col>53){
-                     row++;
-                     col=0;
-                 }
-             }
-         }
-         return res;
-     }
 }

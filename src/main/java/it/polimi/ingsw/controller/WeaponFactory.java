@@ -1,9 +1,3 @@
-//TODO load data from JSON/XML: NB: loading data solves the cognitive complexity problem
-//      every "getter" should read a JSON or XML file importing the hashmap instead of creating it. Check out serializable interfaces.
-//TODO properly comment methods
-//TODO testing
-//TODO exception of getFireModeList
-
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.Board;
@@ -58,7 +52,6 @@ public class WeaponFactory {
         AmmoPack reducedCost = getReducedCost(weaponName);
         List<FireMode.FireModeName> nameList = getNameList(weaponName);
         List<FireMode> fireModeList = new ArrayList<>(nameList.size());
-        int targetNumber;
         AmmoPack fireModeCost;
 
 
@@ -66,10 +59,9 @@ public class WeaponFactory {
             effect = getEffect(weaponName, name);
             targetFinder = getTargetFinder(weaponName, name);
             destinationFinder = getDestinationFinder(weaponName, name);
-            targetNumber = getTargetNumber(weaponName, name);
             fireModeCost = getFireModeCost(weaponName, name);
 
-            fireMode = new FireMode(name, targetNumber, fireModeCost, destinationFinder, targetFinder, effect);
+            fireMode = new FireMode(name, fireModeCost, destinationFinder, targetFinder, effect);
             fireModeList.add(fireMode);
         }
 
@@ -145,13 +137,6 @@ public class WeaponFactory {
      * @retun                       the value of interest
      */
 
-    protected static Integer getTargetNumber (Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
-
-        int number = j.getTargetNumber(weaponName, fireModeName);
-
-        return number;
-    }
-
     protected static AmmoPack getFireModeCost (Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
         if(fireModeName == MAIN) {
             return new AmmoPack(0,0,0);
@@ -211,322 +196,227 @@ public class WeaponFactory {
         TargetFinder targetFinder;
         Map<String, TargetFinder> targetFinderMap = new HashMap<>();
 
-
-        targetFinder= p -> board.getVisible(p.getPosition()).stream()
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .filter( x -> !x.equals(p))
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("sight", targetFinder);
-
-        targetFinder=p -> (p.getMainTargets().isEmpty()? new ArrayList<>():board.getVisible(p.getPosition()).stream()
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .filter( x -> !x.equals(p)&&!p.getMainTargets().isEmpty())
-                .filter(x -> !p.getMainTargets().contains(x))
-                .map(Arrays::asList)
-                .collect(Collectors.toList()));
-        targetFinderMap.put("sight1optional", targetFinder);
-
-        targetFinder=p -> {
-            List<List<Player>> res = board.getVisible(p.getPosition()).stream()
-                    .map(Square::getPlayers)
-                    .flatMap(x -> x.stream())
-                    .distinct()
-                    .filter( x -> !x.equals(p))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList());
-            res.addAll(cartesian(res, res));
-            return res;
-        };
-        targetFinderMap.put("sight2", targetFinder);
-
-        targetFinder=p -> (p.getMainTargets().stream()
-                .distinct()
-                .filter(x -> p.getMainTargets().contains(x))
-                .filter(x -> !p.getOptionalTargets().contains(x))
-                .map(Arrays::asList)
-                .collect(Collectors.toList()));
-        targetFinderMap.put("previous1", targetFinder);
-
-        targetFinder=p -> {
-            List<List<Player>> pastTargets = p.getMainTargets().stream()
-                    .distinct()
-                    .filter(x -> !p.getOptionalTargets().contains(x))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList());
-            List<List<Player>> others = board.getVisible(p.getPosition()).stream()
-                    .map(Square::getPlayers)
-                    .flatMap(x->x.stream())
-                    .distinct()
-                    .filter(x -> !x.equals(p))
-                    .filter(x -> !(p.getMainTargets().contains(x) || p.getOptionalTargets().contains(x)))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList());
-            others.addAll(cartesian(pastTargets, others));
-            others.addAll(pastTargets);
-            return others;
-        };
-        targetFinderMap.put("previous2", targetFinder);
-
-        targetFinder=p -> (p.getMainTargets().isEmpty()) ?
-                new ArrayList<>() : board.getVisible(p.getMainTargets().get(0).getPosition()).stream()
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .filter(x -> !p.getMainTargets().contains(x))
-                .filter(x -> !x.equals(p))
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("chain1", targetFinder);
-
-        targetFinder= p -> (p.getMainTargets().isEmpty()||p.getOptionalTargets().isEmpty()) ?
-                new ArrayList<>() : board
-                .getVisible(p.getOptionalTargets().get(0).getPosition()).stream()
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .filter(x -> !(p.getMainTargets().contains(x) || p.getOptionalTargets().contains(x)))
-                .filter(x -> !x.equals(p))
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("chain2", targetFinder);
-
-        targetFinder=p ->{
-            if(!p.getMainTargets().isEmpty()){
-                return Arrays.asList(Arrays.asList(p));
-            }
-            List<Square > l = board.getReachable(p.getPosition(), 2);
-            List<Square> selectable = new ArrayList<>(l);
-            for(Square s : l) {
-                if(!s.containsPlayer(p)) {
-                    if (!board.getVisible(s).stream()
+        switch(key) {
+            case "sight":
+                return p -> board.getVisible(p.getPosition()).stream()
+                        .map(Square::getPlayers)
+                        .flatMap(x -> x.stream())
+                        .distinct()
+                        .filter(x -> !x.equals(p))
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList());
+            case "sight1optional":
+                return p -> (p.getMainTargets().isEmpty() ? new ArrayList<>() : board.getVisible(p.getPosition()).stream()
+                        .map(Square::getPlayers)
+                        .flatMap(x -> x.stream())
+                        .distinct()
+                        .filter(x -> !x.equals(p) && !p.getMainTargets().isEmpty())
+                        .filter(x -> !p.getMainTargets().contains(x))
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList()));
+            case "sight2":
+                return p -> {
+                    List<List<Player>> res = board.getVisible(p.getPosition()).stream()
                             .map(Square::getPlayers)
                             .flatMap(x -> x.stream())
                             .distinct()
                             .filter(x -> !x.equals(p))
                             .map(Arrays::asList)
-                            .collect(Collectors.toList())
-                            .isEmpty()) {
-                        return Arrays.asList(Arrays.asList(p));
-                    }
-                }
-            }
-            return new ArrayList<>();
-        };
-        targetFinderMap.put("myself1", targetFinder);
-
-        targetFinder=p -> (p.getMainTargets().stream()
-                .distinct()
-                .map(Arrays::asList)
-                .collect(Collectors.toList()));
-        targetFinderMap.put("previous3", targetFinder);
-
-        targetFinder= p -> board.getVisible(p.getPosition()).stream()
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .filter(x -> !x.equals(p))
-                .filter(x -> {
-                    try {
-                        return board.getDistance(x.getPosition(), p.getPosition()) >= 2;
-                    } catch (NotAvailableAttributeException e) {
-                        LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                        return false;
-                    }
-                })
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("2min", targetFinder);
-
-        targetFinder=p -> Arrays.asList(p.getPosition().getPlayers().stream()
-                .distinct()
-                .filter(x -> (!x.equals(p)))
-                .collect(Collectors.toList()));
-        targetFinderMap.put("here", targetFinder);
-
-        targetFinder=p -> {
-            List<Square> l = board.getVisible(p.getPosition());
-            List<Square> temp = new ArrayList<>();
-            for (Square s : l) {
-                temp.addAll(board.getReachable(s, 2));
-            }
-            return temp.stream()
-                    .distinct()
-                    .map(Square::getPlayers)
-                    .flatMap(x -> x.stream())
-                    .distinct()
-                    .filter(x -> !x.equals(p))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList());
-        };
-        targetFinderMap.put("tractor1", targetFinder);
-
-        targetFinder= p -> board.getReachable(p.getPosition(), 2).stream()
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .filter(x -> !x.equals(p))
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("tractor2", targetFinder);
-
-        targetFinder=p -> {
-            List<Square> l = board.getVisible(p.getPosition());
-            List<Square> temp = new ArrayList<>();
-            for (Square s : l) {
-                temp.addAll(board.getReachable(s, 1));
-            }
-            return temp.stream()
-                    .map(Square::getPlayers)
-                    .flatMap(x -> x.stream())
-                    .distinct()
-                    .filter(x -> !x.equals(p))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList());
-        };
-        targetFinderMap.put("vortex1", targetFinder);
-
-        targetFinder= p -> {
-            if (p.getMainTargets().isEmpty()) {
-                return new ArrayList<>();
-            }
-            List<List<Player>> lp = board.getReachable(p.getMainTargets().get(0).getPosition(), 1).stream()
-                    .map(Square::getPlayers)
-                    .flatMap(x -> x.stream())
-                    .distinct()
-                    .filter(x -> !x.equals(p))
-                    .filter(x -> !p.getMainTargets().contains(x))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList());
-            List<List<Player>> res = cartesian(lp, lp);
-            res.addAll(lp);
-            return res;
-        };
-        targetFinderMap.put("vortex2", targetFinder);
-
-        targetFinder= p -> {
-            List<List<Square>> roomList = board.getVisible(p.getPosition()).stream()
-                    .map(Square::getRoomId)
-                    .distinct()
-                    .filter(x -> {
-                        try {
-                            return x!=p.getPosition().getRoomId();
-                        } catch (NotAvailableAttributeException ex) {
-                            LOGGER.log(Level.SEVERE, "Some players do not have a position.", ex);
-                            return false;
-                        }
-                    })
-                    .map(x -> board.getSquaresInRoom(x))
-                    .collect(Collectors.toList());
-            List<List<Player>> res = new ArrayList<>();
-            List<Player> temp = new ArrayList<>();
-            for (List<Square> ls : roomList) {
-                for (Square s : ls) {
-                    temp.addAll(s.getPlayers());
-                }
-                if(!temp.isEmpty()) {
-                    res.add(temp);
-                }
-                temp = new ArrayList<>();
-            }
-            return res;
-        };
-        targetFinderMap.put("room", targetFinder);
-
-        targetFinder=  p -> board.getReachable(p.getPosition(), 1).stream()
-                .filter(x -> !x.containsPlayer(p))
-                .map(Square::getPlayers)
-                .filter(x->!x.isEmpty())
-                .collect(Collectors.toList());
-        targetFinderMap.put("1away", targetFinder);
-
-        targetFinder=p -> board.getMap().stream()
-                .filter(x -> {
-                    try {
-                        return !board.getVisible(p.getPosition()).contains(x);
-                    } catch (NotAvailableAttributeException e) {
-                        LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                        return false;
-                    }
-                })
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .filter(x -> !x.equals(p))
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("notSight", targetFinder);
-
-        targetFinder=p -> board.getVisible(p.getPosition()).stream()
-                .filter(x -> !x.containsPlayer(p))
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("1min", targetFinder);
-
-        targetFinder= p -> {
-            List<List<Player>> targets = new ArrayList<>();
-            for (Direction d : Direction.values()) {
-                List<List<Player>> close = board.getSquaresInLine(p.getPosition(), d).stream()
-                        .filter(x -> {
-                            try {
-                                return board.getReachable(p.getPosition(), 1).contains(x);
-                            } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                return false;                            }
-                        })
+                            .collect(Collectors.toList());
+                    res.addAll(cartesian(res, res));
+                    return res;
+                };
+            case "previous1":
+                return p -> (p.getMainTargets().stream()
+                        .distinct()
+                        .filter(x -> p.getMainTargets().contains(x))
+                        .filter(x -> !p.getOptionalTargets().contains(x))
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList()));
+            case "previous2":
+                return p -> {
+                    List<List<Player>> pastTargets = p.getMainTargets().stream()
+                            .distinct()
+                            .filter(x -> !p.getOptionalTargets().contains(x))
+                            .map(Arrays::asList)
+                            .collect(Collectors.toList());
+                    List<List<Player>> others = board.getVisible(p.getPosition()).stream()
+                            .map(Square::getPlayers)
+                            .flatMap(x -> x.stream())
+                            .distinct()
+                            .filter(x -> !x.equals(p))
+                            .filter(x -> !(p.getMainTargets().contains(x) || p.getOptionalTargets().contains(x)))
+                            .map(Arrays::asList)
+                            .collect(Collectors.toList());
+                    others.addAll(cartesian(pastTargets, others));
+                    others.addAll(pastTargets);
+                    return others;
+                };
+            case "chain1":
+                return p -> (p.getMainTargets().isEmpty()) ?
+                        new ArrayList<>() : board.getVisible(p.getMainTargets().get(0).getPosition()).stream()
                         .map(Square::getPlayers)
                         .flatMap(x -> x.stream())
                         .distinct()
+                        .filter(x -> !p.getMainTargets().contains(x))
+                        .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-                List<List<Player>> far = board.getSquaresInLine(p.getPosition(), d).stream()
-                        .filter(x -> {
-                            try {
-                                return board.getReachable(p.getPosition(), 2).contains(x)&&!board.getReachable(p.getPosition(), 1).contains(x);
-                            } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                return false;                            }
-                        })
+            case "chain2":
+                return p -> (p.getMainTargets().isEmpty() || p.getOptionalTargets().isEmpty()) ?
+                        new ArrayList<>() : board
+                        .getVisible(p.getOptionalTargets().get(0).getPosition()).stream()
                         .map(Square::getPlayers)
                         .flatMap(x -> x.stream())
                         .distinct()
+                        .filter(x -> !(p.getMainTargets().contains(x) || p.getOptionalTargets().contains(x)))
+                        .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-                targets.addAll(close);
-                targets.addAll(far);
-                targets.addAll(cartesian(close, far));
-            }
-            return targets;
-        };
-        targetFinderMap.put("2row1", targetFinder);
-
-        targetFinder=p -> {
-            List<List<Player>> targets = new ArrayList<>();
-            for (Direction d : Direction.values()) {
-                List<List<Player>> close = board.getSquaresInLine(p.getPosition(), d).stream()
-                        .filter(x -> {
-                            try {
-                                return !board.getReachable(p.getPosition(), 1).contains(x);
-                            } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                return false;                            }
-                        })
+            case "myself1":
+                return p -> {
+                            if (!p.getMainTargets().isEmpty()) {
+                                return Arrays.asList(Arrays.asList(p));
+                            }
+                            List<Square> l = board.getReachable(p.getPosition(), 2);
+                            List<Square> selectable = new ArrayList<>(l);
+                            for (Square s : l) {
+                                if (!s.containsPlayer(p)) {
+                                    if (!board.getVisible(s).stream()
+                                            .map(Square::getPlayers)
+                                            .flatMap(x -> x.stream())
+                                            .distinct()
+                                            .filter(x -> !x.equals(p))
+                                            .map(Arrays::asList)
+                                            .collect(Collectors.toList())
+                                            .isEmpty()) {
+                                        return Arrays.asList(Arrays.asList(p));
+                                    }
+                                }
+                            }
+                            return new ArrayList<>();
+                        };
+            case "previous3":
+                return p -> (p.getMainTargets().stream()
+                        .distinct()
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList()));
+            case "2min":
+                return p -> board.getVisible(p.getPosition()).stream()
                         .map(Square::getPlayers)
                         .flatMap(x -> x.stream())
                         .distinct()
-                        .map(Arrays::asList)
-                        .collect(Collectors.toList());
-                List<List<Player>> far = board.getSquaresInLine(p.getPosition(), d).stream()
+                        .filter(x -> !x.equals(p))
                         .filter(x -> {
                             try {
-                                return board.getReachable(p.getPosition(), 2).contains(x)&&!board.getReachable(p.getPosition(), 1).contains(x);
+                                return board.getDistance(x.getPosition(), p.getPosition()) >= 2;
+                            } catch (NotAvailableAttributeException e) {
+                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                return false;
+                            }
+                        })
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList());
+            case "here":
+                return p -> Arrays.asList(p.getPosition().getPlayers().stream()
+                        .distinct()
+                        .filter(x -> (!x.equals(p)))
+                        .collect(Collectors.toList()));
+            case "tractor1":
+                return p -> {
+                    List<Square> l = board.getVisible(p.getPosition());
+                    List<Square> temp = new ArrayList<>();
+                    for (Square s : l) {
+                        temp.addAll(board.getReachable(s, 2));
+                    }
+                    return temp.stream()
+                            .distinct()
+                            .map(Square::getPlayers)
+                            .flatMap(x -> x.stream())
+                            .distinct()
+                            .filter(x -> !x.equals(p))
+                            .map(Arrays::asList)
+                            .collect(Collectors.toList());
+                };
+            case "tractor2":
+                return p -> board.getReachable(p.getPosition(), 2).stream()
+                        .map(Square::getPlayers)
+                        .flatMap(x -> x.stream())
+                        .distinct()
+                        .filter(x -> !x.equals(p))
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList());
+            case "vortex1":
+                return p -> {
+                            List<Square> l = board.getVisible(p.getPosition());
+                            List<Square> temp = new ArrayList<>();
+                            for (Square s : l) {
+                                temp.addAll(board.getReachable(s, 1));
+                            }
+                            return temp.stream()
+                                    .map(Square::getPlayers)
+                                    .flatMap(x -> x.stream())
+                                    .distinct()
+                                    .filter(x -> !x.equals(p))
+                                    .map(Arrays::asList)
+                                    .collect(Collectors.toList());
+                        };
+            case "vortex2":
+                return p -> {
+                            if (p.getMainTargets().isEmpty()) {
+                                return new ArrayList<>();
+                            }
+                            List<List<Player>> lp = board.getReachable(p.getMainTargets().get(0).getPosition(), 1).stream()
+                                    .map(Square::getPlayers)
+                                    .flatMap(x -> x.stream())
+                                    .distinct()
+                                    .filter(x -> !x.equals(p))
+                                    .filter(x -> !p.getMainTargets().contains(x))
+                                    .map(Arrays::asList)
+                                    .collect(Collectors.toList());
+                            List<List<Player>> res = cartesian(lp, lp);
+                            res.addAll(lp);
+                            return res;
+                        };
+            case "room":
+                return p -> {
+                            List<List<Square>> roomList = board.getVisible(p.getPosition()).stream()
+                                    .map(Square::getRoomId)
+                                    .distinct()
+                                    .filter(x -> {
+                                        try {
+                                            return x != p.getPosition().getRoomId();
+                                        } catch (NotAvailableAttributeException ex) {
+                                            LOGGER.log(Level.SEVERE, "Some players do not have a position.", ex);
+                                            return false;
+                                        }
+                                    })
+                                    .map(x -> board.getSquaresInRoom(x))
+                                    .collect(Collectors.toList());
+                            List<List<Player>> res = new ArrayList<>();
+                            List<Player> temp = new ArrayList<>();
+                            for (List<Square> ls : roomList) {
+                                for (Square s : ls) {
+                                    temp.addAll(s.getPlayers());
+                                }
+                                if (!temp.isEmpty()) {
+                                    res.add(temp);
+                                }
+                                temp = new ArrayList<>();
+                            }
+                            return res;
+                        };
+            case "1away":
+                return p -> board.getReachable(p.getPosition(), 1).stream()
+                        .filter(x -> !x.containsPlayer(p))
+                        .map(Square::getPlayers)
+                        .filter(x -> !x.isEmpty())
+                        .collect(Collectors.toList());
+            case "notSight":
+                return p -> board.getMap().stream()
+                        .filter(x -> {
+                            try {
+                                return !board.getVisible(p.getPosition()).contains(x);
                             } catch (NotAvailableAttributeException e) {
                                 LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
                                 return false;
@@ -535,29 +425,227 @@ public class WeaponFactory {
                         .map(Square::getPlayers)
                         .flatMap(x -> x.stream())
                         .distinct()
+                        .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-                targets.addAll(close);
-                targets.addAll(far);
-                targets.addAll(cartesian(close, far));
-            }
-            return targets;
-        };
-        targetFinderMap.put("2row2", targetFinder);
+            case "1min":
+                return p -> board.getVisible(p.getPosition()).stream()
+                        .filter(x -> !x.containsPlayer(p))
+                        .map(Square::getPlayers)
+                        .flatMap(x -> x.stream())
+                        .distinct()
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList());
+            case "2row1":
+                return p -> {
+                            List<List<Player>> targets = new ArrayList<>();
+                            for (Direction d : Direction.values()) {
+                                List<List<Player>> close = board.getSquaresInLine(p.getPosition(), d).stream()
+                                        .filter(x -> {
+                                            try {
+                                                return board.getReachable(p.getPosition(), 1).contains(x);
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                List<List<Player>> far = board.getSquaresInLine(p.getPosition(), d).stream()
+                                        .filter(x -> {
+                                            try {
+                                                return board.getReachable(p.getPosition(), 2).contains(x) && !board.getReachable(p.getPosition(), 1).contains(x);
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                targets.addAll(close);
+                                targets.addAll(far);
+                                targets.addAll(cartesian(close, far));
+                            }
+                            return targets;
+                        };
+            case "2row2":
+                return p -> {
+                            List<List<Player>> targets = new ArrayList<>();
+                            for (Direction d : Direction.values()) {
+                                List<List<Player>> close = board.getSquaresInLine(p.getPosition(), d).stream()
+                                        .filter(x -> {
+                                            try {
+                                                return !board.getReachable(p.getPosition(), 1).contains(x);
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                List<List<Player>> far = board.getSquaresInLine(p.getPosition(), d).stream()
+                                        .filter(x -> {
+                                            try {
+                                                return board.getReachable(p.getPosition(), 2).contains(x) && !board.getReachable(p.getPosition(), 1).contains(x);
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                targets.addAll(close);
+                                targets.addAll(far);
+                                targets.addAll(cartesian(close, far));
+                            }
+                            return targets;
+                        };
+            case "allSquare":
+                return p -> {
+                            List<List<Player>> l = board.getVisible(p.getPosition()).stream()
+                                    .filter(x -> !x.containsPlayer(p))
+                                    .map(Square::getPlayers)
+                                    .collect(Collectors.toList());
+                            l.add(p.getPosition().getPlayers().stream().filter(x -> !x.equals(p)).collect(Collectors.toList()));
+                            return l;
+                        };
+            case "myself3":
+                return p -> {
+                            List<Square> l = board.getReachable(p.getPosition(), 2);
+                            for (Square s : l) {
+                                List<List<Player>> targets = board.getVisible(s).stream()
+                                        .filter(x -> {
+                                            try {
+                                                return !x.equals(p.getPosition());
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                if (!targets.isEmpty() && !s.containsPlayer(p)) {
+                                    return Arrays.asList(Arrays.asList(p));
+                                }
+                            }
+                            return new ArrayList<>();
+                        };
+            case "previousSquare":
+                return p -> {
+                            if (p.getMainTargets().isEmpty()) {
+                                return new ArrayList<>();
+                            }
+                            List<Player> l = new ArrayList<>(p.getMainTargets());
+                            for (Player player : p.getMainTargets()) {
+                                for (Player opt2target : player.getPreviousPosition().getPlayers())
+                                    if (!l.contains(opt2target))
+                                        l.add(opt2target);
+                            }
+                            return Arrays.asList(l);
+                        };
+            case "cardinal1":
+                return p -> {
+                            List<List<Player>> targets = new ArrayList<>();
+                            for (Direction d : Direction.values()) {
+                                List<List<Player>> single = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
+                                        .stream()
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                targets.addAll(single);
+                            }
+                            targets.addAll(p.getPosition().getPlayers().stream()
+                                    .distinct()
+                                    .filter(x -> !x.equals(p))
+                                    .map(Arrays::asList)
+                                    .collect(Collectors.toList())
+                            );
+                            return targets;
+                        };
+            case "cardinal2":
+                return p -> {
+                            List<List<Player>> targets = new ArrayList<>();
+                            List<List<Player>> close = p.getPosition().getPlayers().stream()
+                                    .distinct()
+                                    .filter(x -> !x.equals(p))
+                                    .map(Arrays::asList)
+                                    .collect(Collectors.toList());
+                            targets.addAll(close);
+                            targets.addAll(cartesian(close, close));
+                            for (Direction d : Direction.values()) {
+                                List<List<Player>> single = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
+                                        .stream()
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                targets.addAll(single);
+                                List<List<Player>> both = new ArrayList<>(close);
+                                both.addAll(single);
+                                targets.addAll(cartesian(both, single));
+                            }
+                            return targets;
+                        };
+            case "here2":
+                return p -> p.getPosition().getPlayers().stream()
+                        .distinct()
+                        .filter(x -> !x.equals(p))
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList());
 
-        targetFinder=p -> {List<List<Player>> l = board.getVisible(p.getPosition()).stream()
-                .filter(x -> !x.containsPlayer(p))
-                .map(Square::getPlayers)
-                .collect(Collectors.toList());
-            l.add(p.getPosition().getPlayers().stream().filter(x -> !x.equals(p)).collect(Collectors.toList()));
-            return l;
-        };
-        targetFinderMap.put("allSquare", targetFinder);
-
-        targetFinder=p -> {
-            List<Square> l = board.getReachable(p.getPosition(), 2);
-            for(Square s : l){
-                List<List<Player>> targets =board.getVisible(s).stream()
+            case "myself2":
+                return p -> {
+                            for (Square s : board.getReachable(p.getPosition(), 1)) {
+                                if (!s.containsPlayer(p)) {
+                                    if (s.getPlayers().size() > 1 || !s.getPlayers().contains(p)) {
+                                        return Arrays.asList(Arrays.asList(p));
+                                    }
+                                }
+                            }
+                            return new ArrayList<>();
+                        };
+            case "hereDifferent":
+                return p -> p.getPosition().getPlayers().stream()
+                        .distinct()
+                        .filter(x -> !x.equals(p))
+                        .filter(x -> !p.getMainTargets().contains(x))
+                        .map(Arrays::asList)
+                        .collect(Collectors.toList());
+            case "sight3":
+                return p -> {
+                            List<List<Player>> targets = new ArrayList<>();
+                            List<List<Player>> single = board.getVisible(p.getPosition()).stream()
+                                    .map(Square::getPlayers)
+                                    .flatMap(x -> x.stream())
+                                    .distinct()
+                                    .filter(x -> !x.equals(p))
+                                    .map(Arrays::asList)
+                                    .collect(Collectors.toList());
+                            targets.addAll(single);
+                            targets.addAll(cartesian(single, single));
+                            targets.addAll(cartesian(cartesian(single, single), single));
+                            return targets;
+                        };
+            case "1away2":
+                return p -> board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> {
                             try {
                                 return !x.equals(p.getPosition());
@@ -571,233 +659,97 @@ public class WeaponFactory {
                         .distinct()
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-                if(!targets.isEmpty()&&!s.containsPlayer(p)){
-                    return Arrays.asList(Arrays.asList(p));
-                }
-            }
-            return new ArrayList<>();
-        };
-        targetFinderMap.put("myself3", targetFinder);
+            case "2steps":
+                return p -> {
+                            List<List<Player>> targets = new ArrayList<>();
+                            for (Direction d : Direction.values()) {
+                                List<List<Player>> close = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
+                                        .stream()
+                                        .filter(x -> {
+                                            try {
+                                                return board.getReachable(p.getPosition(), 1).contains(x);
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                List<List<Player>> far = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
+                                        .stream()
+                                        .filter(x -> {
+                                            try {
+                                                return board.getReachable(p.getPosition(), 2).contains(x);
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .filter(x -> {
+                                            try {
+                                                return !board.getReachable(p.getPosition(), 1).contains(x);
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                targets.addAll(close);
+                                targets.addAll(far);
+                                targets.addAll(cartesian(close, far));
+                            }
+                            return targets;
+                        };
+            case "1awayDifferent":
+                return p -> {
+                            List<List<Player>> targets = new ArrayList<>();
+                            List<List<List<Player>>> directionalTargets = new ArrayList<>();
 
-
-        targetFinder=  p -> {
-            if(p.getMainTargets().isEmpty()){
-                return new ArrayList<>();
-            }
-            List<Player> l = new ArrayList<>(p.getMainTargets());
-            for(Player player : p.getMainTargets()){
-                for (Player opt2target : player.getPreviousPosition().getPlayers())
-                    if (!l.contains(opt2target))
-                         l.add(opt2target);
-            }
-            return Arrays.asList(l);
-        };
-        targetFinderMap.put("previousSquare", targetFinder);
-
-
-        targetFinder= p -> {
-            List<List<Player>> targets = new ArrayList<>();
-            for (Direction d : Direction.values()){
-                List<List<Player>> single = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
-                        .stream()
-                        .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
-                        .distinct()
-                        .map(Arrays::asList)
-                        .collect(Collectors.toList());
-                targets.addAll(single);
-            }
-            targets.addAll(p.getPosition().getPlayers().stream()
-                    .distinct()
-                    .filter(x -> !x.equals(p))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList())
-            );
-            return targets;
-        };
-        targetFinderMap.put("cardinal1", targetFinder);
-
-
-        targetFinder=p -> {
-            List<List<Player>> targets = new ArrayList<>();
-            List<List<Player>> close = p.getPosition().getPlayers().stream()
-                    .distinct()
-                    .filter(x -> !x.equals(p))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList());
-            targets.addAll(close);
-            targets.addAll(cartesian(close, close));
-            for (Direction d : Direction.values()){
-                List<List<Player>> single = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
-                        .stream()
-                        .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
-                        .distinct()
-                        .map(Arrays::asList)
-                        .collect(Collectors.toList());
-                targets.addAll(single);
-                List<List<Player>> both = new ArrayList<>(close);
-                both.addAll(single);
-                targets.addAll(cartesian(both, single));
-            }
-            return targets;
-        };
-        targetFinderMap.put("cardinal2", targetFinder);
-
-
-        targetFinder=p -> p.getPosition().getPlayers().stream()
-                .distinct()
-                .filter(x -> !x.equals(p))
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("here2", targetFinder);
-
-        targetFinder=p -> {
-            for (Square s : board.getReachable(p.getPosition(), 1)) {
-                if(!s.containsPlayer(p)) {
-                    if (s.getPlayers().size() > 1 || !s.getPlayers().contains(p)) {
-                        return Arrays.asList(Arrays.asList(p));
-                    }
-                }
-            }
-            return new ArrayList<>();
-        };
-        targetFinderMap.put("myself2", targetFinder);
-
-
-        targetFinder= p -> p.getPosition().getPlayers().stream()
-                .distinct()
-                .filter(x -> !x.equals(p))
-                .filter(x -> !p.getMainTargets().contains(x))
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("hereDifferent", targetFinder);
-
-
-        targetFinder=p -> {
-            List<List<Player>> targets = new ArrayList<>();
-            List<List<Player>> single = board.getVisible(p.getPosition()).stream()
-                    .map(Square::getPlayers)
-                    .flatMap(x -> x.stream())
-                    .distinct()
-                    .filter(x -> !x.equals(p))
-                    .map(Arrays::asList)
-                    .collect(Collectors.toList());
-            targets.addAll(single);
-            targets.addAll(cartesian(single, single));
-            targets.addAll(cartesian(cartesian(single, single), single));
-            return targets;
-        };
-        targetFinderMap.put("sight3", targetFinder);
-
-
-        targetFinder=p -> board.getReachable(p.getPosition(), 1).stream()
-                .filter(x -> {
-                    try {
-                        return !x.equals(p.getPosition());
-                    } catch (NotAvailableAttributeException e) {
-                        LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                        return false;
-                    }
-                })
-                .map(Square::getPlayers)
-                .flatMap(x -> x.stream())
-                .distinct()
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        targetFinderMap.put("1away2", targetFinder);
-
-        targetFinder=p -> {
-            List<List<Player>> targets = new ArrayList<>();
-            for (Direction d : Direction.values()){
-                List<List<Player>> close = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
-                        .stream()
-                        .filter(x -> {
-                            try {
-                                return board.getReachable(p.getPosition(), 1).contains(x);
-                            } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                return false;                            }
-                        })
-                        .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
-                        .distinct()
-                        .map(Arrays::asList)
-                        .collect(Collectors.toList());
-                List<List<Player>> far = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
-                        .stream()
-                        .filter(x -> {
-                            try {
-                                return board.getReachable(p.getPosition(), 2).contains(x);
-                            } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                return false;                            }
-                        })
-                        .filter(x -> {
-                            try {
-                                return !board.getReachable(p.getPosition(), 1).contains(x);
-                            } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                return false;                            }
-                        })
-                        .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
-                        .distinct()
-                        .map(Arrays::asList)
-                        .collect(Collectors.toList());
-                targets.addAll(close);
-                targets.addAll(far);
-                targets.addAll(cartesian(close, far));
-            }
-            return targets;
-        };
-        targetFinderMap.put("2steps", targetFinder);
-
-
-        targetFinder=p -> {
-            List<List<Player>> targets = new ArrayList<>();
-            List<List<List<Player>>> directionalTargets = new ArrayList<>();
-
-            for (Direction d : Direction.values()){
-                List<List<Player>> candidate = board.getReachable(p.getPosition(), 1).stream()
-                        .filter(x -> {
-                            try {
-                                return board.getSquaresInLine(p.getPosition(), d).contains(x);
-                            } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                return false;                            }
-                        })
-                        .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
-                        .distinct()
-                        .map(Arrays::asList)
-                        .collect(Collectors.toList());
-                if(!candidate.isEmpty()) {
-                    directionalTargets.add(candidate);
-                }
-            }
-            for (int i = 0; i < directionalTargets.size(); i++) {
-                targets.addAll(directionalTargets.get(i));
-                for (int j = i + 1; j < directionalTargets.size(); j++) {
-                    targets.addAll(cartesian(directionalTargets.get(i), directionalTargets.get(j)));
-                    for (int k = j + 1; k < directionalTargets.size(); k++) {
-                        targets.addAll(cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
-                    }
-                }
-            }
-            return targets;
-        };
-        targetFinderMap.put("1awayDifferent", targetFinder);
-
-
-        return targetFinderMap.get(key);
+                            for (Direction d : Direction.values()) {
+                                List<List<Player>> candidate = board.getReachable(p.getPosition(), 1).stream()
+                                        .filter(x -> {
+                                            try {
+                                                return board.getSquaresInLine(p.getPosition(), d).contains(x);
+                                            } catch (NotAvailableAttributeException e) {
+                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                return false;
+                                            }
+                                        })
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList());
+                                if (!candidate.isEmpty()) {
+                                    directionalTargets.add(candidate);
+                                }
+                            }
+                            for (int i = 0; i < directionalTargets.size(); i++) {
+                                targets.addAll(directionalTargets.get(i));
+                                for (int j = i + 1; j < directionalTargets.size(); j++) {
+                                    targets.addAll(cartesian(directionalTargets.get(i), directionalTargets.get(j)));
+                                    for (int k = j + 1; k < directionalTargets.size(); k++) {
+                                        targets.addAll(cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
+                                    }
+                                }
+                            }
+                            return targets;
+                        };
+            default:
+                return p -> new ArrayList<>();
+        }
     }
 
     private DestinationFinder getDestinationFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
         int move = j.getMove(weaponName,fireModeName);
         String where = j.getWhere(weaponName, fireModeName);
-        Map<String, DestinationFinder> fireModeMap = new HashMap<>();
-        DestinationFinder dF;
         String key;
         if(move==0){
             key="normal";
@@ -807,143 +759,132 @@ public class WeaponFactory {
             key = j.getMoveType(weaponName, fireModeName);
         }
 
-
-        dF=(p, t) -> new ArrayList<>();
-        fireModeMap.put("normal", dF);
-
-        dF=(p, t) -> {
-            List<Square > l = board.getReachable(p.getPosition(), move);
-            l.remove(p.getPosition());
-            if(!p.getMainTargets().isEmpty()){
-                return l;
-            }
-            List<Square> selectable = new ArrayList<>(l);
-            for(Square s : l) {
-                if (board.getVisible(s).stream()
-                        .map(Square::getPlayers)
-                        .flatMap(x ->x.stream())
+        switch(key) {
+            case "normal":
+                return (p, t) -> new ArrayList<>();
+            case "myself":
+                return (p, t) -> {
+                            List<Square> l = board.getReachable(p.getPosition(), move);
+                            l.remove(p.getPosition());
+                            if (!p.getMainTargets().isEmpty()) {
+                                return l;
+                            }
+                            List<Square> selectable = new ArrayList<>(l);
+                            for (Square s : l) {
+                                if (board.getVisible(s).stream()
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .filter(x -> !x.equals(p))
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList())
+                                        .isEmpty()) {
+                                    selectable.remove(s);
+                                }
+                            }
+                            return selectable;
+                        };
+            case "tractor1":
+                return (p, t) -> board.getVisible(p.getPosition()).stream()
                         .distinct()
-                        .filter(x -> !x.equals(p))
-                        .map(Arrays::asList)
-                        .collect(Collectors.toList())
-                        .isEmpty()){
-                    selectable.remove(s);
-                }
-            }
-            return selectable;
-        };
-        fireModeMap.put("myself", dF);
-
-        dF=(p, t) -> board.getVisible(p.getPosition()).stream()
-                .distinct()
-                .filter(x -> {
-                    try {
-                        return !t.isEmpty()&&board.getReachable(t.get(0).getPosition(), move).contains(x);
-                    } catch (NotAvailableAttributeException e) {
-                        LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                        return false;
-                    }
-                })
-                .collect(Collectors.toList());
-        fireModeMap.put("tractor1", dF);
-
-        dF=(p, t) -> Arrays.asList(p.getPosition());
-        fireModeMap.put("tractor2", dF);
-
-        dF=(p, t) -> board.getVisible(p.getPosition()).stream()
-                .filter(x -> {
-                    try {
-                        return !t.isEmpty()&&board.getReachable(t.get(0).getPosition(), move).contains(x);
-                    } catch (NotAvailableAttributeException e) {
-                        LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                        return false;                    }
-                })
-                .filter(x -> !x.containsPlayer(p))
-                .distinct()
-                .collect(Collectors.toList());
-        fireModeMap.put("vortex1", dF);
-
-        dF=(p, t) -> p.getMainTargets().isEmpty() ? new ArrayList<>() : Arrays.asList(p.getMainTargets().get(0).getPosition());
-        fireModeMap.put("vortex2", dF);
-
-        dF=(p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move).stream().filter(x->!x.containsPlayer(t.get(0))).collect(Collectors.toList());
-        fireModeMap.put("onHit", dF);
-
-        dF=(p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move);
-        fireModeMap.put("onHit2", dF);
-
-        dF=(p, t) -> {
-            List<Square> l = board.getReachable(p.getPosition(), 2);
-            l.remove(p.getPosition());
-            if(!p.getMainTargets().isEmpty()) {
-                return l;
-            }
-            List<Square> res = new ArrayList<>(l);
-            for(Square s : l){
-                if(board.getVisible(s).stream()
+                        .filter(x -> {
+                            try {
+                                return !t.isEmpty() && board.getReachable(t.get(0).getPosition(), move).contains(x);
+                            } catch (NotAvailableAttributeException e) {
+                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                return false;
+                            }
+                        })
+                        .collect(Collectors.toList());
+            case "tractor2":
+                return (p, t) -> Arrays.asList(p.getPosition());
+            case "vortex1":
+                return (p, t) -> board.getVisible(p.getPosition()).stream()
+                        .filter(x -> {
+                            try {
+                                return !t.isEmpty() && board.getReachable(t.get(0).getPosition(), move).contains(x);
+                            } catch (NotAvailableAttributeException e) {
+                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                return false;
+                            }
+                        })
                         .filter(x -> !x.containsPlayer(p))
-                        .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
                         .distinct()
-                        .map(Arrays::asList)
-                        .collect(Collectors.toList()).isEmpty()){
-                    res.remove(s);
-                }
-            }
-            return res;
-        };
-        fireModeMap.put("myself2", dF);
+                        .collect(Collectors.toList());
+            case "vortex2":
+                return (p, t) -> p.getMainTargets().isEmpty() ? new ArrayList<>() : Arrays.asList(p.getMainTargets().get(0).getPosition());
+            case "onHit":
+                return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move).stream().filter(x -> !x.containsPlayer(t.get(0))).collect(Collectors.toList());
+            case "onHit2":
+                return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move);
+            case "myself2":
+                return (p, t) -> {
+                            List<Square> l = board.getReachable(p.getPosition(), 2);
+                            l.remove(p.getPosition());
+                            if (!p.getMainTargets().isEmpty()) {
+                                return l;
+                            }
+                            List<Square> res = new ArrayList<>(l);
+                            for (Square s : l) {
+                                if (board.getVisible(s).stream()
+                                        .filter(x -> !x.containsPlayer(p))
+                                        .map(Square::getPlayers)
+                                        .flatMap(x -> x.stream())
+                                        .distinct()
+                                        .map(Arrays::asList)
+                                        .collect(Collectors.toList()).isEmpty()) {
+                                    res.remove(s);
+                                }
+                            }
+                            return res;
+                        };
+            case "myself3":
+                return (p, t) -> {
+                            if (p.getMainTargets().isEmpty()) {
+                                return board.getReachable(p.getPosition(), move).stream().filter(x -> x.getPlayers().size() > 1 || !x.getPlayers().contains(p)).collect(Collectors.toList());
+                            }
+                            return board.getReachable(p.getPosition(), move).stream().filter(x -> !x.containsPlayer(p)).collect(Collectors.toList());
+                        };
+            case "onHit3":
+                return (p, t) -> board.getReachable(p.getPosition(), move);
+            case "dash1":
+                return (p, t) -> t.isEmpty() ? new ArrayList<>() : Arrays.asList(t.get(0).getPosition());
+            case "dash2":
+                return (p, t) -> {
+                            for (Player temp : t) {
+                                if (board.getDistance(p.getPosition(), temp.getPosition()) > 1) {
+                                    return Arrays.asList(temp.getPosition());
+                                }
+                            }
+                            List<Square> res = new ArrayList<>();
+                            res.add(t.get(0).getPosition());
+                            for (Direction d : Direction.values()) {
+                                if (board.getSquaresInLine(p.getPosition(), d).contains(t.get(0).getPosition())) {
+                                    for (Square sq : board.getSquaresInLine(p.getPosition(), d)) {
+                                        if (board.getDistance(sq, p.getPosition()) == 2) {
+                                            res.add(sq);
+                                        }
+                                    }
+                                }
 
-        dF=(p, t) -> {
-            if (p.getMainTargets().isEmpty()) {
-                return board.getReachable(p.getPosition(), move).stream().filter(x -> x.getPlayers().size() > 1 || !x.getPlayers().contains(p)).collect(Collectors.toList());
-            }
-            return board.getReachable(p.getPosition(), move).stream().filter(x->!x.containsPlayer(p)).collect(Collectors.toList());
-        };
-        fireModeMap.put("myself3", dF);
-
-        dF=(p, t) -> board.getReachable(p.getPosition(), move);
-        fireModeMap.put("onHit3", dF);
-
-        dF=(p, t) -> t.isEmpty() ? new ArrayList<>(): Arrays.asList(t.get(0).getPosition());
-        fireModeMap.put("dash1", dF);
-
-        dF=(p, t) -> {
-            for (Player temp : t) {
-                if (board.getDistance(p.getPosition(), temp.getPosition()) > 1) {
-                    return Arrays.asList(temp.getPosition());
-                }
-            }
-            List<Square> res = new ArrayList<>();
-            res.add(t.get(0).getPosition());
-            for (Direction d : Direction.values()){
-                if (board.getSquaresInLine(p.getPosition(), d).contains(t.get(0).getPosition())) {
-                    for (Square sq : board.getSquaresInLine(p.getPosition(), d)) {
-                        if (board.getDistance(sq, p.getPosition()) == 2) {
-                            res.add(sq);
-                        }
-                    }
-                }
-
-            }
-            return res;
-        };
-        fireModeMap.put("dash2", dF);
-
-        dF=(p, t) -> {
-            List<Square> res = new ArrayList<>();
-            Square center = p.getPosition();
-            res.add(center);
-            for (Direction d : Direction.values()){
-                res.addAll(board.getSquaresInLine(center, d).stream()
-                        .filter(x->board.getDistance(center, x)<3)
-                        .collect(Collectors.toList()));
-            }
-            return res;
-        };
-        fireModeMap.put("push", dF);
-
-        return fireModeMap.get(key);
+                            }
+                            return res;
+                        };
+            case "push":
+                return (p, t) -> {
+                            List<Square> res = new ArrayList<>();
+                            Square center = p.getPosition();
+                            res.add(center);
+                            for (Direction d : Direction.values()) {
+                                res.addAll(board.getSquaresInLine(center, d).stream()
+                                        .filter(x -> board.getDistance(center, x) < 3)
+                                        .collect(Collectors.toList()));
+                            }
+                            return res;
+                        };
+            default:
+                return (p, t) -> new ArrayList<>();
+        }
     }
 
     private Effect createEffect(int damage, int marks){

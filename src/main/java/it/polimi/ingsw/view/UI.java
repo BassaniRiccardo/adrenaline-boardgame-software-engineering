@@ -46,7 +46,8 @@ public interface UI extends Runnable {
     String get(List<String> list);
 
     void render();
-   // void render(ClientModel clientModel);
+
+    void setMessageMemory(int n);
 }
 
 

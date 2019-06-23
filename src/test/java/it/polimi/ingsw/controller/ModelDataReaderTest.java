@@ -134,17 +134,6 @@ public class ModelDataReaderTest {
     }
 
     /**
-     * Tests the method getTargetNumber(Weapon.WeaponName, FireMode.FireModeName)
-     */
-    @Test
-    public void getTargetNumber() {
-        ModelDataReader modelDataReader = new ModelDataReader();
-        int out;
-        out=modelDataReader.getTargetNumber(Weapon.WeaponName.THOR, FireMode.FireModeName.OPTION1);
-        assertEquals(1,out);
-    }
-
-    /**
      * Tests the method getFireModeCostRed(Weapon.WeaponName, FireMode.FireModeName)
      */
     @Test

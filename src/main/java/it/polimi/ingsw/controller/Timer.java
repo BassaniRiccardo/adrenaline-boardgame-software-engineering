@@ -47,6 +47,6 @@ public class Timer {
     }
 
     public long getTimeLeft(){
-        return TimeUnit.SECONDS.convert(System.nanoTime()-start, TimeUnit.NANOSECONDS);
+        return TimeUnit.SECONDS.convert(start + duration - System.nanoTime(), TimeUnit.NANOSECONDS);
     }
 }

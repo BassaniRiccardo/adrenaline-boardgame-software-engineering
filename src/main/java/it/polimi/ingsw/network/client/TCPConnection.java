@@ -26,6 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
+
 /**
  * Implementation of Socket connection to server
  *
@@ -39,7 +41,7 @@ public class TCPConnection implements Runnable {
     private ClientMain clientMain;
     static final Logger LOGGER = Logger.getLogger("clientLogger");
     private ExecutorService executor = Executors.newCachedThreadPool();
-
+    private static final int SOTIMEOUT = 100;
 
     /**
      * Constructor establishing a TCP connection
@@ -55,7 +57,7 @@ public class TCPConnection implements Runnable {
             socket = new Socket(address, port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream());
-            socket.setSoTimeout(100);
+            socket.setSoTimeout(SOTIMEOUT);
             LOGGER.log(Level.INFO, "Connected to TCP server");
         }catch (ConnectException ex){
             LOGGER.log(Level.SEVERE, "Cannot connect to server. Closing", ex);
@@ -85,7 +87,7 @@ public class TCPConnection implements Runnable {
                 handleRequest(jMessage);
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             } catch (InterruptedException ex) {
                 LOGGER.log(Level.SEVERE, "Skipped waiting time");
                 Thread.currentThread().interrupt();
@@ -124,8 +126,7 @@ public class TCPConnection implements Runnable {
             case "UPD" :    System.out.println(jMessage);
                             clientMain.update(jMessage);
                             break;
-            default:        //do something
-                            break;
+            default:        break;
         }
     }
 
@@ -145,7 +146,7 @@ public class TCPConnection implements Runnable {
      *
      * @return          the string received (empty if no message arrived)
      */
-    String receive() throws SocketTimeoutException{
+    private String receive() throws SocketTimeoutException{
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "PING");
         String message = jsonObject.toString();

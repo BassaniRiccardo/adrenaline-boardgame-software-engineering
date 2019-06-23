@@ -1,5 +1,3 @@
-//come utilizzare final?
-
 package it.polimi.ingsw.model.cards;
 import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
@@ -40,7 +38,6 @@ public class Weapon implements Card {
     private final AmmoPack reducedCost;
     private Player holder;
     private final List<FireMode> fireModeList;
-    private FireMode currentFireMode;
     private List<Player> mainTargets;
     private List<Player> optionalTargets;
     private Board board;
@@ -68,7 +65,6 @@ public class Weapon implements Card {
         this.reducedCost = reducedCost;
         this.holder = null;
         this.fireModeList = fireModeList;
-        this.currentFireMode = null;
         this.mainTargets = new ArrayList<>();
         this.optionalTargets = new ArrayList<>();
         this.board = board;
@@ -101,12 +97,6 @@ public class Weapon implements Card {
 
     public List<FireMode> getFireModeList() { return fireModeList; }
 
-    public FireMode getCurrentFireMode() throws NotAvailableAttributeException {
-        if (currentFireMode == null) throw new NotAvailableAttributeException("This weapon does not have a set firemode.");
-
-        return currentFireMode;
-    }
-
     public List<Player> getMainTargets() {
         return mainTargets;
     }
@@ -130,21 +120,6 @@ public class Weapon implements Card {
 
     public void removeHolder(){
         this.holder = null;
-    }
-
-    public void setCurrentFireMode(FireMode currentFireMode) {
-        this.currentFireMode = currentFireMode;
-    }
-
-
-    public void setMainTargets(List<Player> mainTargets) {
-        if(!this.board.getPlayers().containsAll(mainTargets)) throw new IllegalArgumentException("The targets must belong to the board.");
-        this.mainTargets = mainTargets;
-    }
-
-    public void setOptionalTargets(List<Player> optionalTargets) {
-        if(!this.board.getPlayers().containsAll(optionalTargets)) throw new IllegalArgumentException("The targets must belong to the board.");
-        this.optionalTargets = optionalTargets;
     }
 
 

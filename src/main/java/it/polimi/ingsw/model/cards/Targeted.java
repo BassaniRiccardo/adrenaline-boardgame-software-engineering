@@ -24,6 +24,4 @@ public interface Targeted {
 
     boolean isAvailable() throws NotAvailableAttributeException;
 
-    AmmoPack getCost() ;
-
 }

@@ -14,9 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 
 //TODO: check synchronization
-//TODO: in depth testing
-//FIX: if an rmi player disconnects, its name is kept locked
-//TODO: ask the tutors if it is okay for the view not to observe anything, nut to be notified by the controller when it need to be updated
+//FIXME: if an rmi player disconnects, its name is kept locked
 
 /**
  * Main class that manages connections and matchmaking.
@@ -36,7 +34,12 @@ public class ServerMain {
     private ExecutorService executor;
     private BufferedReader in;
     private boolean running;
+
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
+    public static final int SLEEP_TIMEOUT = 100;
+    private static final String SERVER_LOG_FILENAME = "serverLog.txt";
+    private static final String SERVER_PROPERTIES_FILENAME = "/server.properties";
+
 
 
     /**
@@ -85,7 +88,7 @@ public class ServerMain {
                 sm.matchmaking();
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             }catch(InterruptedException ex){
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
@@ -196,7 +199,7 @@ public class ServerMain {
     }
 
     /**
-     * Removes players who were suspended while till waiting for a game
+     * Removes players who were suspended while still waiting for a game
      *
      */
     private synchronized void removeSuspendedPlayers(){
@@ -228,7 +231,7 @@ public class ServerMain {
         try {
             ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.FINE);
-            FileHandler fileHandler = new FileHandler("serverLog.txt");
+            FileHandler fileHandler = new FileHandler(SERVER_LOG_FILENAME);
             LOGGER.setLevel(Level.INFO);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
@@ -246,7 +249,7 @@ public class ServerMain {
     public Properties loadConfig(){
         Properties prop = new Properties();
         try {
-            InputStream input = getClass().getResourceAsStream("/server.properties");
+            InputStream input = getClass().getResourceAsStream(SERVER_PROPERTIES_FILENAME);
             prop.load(input);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "IOException while loading config", ex);
@@ -310,7 +313,10 @@ public class ServerMain {
         }
 
         for(VirtualView v : waitingPlayers){
-                v.display(getAlreadyConnected() + "Timer: " + timer.getTimeLeft());
+                String alreadyConnected = getAlreadyConnected();
+                if(!alreadyConnected.isEmpty()) {
+                    v.display(alreadyConnected + "Time left: " + timer.getTimeLeft());
+                }
         }
     }
 
@@ -323,10 +329,9 @@ public class ServerMain {
         if(waitingPlayers.isEmpty()){
             return "";
         }
-        String res = "Connected players: ";
+        String res = "Connected players:";
         for(VirtualView v : waitingPlayers){
-            res = res + v.getName() + " ";
-
+            res = res + "\n\t" + v.getName();
         }
         res = res + "\n";
         return res;

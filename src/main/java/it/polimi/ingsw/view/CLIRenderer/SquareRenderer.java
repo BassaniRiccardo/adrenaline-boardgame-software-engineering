@@ -2,16 +2,29 @@ package it.polimi.ingsw.view.CLIRenderer;
 
 import java.util.List;
 
-
-//TODO: rewrite all CLI rendering functions properly, make the code more robust
+/**
+ * Class creating a bidimensional String array containing representing a single square
+ */
 public class SquareRenderer {
 
-    private String[][] box = new String[4][11];
-    private Integer squareID;
+    private String[][] box;
+
+    private static final int SQUARE_HEIGHT = 4;
+    private static final int SQUARE_WIDTH = 11;
+    private static final int FIRST_DIGIT_X = 0;
+    private static final int FIRST_DIGIT_Y = 1;
+    private static final int SECOND_DIGIT_X = 0;
+    private static final int SECOND_DIGIT_Y = 2;
+    private static final int AMMO_X = 0;
+    private static final int AMMO_Y = 8;
+    private static final int WEAPON_X = 0;
+    private static final int WEAPON_Y = 10;
+    private static final int PLAYER_X = 2;
+
 
     public SquareRenderer(int squareID, List<String> ammo, int weaponNum, List<String> players) {
 
-        this.squareID = squareID;
+        box = new String[SQUARE_HEIGHT][SQUARE_WIDTH];
 
         for (int i = 0; i < box.length; i++) {
             for (int j = 0; j < box[0].length; j++) {
@@ -19,30 +32,30 @@ public class SquareRenderer {
             }
         }
 
-        box[0][1] = String.valueOf(squareID / 10);
-        box[0][2] = String.valueOf(squareID % 10);
+        box[FIRST_DIGIT_X][FIRST_DIGIT_Y] = String.valueOf(squareID / 10);
+        box[SECOND_DIGIT_X][SECOND_DIGIT_Y] = String.valueOf(squareID % 10);
 
 
-        for (int i = 0; i < ammo.size(); i++) {
-            box[0][i + 8] = ammo.get(i);
+        for (int i = 0; i < ammo.size() && i+AMMO_Y<SQUARE_WIDTH; i++) {
+            box[AMMO_X][i+AMMO_Y] = ammo.get(i);
         }
         if(weaponNum!=0) {
-            box[0][10] = String.valueOf(weaponNum);
+            box[WEAPON_X][WEAPON_Y] = String.valueOf(weaponNum);
         }
 
         for (int i = 0; i < players.size(); i++) {
 
             switch (players.size()) {
                 case 1:
-                    box[2][5] = players.get(i); break;
+                    box[PLAYER_X][5] = players.get(i); break;
                 case 2:
-                    box[2][4 + 2 * i] = players.get(i); break;
+                    box[PLAYER_X][4 + 2 * i] = players.get(i); break;
                 case 3:
-                    box[2][3 + 2 * i] = players.get(i); break;
+                    box[PLAYER_X][3 + 2 * i] = players.get(i); break;
                 case 4:
-                    box[2 + i / 2][4 + 2 * (i % 2)] = players.get(i); break;
+                    box[PLAYER_X + i / 2][4 + 2 * (i % 2)] = players.get(i); break;
                 case 5:
-                    box[2][3 + i] = players.get(i);
+                    box[PLAYER_X][3 + i] = players.get(i);
             }
         }
     }

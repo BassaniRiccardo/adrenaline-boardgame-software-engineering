@@ -30,6 +30,8 @@ import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 //      - Finish testing.
 //      - Use a logger (also in other classes).
 //      - WaitAll for grenade
+//      - TOO MANY UPDATES ARE SENT (3 for each movement), whole model is sent multiple times in the same turn
+//      - discuss confirmations
 
 
 public class TurnManager implements Runnable{

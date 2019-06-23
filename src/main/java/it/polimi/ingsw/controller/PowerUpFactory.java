@@ -1,5 +1,3 @@
-//TODO load data from JSON/XML
-
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.Board;
@@ -14,12 +12,10 @@ import java.util.stream.Collectors;
 import static it.polimi.ingsw.model.board.Board.Direction;
 
 /**
- * Factory class to create a power up.
+ * Factory class to create power ups.
  *
  * @author  marcobaga
  */
-
-//TODO Add a private constructor....SonarLint
 
 public class PowerUpFactory  {
 
@@ -43,7 +39,6 @@ public class PowerUpFactory  {
     public PowerUp createPowerUp(PowerUp.PowerUpName powerUpName, Color color) {
 
         Effect effect;
-        AmmoPack cost = new AmmoPack(0,0,0);
         DestinationFinder destinationFinder;
         TargetFinder targetFinder;
 
@@ -100,6 +95,6 @@ public class PowerUpFactory  {
                 destinationFinder = (p, t) -> board.getMap();
                 break;
         }
-        return new PowerUp(powerUpName, cost, destinationFinder, targetFinder, effect, color, board);
+        return new PowerUp(powerUpName, destinationFinder, targetFinder, effect, color, board);
     }
 }

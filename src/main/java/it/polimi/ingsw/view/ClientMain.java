@@ -49,7 +49,7 @@ public class ClientMain {
         ClientMain clientMain = new ClientMain();
         clientMain.initializeLogger();
         clientMain.setup(args);
-        LOGGER.log(Level.INFO, "Setup finished");
+        //LOGGER.log(Level.INFO, "Setup finished");
     }
 
     /**
@@ -122,7 +122,7 @@ public class ClientMain {
         executor.submit(ui);
         ui.display(selectedInterface);
 
-        ui.display("Which type of connection do you want to use?", new ArrayList<>(Arrays.asList("Socket", "RMI")));
+        ui.display("Which type of connection do you want to use? (if unsure, choose 1)", new ArrayList<>(Arrays.asList("Socket", "RMI")));
         buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         while (!(buff.equals("1") || buff.equals("2"))) {
             ui.display("Invalid choice. Try again.");
@@ -130,50 +130,58 @@ public class ClientMain {
         }
         if (buff.equals("2")) {
             connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
-            //connection=new RMIConnection(this, "192.168.43.244", 1420);
         } else {
             connection = new TCPConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("TCPPort", "5000")));
-            //connection=new TCPConnection(this, "192.168.43.244", 5000);
         }
         executor.submit(connection);
     }
 
-
+    /**
+     * Prompts the UI to choose from a list of options
+     * @param msg       message to be displayed
+     * @param options   options available
+     * @return          int corresponding to the option chosen
+     */
     public int choose(String msg, List<String> options) {
         ui.display(msg, options);
         return Integer.parseInt(ui.get(options));
     }
 
+    /**
+     * Calls UI display method
+     * @param msg   message to display
+     */
     public void display(String msg) {
         ui.display(msg);
-
     }
 
-    public void render() {
-        ui.render();
-    }
-
+    /**
+     * Prompts the UI for a string
+     *
+     * @param msg   message to display
+     * @param max   maximum length accepted
+     * @return      user's input
+     */
     public String getInput(String msg, int max){
         ui.display(msg, Integer.toString(max));
         return ui.get(Integer.toString(max));
     }
 
-    public ClientModel getClientModel() {
-        return clientModel;
-    }
-
-    public void setClientModel(ClientModel clientModel) {
-        this.clientModel = clientModel;
-    }
-
+    /**
+     * Closes the client
+     */
     public void shutdown() {
-        //graceful shutdown
+        //TODO: graceful shutdown
         System.exit(0);
     }
 
+    /**
+     * Applies changes to the ClientModel according to the update message received and displays them
+     * @param j     serialized update
+     */
     public void update(JsonObject j) {
 
-        System.out.println("update received: " + j.get("type").getAsString());
+        LOGGER.log(Level.INFO, "update received: " + j.get("type").getAsString());
 
         switch (j.get("type").getAsString()) {
 
@@ -183,13 +191,10 @@ public class ClientMain {
                 break;
             case ("skullRemoved"):
                 clientModel.removeSkulls(j.get("number").getAsInt());
-                //add to killshottrack simpleplayers
-                //redraw model
                 ui.render();
                 break;
             case ("pDeckRegen"):
                 clientModel.setPowerUpCardsLeft(j.get("number").getAsInt());
-                //redraw
                 ui.render();
                 break;
             case ("drawPowerUp"):
@@ -198,26 +203,24 @@ public class ClientMain {
                 if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
                     clientModel.getPowerUpInHand().add(j.get("powerupname").getAsString());
                     clientModel.getColorPowerUpInHand().add(j.get("powerupcolor").getAsString());
-                }//redraw model
+                }
                 ui.render();
                 break;
             case ("discardPowerUp"):
                 clientModel.getPlayer(j.get("player").getAsInt()).setCardNumber(clientModel.getPlayer(j.get("player").getAsInt()).getCardNumber()-1);
                 if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
                     clientModel.getPowerUpInHand().remove(j.get("powerup").getAsString());
-                }                //redraw model
+                }
                 ui.render();
                 break;
             case ("pickUpWeapon"):
                 clientModel.getCurrentPlayer().pickUpWeapon(j.get("weapon").getAsString());
-                //ui.flash(j.get("weapon").getAsString());
-                //wait a little
-                //redraw model
+                display(clientModel.getCurrentPlayer().getUsername() + "picked up a " + j.get("weapon").getAsString());
                 ui.render();
                 break;
             case ("discardWeapon"):
                 clientModel.getPlayer(j.get("player").getAsInt()).discardWeapon(j.get("weapon").getAsString());
-                //redraw model
+                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + "discarded a " + j.get("weapon").getAsString());
                 ui.render();
                 break;
             case ("addWeapon"):
@@ -227,48 +230,39 @@ public class ClientMain {
                 break;
             case ("useAmmo"):
                 clientModel.getCurrentPlayer().subAmmo(j.get("blueammo").getAsInt(), j.get("redammo").getAsInt(), j.get("yellowammo").getAsInt());
-                //redraw model
                 ui.render();
                 break;
             case ("addAmmo"):
                 clientModel.getCurrentPlayer().addAmmo(j.get("blueammo").getAsInt(), j.get("redammo").getAsInt(), j.get("yellowammo").getAsInt());
-                //redraw model
                 ui.render();
                 break;
             case ("move"):
                 clientModel.moveTo(j.get("player").getAsInt(), j.get("square").getAsInt());
-                //ui.move(j.get("player").getAsInt(), j.get("square").getAsInt());
-                //wait a little
-                //redraw model
+                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " moved to square " + j.get("square").getAsInt());
                 ui.render();
                 break;
             case ("flip"):
                 clientModel.flip(j.get("player").getAsInt());
-                //redraw model
                 ui.render();
                 break;
             case ("addDeath"):
                 clientModel.getPlayer(j.get("player").getAsInt()).addDeath();
+                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " was killed!");
                 //redraw model
                 ui.render();
                 break;
             case ("damaged"):
                 clientModel.damage(j.get("player").getAsInt(), j.getAsJsonArray("list"));
-                //ui.flash(j.get("player"));
-                //wait a little
-                //redraw model
+                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " took damage!");
                 ui.render();
                 break;
             case ("marked"):
                 clientModel.mark(j.get("player").getAsInt(), j.getAsJsonArray("list"));
-                //ui.flash(j.get("player"));
-                //wait a little
-                //redraw model
+                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " was marked!");
                 ui.render();
                 break;
             case ("weaponRemoved"):
                 (clientModel.getSquare(j.get("square").getAsInt())).removeWeapon(j.get("weapon").getAsString());
-                //redraw model
                 ui.render();
                 break;
             case ("setInGame"):
@@ -288,9 +282,8 @@ public class ClientMain {
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
+                ui.setMessageMemory(3);
                 ui.render();
-                //ui.onUpdate();
-                //wait a little
                 break;
                 /*
             case ("revert"):
@@ -331,8 +324,19 @@ public class ClientMain {
                 ui.render();
                 break;
                 */
-            default: //fill in
+            default: break;
         }
+    }
 
+    /**
+     * Getters and setters
+     */
+
+    public ClientModel getClientModel() {
+        return clientModel;
+    }
+
+    public void setClientModel(ClientModel clientModel) {
+        this.clientModel = clientModel;
     }
 }

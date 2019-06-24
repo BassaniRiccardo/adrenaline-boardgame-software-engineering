@@ -168,12 +168,20 @@ public class MapRenderer {
                         map[i][j] = buff;
                         backup[i][j] = buff;
                     }
+                firstCall=false;
                 }
             } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Issue loading map", ex);
             }
         }else{
-            System.arraycopy(backup, 0, map, 0, MAP_HEIGHT*MAP_WIDTH);
+            //MainRenderer.drawModel(backup);
+            //MainRenderer.drawModel(map);
+            for(int i=0; i<MAP_HEIGHT; i++){
+                for(int j=0; j<MAP_WIDTH; j++){
+                    map[i][j] = backup[i][j];
+                }
+            }
+            //MainRenderer.drawModel(map);
         }
         return map;
     }

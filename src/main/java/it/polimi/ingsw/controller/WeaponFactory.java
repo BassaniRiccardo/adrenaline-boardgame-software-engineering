@@ -478,10 +478,10 @@ public class WeaponFactory {
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             for (Direction d : Direction.values()) {
-                                List<List<Player>> close = board.getSquaresInLine(p.getPosition(), d).stream()
+                                List<Player> line = board.getSquaresInLine(p.getPosition(), d).stream()
                                         .filter(x -> {
                                             try {
-                                                return !board.getReachable(p.getPosition(), 1).contains(x);
+                                                return board.getReachable(p.getPosition(), 2).contains(x);
                                             } catch (NotAvailableAttributeException e) {
                                                 LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
                                                 return false;
@@ -490,25 +490,10 @@ public class WeaponFactory {
                                         .map(Square::getPlayers)
                                         .flatMap(x -> x.stream())
                                         .distinct()
-                                        .map(Arrays::asList)
                                         .collect(Collectors.toList());
-                                List<List<Player>> far = board.getSquaresInLine(p.getPosition(), d).stream()
-                                        .filter(x -> {
-                                            try {
-                                                return board.getReachable(p.getPosition(), 2).contains(x) && !board.getReachable(p.getPosition(), 1).contains(x);
-                                            } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                                return false;
-                                            }
-                                        })
-                                        .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
-                                        .distinct()
-                                        .map(Arrays::asList)
-                                        .collect(Collectors.toList());
-                                targets.addAll(close);
-                                targets.addAll(far);
-                                targets.addAll(cartesian(close, far));
+                                if(!line.isEmpty()) {
+                                    targets.add(line);
+                                }
                             }
                             return targets;
                         };
@@ -517,8 +502,12 @@ public class WeaponFactory {
                             List<List<Player>> l = board.getVisible(p.getPosition()).stream()
                                     .filter(x -> !x.containsPlayer(p))
                                     .map(Square::getPlayers)
+                                    .filter(x->!x.isEmpty())
                                     .collect(Collectors.toList());
-                            l.add(p.getPosition().getPlayers().stream().filter(x -> !x.equals(p)).collect(Collectors.toList()));
+                            List<Player> inSameRoomAsPlayer = p.getPosition().getPlayers().stream().filter(x -> !x.equals(p)).collect(Collectors.toList());
+                            if(!inSameRoomAsPlayer.isEmpty()){
+                                l.add(inSameRoomAsPlayer);
+                            }
                             return l;
                         };
             case "myself3":
@@ -645,6 +634,20 @@ public class WeaponFactory {
                             return targets;
                         };
             case "1away2":
+                return p -> Arrays.asList(board.getReachable(p.getPosition(), 1).stream()
+                        .filter(x -> {
+                            try {
+                                return !x.equals(p.getPosition());
+                            } catch (NotAvailableAttributeException e) {
+                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                return false;
+                            }
+                        })
+                        .map(Square::getPlayers)
+                        .flatMap(x -> x.stream())
+                        .distinct()
+                        .collect(Collectors.toList()));
+            case "1away3":
                 return p -> board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> {
                             try {
@@ -711,7 +714,6 @@ public class WeaponFactory {
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             List<List<List<Player>>> directionalTargets = new ArrayList<>();
-
                             for (Direction d : Direction.values()) {
                                 List<List<Player>> candidate = board.getReachable(p.getPosition(), 1).stream()
                                         .filter(x -> {
@@ -727,16 +729,21 @@ public class WeaponFactory {
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
+                                System.out.println("Looking in direction " + d + " there are: " + candidate);
                                 if (!candidate.isEmpty()) {
                                     directionalTargets.add(candidate);
                                 }
                             }
+                            System.out.println("These are the directional targets: " + directionalTargets);
                             for (int i = 0; i < directionalTargets.size(); i++) {
                                 targets.addAll(directionalTargets.get(i));
+                                System.out.println("adding all these dir targets: " + directionalTargets.get(i));
                                 for (int j = i + 1; j < directionalTargets.size(); j++) {
                                     targets.addAll(cartesian(directionalTargets.get(i), directionalTargets.get(j)));
+                                    System.out.println("Adding all these pairs: " + cartesian(directionalTargets.get(i), directionalTargets.get(j)));
                                     for (int k = j + 1; k < directionalTargets.size(); k++) {
                                         targets.addAll(cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
+                                        System.out.println("Adding all these triples: " + cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
                                     }
                                 }
                             }
@@ -814,7 +821,7 @@ public class WeaponFactory {
             case "vortex2":
                 return (p, t) -> p.getMainTargets().isEmpty() ? new ArrayList<>() : Arrays.asList(p.getMainTargets().get(0).getPosition());
             case "onHit":
-                return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move).stream().filter(x -> !x.containsPlayer(t.get(0))).collect(Collectors.toList());
+                return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move);
             case "onHit2":
                 return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move);
             case "myself2":

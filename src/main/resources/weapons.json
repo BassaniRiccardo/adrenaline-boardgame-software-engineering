@@ -601,7 +601,7 @@
 					"costB": "0",
 					"costY": "0",
 					"targetsN": "1",
-					"where": "1away2",
+					"where": "1away3",
 					"move": "0",
 					"effect": "0"
 				}
@@ -620,7 +620,7 @@
 					"dmg": "1",
 					"mark": "2",
 					"targetsN": "1",
-					"where": "1away2",
+					"where": "1away3",
 					"move": "0",
 					"effect": "moveDmg",
 					"moveType": "dash1"

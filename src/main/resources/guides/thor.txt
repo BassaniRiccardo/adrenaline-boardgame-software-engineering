@@ -1,0 +1,15 @@
+---------------------
+T.H.O.R. [(blue) red]
+---------------------
+
+Basic effect:
+	Deal 2 damage and 1 mark to 1 target you can see.
+
+Optional effect 1 - Chain Reaction:
+	Deal 1 damage to a second target that your first target can see. [blue]
+
+Optional effect 2 - High Voltage:
+	Deal 2 damage to a second target that your second target can see. You cannot use this effect unless you first use the chain reaction. [blue]
+
+Notes:
+	This card constrains the order in which you can use its effects (Most cards don't). Also note that each target must be a different player.

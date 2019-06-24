@@ -13,11 +13,7 @@ import java.util.Arrays;
 import static org.junit.Assert.*;
 
 //TODO
-// FLAMETHROWER:        secondary targets are wrong
-// GRENADE_LAUNCHER:    the shooter must not be forced to move the target
-//                      no empty list must be returned in option 1
-// SHOCKWAVE:           main targets wrong
-//                      secondary targets should be returned in a single list since it is not possible to shoot only a part of them
+// SHOCKWAVE:           secondary targets should be returned in a single list since it is not possible to shoot only a part of them
 
 /**
  * Tests all the weapons which can be created by the class WeaponFactory.
@@ -569,14 +565,6 @@ public class WeaponFactoryTest {
      * @throws NotAvailableAttributeException
      */
 
-    /**
-     * Tests the grenade launcher in a game scenario, checking that targets and destinations are correct.
-     *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
-     */
- /*
     @Test
     public void flamethrower() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
@@ -597,13 +585,20 @@ public class WeaponFactoryTest {
         assertTrue(flamethrower.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(sprog))).isEmpty());
         assertTrue(flamethrower.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(dozer))).isEmpty());
         //SECONDARY TARGETS
-        assertEquals("[[Player 2 : anonymous(Banshee), Player 5 : anonymous(Sprog), Player 3 : anonymous(Dozer)]",flamethrower.getFireModeList().get(1).findTargets().toString());
+        assertEquals("[[Player 2 : anonymous(Banshee), Player 5 : anonymous(Sprog), Player 3 : anonymous(Dozer)]]",flamethrower.getFireModeList().get(1).findTargets().toString());
         //SECONDAY DESTINATIONS
         assertTrue(flamethrower.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         assertTrue(flamethrower.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(sprog))).isEmpty());
         assertTrue(flamethrower.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(dozer))).isEmpty());
     }
 
+    /**
+     * Tests the grenade launcher in a game scenario, checking that targets and destinations are correct.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     * @throws NotAvailableAttributeException
+     */
     @Test
     public void grenadeLauncher() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
@@ -632,7 +627,7 @@ public class WeaponFactoryTest {
 
     }
 
-*/
+
 
 
     /**
@@ -855,7 +850,6 @@ public class WeaponFactoryTest {
      * @throws NoMoreCardsException
      * @throws NotAvailableAttributeException
      */
-    /*
     @Test
     public void shockwave() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
@@ -873,10 +867,7 @@ public class WeaponFactoryTest {
         violet.setPosition(b.getMap().get(7));
         sprog.setPosition(b.getMap().get(7));
         //MAIN TARGETS
-        assertEquals("[[Player 2 : anonymous(Banshee)], [Player 3 : anonymous(Dozer)], [Player 4 : anonymous(Violet)], [Player 5 : anonymous(Sprog)]," +
-                "[Player 2 : anonymous(Banshee), Player 3 : anonymous(Dozer)], [Player 2 : anonymous(Banshee), Player 4 : anonymous(Violet)], [Player 2 : anonymous(Banshee), Player 5 : anonymous(Sprog)]" +
-                "[Player 3 : anonymous(Dozer), Player 4 : anonymous(Violet)], [Player 3 : anonymous(Dozer), Player 5 : anonymous(Sprog)]" +
-                "[Player 2 : anonymous(Banshee), Player 3 : anonymous(Dozer), Player 4 : anonymous(Violet)]], [Player 2 : anonymous(Banshee), Player 3 : anonymous(Dozer), Player 5 : anonymous(Sprog)]]",
+        assertEquals("[[Player 4 : anonymous(Violet)], [Player 5 : anonymous(Sprog)], [Player 4 : anonymous(Violet), Player 3 : anonymous(Dozer)], [Player 5 : anonymous(Sprog), Player 3 : anonymous(Dozer)], [Player 4 : anonymous(Violet), Player 3 : anonymous(Dozer), Player 2 : anonymous(Banshee)], [Player 5 : anonymous(Sprog), Player 3 : anonymous(Dozer), Player 2 : anonymous(Banshee)], [Player 4 : anonymous(Violet), Player 2 : anonymous(Banshee)], [Player 5 : anonymous(Sprog), Player 2 : anonymous(Banshee)], [Player 3 : anonymous(Dozer)], [Player 3 : anonymous(Dozer), Player 2 : anonymous(Banshee)], [Player 2 : anonymous(Banshee)]]",
                 shockwave.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
         assertTrue(shockwave.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
@@ -884,15 +875,13 @@ public class WeaponFactoryTest {
         assertTrue(shockwave.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(violet))).isEmpty());
         assertTrue(shockwave.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(sprog))).isEmpty());
         //SECONDARY TARGETS
-        assertEquals("[[Player 2 : anonymous(Banshee), Player 3 : anonymous(Dozer), Player 4 : anonymous(Violet), Player 5 : anonymous(Sprog)]]",shockwave.getFireModeList().get(1).findTargets().toString());
+        assertEquals("[[Player 3 : anonymous(Dozer), Player 4 : anonymous(Violet), Player 5 : anonymous(Sprog), Player 2 : anonymous(Banshee)]]",shockwave.getFireModeList().get(1).findTargets().toString());
         //SECONDAY DESTINATIONS
         assertTrue(shockwave.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         assertTrue(shockwave.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(dozer))).isEmpty());
         assertTrue(shockwave.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(violet))).isEmpty());
         assertTrue(shockwave.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(sprog))).isEmpty());
     }
-
-    */
 
 
     /**

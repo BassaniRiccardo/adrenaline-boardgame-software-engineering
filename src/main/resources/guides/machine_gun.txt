@@ -1,0 +1,16 @@
+-------------------------
+Machine Gun [(blue), red]
+-------------------------
+
+Basic effect:
+	Choose 1 or 2 targets you can see and deal 1 damage to each.
+
+Optional effect 1 - Focus Shot:
+	Deal 1 additional damage to one of those targets. [yellow]
+
+Optional effect 2 - Turret Tripod:
+	Deal 1 additional damage to the other of those targets and/or deal 1 damage to a different target you can see. [blue]
+
+Notes:
+	If you deal both additional points of damage, they must be dealt to 2 different targets. If you see only 2 targets, you deal 2 to each if you use both optional efects. If you use the basic efffect on only 1 target, you can still use the turret tripod to give it 1 additional damage.
+

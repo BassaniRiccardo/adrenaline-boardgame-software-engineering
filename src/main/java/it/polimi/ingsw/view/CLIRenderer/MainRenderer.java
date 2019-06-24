@@ -84,7 +84,7 @@ public class MainRenderer {
     /**
      * Shows quit warning
      */
-    public void showQuitScreen(){
+    public static void showQuitScreen(){
         System.out.print("\033[H\033[2J");
         System.out.println("Are you sure you want to quit? (Y/N)");
     }
@@ -93,11 +93,11 @@ public class MainRenderer {
      * Shows the info o a certain weapon or powerup
      * @param weaponName    object looked up
      */
-    public void showInfoScreen(String weaponName){
+    public static void showInfoScreen(String weaponName){
         System.out.print("\033[H\033[2J");
         try {
             //new InputStreamReader(this.getClass().getResourceAsStream("/"+weaponName+".txt"));
-            Scanner input = new Scanner(new InputStreamReader(this.getClass().getResourceAsStream("/placeholder.txt")));
+            Scanner input = new Scanner(new InputStreamReader(MainRenderer.class.getResourceAsStream("/placeholder.txt")));
             while (input.hasNextLine()) {
                 System.out.println(input.nextLine());
             }
@@ -151,7 +151,7 @@ public class MainRenderer {
      * @param fixedHeight   if true, it trims the first lines of the message to fit in the array
      * @return          string array
      */
-    public String[][] stringToBox(String message, int height, int width, boolean fixedHeight){
+    public static String[][] stringToBox(String message, int height, int width, boolean fixedHeight){
 
         //counts how many rows are necessary
         int rows = 3;
@@ -194,7 +194,7 @@ public class MainRenderer {
                     res[row - startFromRow + PADDING][col + PADDING] = String.valueOf(message.charAt(i));
                 }
                 col++;
-                if(col>width-1){
+                if(col>width-1-PADDING){
                     row++;
                     col=0;
                 }
@@ -209,7 +209,7 @@ public class MainRenderer {
      * @param base      content to be framed
      * @return  String array
      */
-    private String[][] addFrame(String[][] base){
+    private static String[][] addFrame(String[][] base){
         if(base.length==0){
             String[][] res = new String [1][1];
             res[0][0]="⊡";
@@ -247,7 +247,7 @@ public class MainRenderer {
      * @param separate  if true, the two arrays are separated by a line
      * @return  resulting String array
      */
-    public String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
+    public static String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
 
         if(box1.length==0){
             return box2;
@@ -351,7 +351,7 @@ public class MainRenderer {
      * Manages actual printing to console
      * @param render    String array to print
      */
-    private void drawModel(String[][] render){
+    public static void drawModel(String[][] render){
         System.out.print("\033[H\033[2J");
         System.out.flush();
         for(int i=0; i<render.length; i++){

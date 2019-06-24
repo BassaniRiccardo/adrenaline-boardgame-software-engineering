@@ -20,6 +20,17 @@ import static org.junit.Assert.*;
 
 public class PowerUpTest {
 
+
+    /**
+     * Checks that the name is translated correctly
+     */
+    @Test
+    public void toString1() {
+        for (PowerUp.PowerUpName n : PowerUp.PowerUpName.values()){
+            System.out.println(n.toString());
+        }
+    }
+
     /**
      * Checks that a power up is correctly marked as available
      */

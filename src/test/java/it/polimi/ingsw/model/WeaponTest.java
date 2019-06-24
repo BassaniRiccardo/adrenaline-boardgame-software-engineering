@@ -113,10 +113,10 @@ public class WeaponTest {
      * Tests the method toString() of the enumeration WeaponName.
      */
     @Test
-    public void heroNameToString(){
+    public void weaponNameToString(){
 
         Weapon.WeaponName weaponName = Weapon.WeaponName.LOCK_RIFLE;
-        assertEquals("Lock rifle", weaponName.toString());
+        assertEquals("Lock Rifle", weaponName.toString());
 
     }
 

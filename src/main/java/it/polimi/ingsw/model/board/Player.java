@@ -272,7 +272,9 @@ public class Player {
 
     public void setDead(boolean dead) {this.dead = dead;}
 
-    public void setDamages(List<Player> damages) { this.damages = damages; }
+    public void setDamages(List<Player> damages) {
+        this.damages = damages;
+    }
 
     public void setWeaponList(List<Weapon> weaponList) { this.weaponList = weaponList;}
 
@@ -393,11 +395,10 @@ public class Player {
         if (this.board.getSpawnPoints().contains(position)){
                 this.getAmmoPack().subAmmoPack(((Weapon)collectedCard).getReducedCost());
                 board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this, ((Weapon)collectedCard).getReducedCost()));
+                addWeapon((Weapon) collectedCard);
                 ((Weapon)collectedCard).setLoaded(true);
                 ((Weapon)collectedCard).setHolder(this);
-                addWeapon((Weapon) collectedCard);
-        }
-        else {
+        } else {
             addAmmoPack(((AmmoTile)collectedCard).getAmmoPack());
             if (((AmmoTile)collectedCard).hasPowerUp()) {
                 if (powerUpList.size()>2) return false;

@@ -43,7 +43,7 @@ public class GameEngine implements Runnable{
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    private static final int TURN_DURATION = 60;
+    private static final int TURN_DURATION = 6000;
 
 
     /**
@@ -429,7 +429,7 @@ public class GameEngine implements Runnable{
             players.get(0).display(addLeaderboard("You and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
             for (int i = 2; i < players.size(); i++) {
                 LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-                players.get(i).display(addLeaderboard("Your position: " + i+1 + " !"));
+                players.get(i).display(addLeaderboard("Your position: " + (i+1) + " !"));
 
             }
         } else {

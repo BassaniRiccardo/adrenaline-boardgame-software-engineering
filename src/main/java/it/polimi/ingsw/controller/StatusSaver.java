@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
@@ -155,22 +156,21 @@ public class StatusSaver {
         for (Player p : board.getActivePlayers()) {
             i = board.getActivePlayers().indexOf(p);
             p.setPosition(playersPositions.get(i));
-            p.setDamages(new ArrayList<>(playersDamages.get(i)));
-            p.setDead(playersDamages.get(i).size()>=11);
-            p.setPowerUpList(new ArrayList<>(playersPowerups.get(i)));
-            p.setAmmoPack(playersAmmoPacks.get(i));
+            p.setDamages(new ArrayList<>(playersDamages.get(i)));               //done
+            p.setPowerUpList(new ArrayList<>(playersPowerups.get(i)));          //add
+            p.setAmmoPack(playersAmmoPacks.get(i));                             //add
         }
         //current player
-        board.getCurrentPlayer().setWeaponList(new ArrayList<>(currentPlayerWeapons));
+        board.getCurrentPlayer().setWeaponList(new ArrayList<>(currentPlayerWeapons));      //add
         for (Weapon w : board.getCurrentPlayer().getWeaponList()){
             w.setLoaded(currentPlayerLoadedWeapons.get(board.getCurrentPlayer().getWeaponList().indexOf(w)));
-            w.setHolder(board.getCurrentPlayer());
+            w.setHolder(board.getCurrentPlayer());              //add
         }
         board.getCurrentPlayer().getMainTargets().clear();
         board.getCurrentPlayer().getOptionalTargets().clear();
         //squares
         for (Square s : board.getSpawnPoints()) {
-            ((WeaponSquare)s).setWeapons(new ArrayList<>(squareWeapons.get(board.getSpawnPoints().indexOf(s))));
+            ((WeaponSquare)s).setWeapons(new ArrayList<>(squareWeapons.get(board.getSpawnPoints().indexOf(s))));  //add
         }
         LOGGER.log(Level.FINE, "Restoring checkpoint");
 

@@ -21,7 +21,14 @@ public class PowerUp implements Targeted, Card {
 
         @Override
         public String toString(){
-            return (this.name().substring(0,1) + this.name().toLowerCase().substring(1)).replace('_', ' ');
+            String name = (this.name().substring(0,1) + this.name().toLowerCase().substring(1)).replace('_', ' ');
+            String res = name;
+            for(int i=0; i<name.length(); i++){
+                if(name.charAt(i)==' '&&i<name.length()-1){
+                    res = res.substring(0,i+1) + res.toUpperCase().substring(i+1, i+2) + res.substring(i+2);
+                }
+            }
+            return res;
         }
 
     }

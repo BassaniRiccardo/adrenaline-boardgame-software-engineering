@@ -289,13 +289,13 @@ public class ClientMain {
                 ui.setMessageMemory(3);
                 ui.render();
                 break;
+
                 /*
             case ("revert"):
                 JsonArray players = j.get("players").getAsJsonArray();
                 for(int i = 0; i<players.size(); i++){
-                    ClientModel.SimplePlayer p = clientModel.getPlayer(players.get(i).getAsInt());
-                    p.setPosition(clientModel.getSquare(j.getAsJsonArray("positions").get(i).getAsInt()));
-                    clientModel.damage(players.get(i).getAsInt(), j.getAsJsonArray("damage").get(i).getAsJsonArray());
+                     clientModel.damage(players.get(i).getAsInt(), j.getAsJsonArray("damage").get(i).getAsJsonArray());
+                     clientModel.getPlayer(i+1).
                 }
                 JsonArray powerup = j.get("powerup").getAsJsonArray();
                 clientModel.getPowerUpInHand().clear();
@@ -331,6 +331,7 @@ public class ClientMain {
             default: LOGGER.log(Level.SEVERE, "Malformed update header: " + j.get(TYPE_PROP).getAsString());
                 break;
         }
+
     }
 
     /**

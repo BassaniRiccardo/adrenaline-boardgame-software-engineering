@@ -1,7 +1,7 @@
 {
 	"weapons": [
 		{
-			"name": "Lock rifle",
+			"name": "Lock Rifle",
 			"color": "blue",
 			"costR": "0",
 			"costB": "2",
@@ -32,7 +32,7 @@
 			]
 		},
 		{
-			"name": "Machine gun",
+			"name": "Machine Gun",
 			"color": "blue",
 			"costR": "1",
 			"costB": "1",
@@ -120,7 +120,7 @@
 			]
 		},
 		{
-			"name": "Plasma gun",
+			"name": "Plasma Gun",
 			"color": "blue",
 			"costR": "0",
 			"costB": "1",
@@ -145,8 +145,9 @@
 					"costY": "0",
 					"targetsN": "1",
 					"move": "2",
-					"effect": "0",
-					"where": "myself1"
+					"effect": "move",
+					"where": "myself1",
+					"moveType": "myself1"
 				},
 				{
 					"mode": "OPTION2",
@@ -213,7 +214,7 @@
 			]
 		},
 		{
-			"name": "Tractor beam",
+			"name": "Tractor Beam",
 			"color": "blue",
 			"costR": "0",
 			"costB": "1",
@@ -246,7 +247,7 @@
 			]
 		},
 		{
-			"name": "Vortex cannon",
+			"name": "Vortex Cannon",
 			"color": "red",
 			"costR": "1",
 			"costB": "1",
@@ -393,7 +394,7 @@
 			]
 		},
 		{
-			"name": "Grenade launcher",
+			"name": "Grenade Launcher",
 			"color": "red",
 			"costR": "1",
 			"costB": "0",
@@ -425,7 +426,7 @@
 			]
 		},
 		{
-			"name": "Rocket launcher",
+			"name": "Rocket Launcher",
 			"color": "red",
 			"costR": "1",
 			"costB": "0",
@@ -452,8 +453,8 @@
 					"targetsN": "1",
 					"where": "myself3",
 					"move": "2",
-					"effect": "0",
-					"moveType": "myself2"
+					"effect": "move",
+					"moveType": "myself3"
 				},
 				{
 					"mode": "OPTION2",
@@ -527,8 +528,8 @@
 					"targetsN": "1",
 					"where": "myself2",
 					"move": "1",
-					"effect": "moveDmg",
-					"moveType": "myself3"
+					"effect": "move",
+					"moveType": "myself2"
 				},
 				{
 					"mode": "OPTION2",
@@ -608,7 +609,7 @@
 			]
 		},
 		{
-			"name": "Power glove",
+			"name": "Power Glove",
 			"color": "yellow",
 			"costR": "0",
 			"costB": "1",

@@ -78,7 +78,7 @@ public class WeaponFactory {
      * They should all be private but they're protected to be visible for testing
      *
      * @param weaponName            the name of the weapon of interest
-     * @retun                       the value of interest
+     * @return                       the value of interest
      */
     protected static Color getColor(Weapon.WeaponName weaponName) {
         return j.getColor(weaponName);
@@ -134,7 +134,7 @@ public class WeaponFactory {
      *
      * @param weaponName            the name of the weapon of interest
      * @param fireModeName          the name of the firemode of interest
-     * @retun                       the value of interest
+     * @return                       the value of interest
      */
 
     protected static AmmoPack getFireModeCost (Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
@@ -162,21 +162,23 @@ public class WeaponFactory {
         if(eff.equals("0")){
             effect = createEffect(dmg,mark);
         }else if (eff.equals("moveDmg")){
-            effect = ((shooter, target, destination) -> {
+            effect = (shooter, target, destination) -> {
                 target.setPosition(destination);
                 target.sufferDamage(dmg, shooter);
                 target.addMarks(mark, shooter);
-            });
+            };
         }else if (eff.equals("dmgMove")){
-            effect=((shooter, target, destination) -> {
+            effect=(shooter, target, destination) -> {
                 target.sufferDamage(dmg, shooter);
                 target.setPosition(destination);
-            });
-        }else if (eff.equals("hellion")){
-            effect= ((shooter, target, destination) -> {
+            };
+        }else if (eff.equals("hellion")) {
+            effect = (shooter, target, destination) -> {
                 target.sufferDamage(dmg, shooter);
                 board.getPlayersInside(target.getPosition()).forEach(x -> x.addMarks(mark, shooter));
-            });
+            };
+        }else if (eff.equals("move")){
+            effect = (shooter, target, destination) -> target.setPosition(destination);
         }else {
             int dmg2 = j.getDmg2(weaponName,fireModeName);
             int steps = j.getSteps(weaponName,fireModeName);
@@ -193,8 +195,6 @@ public class WeaponFactory {
 
     private TargetFinder getTargetFinder(Weapon.WeaponName weaponName, FireMode.FireModeName fireModeName) {
         String key = j.getWhere(weaponName, fireModeName);
-        TargetFinder targetFinder;
-        Map<String, TargetFinder> targetFinderMap = new HashMap<>();
 
         switch(key) {
             case "sight":
@@ -282,7 +282,6 @@ public class WeaponFactory {
                                 return Arrays.asList(Arrays.asList(p));
                             }
                             List<Square> l = board.getReachable(p.getPosition(), 2);
-                            List<Square> selectable = new ArrayList<>(l);
                             for (Square s : l) {
                                 if (!s.containsPlayer(p)) {
                                     if (!board.getVisible(s).stream()
@@ -515,21 +514,14 @@ public class WeaponFactory {
                         };
             case "myself3":
                 return p -> {
+                            if(!p.getMainTargets().isEmpty()){
+                                return Arrays.asList(Arrays.asList(p));
+                            }
                             List<Square> l = board.getReachable(p.getPosition(), 2);
                             for (Square s : l) {
-                                List<List<Player>> targets = board.getVisible(s).stream()
-                                        .filter(x -> {
-                                            try {
-                                                return !x.equals(p.getPosition());
-                                            } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
-                                                return false;
-                                            }
-                                        })
-                                        .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
-                                        .distinct()
-                                        .map(Arrays::asList)
+                                List<Square> targets = board.getVisible(s).stream()
+                                        .filter(x->!x.containsPlayer(p))
+                                        .filter(x->!x.getPlayers().isEmpty())
                                         .collect(Collectors.toList());
                                 if (!targets.isEmpty() && !s.containsPlayer(p)) {
                                     return Arrays.asList(Arrays.asList(p));
@@ -605,9 +597,12 @@ public class WeaponFactory {
 
             case "myself2":
                 return p -> {
+                            if(!p.getMainTargets().isEmpty()){
+                                return Arrays.asList(Arrays.asList(p));
+                            }
                             for (Square s : board.getReachable(p.getPosition(), 1)) {
                                 if (!s.containsPlayer(p)) {
-                                    if (s.getPlayers().size() > 1 || !s.getPlayers().contains(p)) {
+                                    if (!s.getPlayers().isEmpty()) {
                                         return Arrays.asList(Arrays.asList(p));
                                     }
                                 }
@@ -763,8 +758,6 @@ public class WeaponFactory {
         String key;
         if(move==0){
             key="normal";
-        }else if (where.equals("myself1")||where.equals("myself2")||where.equals("myself3")){
-            key="myself";
         }else {
             key = j.getMoveType(weaponName, fireModeName);
         }
@@ -772,7 +765,7 @@ public class WeaponFactory {
         switch(key) {
             case "normal":
                 return (p, t) -> new ArrayList<>();
-            case "myself":
+            case "myself1":
                 return (p, t) -> {
                             List<Square> l = board.getReachable(p.getPosition(), move);
                             l.remove(p.getPosition());
@@ -827,7 +820,7 @@ public class WeaponFactory {
                 return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move);
             case "onHit2":
                 return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), move);
-            case "myself2":
+            case "myself3":
                 return (p, t) -> {
                             List<Square> l = board.getReachable(p.getPosition(), 2);
                             l.remove(p.getPosition());
@@ -848,10 +841,10 @@ public class WeaponFactory {
                             }
                             return res;
                         };
-            case "myself3":
+            case "myself2":
                 return (p, t) -> {
                             if (p.getMainTargets().isEmpty()) {
-                                return board.getReachable(p.getPosition(), move).stream().filter(x -> x.getPlayers().size() > 1 || !x.getPlayers().contains(p)).collect(Collectors.toList());
+                                return board.getReachable(p.getPosition(), move).stream().filter(x -> !x.getPlayers().contains(p)&&!x.getPlayers().isEmpty()).collect(Collectors.toList());
                             }
                             return board.getReachable(p.getPosition(), move).stream().filter(x -> !x.containsPlayer(p)).collect(Collectors.toList());
                         };

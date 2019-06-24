@@ -450,7 +450,7 @@ public class ModelDataReader {
 
         JsonObject obj=analyzer(weaponName, fireModeName);
         if(obj==null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
+            LOGGER.log(Level.SEVERE, "Data not found while analyzing" + weaponName + " " + fireModeName);
             return "Nothing";
         }
         return obj.get("effect").getAsString();

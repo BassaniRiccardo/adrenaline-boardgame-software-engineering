@@ -177,13 +177,11 @@ public class Updater {
         //removeAmmoTile
     }
 
-    //the following block can be used if we decide to send messages to revert a not confirmed action
-    //right now this is carried out automatically when reverting changes on the server's model
     /*
+
     public static JsonObject getRevert(Board board) {
         JsonObject j = getFreshUpdate("revert");
         JsonArray playerArray = new JsonArray();
-        JsonArray positionArray = new JsonArray();
         JsonArray damageArray = new JsonArray();
         JsonArray powerUpArray = new JsonArray();
         JsonArray blueAmmoArray = new JsonArray();
@@ -191,14 +189,9 @@ public class Updater {
         JsonArray yellowAmmoArray = new JsonArray();
         for (Player p : board.getPlayers()) {
             playerArray.add(p.getId());
-            try {
-                positionArray.add(p.getPosition().getId());
-            } catch (NotAvailableAttributeException ex) {
-                //manage
-            }
             JsonArray temp = new JsonArray();
             for (Player q : p.getDamages()) {
-                temp.add(p.getId());
+                temp.add(q.getId());
             }
             damageArray.add(temp);
             JsonArray temp2 = new JsonArray();
@@ -211,7 +204,6 @@ public class Updater {
             yellowAmmoArray.add(p.getAmmoPack().getYellowAmmo());
         }
         j.add("players", playerArray);
-        j.add("positions", positionArray);
         j.add("damage", damageArray);
         j.add("powerup", powerUpArray);
         j.add("blueammo", blueAmmoArray);
@@ -310,7 +302,7 @@ public class Updater {
 
         }
         cm.setPlayers(simplePlayers);
-        cm.setCurrentPlayer(cm.getPlayer(board.getCurrentPlayer().getId()));
+        cm.setCurrentPlayerId(board.getCurrentPlayer().getId());
         cm.setPlayerID(player.getId());
 
         cm.setKillShotTrack(killers);

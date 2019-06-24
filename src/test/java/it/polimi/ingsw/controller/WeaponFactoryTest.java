@@ -23,6 +23,14 @@ import static org.junit.Assert.*;
 
 public class WeaponFactoryTest {
 
+     @Test
+     public void emptyWeaponTest() throws NoMoreCardsException, UnacceptableItemNumberException {
+         Board b = BoardConfigurer.simulateScenario();
+         WeaponFactory weaponFactory = new WeaponFactory(b);
+         Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
+         System.out.println(w.getColor());
+     }
+
     /**
      * Creates the first weapon and checks that it is initialized correctly
      */

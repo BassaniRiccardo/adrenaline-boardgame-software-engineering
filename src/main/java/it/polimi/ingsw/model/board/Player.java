@@ -393,9 +393,9 @@ public class Player {
         if (this.board.getSpawnPoints().contains(position)){
                 this.getAmmoPack().subAmmoPack(((Weapon)collectedCard).getReducedCost());
                 board.addToUpdateQueue(Updater.get("useAmmo", this, ((Weapon)collectedCard).getReducedCost()));
+                addWeapon((Weapon) collectedCard);
                 ((Weapon)collectedCard).setLoaded(true);
                 ((Weapon)collectedCard).setHolder(this);
-                addWeapon((Weapon) collectedCard);
         }
         else {
             addAmmoPack(((AmmoTile)collectedCard).getAmmoPack());

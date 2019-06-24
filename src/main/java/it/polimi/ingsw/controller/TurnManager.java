@@ -90,14 +90,14 @@ public class TurnManager {
             try {
                 gameEngine.simulateTillEndphase();
                 first = false;
-                updateAndNotifyAll();
+                updateAndSendModel();
             } catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e){
                 LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
             }
         }
 
         dead.clear();
-        updateAndNotifyAll();
+        updateAndSendModel();
 
         if (!currentPlayer.isInGame()) {
             joinBoard(currentPlayer, 2, false);
@@ -122,7 +122,7 @@ public class TurnManager {
             }
 
         //------>checkpoint
-        statusSaver.updateCheckpoint();
+        updateAndNotifyAll();
 
         boolean choice1 = handleUsingPowerUp();
         boolean choice2 = convertPowerUp();
@@ -151,7 +151,7 @@ public class TurnManager {
                     killShotTrack.registerKill(currentPlayer, deadPlayer, deadPlayer.getDamages().size() > 11);
 
                     //necessary otherwise a reset would give back the damages to the dead
-                    statusSaver.updateCheckpoint();
+                    updateAndNotifyAll();
                     joinBoard(deadPlayer, 1, true);
                     if (frenzy) {
                         deadPlayer.setFlipped(true);
@@ -170,7 +170,7 @@ public class TurnManager {
         replaceWeapons();
         replaceAmmoTiles();
 
-        statusSaver.updateCheckpoint();
+        updateAndNotifyAll();
 
         LOGGER.log(Level.FINE, () -> currentPlayer + " ends his turn.\n\n");
         for (Player p : board.getActivePlayers()) {
@@ -232,7 +232,7 @@ public class TurnManager {
         LOGGER.log(Level.FINE, () -> player  + " enters in the board in the " + discarded.getColor().toStringLowerCase() + " spawn point.");
 
         if (!askConfirmation("Do you confirm the spawning?")) resetJoinBoard(player, reborn);
-        else statusSaver.updateCheckpoint();
+        else updateAndNotifyAll();
 
 
     }
@@ -542,7 +542,7 @@ public class TurnManager {
             //update current player model
             if (!action.isShoot() && !action.isCollect()) {
                 if (!askConfirmation("Do you confirm the movement?")) resetAction();
-                else statusSaver.updateCheckpoint();
+                else updateAndNotifyAll();
 
             }
 
@@ -592,7 +592,7 @@ public class TurnManager {
                 if (!askConfirmation("Do you confirm the collecting?")){
                     resetAction();
                 }
-                else statusSaver.updateCheckpoint();
+                else updateAndNotifyAll();
 
             }
             else {
@@ -607,7 +607,7 @@ public class TurnManager {
                     if (tooManyPowerUps) LOGGER.log(Level.FINE, "It would him to draw a power up, but he already has three.");
                     else LOGGER.log(Level.FINE, "It allows him to draw a power up.");
                 }
-                statusSaver.updateCheckpoint();
+                updateAndNotifyAll();
             }
         }
         catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e) {
@@ -705,7 +705,7 @@ public class TurnManager {
             return;
         }
 
-        statusSaver.updateCheckpoint();
+        else updateAndNotifyAll();
 
         //grenade
         for (Player p : board.getActivePlayers()){
@@ -822,7 +822,7 @@ public class TurnManager {
         }
         if (max!=3) {
             if (!askConfirmation("Do you confirm your choices in the reloading process?")) resetAction();
-            else statusSaver.updateCheckpoint();
+            else updateAndNotifyAll();
         }
         return true;
 
@@ -859,7 +859,7 @@ public class TurnManager {
             LOGGER.log(Level.FINE, () -> currentPlayer + " reloads " + weaponToReload + ".");
         } catch (NotAvailableAttributeException | WrongTimeException e) { LOGGER.log(Level.SEVERE,"Exception thrown while reloading", e); }
         if (!askConfirmation("Do you confirm the reloading?")) resetAction();
-        else statusSaver.updateCheckpoint();
+        else updateAndNotifyAll();
     }
 
 
@@ -1006,7 +1006,7 @@ public class TurnManager {
             return(handleTagbackGrenade(p));
         }
 
-        statusSaver.updateCheckpoint();
+        else updateAndNotifyAll();
         return false;
     }
 
@@ -1131,11 +1131,16 @@ public class TurnManager {
     }
 
 
-    public void updateAndNotifyAll(){
+    public void updateAndSendModel(){
         statusSaver.updateCheckpoint();
         for(VirtualView p : playerConnections) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
         }
+        board.notifyObservers();
+    }
+
+    public void updateAndNotifyAll(){
+        statusSaver.updateCheckpoint();
         board.notifyObservers();
     }
 

@@ -33,7 +33,7 @@ public class ClientModel {
     private boolean[][] leftWalls;
     private boolean[][] topWalls;
 
-    private SimplePlayer currentPlayer;
+    private int currentPlayerId;
     private List<SimplePlayer> killShotTrack;
     private int skullsLeft;
     private List<String> powerUpInHand;
@@ -251,6 +251,11 @@ public class ClientModel {
         public List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
 
         public void pickUpWeapon(String name){
+            System.out.println("vfffffffffffffffffffffffh");
+            System.out.println(this);
+            System.out.println(this.position);
+            System.out.println(this.position.getWeapons());
+
             for(SimpleWeapon w : this.position.getWeapons()){
                 if(w.getName().equals(name)){
                     this.position.getWeapons().remove(w);
@@ -336,6 +341,8 @@ public class ClientModel {
         }
 
         public void setLoaded(boolean loaded) {
+            System.out.println("loading weapon in client model");
+            System.out.println(loaded);
             this.loaded = loaded;
         }
     }
@@ -390,11 +397,11 @@ public class ClientModel {
     }
 
     public SimplePlayer getCurrentPlayer() {
-        return currentPlayer;
+        return getPlayer(currentPlayerId);
     }
 
-    public void setCurrentPlayer(SimplePlayer currentPlayer) {
-        this.currentPlayer = currentPlayer;
+    public void setCurrentPlayerId(int currentPlayerId) {
+        this.currentPlayerId = currentPlayerId;
     }
 
     public List<SimplePlayer> getKillShotTrack() {
@@ -438,8 +445,12 @@ public class ClientModel {
     }
 
     public void moveTo(int player, int square) {
+        System.out.println(player);
+        System.out.println(square);
         SimplePlayer p = getPlayer(player);
         SimpleSquare s = getSquare(square);
+        System.out.println(p);
+        System.out.println(s);
         p.setPosition(s);
     }
 

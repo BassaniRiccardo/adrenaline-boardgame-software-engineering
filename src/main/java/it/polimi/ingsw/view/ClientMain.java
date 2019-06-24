@@ -186,6 +186,8 @@ public class ClientMain {
         switch (j.get("type").getAsString()) {
 
             case("loaded"):
+                System.out.println(j.get("weapon").getAsString());
+                System.out.println(j.get("loaded").getAsBoolean());
                 clientModel.getCurrentPlayer().getWeapon(j.get("weapon").getAsString()).setLoaded(j.get("loaded").getAsBoolean());
                 ui.render();
                 break;
@@ -201,19 +203,26 @@ public class ClientMain {
                 clientModel.setPowerUpCardsLeft(clientModel.getPowerUpCardsLeft()-1);
                 clientModel.getPlayer(j.get("player").getAsInt()).setCardNumber(clientModel.getPlayer(j.get("player").getAsInt()).getCardNumber()+1);
                 if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
-                    clientModel.getPowerUpInHand().add(j.get("powerupname").getAsString());
+                    clientModel.getPowerUpInHand().add(j.get("powerup").getAsString());
                     clientModel.getColorPowerUpInHand().add(j.get("powerupcolor").getAsString());
                 }
                 ui.render();
                 break;
             case ("discardPowerUp"):
+                System.out.println("About to update dicard power up");
                 clientModel.getPlayer(j.get("player").getAsInt()).setCardNumber(clientModel.getPlayer(j.get("player").getAsInt()).getCardNumber()-1);
                 if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
+                    System.out.println("inIf");
+                    System.out.println(clientModel.getPowerUpInHand());
+                    System.out.println(j.get("powerup").getAsString());
                     clientModel.getPowerUpInHand().remove(j.get("powerup").getAsString());
                 }
                 ui.render();
                 break;
             case ("pickUpWeapon"):
+                System.out.println("About to update pickupWeapon");
+                System.out.println(j.get("weapon").getAsString());
+                System.out.println(clientModel.getCurrentPlayer());
                 clientModel.getCurrentPlayer().pickUpWeapon(j.get("weapon").getAsString());
                 display(clientModel.getCurrentPlayer().getUsername() + "picked up a " + j.get("weapon").getAsString());
                 ui.render();
@@ -237,6 +246,8 @@ public class ClientMain {
                 ui.render();
                 break;
             case ("move"):
+                System.out.println(j.get("player").getAsInt());
+                System.out.println(j.get("square").getAsInt());
                 clientModel.moveTo(j.get("player").getAsInt(), j.get("square").getAsInt());
                 display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " moved to square " + j.get("square").getAsInt());
                 ui.render();
@@ -326,6 +337,7 @@ public class ClientMain {
                 */
             default: break;
         }
+
     }
 
     /**

@@ -61,7 +61,7 @@ public class Updater {
     public static JsonObject get(String s, Player p, PowerUp powerUp) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(P, p.getId());
-        j.addProperty("powerupname", powerUp.getName().toString());
+        j.addProperty("powerup", powerUp.getName().toString());
         j.addProperty("powerupcolor", powerUp.getColor().toStringLowerCase());
         return j;
         //drawPowerUp and discardPowerup
@@ -269,7 +269,7 @@ public class Updater {
 
         }
         cm.setPlayers(simplePlayers);
-        cm.setCurrentPlayer(cm.getPlayer(board.getCurrentPlayer().getId()));
+        cm.setCurrentPlayerId(board.getCurrentPlayer().getId());
         cm.setPlayerID(player.getId());
 
         cm.setKillShotTrack(killers);

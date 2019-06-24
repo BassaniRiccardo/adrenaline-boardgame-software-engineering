@@ -270,9 +270,14 @@ public class Player {
         board.addToUpdateQueue(Updater.get("setInGame", this, inGame));
     }
 
-    public void setDead(boolean dead) {this.dead = dead; board.addToUpdateQueue(Updater.get("die", this));}
+    public void setDead(boolean dead) {
+        this.dead = dead;
+        board.addToUpdateQueue(Updater.get("die", this, dead));
+    }
 
-    public void setDamages(List<Player> damages) { this.damages = damages; }
+    public void setDamages(List<Player> damages) {
+        this.damages = damages;
+    }
 
     public void setWeaponList(List<Weapon> weaponList) { this.weaponList = weaponList;}
 

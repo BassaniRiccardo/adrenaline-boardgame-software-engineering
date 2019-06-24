@@ -329,7 +329,7 @@ public class ClientModel {
         }
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public void setName(String name) {
@@ -337,7 +337,7 @@ public class ClientModel {
         }
 
         public boolean isLoaded() {
-            return loaded;
+            return this.loaded;
         }
 
         public void setLoaded(boolean loaded) {

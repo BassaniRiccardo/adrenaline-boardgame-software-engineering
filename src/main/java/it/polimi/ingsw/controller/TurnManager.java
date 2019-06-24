@@ -132,6 +132,9 @@ public class TurnManager {
             while (!askConfirmation("Do you confirm the ending phase?")) {
                 LOGGER.log(Level.FINE,  "{0} resets the action", currentPlayer);
                 statusSaver.restoreCheckpoint();
+                board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
+                board.revertUpdates(currentPlayerConnection);
+                board.notifyObserver(currentPlayerConnection);
                 board.setReset(false);
                 handleUsingPowerUp();
                 convertPowerUp();
@@ -1061,6 +1064,7 @@ public class TurnManager {
         }
         //if the player is reborning, everything must be restored:  powerups        positions           isDead
         else statusSaver.restoreCheckpoint();
+        board.addToUpdateQueue(Updater.getModel(board, p), getVirtualView(p));
         board.revertUpdates(getVirtualView(p));
         board.notifyObservers();
         joinBoard(p, 0, reborn);
@@ -1073,6 +1077,7 @@ public class TurnManager {
     private void resetPowerUp() throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
         statusSaver.restoreCheckpoint();
+        board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
         board.revertUpdates(currentPlayerConnection);
         board.notifyObservers();
         if (actionsLeft  == 0){
@@ -1087,6 +1092,7 @@ public class TurnManager {
     private boolean resetConvert() throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
         statusSaver.restoreCheckpoint();
+        board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
         board.revertUpdates(currentPlayerConnection);
         board.notifyObservers();
         if (actionsLeft  == 0){
@@ -1104,6 +1110,7 @@ public class TurnManager {
     private void resetAction() throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
         statusSaver.restoreCheckpoint();
+        board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
         board.notifyObserver(currentPlayerConnection);
         if (actionsLeft == 0)
         {

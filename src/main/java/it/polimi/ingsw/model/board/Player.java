@@ -237,6 +237,20 @@ public class Player {
         board.addToUpdateQueue(Updater.get("move", this, square));
     }
 
+    /**
+     * Virtual position used for calculating shooting squares. Needs to be manually reset
+     * @param square    virtual movement destination
+     */
+    public void setVirtualPosition(Square square){
+        if (!this.board.getMap().contains(square)) throw new IllegalArgumentException("The player must be located in a square that belongs to the board.");
+        if (this.position!=null){
+            this.position.removePlayer(this);
+        }
+        previousPosition = position;
+        this.position = square;
+        square.addPlayer(this);
+    }
+
     public void setPointsToGive(int p) {
         if (!(p==8 || p==6 || p==4 || p==2 || p==1)) throw new IllegalArgumentException("Not valid number of points.");
         this.pointsToGive = p;
@@ -776,7 +790,7 @@ public class Player {
             boolean found = false;
             boolean option1 = false;
             FireMode preMove = null;
-            this.setPosition(s1);
+            this.setVirtualPosition(s1);
             for (Weapon w: weaponToConsider){
                 for (FireMode f : w.listAvailableFireModes()){
                     if (f.getName()==MAIN || f.getName() == SECONDARY)  found = true;
@@ -787,7 +801,7 @@ public class Player {
                 }
                 if (!found && option1) {
                     for (Square dest : preMove.getDestinationFinder().find(this, new ArrayList<>(Arrays.asList(this)))) {
-                        this.setPosition(dest);
+                        this.setVirtualPosition(dest);
                         for (FireMode f : w.listAvailableFireModes()) {
                             if (f.getName() == MAIN || f.getName() == SECONDARY) found = true;
                         }
@@ -804,9 +818,8 @@ public class Player {
             }
             if (found && !starting.contains(s1)) starting.add(s1);
         }
-        setPosition(square);
+        setVirtualPosition(square);
         return starting;
-
     }
 
 

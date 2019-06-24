@@ -55,6 +55,7 @@ public class Updater {
         j.addProperty("killer", p.getId());
         j.addProperty("overkill", ok);
         return j;
+        //skullRemoved
     }
 
     public static JsonObject get(String s, Player p, PowerUp powerUp) {

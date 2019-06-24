@@ -13,7 +13,7 @@ import java.util.List;
 public class TurnManagerTest {
 
     /**
-     *  Tests the method run(), simulating the first turn of the first player and displaying the main events on the console.
+     *  Tests the method runTurn(), simulating the first turn of the first player and displaying the main events on the console.
      */
     @Test
     public void run() {

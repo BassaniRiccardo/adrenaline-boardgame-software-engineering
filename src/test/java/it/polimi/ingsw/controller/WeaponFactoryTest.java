@@ -829,6 +829,7 @@ public class WeaponFactoryTest {
         shooter.addWeapon(powerglove);
         shooter.setPosition(b.getMap().get(2));
         sprog.setPosition(b.getMap().get(0));
+
         //MAIN TARGETS
         assertEquals("[[Player 2 : anonymous(Banshee)], [Player 4 : anonymous(Violet)]]", powerglove.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
@@ -840,6 +841,7 @@ public class WeaponFactoryTest {
         assertTrue(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
         assertTrue(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(violet))).isEmpty());
         assertTrue(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(sprog))).isEmpty());
+
     }
 
 

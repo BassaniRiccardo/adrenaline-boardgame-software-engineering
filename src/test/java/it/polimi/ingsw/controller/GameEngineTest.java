@@ -15,7 +15,7 @@ public class GameEngineTest {
 
 
     /**
-     * Tests the method GameEngine.run().
+     * Tests the method GameEngine.runTurn().
      * Simulates a 5 player game.
      * Displays the main events of the game on the console, showing how the game develops according to the rules.
      */
@@ -33,7 +33,7 @@ public class GameEngineTest {
         connections.add(new TCPVirtualView(null));
 
         GameEngine gameEngine = new GameEngine(connections);
-        gameEngine.run();
+        gameEngine.runTurn();
         */
 
     }

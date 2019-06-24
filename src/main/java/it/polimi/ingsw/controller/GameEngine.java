@@ -4,10 +4,10 @@ import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.KillShotTrack;
 import it.polimi.ingsw.model.board.Player;
-import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
-import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
-import it.polimi.ingsw.model.exceptions.SlowAnswerException;
-import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
+import it.polimi.ingsw.model.board.WeaponSquare;
+import it.polimi.ingsw.model.cards.Card;
+import it.polimi.ingsw.model.cards.Weapon;
+import it.polimi.ingsw.model.exceptions.*;
 import it.polimi.ingsw.network.server.VirtualView;
 
 import java.util.*;
@@ -39,6 +39,7 @@ public class GameEngine implements Runnable{
     private StatusSaver statusSaver;
     private final Map<VirtualView, String> notifications;
     private Timer timer;
+    private boolean exitGame;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
@@ -63,6 +64,7 @@ public class GameEngine implements Runnable{
         }
         this.notifications = new HashMap<>();
         this.timer = new Timer(TURN_DURATION);
+        this.exitGame = false;
         //todo: load from config
         LOGGER.log(Level.FINE, "Initialized GameEngine " + this);
 
@@ -126,13 +128,29 @@ public class GameEngine implements Runnable{
 
         final int TURN_TIME = 3;
         setup();
+
         ExecutorService executor = Executors.newCachedThreadPool();
         while (!gameOver){
             LOGGER.log(Level.FINE, "Running turn");
-            runTurn(executor, TURN_TIME, false);
+            try {
+                runTurn(executor, TURN_TIME, false);
+            } catch (NotEnoughPlayersException e) {
+                exitGame = true;
+                break;
+            } catch (SlowAnswerException ex) {
+                currentPlayer.suspend();
+            }
+
             if (killShotTrack.getSkullsLeft() == 0) {
                 LOGGER.log(Level.FINE, "There are no skulls left, managing the end of the game");
-                manageGameEnd(executor);
+                try {
+                    manageGameEnd(executor);
+                } catch (NotEnoughPlayersException e) {
+                    exitGame = true;
+                    break;
+                }  catch (SlowAnswerException ex) {
+                    currentPlayer.suspend();
+                }
             }
             changePlayer();
         }
@@ -202,7 +220,7 @@ public class GameEngine implements Runnable{
         //    int vote = Integer.parseInt(waitShort(p, 20));
         //    votes.set(vote-1, votes.get(vote-1)+1);
         //}
-        int mapId = 2;//votes.indexOf(Collections.max(votes)) + 1;
+        int mapId = 4;//votes.indexOf(Collections.max(votes)) + 1;
 
         board = BoardConfigurer.configureMap(mapId);
 
@@ -297,7 +315,13 @@ public class GameEngine implements Runnable{
      */
     public void resolve(){
 
-        if (!frenzy) LOGGER.log(Level.INFO,"The last skull has been removed. Points are added to the players according to the kill shot track.");
+        if (exitGame) {
+            LOGGER.log(Level.INFO,"Not enough player in the game. The game ends, points are added to the players according to the kill shot track.");
+            for (VirtualView v : players) {
+                v.display("Game Over : less then three players in the game.");
+            }
+        }
+        else if (!frenzy) LOGGER.log(Level.INFO,"The last skull has been removed. Points are added to the players according to the kill shot track.");
         else LOGGER.log(Level.INFO,"Frenzy ended. Points are added to the players according to the kill shot track.");
 
         killShotTrack.rewardKillers();
@@ -333,13 +357,17 @@ public class GameEngine implements Runnable{
      * @param timeout               the maximum time to complete a turn.
      * @param frenzy                whether the frenzy is active during the turn.
      */
-    public void runTurn (ExecutorService executor, int timeout, boolean frenzy){
+    public void runTurn (ExecutorService executor, int timeout, boolean frenzy) throws NotEnoughPlayersException, SlowAnswerException{
+        System.out.println("before adding");
         for(VirtualView p : players) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
         }
+        System.out.println("before notifying");
         board.notifyObservers();
+        System.out.println("before timer start");
         timer.start();
-        new TurnManager(this, board, currentPlayer, players, statusSaver,  frenzy).run();
+        System.out.println("before new TurnManagerT");
+        new TurnManager(this, board, currentPlayer, players, statusSaver, frenzy).runTurn();
         timer.stop();
     }
 
@@ -363,7 +391,7 @@ public class GameEngine implements Runnable{
      *
      * @param executor      the executor which execute the  thread of TurnManager.
      */
-    public void manageGameEnd(ExecutorService executor){
+    public void manageGameEnd(ExecutorService executor) throws NotEnoughPlayersException, SlowAnswerException{
 
         if (!frenzy) gameOver = true;
         else {
@@ -398,15 +426,29 @@ public class GameEngine implements Runnable{
 
         if (players.get(0).getModel().getPoints() == players.get(1).getModel().getPoints() && !killShotTrack.getKillers().contains(players.get(0).getModel()) && !killShotTrack.getKillers().contains(players.get(1).getModel())) {
             LOGGER.log(Level.INFO,() -> P + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
+            players.get(0).display(addLeaderboard("You and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
             for (int i = 2; i < players.size(); i++) {
                 LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+                players.get(i).display(addLeaderboard("Your position: " + i+1 + " !"));
+
             }
         } else {
             LOGGER.log(Level.INFO,() -> "Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
+            players.get(0).display(addLeaderboard("You Won!"));
             for (int i = 1; i < players.size(); i++) {
                 LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+                players.get(i).display(addLeaderboard("Your position: " + i+1 + " !"));
             }
         }
+
+    }
+
+    public String addLeaderboard(String s){
+        s += "\n\nLeaderboard:\n";
+        for (VirtualView v : players){
+            s += v.getModel().getUsername() + ": " + v.getModel().getPoints() + " points\n";
+        }
+        return s;
     }
 
 
@@ -418,7 +460,7 @@ public class GameEngine implements Runnable{
      * @return answer
      */
 
-    public String waitShort(VirtualView current, int timeout){
+    public String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
         long start = System.currentTimeMillis();
         long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
         LOGGER.log(Level.INFO ,"Waiting for " + current);
@@ -452,7 +494,7 @@ public class GameEngine implements Runnable{
      * @throws SlowAnswerException      if the turn timer runs out
      * @return answer
      */
-    public String wait(VirtualView current) throws SlowAnswerException{
+    public String wait(VirtualView current) throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.INFO ,"Waiting for {0}", current);
         while(!hasAnswered(current)){
             checkForSuspension();
@@ -463,7 +505,7 @@ public class GameEngine implements Runnable{
                 Thread.currentThread().interrupt();
             }
             if(timer.isOver()){
-                throw new SlowAnswerException();
+                throw new SlowAnswerException("Maximum time exceeded for the user to answer");
             }
         }
         LOGGER.log(Level.INFO, "Done waiting");
@@ -515,13 +557,15 @@ public class GameEngine implements Runnable{
     /**
      * Checks if a player was suspended recently
      */
-    private synchronized void checkForSuspension(){
+    private synchronized void checkForSuspension() throws NotEnoughPlayersException{
         List<VirtualView> justSuspended = new ArrayList<>();
+        int playersInGame = 0;
         for(VirtualView v : players){
             if(v.isJustSuspended()) {
                 justSuspended.add(v);
                 v.setJustSuspended(false);
             }
+            else playersInGame++;
         }
         for(VirtualView v : justSuspended){
             for(VirtualView p : players){
@@ -533,6 +577,76 @@ public class GameEngine implements Runnable{
             LOGGER.log(Level.INFO, "Notified players of the disconnection of {0}", justSuspended);
         }
         //TODO: check how many players are left for game continuation
+        if (playersInGame < 3) throw new NotEnoughPlayersException("Not enough players to continue the game. Game over");
+    }
+
+    public void simulateTillEndphase() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
+
+        System.out.println("in");
+        Player p1 = board.getPlayers().get(0);
+        Player p2 = board.getPlayers().get(1);
+        Player p3 = board.getPlayers().get(2);
+
+        p1.setInGame(true);
+        p1.setPosition(board.getMap().get(2));
+        p2.setInGame(true);
+        p2.setPosition(board.getMap().get(4));
+        p3.setInGame(true);
+        p3.setPosition(board.getMap().get(11));
+
+        //simulates all the previous deaths
+        board.getKillShotTrack().removeSkulls(5);
+        p1.addDeath();
+        p2.addDeath();
+        p3.addDeath();
+        p1.addDeath();
+        p3.addDeath();
+        board.getKillShotTrack().getKillers().addAll(Arrays.asList(p2,p3,p1,p2,p1));
+        p1.setPointsToGive(4);
+        p2.setPointsToGive(6);
+        p3.setPointsToGive(4);
+
+        //assigns damages
+        p1.setDamages(Arrays.asList(p2, p2, p2, p3, p3, p3, p3, p3, p3, p3));
+        p2.setDamages(Arrays.asList(p1, p1, p1, p1, p1, p1, p1, p1, p1, p1));
+        p3.setDamages(Arrays.asList(p2, p1, p2));
+
+        //gives weapons
+        //simulateDrawWeapon(p1, Weapon.WeaponName.LOCK_RIFLE);
+        //simulateDrawWeapon(p2, Weapon.WeaponName.HEATSEEKER);
+        //simulateDrawWeapon(p2, Weapon.WeaponName.SLEDGEHAMMER);
+        //simulateDrawWeapon(p3, Weapon.WeaponName.RAILGUN);
+        p1.collect(((WeaponSquare)p1.getPosition()).getWeapons().get(0));
+        p2.collect(((WeaponSquare)p2.getPosition()).getWeapons().get(0));
+        p3.collect(((WeaponSquare)p3.getPosition()).getWeapons().get(0));
+
+
+        System.out.println("out");
+
+    }
+
+
+
+
+    private void simulateDrawWeapon(Player p, Weapon.WeaponName weaponName) throws UnacceptableItemNumberException,NoMoreCardsException{
+
+        int i = -1;
+
+        for (Card w : board.getWeaponDeck().getDrawable()){
+            if (((Weapon)w).getWeaponName() == weaponName) i = board.getWeaponDeck().getDrawable().indexOf(w);
+        }
+        if (i!=-1) {
+            p.addWeapon((Weapon) board.getWeaponDeck().getDrawable().get(i));
+            board.getWeaponDeck().getDrawable().remove(board.getWeaponDeck().getDrawable().get(i));
+        }
+        else for (WeaponSquare ws : board.getSpawnPoints()){
+            for (Weapon w : ws.getWeapons())
+                if ((w.getWeaponName()== weaponName)){
+                    ws.removeCard(w);
+                    p.addWeapon(w);
+                    break;
+                }
+        }
     }
 
 }

@@ -111,7 +111,7 @@ public class Weapon implements Card {
      */
 
     public void setLoaded(boolean loaded) { this.loaded = loaded;
-        board.addToUpdateQueue(Updater.get("loaded", this, loaded));
+        board.addToUpdateQueue(Updater.get(Updater.LOADED_PROP, this, loaded));
     }
 
     public void setHolder(Player holder) {

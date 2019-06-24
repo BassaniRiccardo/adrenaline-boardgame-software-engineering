@@ -234,7 +234,7 @@ public class Player {
         previousPosition = position;
         this.position = square;
         square.addPlayer(this);
-        board.addToUpdateQueue(Updater.get("move", this, square));
+        board.addToUpdateQueue(Updater.get(Updater.MOVE_UPD, this, square));
     }
 
     /**
@@ -262,15 +262,15 @@ public class Player {
 
     public void setJustDamaged(boolean justDamaged){this.justDamaged = justDamaged;}
 
-    public void setFlipped(boolean flipped){this.flipped = flipped; board.addToUpdateQueue(Updater.get("flip", this));
+    public void setFlipped(boolean flipped){this.flipped = flipped; board.addToUpdateQueue(Updater.get(Updater.FLIP_UPD, this));
     }
 
     public void setInGame(boolean inGame) {
         this.inGame = inGame;
-        board.addToUpdateQueue(Updater.get("setInGame", this, inGame));
+        board.addToUpdateQueue(Updater.get(Updater.SET_IN_GAME_UPD, this, inGame));
     }
 
-    public void setDead(boolean dead) {this.dead = dead; board.addToUpdateQueue(Updater.get("die", this));}
+    public void setDead(boolean dead) {this.dead = dead;}
 
     public void setDamages(List<Player> damages) { this.damages = damages; }
 
@@ -291,7 +291,7 @@ public class Player {
 
     public void addDeath() {
         this.deaths++;
-        board.addToUpdateQueue(Updater.get("addDeath", this));
+        board.addToUpdateQueue(Updater.get(Updater.ADD_DEATH_UPD, this));
     }
 
     /**
@@ -332,7 +332,7 @@ public class Player {
                 status = Status.ADRENALINE_1;
             }
         }
-        board.addToUpdateQueue(Updater.get("damaged", this, damages));
+        board.addToUpdateQueue(Updater.get(Updater.DAMAGE_UPD, this, damages));
     }
 
 
@@ -353,7 +353,7 @@ public class Player {
                 marks.add(shooter);
             }
         }
-        board.addToUpdateQueue(Updater.get("marked", this, marks));
+        board.addToUpdateQueue(Updater.get(Updater.MARK_UPD, this, marks));
     }
 
 
@@ -369,7 +369,7 @@ public class Player {
                     "which one to discard.");
         addedWeapon.setHolder(this);
         weaponList.add(addedWeapon);
-        board.addToUpdateQueue(Updater.get("pickUpWeapon", this, addedWeapon));
+        board.addToUpdateQueue(Updater.get(Updater.PICKUP_WEAPON_UPD, this, addedWeapon));
     }
     
 
@@ -379,7 +379,7 @@ public class Player {
      * @param ammoPack         ammo added.
      */
     public void addAmmoPack(AmmoPack ammoPack) {this.ammoPack.addAmmoPack(ammoPack);
-        board.addToUpdateQueue(Updater.get("addAmmo", this, ammoPack));}
+        board.addToUpdateQueue(Updater.get(Updater.ADD_AMMO_UPD, this, ammoPack));}
 
 
     /**
@@ -392,7 +392,7 @@ public class Player {
 
         if (this.board.getSpawnPoints().contains(position)){
                 this.getAmmoPack().subAmmoPack(((Weapon)collectedCard).getReducedCost());
-                board.addToUpdateQueue(Updater.get("useAmmo", this, ((Weapon)collectedCard).getReducedCost()));
+                board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this, ((Weapon)collectedCard).getReducedCost()));
                 ((Weapon)collectedCard).setLoaded(true);
                 ((Weapon)collectedCard).setHolder(this);
                 addWeapon((Weapon) collectedCard);
@@ -420,12 +420,12 @@ public class Player {
                     "the process of rebirth. More than 4 are never allowed.");
         if (this.board.getPowerUpDeck().getDrawable().isEmpty()){
             this.board.getPowerUpDeck().regenerate();
-            board.addToUpdateQueue(Updater.get("pDeckRegen", board.getPowerUpDeck().getDrawable().size()));
+            board.addToUpdateQueue(Updater.get(Updater.POWER_UP_DECK_REGEN_UPD, board.getPowerUpDeck().getDrawable().size()));
         }
         PowerUp p = (PowerUp)this.board.getPowerUpDeck().drawCard();
         p.setHolder(this);
         powerUpList.add(p);
-        board.addToUpdateQueue(Updater.get("drawPowerUp", this, p));
+        board.addToUpdateQueue(Updater.get(Updater.DRAW_POWER_UP_UPD, this, p));
     }
     
 
@@ -442,7 +442,7 @@ public class Player {
             removedWeapon.setHolder(null);
         } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "This type of card cannot have an holder");}
         */
-        board.addToUpdateQueue(Updater.get("discardWeapon", this, (Weapon)removedWeapon));
+        board.addToUpdateQueue(Updater.get(Updater.DISCARD_WEAPON_UPD, this, (Weapon)removedWeapon));
     }
 
 
@@ -456,7 +456,7 @@ public class Player {
         if (!powerUpList.contains(removedPowerUp)) throw  new IllegalArgumentException("The player does not own this powerup.");
         powerUpList.remove(removedPowerUp);
         board.getPowerUpDeck().addDiscardedCard(removedPowerUp);
-        board.addToUpdateQueue(Updater.get("discardPowerUp", this, (PowerUp)removedPowerUp));
+        board.addToUpdateQueue(Updater.get(Updater.DISCARD_POWER_UP_UPD, this, (PowerUp)removedPowerUp));
     }
 
 
@@ -525,7 +525,7 @@ public class Player {
      */
     public void useAmmo(AmmoPack usedAmmo) {
         this.ammoPack.subAmmoPack(usedAmmo);
-        board.addToUpdateQueue(Updater.get("useAmmo", this, usedAmmo));
+        board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this, usedAmmo));
     }
 
 
@@ -547,7 +547,7 @@ public class Player {
             ap= new AmmoPack(0, 1, 0);
         }
         ammoPack.addAmmoPack(ap);
-        board.addToUpdateQueue(Updater.get("addAmmo", this, ap));
+        board.addToUpdateQueue(Updater.get(Updater.ADD_AMMO_UPD, this, ap));
 
     }
 

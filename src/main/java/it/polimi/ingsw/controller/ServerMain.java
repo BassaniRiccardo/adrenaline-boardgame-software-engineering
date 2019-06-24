@@ -34,6 +34,7 @@ public class ServerMain {
     private ExecutorService executor;
     private BufferedReader in;
     private boolean running;
+    private String oldMessage;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     public static final int SLEEP_TIMEOUT = 100;
@@ -54,6 +55,7 @@ public class ServerMain {
         rmiServer = null;
         timer = null;
         executor = Executors.newCachedThreadPool();
+        oldMessage = "";
     }
 
     /**
@@ -312,12 +314,14 @@ public class ServerMain {
             timer.start();
         }
 
-        for(VirtualView v : waitingPlayers){
-                String alreadyConnected = getAlreadyConnected();
-                if(!alreadyConnected.isEmpty()) {
-                    v.display(alreadyConnected + "Time left: " + timer.getTimeLeft());
-                }
+        String alreadyConnected = getAlreadyConnected();
+        String fullMessage = alreadyConnected + "Timeleft: " + timer.getTimeLeft();
+        if(!alreadyConnected.isEmpty()&&!oldMessage.equals(fullMessage)) {
+            for(VirtualView v : waitingPlayers){
+                    v.display(fullMessage);
+            }
         }
+        oldMessage = fullMessage;
     }
 
     /**

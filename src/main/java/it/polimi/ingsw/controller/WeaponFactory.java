@@ -235,6 +235,9 @@ public class WeaponFactory {
                         .collect(Collectors.toList()));
             case "previous2":
                 return p -> {
+                    if(p.getMainTargets().isEmpty()){
+                        return new ArrayList<>();
+                    }
                     List<List<Player>> pastTargets = p.getMainTargets().stream()
                             .distinct()
                             .filter(x -> !p.getOptionalTargets().contains(x))

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view;
 
 import com.google.gson.*;
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
 
@@ -17,6 +18,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+
+import static it.polimi.ingsw.model.Updater.*;
 
 /**
 /**
@@ -129,6 +132,7 @@ public class ClientMain {
             buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         }
         if (buff.equals("2")) {
+            System.setProperty("java.rmi.server.hostname", prop.getProperty("myIP", "localhost"));
             connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
         } else {
             connection = new TCPConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("TCPPort", "5000")));
@@ -181,103 +185,103 @@ public class ClientMain {
      */
     public void update(JsonObject j) {
 
-        LOGGER.log(Level.INFO, "update received: " + j.get("type").getAsString());
+        LOGGER.log(Level.INFO, "Update received: " + j.get(TYPE_PROP).getAsString());
 
-        switch (j.get("type").getAsString()) {
+        switch (j.get(TYPE_PROP).getAsString()) {
 
-            case("loaded"):
-                clientModel.getCurrentPlayer().getWeapon(j.get("weapon").getAsString()).setLoaded(j.get("loaded").getAsBoolean());
+            case(RELOAD_UPD):
+                clientModel.getCurrentPlayer().getWeapon(j.get(WEAPON_PROP).getAsString()).setLoaded(j.get(LOADED_PROP).getAsBoolean());
                 ui.render();
                 break;
-            case ("skullRemoved"):
-                clientModel.removeSkulls(j.get("number").getAsInt());
+            case (REMOVE_SKULL_UPD):
+                clientModel.removeSkulls(j.get(SKULL_NUMBER_PROP).getAsInt());
                 ui.render();
                 break;
-            case ("pDeckRegen"):
-                clientModel.setPowerUpCardsLeft(j.get("number").getAsInt());
+            case (POWER_UP_DECK_REGEN_UPD):
+                clientModel.setPowerUpCardsLeft(j.get(CARDS_NUMBER_PROP).getAsInt());
                 ui.render();
                 break;
-            case ("drawPowerUp"):
+            case (DRAW_POWER_UP_UPD):
                 clientModel.setPowerUpCardsLeft(clientModel.getPowerUpCardsLeft()-1);
-                clientModel.getPlayer(j.get("player").getAsInt()).setCardNumber(clientModel.getPlayer(j.get("player").getAsInt()).getCardNumber()+1);
-                if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
-                    clientModel.getPowerUpInHand().add(j.get("powerupname").getAsString());
-                    clientModel.getColorPowerUpInHand().add(j.get("powerupcolor").getAsString());
+                clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setCardNumber(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getCardNumber()+1);
+                if(clientModel.getPlayerID()==j.get(PLAYER_PROP).getAsInt()) {
+                    clientModel.getPowerUpInHand().add(j.get(POWER_UP_NAME_PROP).getAsString());
+                    clientModel.getColorPowerUpInHand().add(j.get(POWER_UP_COLOR_PROP).getAsString());
                 }
                 ui.render();
                 break;
-            case ("discardPowerUp"):
-                clientModel.getPlayer(j.get("player").getAsInt()).setCardNumber(clientModel.getPlayer(j.get("player").getAsInt()).getCardNumber()-1);
-                if(clientModel.getPlayerID()==j.get("player").getAsInt()) {
-                    clientModel.getPowerUpInHand().remove(j.get("powerup").getAsString());
+            case (DISCARD_POWER_UP_UPD):
+                clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setCardNumber(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getCardNumber()-1);
+                if(clientModel.getPlayerID()==j.get(PLAYER_PROP).getAsInt()) {
+                    clientModel.getPowerUpInHand().remove(j.get(POWER_UP_NAME_PROP).getAsString());
                 }
                 ui.render();
                 break;
-            case ("pickUpWeapon"):
-                clientModel.getCurrentPlayer().pickUpWeapon(j.get("weapon").getAsString());
-                display(clientModel.getCurrentPlayer().getUsername() + "picked up a " + j.get("weapon").getAsString());
+            case (PICKUP_WEAPON_UPD):
+                clientModel.getCurrentPlayer().pickUpWeapon(j.get(WEAPON_PROP).getAsString());
+                display(clientModel.getCurrentPlayer().getUsername() + "picked up a " + j.get(WEAPON_PROP).getAsString());
                 ui.render();
                 break;
-            case ("discardWeapon"):
-                clientModel.getPlayer(j.get("player").getAsInt()).discardWeapon(j.get("weapon").getAsString());
-                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + "discarded a " + j.get("weapon").getAsString());
+            case (DISCARD_WEAPON_UPD):
+                clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).discardWeapon(j.get(WEAPON_PROP).getAsString());
+                display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + "discarded a " + j.get(WEAPON_PROP).getAsString());
                 ui.render();
                 break;
-            case ("addWeapon"):
-                ClientModel.SimpleWeapon w = new ClientModel().new SimpleWeapon(j.get("weapon").getAsString(), true);
-                clientModel.getSquare(j.get("square").getAsInt()).getWeapons().add(w);
+            case (ADD_WEAPON_UPD):
+                ClientModel.SimpleWeapon w = new ClientModel().new SimpleWeapon(j.get(WEAPON_PROP).getAsString(), true);
+                clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).getWeapons().add(w);
                 ui.render();
                 break;
-            case ("useAmmo"):
-                clientModel.getCurrentPlayer().subAmmo(j.get("blueammo").getAsInt(), j.get("redammo").getAsInt(), j.get("yellowammo").getAsInt());
+            case (USE_AMMO_UPD):
+                clientModel.getCurrentPlayer().subAmmo(j.get(BLUE_AMMO_PROP).getAsInt(), j.get(RED_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
                 ui.render();
                 break;
-            case ("addAmmo"):
-                clientModel.getCurrentPlayer().addAmmo(j.get("blueammo").getAsInt(), j.get("redammo").getAsInt(), j.get("yellowammo").getAsInt());
+            case (ADD_AMMO_UPD):
+                clientModel.getCurrentPlayer().addAmmo(j.get(BLUE_AMMO_PROP).getAsInt(), j.get(RED_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
                 ui.render();
                 break;
-            case ("move"):
-                clientModel.moveTo(j.get("player").getAsInt(), j.get("square").getAsInt());
-                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " moved to square " + j.get("square").getAsInt());
+            case (MOVE_UPD):
+                clientModel.moveTo(j.get(PLAYER_PROP).getAsInt(), j.get(SQUARE_PROP).getAsInt());
+                display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " moved to square " + j.get(SQUARE_PROP).getAsInt());
                 ui.render();
                 break;
-            case ("flip"):
-                clientModel.flip(j.get("player").getAsInt());
+            case (FLIP_UPD):
+                clientModel.flip(j.get(PLAYER_PROP).getAsInt());
                 ui.render();
                 break;
-            case ("addDeath"):
-                clientModel.getPlayer(j.get("player").getAsInt()).addDeath();
-                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " was killed!");
+            case (ADD_DEATH_UPD):
+                clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).addDeath();
+                display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was killed!");
                 //redraw model
                 ui.render();
                 break;
-            case ("damaged"):
-                clientModel.damage(j.get("player").getAsInt(), j.getAsJsonArray("list"));
-                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " took damage!");
+            case (DAMAGE_UPD):
+                clientModel.damage(j.get(PLAYER_PROP).getAsInt(), j.getAsJsonArray(PLAYER_LIST_PROP));
+                display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " took damage!");
                 ui.render();
                 break;
-            case ("marked"):
-                clientModel.mark(j.get("player").getAsInt(), j.getAsJsonArray("list"));
-                display(clientModel.getPlayer(j.get("player").getAsInt()).getUsername() + " was marked!");
+            case (MARK_UPD):
+                clientModel.mark(j.get(PLAYER_PROP).getAsInt(), j.getAsJsonArray(PLAYER_LIST_PROP));
+                display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was marked!");
                 ui.render();
                 break;
-            case ("weaponRemoved"):
-                (clientModel.getSquare(j.get("square").getAsInt())).removeWeapon(j.get("weapon").getAsString());
+            case (REMOVE_WEAPON_UPD):
+                (clientModel.getSquare(j.get(SQUARE_PROP).getAsInt())).removeWeapon(j.get(WEAPON_PROP).getAsString());
                 ui.render();
                 break;
-            case ("setInGame"):
-                clientModel.getPlayer(j.get("player").getAsInt()).setInGame(j.get("ingame").getAsBoolean());
+            case (SET_IN_GAME_UPD):
+                clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setInGame(j.get(BOOLEAN_PROP).getAsBoolean());
                 ui.render();
                 break;
-            case ("removeAmmoTile"):
-                clientModel.getSquare(j.get("square").getAsInt()).setBlueAmmo(0);
-                clientModel.getSquare(j.get("square").getAsInt()).setYellowAmmo(0);
-                clientModel.getSquare(j.get("square").getAsInt()).setRedAmmo(0);
-                clientModel.getSquare(j.get("square").getAsInt()).setPowerup(false);
+            case (REMOVE_AMMO_TILE_UPD):
+                clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setBlueAmmo(0);
+                clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setYellowAmmo(0);
+                clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setRedAmmo(0);
+                clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setPowerup(false);
                 break;
-            case ("mod"):
+            case (MODEL_UPD):
                 try {
-                    JsonObject mod = new JsonParser().parse(j.get("mod").getAsString()).getAsJsonObject();
+                    JsonObject mod = new JsonParser().parse(j.get(MODEL_PROP).getAsString()).getAsJsonObject();
                     setClientModel(new Gson().fromJson(mod, ClientModel.class));
                 }catch(Exception ex){
                     ex.printStackTrace();
@@ -324,7 +328,8 @@ public class ClientMain {
                 ui.render();
                 break;
                 */
-            default: break;
+            default: LOGGER.log(Level.SEVERE, "Malformed update header: " + j.get(TYPE_PROP).getAsString());
+                break;
         }
     }
 

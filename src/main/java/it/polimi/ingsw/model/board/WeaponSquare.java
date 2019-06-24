@@ -110,7 +110,7 @@ public class WeaponSquare extends Square {
 
         this.weapons.remove(weapon);
 
-        board.addToUpdateQueue(Updater.get("weaponRemoved", this, (Weapon)weapon));
+        board.addToUpdateQueue(Updater.get(Updater.REMOVE_WEAPON_UPD, this, (Weapon)weapon));
 
         return weapon;
     }
@@ -162,7 +162,7 @@ public class WeaponSquare extends Square {
     public void addCard(Weapon weapon) throws UnacceptableItemNumberException {
 
         if (weapons.size() >= 3) throw new UnacceptableItemNumberException("The square already contains three weapons.");
-        board.addToUpdateQueue(Updater.get("addWeapon", this, weapon));
+        board.addToUpdateQueue(Updater.get(Updater.ADD_WEAPON_UPD, this, weapon));
         this.weapons.add(weapon);
 
     }

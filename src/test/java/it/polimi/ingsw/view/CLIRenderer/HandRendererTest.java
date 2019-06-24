@@ -42,7 +42,7 @@ public class HandRendererTest {
 
         ClientMain clientMain = new ClientMain();
 
-        JsonObject mod = new JsonParser().parse((Updater.getModel(board, board.getPlayers().get(0))).get("mod").getAsString()).getAsJsonObject();
+        JsonObject mod = new JsonParser().parse((Updater.getModel(board, board.getPlayers().get(0))).get(Updater.MODEL_PROP).getAsString()).getAsJsonObject();
         clientMain.setClientModel(new Gson().fromJson(mod, ClientModel.class));
         clientMain.getClientModel().setCurrentPlayer(clientMain.getClientModel().getPlayer(2));
 

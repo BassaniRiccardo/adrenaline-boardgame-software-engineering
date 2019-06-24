@@ -24,9 +24,51 @@ import java.util.logging.Logger;
 public class Updater {
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
-    private static final String P = "player";
-    private static final String W = "weapon";
-    private static final String S = "square";
+
+    public static final String UPD_HEADER = "UPD";
+
+    public static final String RELOAD_UPD = "reload";
+    public static final String POWER_UP_DECK_REGEN_UPD ="powerUpDeckRegen";
+    public static final String REMOVE_SKULL_UPD = "skullRemoved";
+    public static final String DRAW_POWER_UP_UPD = "drawPowerUp";
+    public static final String DISCARD_POWER_UP_UPD = "discardPowerUp";
+    public static final String DISCARD_WEAPON_UPD = "discardWeapon";
+    public static final String PICKUP_WEAPON_UPD = "pickupWeapon";
+    public static final String USE_AMMO_UPD = "useAmmo";
+    public static final String ADD_AMMO_UPD = "addAmmo";
+    public static final String MOVE_UPD = "move";
+    public static final String FLIP_UPD = "flip";
+    public static final String ADD_DEATH_UPD = "addDeath";
+    public static final String DAMAGE_UPD = "damage";
+    public static final String MARK_UPD = "mark";
+    public static final String ADD_WEAPON_UPD = "addWeapon";
+    public static final String REMOVE_WEAPON_UPD = "removeWeapon";
+    public static final String SET_IN_GAME_UPD = "setInGame";
+    public static final String REMOVE_AMMO_TILE_UPD = "removeAmmoTile";
+    public static final String MODEL_UPD = "model";
+
+    public static final String HEAD_PROP = "head";
+    public static final String TYPE_PROP = "type";
+
+    public static final String PLAYER_PROP = "player";
+    public static final String WEAPON_PROP = "weapon";
+    public static final String SQUARE_PROP = "square";
+
+    public static final String LOADED_PROP = "loaded";
+    public static final String CARDS_NUMBER_PROP = "cardNumber";
+    public static final String SKULL_NUMBER_PROP = "skullNumber";
+    public static final String KILLER_PROP = "killer";
+    public static final String OVERKILL_PROP = "overkill";
+    public static final String POWER_UP_NAME_PROP = "powerUpName";
+    public static final String POWER_UP_COLOR_PROP = "powerUpColor";
+    public static final String RED_AMMO_PROP = "redAmmo";
+    public static final String BLUE_AMMO_PROP = "blueAmmo";
+    public static final String YELLOW_AMMO_PROP = "yellowAmmo";
+    public static final String PLAYER_LIST_PROP = "playerList";
+    public static final String BOOLEAN_PROP = "boolean";
+    public static final String MODEL_PROP = "model";
+
+
 
     private Updater(){}
 
@@ -36,102 +78,101 @@ public class Updater {
 
     public static JsonObject get(String msg, Weapon w, boolean loaded) {
         JsonObject j = getFreshUpdate(msg);
-        j.addProperty(W, w.getWeaponName().toString());
-        j.addProperty("loaded", loaded);
+        j.addProperty(WEAPON_PROP, w.getWeaponName().toString());
+        j.addProperty(LOADED_PROP, loaded);
         //loaded
         return j;
     }
 
     public static JsonObject get(String msg, int quantity) {
         JsonObject j = getFreshUpdate(msg);
-        j.addProperty("number", quantity);
+        j.addProperty(CARDS_NUMBER_PROP, quantity);
         //pDeckRegen
         return j;
     }
 
     public static JsonObject get(String msg, int quantity, Player p, boolean ok) {
         JsonObject j = getFreshUpdate(msg);
-        j.addProperty("number", quantity);
-        j.addProperty("killer", p.getId());
-        j.addProperty("overkill", ok);
+        j.addProperty(SKULL_NUMBER_PROP, quantity);
+        j.addProperty(KILLER_PROP, p.getId());
+        j.addProperty(OVERKILL_PROP, ok);
         return j;
         //skullRemoved
     }
 
     public static JsonObject get(String s, Player p, PowerUp powerUp) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(P, p.getId());
-        j.addProperty("powerupname", powerUp.getName().toString());
-        j.addProperty("powerupcolor", powerUp.getColor().toStringLowerCase());
+        j.addProperty(PLAYER_PROP, p.getId());
+        j.addProperty(POWER_UP_NAME_PROP, powerUp.getName().toString());
+        j.addProperty(POWER_UP_COLOR_PROP, powerUp.getColor().toStringLowerCase());
         return j;
         //drawPowerUp and discardPowerup
     }
 
     public static JsonObject get(String s, Player p, Weapon w) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(P, p.getId());
-        j.addProperty(W, w.getWeaponName().toString());
+        j.addProperty(PLAYER_PROP, p.getId());
+        j.addProperty(WEAPON_PROP, w.getWeaponName().toString());
         return j;
         //discardWeapon and pickUpWeapon
     }
 
-
     public static JsonObject get(String s, Player p, AmmoPack a) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(P, p.getId());
-        j.addProperty("redammo", a.getRedAmmo());
-        j.addProperty("blueammo", a.getBlueAmmo());
-        j.addProperty("yellowammo", a.getYellowAmmo());
+        j.addProperty(PLAYER_PROP, p.getId());
+        j.addProperty(RED_AMMO_PROP, a.getRedAmmo());
+        j.addProperty(BLUE_AMMO_PROP, a.getBlueAmmo());
+        j.addProperty(YELLOW_AMMO_PROP, a.getYellowAmmo());
         return j;
         //useAmmo, addAmmo
     }
 
     public static JsonObject get(String s, Player p, Square square) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(P, p.getId());
-        j.addProperty(S, square.getId());
+        j.addProperty(PLAYER_PROP, p.getId());
+        j.addProperty(SQUARE_PROP, square.getId());
         return j;
         //move
     }
 
     public static JsonObject get(String s, Player p) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(P, p.getId());
+        j.addProperty(PLAYER_PROP, p.getId());
         return j;
         //flip, addDeath
     }
 
     public static JsonObject get(String s, Player p, List<Player> l) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(P, p.getId());
+        j.addProperty(PLAYER_PROP, p.getId());
         JsonArray array = new JsonArray();
         for (Player shooter : l) {
             array.add(shooter.getId());
         }
-        j.add("list", array);
+        j.add(PLAYER_LIST_PROP, array);
         return j;
         //damaged, marked
     }
 
     public static JsonObject get(String s, Square sq, Weapon w) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(S, sq.getId());
-        j.addProperty(W, w.toString());
+        j.addProperty(SQUARE_PROP, sq.getId());
+        j.addProperty(WEAPON_PROP, w.toString());
         return j;
         //weaponRemoved & addWeapon
     }
 
     public static JsonObject get(String s, Player p, boolean in) {
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(P, p.getId());
-        j.addProperty("ingame", in);
+        j.addProperty(PLAYER_PROP, p.getId());
+        j.addProperty(BOOLEAN_PROP, in);
         return j;
         //setInGame
     }
 
     public static JsonObject get(String s, Square square){
         JsonObject j = getFreshUpdate(s);
-        j.addProperty(S, square.getId());
+        j.addProperty(SQUARE_PROP, square.getId());
         return j;
         //removeAmmoTile
     }
@@ -302,9 +343,9 @@ public class Updater {
         String json = gson.toJson(cm);
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", "UPD");
-        jsonObject.addProperty("type", "mod");
-        jsonObject.addProperty("mod", json);
+        jsonObject.addProperty(HEAD_PROP, UPD_HEADER);
+        jsonObject.addProperty(TYPE_PROP, MODEL_UPD);
+        jsonObject.addProperty(MODEL_PROP, json);
 
         return jsonObject;
     }
@@ -317,8 +358,8 @@ public class Updater {
      */
     private static JsonObject getFreshUpdate(String msg) {
         JsonObject j = new JsonObject();
-        j.addProperty("head", "UPD");
-        j.addProperty("type", msg);
+        j.addProperty(HEAD_PROP, UPD_HEADER);
+        j.addProperty(TYPE_PROP, msg);
         return j;
     }
 

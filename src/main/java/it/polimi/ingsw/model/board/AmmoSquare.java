@@ -100,7 +100,7 @@ public class AmmoSquare extends Square  {
 
         Card collected = this.ammoTile;
         this.ammoTile = null;
-        board.addToUpdateQueue(Updater.get("removeAmmoTile", this));
+        board.addToUpdateQueue(Updater.get(Updater.REMOVE_AMMO_TILE_UPD, this));
         return collected;
 
     }

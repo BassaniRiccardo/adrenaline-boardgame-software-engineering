@@ -112,7 +112,7 @@ public class GUITest {
         ClientMain clientMain = new ClientMain();
         ((GUI) ui).setClientMain(clientMain);
 
-        JsonObject mod = new JsonParser().parse((Updater.getModel(board, board.getPlayers().get(0))).get("mod").getAsString()).getAsJsonObject();
+        JsonObject mod = new JsonParser().parse((Updater.getModel(board, board.getPlayers().get(0))).get(Updater.MODEL_PROP).getAsString()).getAsJsonObject();
         ((GUI)ui).getClientMain().setClientModel(new Gson().fromJson(mod, ClientModel.class));
         ((GUI) ui).render();
         try {

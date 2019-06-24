@@ -30,7 +30,7 @@ public class PlayersRenderer {
 
         for(int i = 0; i<playerNum; i++){
             ClientModel.SimplePlayer p = players.get(i);
-            names[i] = p.getUsername() + " " + p.getColor();
+            names[i] = p.getUsername();
             if(clientModel.getCurrentPlayer().getId()==p.getId()){
                 names[i] = names[i] + " [current]";
             }

@@ -13,7 +13,7 @@ public class ClientUpdater {
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
 
-    public void update(JsonObject j, ClientModel clientModel, ClientMain clientMain) {
+    public void update(JsonObject j, ClientModel clientModel, ClientMain clientMain, UI ui) {
 
         switch (j.get(TYPE_PROP).getAsString()) {
 
@@ -42,11 +42,11 @@ public class ClientUpdater {
                 break;
             case (PICKUP_WEAPON_UPD):
                 clientModel.getCurrentPlayer().pickUpWeapon(j.get(WEAPON_PROP).getAsString());
-                clientMain.display(clientModel.getCurrentPlayer().getUsername() + " picked up a " + j.get(WEAPON_PROP).getAsString());
+                ui.addHistory(clientModel.getCurrentPlayer().getUsername() + " picked up a " + j.get(WEAPON_PROP).getAsString());
                 break;
             case (DISCARD_WEAPON_UPD):
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).discardWeapon(j.get(WEAPON_PROP).getAsString());
-                clientMain.display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " discarded a " + j.get(WEAPON_PROP).getAsString());
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " discarded a " + j.get(WEAPON_PROP).getAsString());
                 break;
             case (ADD_WEAPON_UPD):
                 ClientModel.SimpleWeapon w = new ClientModel().new SimpleWeapon(j.get(WEAPON_PROP).getAsString(), true);
@@ -60,22 +60,22 @@ public class ClientUpdater {
                 break;
             case (MOVE_UPD):
                 clientModel.moveTo(j.get(PLAYER_PROP).getAsInt(), j.get(SQUARE_PROP).getAsInt());
-                clientMain.display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " moved to square " + j.get(SQUARE_PROP).getAsInt());
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " moved to square " + j.get(SQUARE_PROP).getAsInt());
                 break;
             case (FLIP_UPD):
                 clientModel.flip(j.get(PLAYER_PROP).getAsInt());
                 break;
             case (ADD_DEATH_UPD):
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).addDeath();
-                clientMain.display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was killed!");
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was killed!");
                 break;
             case (DAMAGE_UPD):
                 clientModel.damage(j.get(PLAYER_PROP).getAsInt(), j.getAsJsonArray(PLAYER_LIST_PROP));
-                clientMain.display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " took damage!");
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " took damage!");
                 break;
             case (MARK_UPD):
                 clientModel.mark(j.get(PLAYER_PROP).getAsInt(), j.getAsJsonArray(PLAYER_LIST_PROP));
-                clientMain.display(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was marked!");
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was marked!");
                 break;
             case (REMOVE_WEAPON_UPD):
                 (clientModel.getSquare(j.get(SQUARE_PROP).getAsInt())).removeWeapon(j.get(WEAPON_PROP).getAsString());

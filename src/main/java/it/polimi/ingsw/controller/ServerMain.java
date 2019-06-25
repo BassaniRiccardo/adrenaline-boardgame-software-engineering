@@ -26,7 +26,6 @@ public class ServerMain {
     private static ServerMain instance;
     private List <VirtualView> players;
     private List <VirtualView> waitingPlayers;
-    private List <VirtualView> selectedPlayers;
     private List <GameEngine> currentGames;
     private TCPServer tcpServer;
     private RMIServer rmiServer;
@@ -49,7 +48,6 @@ public class ServerMain {
     private ServerMain(){
         players = new ArrayList<>();
         waitingPlayers = new ArrayList<>();
-        selectedPlayers = new ArrayList<>();
         currentGames = new ArrayList<>();
         tcpServer = null;
         rmiServer = null;
@@ -78,7 +76,6 @@ public class ServerMain {
      * @param args  arguments
      */
     public static void main(String[] args){
-
         ServerMain  sm = getInstance();
         sm.setup();
         System.out.println("Setup completed, starting matchmaking, press q to quit");
@@ -133,6 +130,7 @@ public class ServerMain {
      */
     public void untrackGame(GameEngine engine){
         currentGames.remove(engine);
+        players.removeAll(engine.getPlayers());
     }
 
     /**
@@ -182,7 +180,6 @@ public class ServerMain {
     /**
      * Resumes a player's game, given that he canResume()
      *
-     * @param name          the player's name
      * @param p             the player attempting to resume
      * @return              true if the operation was successful, else false
      */
@@ -205,9 +202,6 @@ public class ServerMain {
                 players.remove(p);
                 waitingPlayers.remove(p);
                 LOGGER.log(Level.INFO, "{0} was removed", p.getName());
-                for (VirtualView dest : players){
-                    dest.display("user " + p.getName() + " was suspended");
-                }
             }
         }
     }
@@ -267,7 +261,6 @@ public class ServerMain {
                     rmiServer.shutdown();
                     players.clear();
                     waitingPlayers.clear();
-                    selectedPlayers.clear();
                     currentGames.clear();
                 }else{
                     System.out.println("Press q to quit");
@@ -292,13 +285,13 @@ public class ServerMain {
     /**
      * Start a game if certain conditions are satisfied
      */
-    private void matchmaking(){
+    private synchronized void matchmaking(){
+        List <VirtualView> selectedPlayers = new ArrayList<>();
         if (waitingPlayers.size() > 4 || (timer.isOver() && waitingPlayers.size() > 2)) {
-            selectedPlayers.clear();
             for (int i = 0; i < waitingPlayers.size() && i < 5; i++) {
                 selectedPlayers.add(waitingPlayers.get(i));
             }
-            GameEngine current = new GameEngine(selectedPlayers);
+            GameEngine current = new GameEngine(new ArrayList<>(selectedPlayers));
             executor.submit(current);
             currentGames.add(current);
             System.out.println("Game started with " + selectedPlayers.size() + " players");
@@ -310,7 +303,7 @@ public class ServerMain {
         }
 
         String alreadyConnected = getAlreadyConnected();
-        String fullMessage = alreadyConnected + "Timeleft: " + timer.getTimeLeft();
+        String fullMessage = alreadyConnected + "Time left: " + timer.getTimeLeft() + "\n" + (timer.isRunning()? "Game about to start!":"Waiting for more players");
         if(!alreadyConnected.isEmpty()&&!oldMessage.equals(fullMessage)) {
             for(VirtualView v : waitingPlayers){
                     v.display(fullMessage);

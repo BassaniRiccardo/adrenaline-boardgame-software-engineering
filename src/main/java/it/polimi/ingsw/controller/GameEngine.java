@@ -131,7 +131,9 @@ public class GameEngine implements Runnable{
         LOGGER.log(Level.FINE, "GameEngine running");
 
         final int TURN_TIME = 3;
+        System.out.println("before setup");
         setup();
+        System.out.println("after setup");
 
         ExecutorService executor = Executors.newCachedThreadPool();
         while (!gameOver){
@@ -163,6 +165,9 @@ public class GameEngine implements Runnable{
             changePlayer();
         }
         resolve();
+
+        ServerMain.getInstance().untrackGame(this);
+
     }
 
 
@@ -188,10 +193,10 @@ public class GameEngine implements Runnable{
         configurePlayers();
 
         //set frenzy options
-        List<String> frenzyOptions = new ArrayList<>();
-        int yes = 0;
-        int no = 0;
-        frenzyOptions.addAll(Arrays.asList("yes", "no"));
+        //List<String> frenzyOptions = new ArrayList<>();
+        //int yes = 0;
+        //int no = 0;
+        //frenzyOptions.addAll(Arrays.asList("yes", "no"));
         //for (VirtualView p: players) {
         //    p.choose("Do you want to play with the frenzy?", frenzyOptions);
         //}
@@ -205,10 +210,10 @@ public class GameEngine implements Runnable{
         //}
         //else  LOGGER.log(Level.INFO,"Frenzy not active.");
 
-
+        System.out.println("before setting player");
         setCurrentPlayer(players.get(0));
+        System.out.println("before statussaver");
         statusSaver = new StatusSaver(board);
-        LOGGER.log(Level.INFO,"\n");
     }
 
 
@@ -278,7 +283,9 @@ public class GameEngine implements Runnable{
             //p.choose("What hero do you want?", heroList);
             //int selected = Integer.parseInt(waitShort(p, 20));
             //System.out.println("selected " + selected);
-            Player.HeroName selectedName = heroList.get(players.indexOf(p));//heroList.get(selected-1);
+            System.out.println("index: " + players.indexOf(p));
+            System.out.println(heroList);
+            Player.HeroName selectedName = heroList.get(0);//heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
             System.out.println("setplayer");
             board.getPlayers().add(p.getModel());
@@ -434,18 +441,18 @@ public class GameEngine implements Runnable{
 
         if (players.get(0).getModel().getPoints() == players.get(1).getModel().getPoints() && !killShotTrack.getKillers().contains(players.get(0).getModel()) && !killShotTrack.getKillers().contains(players.get(1).getModel())) {
             LOGGER.log(Level.INFO,() -> P + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
-            players.get(0).display(addLeaderboard("You and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
+            players.get(0).showEnd(addLeaderboard("You and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
             for (int i = 2; i < players.size(); i++) {
                 LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-                players.get(i).display(addLeaderboard("Your position: " + (i+1) + " !"));
+                players.get(i).showEnd(addLeaderboard("Your position: " + (i+1) + " !"));
 
             }
         } else {
             LOGGER.log(Level.INFO,() -> "Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
-            players.get(0).display(addLeaderboard("You Won!"));
+            players.get(0).showEnd(addLeaderboard("You Won!"));
             for (int i = 1; i < players.size(); i++) {
                 LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-                players.get(i).display(addLeaderboard("Your position: " + i+1 + " !"));
+                players.get(i).showEnd(addLeaderboard("Your position: " + i+1 + " !"));
             }
         }
 

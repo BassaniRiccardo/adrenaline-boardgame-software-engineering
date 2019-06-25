@@ -79,7 +79,7 @@ public class TCPVirtualView extends VirtualView {
                     notifyObservers(message);
                 }
             } catch (SocketTimeoutException ex) {
-                LOGGER.log(Level.FINEST, "No incoming message from TCPVirtualView", ex);
+                //LOGGER.log(Level.FINEST, "No incoming message from TCPVirtualView", ex);
             } catch (IOException ex) {
                 LOGGER.log(Level.SEVERE, "Cannot reach client", ex);
                 suspend();
@@ -181,19 +181,26 @@ public class TCPVirtualView extends VirtualView {
     }
 
     @Override
-    public void suspend(){
-        super.suspend();
+    public void shutdown(){
         try {
             socket.close();
         }catch (IOException ex){
-            //manage
+            LOGGER.log(Level.SEVERE, "Error while closing connection", ex);
         }
     }
 
     @Override
-    public void shutdown(){
+    public void showSuspension(){
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", "KILL");
+        jsonObject.addProperty("head", "SUSP");
+        send(jsonObject);
+    }
+
+    @Override
+    public void showEnd(String message){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", "END");
+        jsonObject.addProperty("msg", message);
         send(jsonObject);
     }
 }

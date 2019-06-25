@@ -63,7 +63,7 @@ public class CLI implements UI{
                 }
             }catch(IOException e){
                 LOGGER.log(Level.SEVERE, "Cannot retrieve input from keyboard, quitting");
-                System.exit(0);
+                clientMain.showDisconnection();//show custom msg
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
@@ -107,6 +107,7 @@ public class CLI implements UI{
         }
         receiving = false;
         mainRenderer.setCurrentRequest("");
+        mainRenderer.setCurrentMessage("");
         return answer;
     }
 
@@ -141,6 +142,7 @@ public class CLI implements UI{
         }
         receiving = false;
         mainRenderer.setCurrentRequest("");
+        mainRenderer.setCurrentMessage("");
         return answer;
     }
 
@@ -151,7 +153,7 @@ public class CLI implements UI{
      */
     @Override
     public void display(String message) {
-        mainRenderer.addMessage(message);
+        mainRenderer.setCurrentMessage(message);
         render();
     }
 
@@ -230,15 +232,6 @@ public class CLI implements UI{
     }
 
     /**
-     * Sets the maximum number of messages to be displayed
-     * @param n
-     */
-    @Override
-    public void setMessageMemory(int n){
-        mainRenderer.setMessageMemory(n);
-    }
-
-    /**
      * Displays warning when input is given at wrong times
      */
     private void displayWarning(){
@@ -267,8 +260,38 @@ public class CLI implements UI{
                 "\na game by Philip Neduk, now loading");
     }
 
-    public void showDCScreen(){
+    public void displayDisconnection(){
         System.out.print("\033[H\033[2J");
-        System.out.print("You have been suspended. Most likely your turn timer has run out or you were disconnected from the server. You can start another client and log in with the same username to resume. Closing game now.");
+        System.out.print("You cannot reach the server. You can try starting another client and log in with the same username to resume. Press any button to close the game");
+        try {
+            in.readLine();
+        }catch(IOException ex){
+            LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
+        }
+    }
+
+    public void displaySuspension(){
+        System.out.print("\033[H\033[2J");
+        System.out.print("You were suspended from the server because you were not able to finish your turn in time. Press any button to close the game.");
+        try {
+            in.readLine();
+        }catch(IOException ex){
+            LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
+        }
+    }
+
+    public void displayEnd(String message){
+        System.out.print("\033[H\033[2J");
+        System.out.println(message);
+        System.out.println("Press any button to close the game.");
+        try {
+            in.readLine();
+        }catch(IOException ex){
+            LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
+        }
+    }
+
+    public void addHistory(String message){
+        mainRenderer.addMessage(message);
     }
 }

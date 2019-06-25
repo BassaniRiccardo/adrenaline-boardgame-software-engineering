@@ -35,6 +35,7 @@ public class ClientMain {
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private ClientModel clientModel;
     private ClientUpdater clientUpdater;
+    private boolean gameOver;
 
     /**
      * Constructor
@@ -43,6 +44,7 @@ public class ClientMain {
         executor = Executors.newCachedThreadPool();
         clientModel = null;
         clientUpdater = new ClientUpdater();
+        gameOver = false;
     }
 
     /**
@@ -122,12 +124,12 @@ public class ClientMain {
             selectedInterface = "GUI selected.";
         }else{
             ui = new CLI(this);
-            selectedInterface = "CLI selezionata.";
+            selectedInterface = "CLI selected.";
         }
         executor.submit(ui);
         ui.display(selectedInterface);
 
-        ui.display("Which type of connection do you want to use? (if unsure, choose 1)", new ArrayList<>(Arrays.asList("Socket", "RMI")));
+        ui.display("Which type of connection do you want to use?\n(if unsure, choose 1)", new ArrayList<>(Arrays.asList("Socket", "RMI")));
         buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         while (!(buff.equals("1") || buff.equals("2"))) {
             ui.display("Invalid choice. Try again.");
@@ -174,30 +176,13 @@ public class ClientMain {
     }
 
     /**
-     * Closes the client
-     */
-    public void shutdown() {
-        ui.showDCScreen();
-        //TODO: graceful shutdown
-
-        try{
-            Thread.sleep(2000);
-        }catch (InterruptedException ex){
-            //TODO: handle
-        }
-
-        System.exit(0);
-    }
-
-    /**
      * Applies changes to the ClientModel according to the update message received and displays them
      * @param j     serialized update
      */
     public void update(JsonObject j) {
         LOGGER.log(Level.INFO, "Update received: " + j.get(TYPE_PROP).getAsString());
-        clientUpdater.update(j, clientModel, this);
+        clientUpdater.update(j, clientModel, this, ui);
         ui.render();
-        ui.setMessageMemory(3);
     }
 
     /**
@@ -210,5 +195,28 @@ public class ClientMain {
 
     public void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
+    }
+
+    public void showSuspension(){
+        gameOver = true;
+        executor.submit(() ->{
+            ui.displaySuspension();
+            System.exit(0);
+        });
+    }
+
+    public void showDisconnection(){
+        if(!gameOver) {
+            ui.displayDisconnection();
+            System.exit(0);
+        }
+    }
+
+    public void showEnd(String message){
+        gameOver = true;
+        executor.submit(() ->{
+            ui.displayEnd(message);
+            System.exit(0);
+        });
     }
 }

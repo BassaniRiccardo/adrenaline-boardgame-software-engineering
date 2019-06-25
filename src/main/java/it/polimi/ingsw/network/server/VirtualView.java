@@ -48,7 +48,7 @@ public abstract class VirtualView implements Runnable{
     public void run(){
 
         String playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
-        name = getInputNow("Select a name.\n"+playersAlreadyConnected, 16);
+        name = getInputNow(playersAlreadyConnected+"\nSelect a name.", 16);
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
         while(!ServerMain.getInstance().login(this)){
@@ -108,12 +108,17 @@ public abstract class VirtualView implements Runnable{
         this.suspended = suspended;
     }
 
-    abstract void shutdown();
+    public abstract void shutdown();
+
+    public abstract void showSuspension();
+
+    public abstract void showEnd(String message);
 
     /**
      * Suspends related player
      */
     public void suspend() {
+        showSuspension();
         shutdown();
         busy=false;
         if(!suspended) {

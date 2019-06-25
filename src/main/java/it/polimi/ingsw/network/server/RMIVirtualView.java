@@ -5,7 +5,9 @@ import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.network.client.RemoteView;
 import it.polimi.ingsw.view.ClientModel;
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -134,21 +136,33 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     @Override
-    public void suspend(){
-        super.suspend();
+    public void shutdown(){
         executor.shutdownNow();
+        try {
+            UnicastRemoteObject.unexportObject(this, false);
+        }catch(NoSuchObjectException ex){
+            LOGGER.log(Level.SEVERE, "Could not unexport RemoteController", ex);
+        }
     }
 
     @Override
     public void ping(){}
 
     @Override
-    public void shutdown(){
-        try {
-            remoteView.shutdown();
-            //TODO: check exception is thrown if it is fast enough
-        }catch (RemoteException e){
-            LOGGER.log(Level.INFO, "Cannot reach client while ordering shutdown.");
+    public void showSuspension(){
+        try{
+            remoteView.showSuspension();
+        }catch(RemoteException ex){
+            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
+        }
+    }
+
+    @Override
+    public void showEnd(String message){
+        try{
+            remoteView.showEnd(message);
+        }catch(RemoteException ex){
+            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
         }
     }
 }

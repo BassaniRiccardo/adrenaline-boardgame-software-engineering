@@ -5,6 +5,7 @@ import it.polimi.ingsw.network.server.RemoteController;
 import it.polimi.ingsw.network.server.RemoteServer;
 import it.polimi.ingsw.view.ClientMain;
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -55,7 +56,8 @@ public class RMIConnection implements Runnable, RemoteView {
                         playerStub.ping();
                     }catch(RemoteException ex){
                         LOGGER.log(Level.SEVERE, "Unable to ping RMI server", ex);
-                        clientMain.shutdown();
+                        shutdown();
+                        clientMain.showDisconnection();
                     }
                     try {
                         TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
@@ -130,9 +132,23 @@ public class RMIConnection implements Runnable, RemoteView {
         }
     }
 
-    public void shutdown() throws RemoteException{
-        //TODO: close connection
-        clientMain.shutdown();
+    public void shutdown(){
+        try {
+            UnicastRemoteObject.unexportObject(this, false);
+        }catch(NoSuchObjectException ex){
+            LOGGER.log(Level.SEVERE, "issue while closing connection", ex);
+        }
     }
+
+    public void showSuspension() throws RemoteException{
+        shutdown();
+        clientMain.showSuspension();
+    }
+
+    public void showEnd(String message) throws  RemoteException{
+        shutdown();
+        clientMain.showEnd(message);
+    }
+
 
 }

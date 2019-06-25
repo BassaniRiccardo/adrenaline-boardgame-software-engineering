@@ -88,7 +88,6 @@ public class FireMode implements Targeted {
             effect.apply(weapon.getHolder(), p, destination);
         }
         weapon.getHolder().useAmmo(cost);
-
     }
 
     /**

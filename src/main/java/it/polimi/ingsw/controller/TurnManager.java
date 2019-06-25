@@ -74,7 +74,7 @@ public class TurnManager {
             this.killShotTrack = this.board.getKillShotTrack();
         } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while setting the kill shot track", e);}
         this.frenzy = frenzy;
-        this. first = false;
+        this.first = false;
         this.actionsLeft=2;
         LOGGER.setLevel(Level.FINE);
     }
@@ -99,47 +99,55 @@ public class TurnManager {
         dead.clear();
         updateAndSendModel();
 
-        if (!currentPlayer.isInGame()) {
-            joinBoard(currentPlayer, 2, false);
-        }
-
-        actionsLeft = 2;
-        if (currentPlayer.getStatus() == Player.Status.FRENZY_2) actionsLeft--;
-        while (actionsLeft > 0) {
-            currentPlayer.refreshActionList();
-            LOGGER.log(Level.FINE, "Actions left: {0} ", actionsLeft);
-            if (executeAction()) {                  //confirm or go back------>checkpoint
-                actionsLeft--;
-                LOGGER.log(Level.FINE, "Action executed or reset:");
-                LOGGER.log(Level.FINE, "Actions left: {0}", actionsLeft);
+        try {
+            if (!currentPlayer.isInGame()) {
+                joinBoard(currentPlayer, 2, false);
             }
-        }
 
-        LOGGER.log(Level.FINE, "All actions executed");
+            actionsLeft = 2;
+            if (currentPlayer.getStatus() == Player.Status.FRENZY_2) actionsLeft--;
+            while (actionsLeft > 0) {
+                currentPlayer.refreshActionList();
+                LOGGER.log(Level.FINE, "Actions left: {0} ", actionsLeft);
+                if (executeAction()) {                  //confirm or go back------>checkpoint
+                    actionsLeft--;
+                    LOGGER.log(Level.FINE, "Action executed or reset:");
+                    LOGGER.log(Level.FINE, "Actions left: {0}", actionsLeft);
+                }
+            }
 
-        for (Player p : board.getPlayers()) {
+            LOGGER.log(Level.FINE, "All actions executed");
+
+            for (Player p : board.getPlayers()) {
                 LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
             }
 
-        //------>checkpoint
-        updateAndNotifyAll();
+            //------>checkpoint
+            updateAndNotifyAll();
 
-        boolean choice1 = handleUsingPowerUp();
-        boolean choice2 = convertPowerUp(false);
-        boolean choice3 = reload(3);
+            boolean choice1 = handleUsingPowerUp();
+            boolean choice2 = convertPowerUp(false);
+            boolean choice3 = reload(3);
 
-        if (choice1 || choice2 || choice3) {
-            while (!askConfirmation("Do you confirm the ending phase?")) {
-                LOGGER.log(Level.FINE,  "{0} resets the action", currentPlayer);
-                statusSaver.restoreCheckpoint();
-                board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
-                board.revertUpdates(currentPlayerConnection);
-                board.notifyObserver(currentPlayerConnection);
-                board.setReset(false);
-                handleUsingPowerUp();
-                convertPowerUp(false);
-                reload(3);
+            if (choice1 || choice2 || choice3) {
+                while (!askConfirmation("Do you confirm the ending phase?")) {
+                    LOGGER.log(Level.FINE, "{0} resets the action", currentPlayer);
+                    statusSaver.restoreCheckpoint();
+                    board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
+                    board.revertUpdates(currentPlayerConnection);
+                    board.notifyObserver(currentPlayerConnection);
+                    board.setReset(false);
+                    handleUsingPowerUp();
+                    convertPowerUp(false);
+                    reload(3);
+                }
             }
+        }catch(SlowAnswerException e){
+            statusSaver.restoreCheckpoint();
+            board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
+            board.revertUpdates(currentPlayerConnection);
+            board.notifyObserver(currentPlayerConnection);
+            throw new SlowAnswerException("Exception propagted from TurnManager");
         }
 
         //checks who died, rewards killers, make the dead draw a power up and respawn

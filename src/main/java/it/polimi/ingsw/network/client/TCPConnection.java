@@ -65,7 +65,8 @@ public class TCPConnection implements Runnable {
             System.exit(0);
         }catch (IOException ex) {
             LOGGER.log(Level.INFO, "Cannot read or write to connection. Closing");
-            clientMain.shutdown();
+            shutdown();
+            clientMain.showDisconnection();
             //try again?
         }
     }
@@ -127,8 +128,12 @@ public class TCPConnection implements Runnable {
             case "UPD" :    System.out.println(jMessage);
                             clientMain.update(jMessage);
                             break;
-            case "KILL" :   //TODO: close conenction
-                            clientMain.shutdown();
+            case "SUSP" :     shutdown();
+                            clientMain.showSuspension();
+                            break;
+            case "END" :    shutdown();
+                            clientMain.showEnd(jMessage.get("msg").getAsString());
+                            break;
             default:        break;
         }
     }
@@ -157,14 +162,24 @@ public class TCPConnection implements Runnable {
             message = in.readLine();
             if (message == null) {
                 LOGGER.log(Level.INFO, "TCPConnection: server disconnected, shutting down");
-                clientMain.shutdown();
+                shutdown();
+                clientMain.showDisconnection();
             }
         }catch(SocketTimeoutException ex) {
             throw new SocketTimeoutException();
         }catch(IOException ex) {
             LOGGER.log(Level.INFO, "TCPConnection: server disconnected, shutting down");
-            clientMain.shutdown();
+            shutdown();
+            clientMain.showDisconnection();
         }
         return message;
+    }
+
+    public void shutdown(){
+        try {
+            socket.close();
+        }catch (IOException ex){
+            LOGGER.log(Level.SEVERE, "Error while closing connection", ex);
+        }
     }
 }

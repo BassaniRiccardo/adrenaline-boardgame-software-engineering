@@ -23,6 +23,7 @@ public class MainRenderer {
     static final String RESET = "\u001b[0m";
 
     private String currentRequest;
+    private String currentMessage;
     private List<String> messages;
     private ClientMain clientMain;
     private MapRenderer mapRenderer;
@@ -35,6 +36,7 @@ public class MainRenderer {
      */
     public MainRenderer(ClientMain clientMain) {
         this.currentRequest = "";
+        this.currentMessage = "";
         this.messages = new ArrayList<>();
         this.clientMain = clientMain;
         this.mapRenderer = new MapRenderer();
@@ -49,8 +51,8 @@ public class MainRenderer {
         String[][] render;
         if(model==null) {
             render = getMessages();
-            if (!currentRequest.isEmpty()){
-                render = join(true, getMessages(), stringToBox(currentRequest, REQUEST_HEIGHT, BOX_WIDTH, false), true);
+            if (!currentRequest.isEmpty()||!currentMessage.isEmpty()){
+                render = join(true, getMessages(), stringToBox(currentMessage + currentRequest, REQUEST_HEIGHT, BOX_WIDTH, false), true);
             }
         } else {
             render = join(  true,
@@ -68,7 +70,7 @@ public class MainRenderer {
                                                     true))),
                                     getMessages(),
                                     false),
-                            stringToBox(currentRequest, REQUEST_HEIGHT, BOX_WIDTH, false),
+                            stringToBox(currentMessage + currentRequest, REQUEST_HEIGHT, BOX_WIDTH, false),
                             true);
         }
         //System.out.println("SUMMARY: \ngetMessages " + getMessages().length + " " + getMessages()[0].length
@@ -117,6 +119,8 @@ public class MainRenderer {
         this.currentRequest = request;
     }
 
+    public void setCurrentMessage(String message) {this.currentMessage = message + "\n";}
+
     /**
      * Adds a message to the list of those to be shown and resizes it
      * @param message   message to add
@@ -137,7 +141,9 @@ public class MainRenderer {
         for(String message : messages){
             bld.append(message + "\n");
         }
-        bld.deleteCharAt(bld.lastIndexOf("\n"));
+        if(!messages.isEmpty()) {
+            bld.deleteCharAt(bld.lastIndexOf("\n"));
+        }
         return stringToBox(bld.toString(), MESSAGE_HEIGHT, BOX_WIDTH,true);
     }
 
@@ -162,7 +168,7 @@ public class MainRenderer {
                 rows++;
             } else {
                 count++;
-                if (count > width-1) {
+                if (count > width-2) {
                     count = 0;
                     rows++;
                 }
@@ -190,11 +196,18 @@ public class MainRenderer {
                 row++;
                 col=0;
             } else {
-                if(row>=startFromRow) {
+                if(row>=startFromRow&&row<rows-2*PADDING) {
+                    System.out.println(row-startFromRow+PADDING);
+                    System.out.println(col+PADDING);
                     res[row - startFromRow + PADDING][col + PADDING] = String.valueOf(message.charAt(i));
                 }
                 col++;
-                if(col>width-1-PADDING){
+                if(col>width-2-2*PADDING&&row>=startFromRow&&row<rows-2*PADDING){
+                    if(i<message.length()-1&&message.charAt(i)!=' '&&message.charAt(i+1)!=' ') {
+                        System.out.println(row-startFromRow+PADDING);
+                        System.out.println(col+PADDING+1);
+                        res[row - startFromRow + PADDING][col + PADDING+1] = "-";
+                    }
                     row++;
                     col=0;
                 }
@@ -361,13 +374,5 @@ public class MainRenderer {
             System.out.print("\n");
         }
         System.out.flush();
-    }
-
-    /**
-     * Sets the maximum number of messages to save
-     * @param n maximum number of messages
-     */
-    public void setMessageMemory(int n){
-        this.messageMemory = n;
     }
 }

@@ -20,6 +20,8 @@ public interface RemoteView extends Remote {
 
     void ping() throws RemoteException;
 
-    void shutdown() throws RemoteException;
+    void showEnd(String message) throws RemoteException;
+
+    void showSuspension() throws RemoteException;
 
 }

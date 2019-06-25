@@ -78,14 +78,16 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     @Override
-    public void setMessageMemory(int n) {
-        //TODO: implement
-    }
+    public void displayDisconnection(){}
 
     @Override
-    public void showDCScreen(){
-        //TODO: implement
-    }
+    public void displaySuspension(){}
+
+    @Override
+    public void displayEnd(String message){}
+
+    @Override
+    public void addHistory(String message){}
 
     /**
      *

@@ -47,9 +47,13 @@ public interface UI extends Runnable {
 
     void render();
 
-    void setMessageMemory(int n);
+    void displayDisconnection();
 
-    void showDCScreen();
+    void displaySuspension();
+
+    void displayEnd(String message);
+
+    void addHistory(String message);
 }
 
 

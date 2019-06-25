@@ -319,7 +319,7 @@ public class Board {
      * @throws                IllegalArgumentException
      */
     public void setKillShotTrack(KillShotTrack killShotTrack) {
-        if (killShotTrack.getSkullsLeft() < 5 || killShotTrack.getSkullsLeft() > 8){
+        if (killShotTrack.getSkullsLeft() > 8){
             throw new IllegalArgumentException ("The number of skulls on the kill shot track must be between 5 and 8");
         }
         this.killShotTrack = killShotTrack;

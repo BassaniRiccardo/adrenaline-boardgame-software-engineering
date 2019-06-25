@@ -46,13 +46,12 @@ public class TurnManager {
     private GameEngine gameEngine;
 
     private boolean frenzy;
-    private boolean first;
     private int actionsLeft;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String EX_CAN_USE_POWERUP ="NotAvailableAttributeException thrown while checking if the player can use a powerup";
     private static final String SELECT ="select";
-    private static final String RESET ="reset";
+    private static final String RESET ="Reset";
     private static final String RESET_ACTION = " resets the action";
 
 
@@ -74,7 +73,6 @@ public class TurnManager {
             this.killShotTrack = this.board.getKillShotTrack();
         } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while setting the kill shot track", e);}
         this.frenzy = frenzy;
-        this.first = false;
         this.actionsLeft=2;
         LOGGER.setLevel(Level.FINE);
     }
@@ -86,22 +84,16 @@ public class TurnManager {
 
         System.out.println("inside turnManager");
 
-        if (first){
-            try {
-                gameEngine.simulateTillEndphase();
-                first = false;
-                updateAndSendModel();
-            } catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e){
-                LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
-            }
-        }
-
         dead.clear();
         updateAndSendModel();
 
         try {
             if (!currentPlayer.isInGame()) {
                 joinBoard(currentPlayer, 2, false);
+            }
+
+            for (Player p : board.getActivePlayers()) {
+                p.refreshActionList();
             }
 
             actionsLeft = 2;
@@ -114,35 +106,35 @@ public class TurnManager {
                     LOGGER.log(Level.FINE, "Action executed or reset:");
                     LOGGER.log(Level.FINE, "Actions left: {0}", actionsLeft);
                 }
-            }
 
-            LOGGER.log(Level.FINE, "All actions executed");
+                LOGGER.log(Level.FINE, "All actions executed");
 
-            for (Player p : board.getPlayers()) {
-                LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
-            }
+                for (Player p : board.getPlayers()) {
+                    LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
+                }
 
-            //------>checkpoint
-            updateAndNotifyAll();
+                //------>checkpoint
+                updateAndNotifyAll();
 
-            boolean choice1 = handleUsingPowerUp();
-            boolean choice2 = convertPowerUp(false);
-            boolean choice3 = reload(3);
+                boolean choice1 = handleUsingPowerUp();
+                boolean choice2 = convertPowerUp(false);
+                boolean choice3 = reload(3);
 
-            if (choice1 || choice2 || choice3) {
-                while (!askConfirmation("Do you confirm the ending phase?")) {
-                    LOGGER.log(Level.FINE, "{0} resets the action", currentPlayer);
-                    statusSaver.restoreCheckpoint();
-                    board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
-                    board.revertUpdates(currentPlayerConnection);
-                    board.notifyObserver(currentPlayerConnection);
-                    board.setReset(false);
-                    handleUsingPowerUp();
-                    convertPowerUp(false);
-                    reload(3);
+                if (choice1 || choice2 || choice3) {
+                    while (!askConfirmation("Do you confirm the ending phase?")) {
+                        LOGGER.log(Level.FINE, "{0} resets the action", currentPlayer);
+                        statusSaver.restoreCheckpoint();
+                        board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
+                        board.revertUpdates(currentPlayerConnection);
+                        board.notifyObserver(currentPlayerConnection);
+                        board.setReset(false);
+                        handleUsingPowerUp();
+                        convertPowerUp(false);
+                        reload(3);
+                    }
                 }
             }
-        }catch(SlowAnswerException e){
+        } catch(SlowAnswerException e){
             statusSaver.restoreCheckpoint();
             board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
             board.revertUpdates(currentPlayerConnection);
@@ -163,7 +155,8 @@ public class TurnManager {
 
                     //necessary otherwise a reset would give back the damages to the dead
                     updateAndNotifyAll();
-                    joinBoard(deadPlayer, 1, true);
+                    if (!(killShotTrack.getSkullsLeft()==0 && !frenzy || gameEngine.isLastFrenzyPlayer()))
+                        joinBoard(deadPlayer, 1, true);
                     if (frenzy) {
                         deadPlayer.setFlipped(true);
                         deadPlayer.setPointsToGive(2);
@@ -242,7 +235,7 @@ public class TurnManager {
 
         LOGGER.log(Level.FINE, () -> player  + " enters in the board in the " + discarded.getColor().toStringLowerCase() + " spawn point.");
 
-        if (!askConfirmation("Do you confirm the spawning?")) resetJoinBoard(player, reborn);
+        if (!askConfirmation("Do you confirm the spawning?", player)) resetJoinBoard(player, reborn);
         else updateAndNotifyAll();
 
 
@@ -383,9 +376,7 @@ public class TurnManager {
             } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, EX_CAN_USE_POWERUP, e);}
 
         }
-        try{
-            wait(2000);
-        } catch (InterruptedException e){}
+
         System.out.println("exiting handle usingpowerup");
 
         return  true;
@@ -788,7 +779,7 @@ public class TurnManager {
 
 
         List<Square> destinations = fireMode.getDestinationFinder().find(currentPlayer, targets);
-        Square destination = null;
+        Square destination = board.getMap().get(0);
         if (!destinations.isEmpty()) {
             List<String> optionsDest = toStringList(destinations);
             optionsDest.add(RESET);
@@ -806,8 +797,11 @@ public class TurnManager {
         if (fireMode.getName() == MAIN || fireMode.getName() == SECONDARY) currentPlayer.addMainTargets(targets);
         else if (fireMode.getName() == OPTION1 || fireMode.getName() == OPTION2) currentPlayer.addOptionalTargets(targets);
         try {
+            System.out.println("before applying firemode");
             fireMode.applyEffects(targets, destination);
+            System.out.println("after applying firemode");
             board.notifyObserver(currentPlayerConnection);
+            System.out.println("after notifying applying firemode");
         } catch (IllegalArgumentException e){LOGGER.log(Level.SEVERE, "Error in shooting: " + fireMode);}
 
     }
@@ -1122,7 +1116,15 @@ public class TurnManager {
      */
     private boolean resetConvert() throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
+        System.out.println("AmmoPack before revert");
+        System.out.println("red " + currentPlayer.getAmmoPack().getRedAmmo());
+        System.out.println("blue" + currentPlayer.getAmmoPack().getBlueAmmo());
+        System.out.println("yellow" + currentPlayer.getAmmoPack().getYellowAmmo());
         statusSaver.restoreCheckpoint();
+        System.out.println("AmmoPack after revert");
+        System.out.println("red " + currentPlayer.getAmmoPack().getRedAmmo());
+        System.out.println("blue" + currentPlayer.getAmmoPack().getBlueAmmo());
+        System.out.println("yellow" + currentPlayer.getAmmoPack().getYellowAmmo());
         board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
         board.revertUpdates(currentPlayerConnection);
         board.notifyObserver(currentPlayerConnection);
@@ -1140,7 +1142,19 @@ public class TurnManager {
      */
     private void resetAction() throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
+
+        System.out.println("AmmoPack before revert");
+        System.out.println("red " + currentPlayer.getAmmoPack().getRedAmmo());
+        System.out.println("blue" + currentPlayer.getAmmoPack().getBlueAmmo());
+        System.out.println("yellow" + currentPlayer.getAmmoPack().getYellowAmmo());
+
         statusSaver.restoreCheckpoint();
+
+        System.out.println("AmmoPack before revert");
+        System.out.println("red " + currentPlayer.getAmmoPack().getRedAmmo());
+        System.out.println("blue" + currentPlayer.getAmmoPack().getBlueAmmo());
+        System.out.println("yellow" + currentPlayer.getAmmoPack().getYellowAmmo());
+
         board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
         board.notifyObserver(currentPlayerConnection);
         if (actionsLeft == 0)

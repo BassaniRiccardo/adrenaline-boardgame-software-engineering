@@ -108,16 +108,16 @@ public final class Action {
         String description = "";
 
         if (steps > 0){
-            description += " Move up to " + steps + " squares." ;
+            description += "Move up to " + steps + " squares." ;
         }
         if (collect){
-            description += " Collect.";
+            description += "Collect.";
         }
         if (reload){
-            description += " Reload.";
+            description += "Reload.";
         }
         if (shoot){
-            description += " Shoot.";
+            description += "Shoot.";
         }
 
         return description;

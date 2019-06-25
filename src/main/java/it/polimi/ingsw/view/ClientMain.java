@@ -180,9 +180,11 @@ public class ClientMain {
      * @param j     serialized update
      */
     public void update(JsonObject j) {
+
         LOGGER.log(Level.INFO, "Update received: " + j.get(TYPE_PROP).getAsString());
         clientUpdater.update(j, clientModel, this, ui);
         ui.render();
+
     }
 
     /**

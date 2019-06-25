@@ -15,6 +15,7 @@ public class AmmoPack {
     private int redAmmo;
     private int blueAmmo;
     private int yellowAmmo;
+    public static final int MAX_AMMO = 3;
 
     /**
      * Constructor.
@@ -52,23 +53,9 @@ public class AmmoPack {
      * @param aP        the added ammo pack.
      */
     public void addAmmoPack(AmmoPack aP){
-
-        if(this.redAmmo + aP.getRedAmmo() < 4) {
-            this.redAmmo += aP.getRedAmmo();
-        }else {
-            this.redAmmo=3;
-        }
-        if(this.blueAmmo + aP.getBlueAmmo()<4) {
-            this.blueAmmo += aP.getBlueAmmo();
-        }else {
-            this.blueAmmo=3;
-        }
-        if(this.yellowAmmo + aP.getYellowAmmo()<4) {
-            this.yellowAmmo += aP.getYellowAmmo();
-        }else {
-            this.yellowAmmo=3;
-        }
-
+        this.redAmmo = Math.min(MAX_AMMO, this.redAmmo + aP.getRedAmmo() ) ;
+        this.blueAmmo = Math.min(MAX_AMMO, this.blueAmmo + aP.getBlueAmmo() ) ;
+        this.yellowAmmo = Math.min(MAX_AMMO, this.yellowAmmo + aP.getYellowAmmo() ) ;
     }
 
 

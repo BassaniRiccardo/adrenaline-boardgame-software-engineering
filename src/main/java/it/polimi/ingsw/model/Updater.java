@@ -192,6 +192,7 @@ public class Updater {
      */
     public static JsonObject getModel(Board board, Player player) {
 
+
         ClientModel cm = new ClientModel();
 
         //simpleSquares
@@ -205,31 +206,23 @@ public class Updater {
 
         //simplePlayers, currentPlayer, killShotTrack
         List<ClientModel.SimplePlayer> simplePlayers = new ArrayList<>();
-        List<ClientModel.SimplePlayer> killers = new ArrayList<>();
+        List<ClientModel.SimplePlayer> killers = new ArrayList<>(12);
 
         for (Player p : board.getPlayers()){
-
             ClientModel.SimplePlayer simplePlayer = createSimplePlayer(p, board);
             simplePlayers.add(simplePlayer);
-
-
-            //creates the killShotTrack
-            try {
-                for (Player killer : board.getKillShotTrack().getKillers()) {
-                    if (killer.equals(p)) {
-                        killers.add(board.getKillShotTrack().getKillers().indexOf(killer), simplePlayer);
-                    }
-                }
-            } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE, "NotAvailableAtribute exception thrown while getting the killshot track");}
-
         }
+
         cm.setPlayers(simplePlayers);
         cm.setCurrentPlayerId(board.getCurrentPlayer().getId());
-        System.out.println("currentPlayer ammo client side");
-        System.out.println("r " + cm.getCurrentPlayer().getRedAmmo());
-        System.out.println("b " + cm.getCurrentPlayer().getBlueAmmo());
-        System.out.println("y " + cm.getCurrentPlayer().getYellowAmmo());
         cm.setPlayerID(player.getId());
+
+        //creates the killShotTrack
+        try {
+            for (Player killer : board.getKillShotTrack().getKillers()) {
+                    killers.add(cm.getPlayer(killer.getId()));
+                }
+        } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE, "NotAvailableAttribute exception thrown while getting the killshot track");}
 
         cm.setKillShotTrack(killers);
         try {
@@ -294,7 +287,7 @@ public class Updater {
             LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
         }
 
-        return new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
+        return new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
 
 
     }

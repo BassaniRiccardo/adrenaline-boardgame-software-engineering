@@ -543,7 +543,7 @@ public class BoardTest {
 
         Board board1 = BoardConfigurer.getInstance().configureMap(1);
 
-        board1.setKillShotTrack(new KillShotTrack(3, board1));
+        board1.setKillShotTrack(new KillShotTrack(12, board1));
     }
 
 

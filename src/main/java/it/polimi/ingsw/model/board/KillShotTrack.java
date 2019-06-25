@@ -23,7 +23,6 @@ public class KillShotTrack {
     private int skullsLeft;
     private List<Player> killers;
     private Board board;
-    private static final String SR = "skullRemoved";
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
 
@@ -76,8 +75,6 @@ public class KillShotTrack {
         if (quantity > skullsLeft) throw new UnacceptableItemNumberException("The number of skulls left must be major or equal to zero.");
         skullsLeft -= quantity;
 
-        board.addToUpdateQueue(Updater.get(SR, quantity));
-
     }
 
 
@@ -106,13 +103,13 @@ public class KillShotTrack {
         if (skullsLeft != 0) {
             dead.updateAwards();
             removeSkulls(1);
-            board.addToUpdateQueue(Updater.get(SR, 1, killer, ok));
+            board.addToUpdateQueue(Updater.get(Updater.SKULL_NUMBER_PROP, 1, killer, ok));
             LOGGER.log(Level.INFO, "Skulls left: " + skullsLeft + ".");
         }
         else {
             dead.setDead(false);
             dead.getDamages().clear();
-            board.addToUpdateQueue(Updater.get(SR, 0, killer, ok));
+            board.addToUpdateQueue(Updater.get(Updater.SKULL_NUMBER_PROP, 0, killer, ok));
         }
     }
 

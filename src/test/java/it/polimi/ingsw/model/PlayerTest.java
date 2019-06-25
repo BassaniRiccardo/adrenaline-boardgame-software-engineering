@@ -549,7 +549,14 @@ public class PlayerTest {
 
         //instantiates the player
         Player player = new Player(1, Player.HeroName.VIOLET, board1);
+        assertEquals(1, player.getAmmoPack().getRedAmmo());
+        assertEquals(1, player.getAmmoPack().getBlueAmmo());
+        assertEquals(1, player.getAmmoPack().getYellowAmmo());
+
         player.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
+        assertEquals(0, player.getAmmoPack().getRedAmmo());
+        assertEquals(0, player.getAmmoPack().getBlueAmmo());
+        assertEquals(0, player.getAmmoPack().getYellowAmmo());
 
         //instantiates an AmmoPack
         AmmoPack ammoPack = new AmmoPack(1, 2, 3);
@@ -557,8 +564,10 @@ public class PlayerTest {
         //calls addAmmoPack
         player.addAmmoPack(ammoPack);
 
-        //checks that myAmmoPacks contains the right amount of ammos of every color
-        assertTrue(player.getAmmoPack().getRedAmmo() == 1 && player.getAmmoPack().getBlueAmmo() == 2 && player.getAmmoPack().getYellowAmmo() == 3);
+        //checks that myAmmoPacks contains the right amount of ammo of every color
+        //assertEquals(1, player.getAmmoPack().getRedAmmo());
+        //assertEquals(2, player.getAmmoPack().getBlueAmmo());
+        assertEquals(3, player.getAmmoPack().getYellowAmmo());
     }
 
 
@@ -578,13 +587,13 @@ public class PlayerTest {
         AmmoPack ammoPack1 = new AmmoPack(1, 2, 3);
         AmmoPack ammoPack2 = new AmmoPack(1, 1, 2);
 
-        //adds ammos
+        //adds ammo
         player.addAmmoPack(ammoPack1);
 
         //calls useAmmo
         player.useAmmo(ammoPack2);
 
-        //checks that myAmmoPacks contains the right amount of ammos of every color
+        //checks that myAmmoPacks contains the right amount of ammo of every color
         assertTrue(player.getAmmoPack().getRedAmmo() == 0 && player.getAmmoPack().getBlueAmmo() == 1 && player.getAmmoPack().getYellowAmmo() == 1);
     }
 

@@ -82,6 +82,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         //TODO: implement
     }
 
+    @Override
+    public void showDCScreen(){
+        //TODO: implement
+    }
+
     /**
      *
      * @return

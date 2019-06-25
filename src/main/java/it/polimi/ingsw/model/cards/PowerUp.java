@@ -4,6 +4,7 @@ import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
+import it.polimi.ingsw.view.ClientModel;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class PowerUp implements Targeted, Card {
     private TargetFinder targetFinder;
     private DestinationFinder destinationFinder;
     private Board board;
+    private final String RESET = "\u001b[0m";
 
 
     /**
@@ -147,12 +149,6 @@ public class PowerUp implements Targeted, Card {
 
     @Override
     public String toString(){
-        return (color.toString() + " " + name.toString().toLowerCase());
-    }
-
-    //TODO: are both these methods necessary? remove one if not
-    public String toStringLowerCase(){
-        return (color.toString().toLowerCase() + " " + name.toString().toLowerCase());
-    }
-
+        return  ClientModel.getEscapeCode(getColor().toStringLowerCase()) + name.toString() + RESET;
+            }
 }

@@ -225,6 +225,10 @@ public class Updater {
         }
         cm.setPlayers(simplePlayers);
         cm.setCurrentPlayerId(board.getCurrentPlayer().getId());
+        System.out.println("currentPlayer ammo client side");
+        System.out.println("r " + cm.getCurrentPlayer().getRedAmmo());
+        System.out.println("b " + cm.getCurrentPlayer().getBlueAmmo());
+        System.out.println("y " + cm.getCurrentPlayer().getYellowAmmo());
         cm.setPlayerID(player.getId());
 
         cm.setKillShotTrack(killers);

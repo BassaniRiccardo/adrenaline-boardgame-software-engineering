@@ -46,7 +46,7 @@ public class GameEngine implements Runnable{
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    private static final int TURN_DURATION = 6;
+    private static final int TURN_DURATION = 60;
 
 
     /**

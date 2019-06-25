@@ -7,6 +7,7 @@ import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
+import it.polimi.ingsw.view.ClientModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,6 +80,7 @@ public class Player {
 
     private boolean inGame;
     private static ModelDataReader j = new ModelDataReader();
+    private final String RESET = "\u001b[0m";
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
 
@@ -380,8 +382,10 @@ public class Player {
      *
      * @param ammoPack         ammo added.
      */
-    public void addAmmoPack(AmmoPack ammoPack) {this.ammoPack.addAmmoPack(ammoPack);
-        board.addToUpdateQueue(Updater.get(Updater.ADD_AMMO_UPD, this, ammoPack));}
+    public void addAmmoPack(AmmoPack ammoPack) {
+        this.ammoPack.addAmmoPack(ammoPack);
+        board.addToUpdateQueue(Updater.get(Updater.ADD_AMMO_UPD, this, ammoPack));
+    }
 
 
     /**
@@ -393,17 +397,12 @@ public class Player {
         position.removeCard(collectedCard);
 
         if (this.board.getSpawnPoints().contains(position)){
-                this.getAmmoPack().subAmmoPack(((Weapon)collectedCard).getReducedCost());
-                board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this, ((Weapon)collectedCard).getReducedCost()));
-                addWeapon((Weapon) collectedCard);
-                ((Weapon)collectedCard).setLoaded(true);
-                ((Weapon)collectedCard).setHolder(this);
+            this.getAmmoPack().subAmmoPack(((Weapon)collectedCard).getReducedCost());
+            board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this, ((Weapon)collectedCard).getReducedCost()));
+            addWeapon((Weapon) collectedCard);
+            ((Weapon)collectedCard).setLoaded(true);
+            ((Weapon)collectedCard).setHolder(this);
         } else {
-
-            AmmoPack debug = ((AmmoTile)collectedCard).getAmmoPack();
-
-            System.out.println("in collect (rby): "+ debug.getRedAmmo() + debug.getBlueAmmo() + debug.getYellowAmmo());
-
             addAmmoPack(((AmmoTile)collectedCard).getAmmoPack());
             if (((AmmoTile)collectedCard).hasPowerUp()) {
                 if (powerUpList.size()>2) return false;
@@ -555,6 +554,15 @@ public class Player {
         ammoPack.addAmmoPack(ap);
         board.addToUpdateQueue(Updater.get(Updater.ADD_AMMO_UPD, this, ap));
 
+    }
+
+    public String getColor(){
+        if (name==HeroName.BANSHEE) return "blue";
+        if (name==HeroName.D_STRUCT_OR) return "yellow";
+        if (name==HeroName.DOZER) return "grey";
+        if (name==HeroName.VIOLET) return "purple";
+        if (name==HeroName.SPROG) return "green";
+        else return "white";
     }
 
     /**
@@ -957,6 +965,16 @@ public class Player {
     @Override
     public String toString() {
         return "Player " + id + " : " + username + "(" + name + ")";
+    }
+
+
+    /**
+     * Returns a string representing the player, to display in the message sent to the user.
+     *
+     * @return      the description of the player.
+     */
+    public String userToString() {
+        return ClientModel.getEscapeCode(getColor()) + username + RESET;
     }
 
 

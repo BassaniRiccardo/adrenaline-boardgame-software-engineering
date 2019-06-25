@@ -177,8 +177,7 @@ public class ClientMain {
      * Closes the client
      */
     public void shutdown() {
-        //tell user what went wrong and how to reconnect
-        display("You have been suspended. Most likely your turn timer has run out or you were disconnected from the server. You can start another client and log in with the same username to resume.");
+        ui.showDCScreen();
         //TODO: graceful shutdown
 
         try{

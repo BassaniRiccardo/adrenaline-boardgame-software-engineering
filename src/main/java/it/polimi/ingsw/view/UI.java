@@ -48,6 +48,8 @@ public interface UI extends Runnable {
     void render();
 
     void setMessageMemory(int n);
+
+    void showDCScreen();
 }
 
 

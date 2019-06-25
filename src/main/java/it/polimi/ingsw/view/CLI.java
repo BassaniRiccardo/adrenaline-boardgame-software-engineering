@@ -266,4 +266,9 @@ public class CLI implements UI{
                 "_/    _/  _/_/_/    _/    _/  _/_/_/_/  _/      _/  _/    _/  _/_/_/_/  _/_/_/  _/      _/  _/_/_/_/    \n" +
                 "\na game by Philip Neduk, now loading");
     }
+
+    public void showDCScreen(){
+        System.out.print("\033[H\033[2J");
+        System.out.print("You have been suspended. Most likely your turn timer has run out or you were disconnected from the server. You can start another client and log in with the same username to resume. Closing game now.");
+    }
 }

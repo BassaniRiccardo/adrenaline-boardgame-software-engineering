@@ -105,23 +105,32 @@ public class HandRenderer {
         }
 
         //printing hand
-        StringBuilder hand = new StringBuilder();
-        hand.append("Hand: ");
+        String hand = "Hand: ";
+        int start = 0;
+        for(; start<hand.length()&&start+3<HAND_WIDTH; start++){
+            box[5][start+3] = String.valueOf(hand.charAt(start));
+        }
+
         if(clientModel.getPowerUpInHand().isEmpty()){
-            hand.append("empty");
+            String empty = "empty";
+            for(int i=0; i<empty.length()&&3+start<HAND_WIDTH; i++){
+                box[5][3+start] = String.valueOf(empty.charAt(i));
+                start++;
+            }
         } else {
             for(int i=0; i<clientModel.getPowerUpInHand().size(); i++){
-                String p = clientModel.getPowerUpInHand().get(i) + "  ";
-                hand.append(p);
-                if(i!=clientModel.getPowerUpInHand().size()-1){
-                    hand.append(", ");
+                String pup = clientModel.getPowerUpInHand().get(i);
+                String color = clientModel.getColorPowerUpInHand().get(i);
+                for(int k=0; k<pup.length()&&3+start<HAND_WIDTH; k++) {
+                    box[5][3+start] = (clientModel.getEscapeCode(color)+pup.charAt(k)+RESET);
+                    start++;
+                }
+                if(i<clientModel.getPowerUpInHand().size()-1&&3+start<HAND_WIDTH) {
+                    box[5][3+start] = ",";
+                    start=start+2;
                 }
             }
         }
-        for(int i=0; i<hand.toString().length()&&i+3<HAND_WIDTH; i++){
-            box[5][i+3] = String.valueOf(hand.toString().charAt(i));
-        }
-
         return box;
     }
 }

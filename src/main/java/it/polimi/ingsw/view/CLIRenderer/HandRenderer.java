@@ -111,11 +111,12 @@ public class HandRenderer {
             hand.append("empty");
         } else {
             for(int i=0; i<clientModel.getPowerUpInHand().size(); i++){
-                String p = clientModel.getPowerUpInHand().get(i) + "  ";
+                String p = ClientModel.getEscapeCode(clientModel.getColorPowerUpInHand().get(i)) + clientModel.getPowerUpInHand().get(i) + RESET;
                 hand.append(p);
                 if(i!=clientModel.getPowerUpInHand().size()-1){
                     hand.append(", ");
                 }
+                else hand.append(" ");
             }
         }
         for(int i=0; i<hand.toString().length()&&i+3<HAND_WIDTH; i++){

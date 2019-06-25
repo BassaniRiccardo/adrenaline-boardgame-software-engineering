@@ -117,7 +117,7 @@ public class Weapon implements Card {
      */
 
     public void setLoaded(boolean loaded) { this.loaded = loaded;
-        board.addToUpdateQueue(Updater.get(Updater.LOADED_PROP, this, loaded));
+        board.addToUpdateQueue(Updater.get(Updater.RELOAD_UPD, this, loaded));
     }
 
     public void setHolder(Player holder) {
@@ -169,6 +169,8 @@ public class Weapon implements Card {
         if (loaded){ throw new WrongTimeException("A weapon can be reloaded only if unloaded.");}
         this.setLoaded(true);
         this.getHolder().getAmmoPack().subAmmoPack(this.fullCost);
+        board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this.holder, this.fullCost));
+
 
     }
 

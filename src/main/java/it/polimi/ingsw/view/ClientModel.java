@@ -52,12 +52,12 @@ public class ClientModel {
     public class SimpleSquare {
 
 
-        public SimpleSquare(int id, boolean spawnPoint, List<SimpleWeapon> weapons, int blueAmmo, int redAmmo, int yellowAmmo, boolean powerup) {
+        public SimpleSquare(int id, boolean spawnPoint, List<SimpleWeapon> weapons, int redAmmo, int blueAmmo, int yellowAmmo, boolean powerup) {
             this.id = id;
             this.spawnPoint = spawnPoint;
             this.weapons = weapons;
-            this.blueAmmo = blueAmmo;
             this.redAmmo = redAmmo;
+            this.blueAmmo = blueAmmo;
             this.yellowAmmo = yellowAmmo;
             this.powerup = powerup;
         }
@@ -121,15 +121,15 @@ public class ClientModel {
         private List<SimpleWeapon> weapons;
         private SimpleSquare position;
         private String username;
-        private int blueAmmo;
         private int redAmmo;
+        private int blueAmmo;
         private int yellowAmmo;
         private boolean flipped;
         private boolean inGame;
         private int points;
         private int deaths;
 
-        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int blueAmmo, int redAmmo, int yellowAmmo, boolean inGame, boolean flipped, int points, int deaths) {
+        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int redAmmo, int blueAmmo, int yellowAmmo, boolean inGame, boolean flipped, int points, int deaths) {
             this.id = id;
             this.color = color;
             this.cardNumber = cardNumber;
@@ -138,8 +138,8 @@ public class ClientModel {
             this.weapons = weapons;
             this.position = position;
             this.username = username;
-            this.blueAmmo = blueAmmo;
             this.redAmmo = redAmmo;
+            this.blueAmmo = blueAmmo;
             this.yellowAmmo = yellowAmmo;
             this.inGame = inGame;
             this.flipped = flipped;
@@ -275,27 +275,27 @@ public class ClientModel {
             }
         }
 
-        public void addAmmo(int b, int r, int y){
-            blueAmmo=blueAmmo+b;
+        public void addAmmo(int r, int b, int y){
             redAmmo=redAmmo+r;
+            blueAmmo=blueAmmo+b;
             yellowAmmo=yellowAmmo+y;
         }
 
-        public void subAmmo(int b, int r, int y){
-            blueAmmo=blueAmmo-b;
+        public void subAmmo(int r, int b, int y){
             redAmmo=redAmmo-r;
+            blueAmmo=blueAmmo-b;
             yellowAmmo=yellowAmmo-y;
         }
 
-        public void setAmmo(int b, int r, int y){
-            blueAmmo=b;
+        public void setAmmo(int r, int b, int y){
             redAmmo=r;
+            blueAmmo=b;
             yellowAmmo=y;
         }
 
         public SimpleWeapon getWeapon(String name){
             for(SimpleWeapon s : weapons){
-                if(s.getName()==name){
+                if(s.getName().equals(name)){
                     return s;
                 }
             }

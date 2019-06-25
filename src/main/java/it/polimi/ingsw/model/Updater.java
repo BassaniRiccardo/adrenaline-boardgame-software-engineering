@@ -287,7 +287,7 @@ public class Updater {
             } catch (NotAvailableAttributeException e) {
                 LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
             }
-            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
+            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(),p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getBlueAmmo(),  p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
             simplePlayers.add(simplePlayer);
 
 
@@ -303,6 +303,10 @@ public class Updater {
         }
         cm.setPlayers(simplePlayers);
         cm.setCurrentPlayerId(board.getCurrentPlayer().getId());
+        System.out.println("currentPlayer ammo client side");
+        System.out.println("r " + cm.getCurrentPlayer().getRedAmmo());
+        System.out.println("b " + cm.getCurrentPlayer().getBlueAmmo());
+        System.out.println("y " + cm.getCurrentPlayer().getYellowAmmo());
         cm.setPlayerID(player.getId());
 
         cm.setKillShotTrack(killers);

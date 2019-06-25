@@ -125,7 +125,7 @@ public class TurnManager {
         updateAndNotifyAll();
 
         boolean choice1 = handleUsingPowerUp();
-        boolean choice2 = convertPowerUp();
+        boolean choice2 = convertPowerUp(false);
         boolean choice3 = reload(3);
 
         if (choice1 || choice2 || choice3) {
@@ -137,7 +137,7 @@ public class TurnManager {
                 board.notifyObserver(currentPlayerConnection);
                 board.setReset(false);
                 handleUsingPowerUp();
-                convertPowerUp();
+                convertPowerUp(false);
                 reload(3);
             }
         }
@@ -213,11 +213,11 @@ public class TurnManager {
         PowerUp discarded = player.getPowerUpList().get(selected-1);
 
         if (powerUpToDraw == 2)
-            LOGGER.log(Level.FINE, () -> player + " draws two powerups and discards a " + discarded.toStringLowerCase() + ".");
+            LOGGER.log(Level.FINE, () -> player + " draws two powerups and discards a " + discarded.toString() + ".");
         else if (powerUpToDraw == 1)
-            LOGGER.log(Level.FINE, () -> player  + " draws a powerup and discards a " + discarded.toStringLowerCase() + ".");
+            LOGGER.log(Level.FINE, () -> player  + " draws a powerup and discards a " + discarded.toString() + ".");
         else if (powerUpToDraw == 0)
-            LOGGER.log(Level.FINE, () -> player  + " discards a " + discarded.toStringLowerCase() + ".");
+            LOGGER.log(Level.FINE, () -> player  + " discards a " + discarded.toString() + ".");
         Color birthColor = discarded.getColor();
         player.discardPowerUp(discarded);
 
@@ -274,14 +274,15 @@ public class TurnManager {
 
         if (selected == availableActions.size() + 1){
             if (canUSePowerUp){
-                handleUsingPowerUp();
+                //handleUsingPowerUp();
+                usePowerUp();
             }
-            else convertPowerUp();
+            else convertPowerUp(true);
             return false;
         }
 
         else if (selected == availableActions.size() + 2){
-            convertPowerUp();
+            convertPowerUp(true);
             return false;
         }
 
@@ -338,6 +339,8 @@ public class TurnManager {
      */
     public boolean handleUsingPowerUp() throws SlowAnswerException, NotEnoughPlayersException{
 
+        System.out.println("entering handleUsingPowerUp");
+
         board.setReset(false);
 
         int answer = 1;
@@ -347,19 +350,24 @@ public class TurnManager {
         } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, EX_CAN_USE_POWERUP, e);}
 
         if (!possible) {
+            System.out.println("No usable powerUps: return false");
             return false;
         }
 
         while (possible && answer == 1 && !board.isReset()) {
+
+            System.out.println("entering while");
 
             List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
             currentPlayerConnection.choose("Do you want to use a powerup?", options);
             answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (answer == 2){
+                System.out.println("answer no");
                 LOGGER.log(Level.FINE, () -> currentPlayer  + " decides not to use a powerup." );
             }
             if (answer == 1) {
+                System.out.println("answer yes");
                 usePowerUp();
             }
             try {
@@ -367,6 +375,11 @@ public class TurnManager {
             } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, EX_CAN_USE_POWERUP, e);}
 
         }
+        try{
+            wait(2000);
+        } catch (InterruptedException e){}
+        System.out.println("exiting handle usingpowerup");
+
         return  true;
     }
 
@@ -406,7 +419,7 @@ public class TurnManager {
         LOGGER.log(Level.FINE, () -> currentPlayer + " decides to use a " + powerUpToUse.getName().toString() + ".");
         if (powerUpToUse.getName() == PowerUp.PowerUpName.NEWTON) {
             try {
-                List<String> optionsTargets = toStringList(powerUpToUse.findTargets());
+                List<String> optionsTargets = toUserStringList(powerUpToUse.findTargets());
                 optionsTargets.add(RESET);
                 currentPlayerConnection.choose("Who do you want to choose as a target?", optionsTargets);
                 selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
@@ -451,9 +464,10 @@ public class TurnManager {
      * @return      true if entering the method the player could use a powerup.
      *              false otherwise.
      */
-    public boolean convertPowerUp() throws SlowAnswerException, NotEnoughPlayersException {
+    public boolean convertPowerUp(boolean inActions) throws SlowAnswerException, NotEnoughPlayersException {
 
         board.setReset(false);
+
 
         int answer = 1;
         if (currentPlayer.getPowerUpList().isEmpty()){
@@ -462,16 +476,19 @@ public class TurnManager {
 
         while (!currentPlayer.getPowerUpList().isEmpty() && answer == 1 && !board.isReset()) {
 
-            List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
+            if (!inActions) {
 
-            currentPlayerConnection.choose("Do you want to convert a powerup?", options);
-            answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+                List<String> options = new ArrayList<>(Arrays.asList("yes", "no"));
 
-            if (answer == 2){
+                currentPlayerConnection.choose("Do you want to convert a powerup?", options);
+                answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+            }
+
+            if (!inActions && answer == 2){
                 LOGGER.log(Level.FINE, () -> currentPlayer + " decides not to convert a powerup.");
             }
 
-            if (answer == 1) {
+            if (inActions || answer == 1) {
 
                 LOGGER.log(Level.FINE, () -> currentPlayer + " decides to convert a powerup.");
 
@@ -487,7 +504,8 @@ public class TurnManager {
                 currentPlayer.useAsAmmo(powerUpToConvert);
                 board.notifyObserver(currentPlayerConnection);
 
-                LOGGER.log(Level.FINE, () -> currentPlayer + " converts a  " + powerUpToConvert.toStringLowerCase() + " into an ammo.");
+                LOGGER.log(Level.FINE, () -> currentPlayer + " converts a  " + powerUpToConvert.toString() + " into an ammo.");
+                inActions = false;
             }
 
         }
@@ -605,6 +623,7 @@ public class TurnManager {
                 }
                 AmmoTile toCollect = ((AmmoSquare) currentPlayer.getPosition()).getAmmoTile();
                 boolean tooManyPowerUps = !currentPlayer.collect(toCollect);
+                board.notifyObserver(currentPlayerConnection);
                 LOGGER.log(Level.FINE, () -> currentPlayer + " collects an ammo tile.");
                 if (toCollect.hasPowerUp()){
                     if (tooManyPowerUps) LOGGER.log(Level.FINE, "It would him to draw a power up, but he already has three.");
@@ -661,47 +680,51 @@ public class TurnManager {
             remainingFiremodes.removeAll(toRemove);
 
             List<String> options = toStringList(remainingFiremodes);
-            options.add(RESET);
-            if (canStop){
-                options.add("none");
-                currentPlayerConnection.choose("If you want, select an additional firemode", options);
-            }
-            else currentPlayerConnection.choose("Select a firemode in order to shoot", options);
-            int selected2 = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
-            if (selected2 == remainingFiremodes.size() + 1){
-                resetAction();
-                return;
-            }
-            if (selected2 == remainingFiremodes.size() + 2){
-                LOGGER.log(Level.FINE, () -> currentPlayer + " decides not to add another firemode" );
-                stop = true;
-            }
-            else {
-                FireMode selectedFireMode = remainingFiremodes.get(selected2 - 1);
-                if (selectedFireMode.getName() == MAIN || selectedFireMode.getName() == SECONDARY) canStop = true;
-                LOGGER.log(Level.FINE, () -> currentPlayer + SELECT + selectedFireMode + " as firemode");
-                usedFireModes.add(selectedFireMode.getName());
-                applyFireMode(selectedFireMode);
+            if (!options.isEmpty()){
+                options.add(RESET);
+                if (canStop){
+                    options.add("none");
+                    currentPlayerConnection.choose("If you want, select an additional firemode", options);
+                }
+                else currentPlayerConnection.choose("Select a firemode in order to shoot", options);
+                int selected2 = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+                if (selected2 == remainingFiremodes.size() + 1){
+                    resetAction();
+                    return;
+                }
+                if (selected2 == remainingFiremodes.size() + 2){
+                    LOGGER.log(Level.FINE, () -> currentPlayer + " decides not to add another firemode" );
+                    stop = true;
+                }
+                else {
+                    FireMode selectedFireMode = remainingFiremodes.get(selected2 - 1);
+                    if (selectedFireMode.getName() == MAIN || selectedFireMode.getName() == SECONDARY) canStop = true;
+                    LOGGER.log(Level.FINE, () -> currentPlayer + SELECT + selectedFireMode + " as firemode");
+                    usedFireModes.add(selectedFireMode.getName());
+                    applyFireMode(selectedFireMode);
 
-                if (board.isReset()) return;
+                    if (board.isReset()) return;
 
-                //targeting scope
-                List<Integer> newDamages = getDamagesList();
-                List<Player> targets = new ArrayList<>();
-                for (Player p : board.getActivePlayers()){
-                    if (!newDamages.get(board.getActivePlayers().indexOf(p)).equals(oldDamages.get(board.getActivePlayers().indexOf(p)))){
-                        targets.add(p);
+                    //targeting scope
+                    List<Integer> newDamages = getDamagesList();
+                    List<Player> targets = new ArrayList<>();
+                    for (Player p : board.getActivePlayers()) {
+                        if (!newDamages.get(board.getActivePlayers().indexOf(p)).equals(oldDamages.get(board.getActivePlayers().indexOf(p)))) {
+                            targets.add(p);
+                        }
+                    }
+                    while (currentPlayer.hasUsableTargetingScope() && !targets.isEmpty()) {
+                        //if he choose not to use it stop asking
+                        if (!handleTargetingScope(currentPlayer, targets)) break;
+                        if (board.isReset()) return;
                     }
                 }
-                while (currentPlayer.hasUsableTargetingScope() && !targets.isEmpty()){
-                    //if he choose not to use it stop asking
-                    if (!handleTargetingScope(currentPlayer, targets)) break;
-                    if (board.isReset()) return;
-                }
             }
+            else break;
         }
 
         selectedWeapon.setLoaded(false);
+        board.notifyObserver(currentPlayerConnection);
 
         if (!askConfirmation("Do you confirm the shooting action?")){
             resetAction();
@@ -743,7 +766,7 @@ public class TurnManager {
             targetsList.remove(l);
         }
 
-        List<String> optionsTarget = toStringList(targetsList);
+        List<String> optionsTarget = toUserStringList(targetsList);
         optionsTarget.add(RESET);
 
         currentPlayerConnection.choose("Choose targets", optionsTarget);
@@ -943,7 +966,7 @@ public class TurnManager {
             }
             PowerUp targetingScope = currentPlayer.getPowerUps(PowerUp.PowerUpName.TARGETING_SCOPE).get(selected-1);
 
-            List<String> optionsTargets = toStringList(targets);
+            List<String> optionsTargets = toUserStringList(Arrays.asList(targets));
             optionsTargets.add(RESET);
             currentPlayerConnection.choose("Who do you want to target?", optionsTargets);
             selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
@@ -1079,7 +1102,7 @@ public class TurnManager {
         statusSaver.restoreCheckpoint();
         board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
         board.revertUpdates(currentPlayerConnection);
-        board.notifyObservers();
+        board.notifyObserver(currentPlayerConnection);
         if (actionsLeft  == 0){
             handleUsingPowerUp();
         }
@@ -1094,10 +1117,10 @@ public class TurnManager {
         statusSaver.restoreCheckpoint();
         board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
         board.revertUpdates(currentPlayerConnection);
-        board.notifyObservers();
+        board.notifyObserver(currentPlayerConnection);
         if (actionsLeft  == 0){
             boolean use1 = handleUsingPowerUp();
-            boolean use2 = convertPowerUp();
+            boolean use2 = convertPowerUp(false);
             return (use1 || use2);
         }
         return true;
@@ -1115,7 +1138,7 @@ public class TurnManager {
         if (actionsLeft == 0)
         {
             handleUsingPowerUp();
-            convertPowerUp();
+            convertPowerUp(false);
             reload(3);
         }
         else actionsLeft++;
@@ -1133,6 +1156,24 @@ public class TurnManager {
         List<String> encoded = new ArrayList<>();
         for (Object p : options ){
             encoded.add(p.toString());
+        }
+        return encoded;
+    }
+
+    /**
+     * Returns a list of string given a generic list.
+     *
+     * @param playerGroups  the list of players to transform.
+     * @return              the String list.
+     */
+    public static List<String> toUserStringList(List<List<Player>> playerGroups){
+        List<String> encoded = new ArrayList<>();
+        for (List<Player> p : playerGroups ) {
+            String toAdd = "";
+            for (Player player : p) {
+                toAdd += player.userToString();
+            }
+            encoded.add(toAdd);
         }
         return encoded;
     }

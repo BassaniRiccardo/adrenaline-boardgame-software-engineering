@@ -214,6 +214,8 @@ public class ClientMain {
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setCardNumber(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getCardNumber()-1);
                 if(clientModel.getPlayerID()==j.get(PLAYER_PROP).getAsInt()) {
                     clientModel.getPowerUpInHand().remove(j.get(POWER_UP_NAME_PROP).getAsString());
+                    clientModel.getColorPowerUpInHand().remove(j.get(POWER_UP_COLOR_PROP).getAsString());
+
                 }
                 ui.render();
                 break;
@@ -233,11 +235,11 @@ public class ClientMain {
                 ui.render();
                 break;
             case (USE_AMMO_UPD):
-                clientModel.getCurrentPlayer().subAmmo(j.get(BLUE_AMMO_PROP).getAsInt(), j.get(RED_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
+                clientModel.getCurrentPlayer().subAmmo(j.get(RED_AMMO_PROP).getAsInt(), j.get(BLUE_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
                 ui.render();
                 break;
             case (ADD_AMMO_UPD):
-                clientModel.getCurrentPlayer().addAmmo(j.get(BLUE_AMMO_PROP).getAsInt(), j.get(RED_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
+                clientModel.getCurrentPlayer().addAmmo( j.get(RED_AMMO_PROP).getAsInt(), j.get(BLUE_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
                 ui.render();
                 break;
             case (MOVE_UPD):
@@ -274,9 +276,9 @@ public class ClientMain {
                 ui.render();
                 break;
             case (REMOVE_AMMO_TILE_UPD):
+                clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setRedAmmo(0);
                 clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setBlueAmmo(0);
                 clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setYellowAmmo(0);
-                clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setRedAmmo(0);
                 clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setPowerup(false);
                 break;
             case (MODEL_UPD):

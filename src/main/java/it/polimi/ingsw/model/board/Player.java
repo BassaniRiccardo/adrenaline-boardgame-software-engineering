@@ -399,6 +399,11 @@ public class Player {
                 ((Weapon)collectedCard).setLoaded(true);
                 ((Weapon)collectedCard).setHolder(this);
         } else {
+
+            AmmoPack debug = ((AmmoTile)collectedCard).getAmmoPack();
+
+            System.out.println("in collect (rby): "+ debug.getRedAmmo() + debug.getBlueAmmo() + debug.getYellowAmmo());
+
             addAmmoPack(((AmmoTile)collectedCard).getAmmoPack());
             if (((AmmoTile)collectedCard).hasPowerUp()) {
                 if (powerUpList.size()>2) return false;

@@ -189,4 +189,11 @@ public class TCPVirtualView extends VirtualView {
             //manage
         }
     }
+
+    @Override
+    public void shutdown(){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", "KILL");
+        send(jsonObject);
+    }
 }

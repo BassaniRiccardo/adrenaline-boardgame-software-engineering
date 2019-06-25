@@ -1,709 +1,604 @@
 {
-	"weapons": [
-		{
-			"name": "Lock Rifle",
+	"Lock Rifle":{
 			"color": "blue",
 			"costR": "0",
 			"costB": "2",
 			"costY": "0",
-			"type": "3",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "2",
 					"mark": "1",
-					"targetsN": "1",
-					"where": "sight",
-					"move": "0",
-					"effect": "0"
+					"target": "1visible",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "OPTION1",
+					"name": "OPTION1",
 					"costR": "1",
 					"costB": "0",
 					"costY": "0",
 					"dmg": "0",
 					"mark": "1",
-					"targetsN": "1",
-					"where": "sight1optional",
-					"move": "0",
-					"effect": "0"
+					"target": "1otherVisible",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Machine Gun",
+	"Machine Gun":{
 			"color": "blue",
 			"costR": "1",
 			"costB": "1",
 			"costY": "0",
-			"type": "4",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "0",
-					"targetsN": "2",
-					"where": "sight2",
-					"move": "0",
-					"effect": "0"
+					"target": "1or2visible",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "OPTION1",
+					"name": "OPTION1",
 					"dmg": "1",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "1",
-					"targetsN": "1",
-					"move": "0",
-					"effect": "0",
-					"where": "previous1"
+					"target": "1mainTarget",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "OPTION2",
+					"name": "OPTION2",
 					"dmg": "1",
 					"mark": "0",
 					"costR": "0",
 					"costB": "1",
 					"costY": "0",
-					"targetsN": "1",
-					"newTargets": "1",
-					"newDmg": "1",
-					"move": "0",
-					"effect": "0",
-					"where": "previous2"
+					"target": "1mainTargetOrOtherVisible",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Thor",
+	"Thor":	{
 			"color": "blue",
 			"costR": "1",
 			"costB": "1",
 			"costY": "0",
-			"type": "4",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "2",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "sight",
-					"move": "0",
-					"effect": "0"
+					"target": "1visible",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "OPTION1",
+					"name": "OPTION1",
 					"dmg": "1",
 					"mark": "0",
 					"costR": "0",
 					"costB": "1",
 					"costY": "0",
-					"targetsN": "1",
-					"where": "chain1",
-					"move": "0",
-					"effect": "0"
+					"target": "thor1",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "OPTION2",
+					"name": "OPTION2",
 					"dmg": "2",
 					"mark": "0",
 					"costR": "0",
 					"costB": "1",
 					"costY": "0",
-					"targetsN": "1",
-					"where": "chain2",
-					"move": "0",
-					"effect": "0"
+					"target": "thor2",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Plasma Gun",
+	"Plasma Gun":{
 			"color": "blue",
 			"costR": "0",
 			"costB": "1",
 			"costY": "1",
-			"type": "4",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "2",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "sight",
-					"move": "0",
-					"effect": "0"
+					"target": "1visible",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "OPTION1",
+					"name": "OPTION1",
 					"dmg": "0",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "1",
-					"move": "2",
-					"effect": "move",
-					"where": "myself1",
-					"moveType": "myself1"
+					"target": "plasmaGun1",
+					"destination": "plasmaGun1",
+					"effect": "move"
 				},
 				{
-					"mode": "OPTION2",
+					"name": "OPTION2",
 					"dmg": "1",
 					"mark": "0",
 					"costR": "0",
 					"costB": "1",
 					"costY": "0",
 					"targetsN": "1",
-					"where": "previous3",
-					"move": "0",
-					"effect": "0"
+					"target": "1mainTarget",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Whisper",
+	"Whisper": {
 			"color": "blue",
 			"costR": "0",
 			"costB": "2",
 			"costY": "1",
-			"type": "1",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "3",
 					"mark": "1",
 					"targetsN": "1",
-					"where": "2min",
-					"move": "0",
-					"effect": "0"
+					"target": "whisper",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Electroscythe",
+	"Electroscythe": {
 			"color": "blue",
 			"costR": "0",
 			"costB": "1",
 			"costY": "0",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "0",
-					"targetsN": "4",
-					"where": "here",
-					"move": "0",
-					"effect": "0"
+					"target": "allSameSquare",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "2",
 					"mark": "0",
 					"costR": "1",
 					"costB": "1",
 					"costY": "0",
-					"targetsN": "4",
-					"where": "here",
-					"move": "0",
-					"effect": "0"
+					"target": "allSameSquare",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Tractor Beam",
+	"Tractor Beam": {
 			"color": "blue",
 			"costR": "0",
 			"costB": "1",
 			"costY": "0",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "0",
-					"targetsN": "1",
-					"move": "2",
-					"where": "tractor1",
-					"effect": "moveDmg",
-					"moveType": "tractor1"
+					"target": "tractorBeamMain",
+					"destination": "tractorBeamMain",
+					"effect": "moveDamage"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "3",
 					"mark": "0",
 					"costR": "1",
 					"costB": "0",
 					"costY": "1",
-					"targetsN": "1",
-					"move": "2",
-					"where": "tractor2",
-					"effect": "moveDmg",
-					"moveType": "tractor2"
+					"target": "tractorBeamAlt",
+					"destination": "shooterSquare",
+					"effect": "moveDamage"
 				}
 			]
 		},
-		{
-			"name": "Vortex Cannon",
+	"Vortex Cannon": {
 			"color": "red",
 			"costR": "1",
 			"costB": "1",
 			"costY": "0",
-			"type": "3",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "2",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "vortex1",
-					"move": "1",
-					"effect": "moveDmg",
-					"moveType": "vortex1"
+					"target": "vortexCannonMain",
+					"destination": "vortexCannonMain",
+					"effect": "moveDamage"
 				},
 				{
-					"mode": "OPTION1",
+					"name": "OPTION1",
 					"dmg": "1",
 					"mark": "0",
 					"costR": "1",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "2",
-					"where": "vortex2",
-					"move": "1",
-					"effect": "moveDmg",
-					"moveType": "vortex2"
+					"target": "vortexCannon1",
+					"destination": "vortexCannon1",
+					"effect": "moveDamage"
 				}
 			]
 		},
-		{
-			"name": "Furnace",
+	"Furnace": {
 			"color": "red",
 			"costR": "1",
 			"costB": "1",
 			"costY": "0",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "0",
-					"targetsN": "4",
-					"where": "room",
-					"move": "0",
-					"effect": "0"
+					"target": "otherRoom",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "1",
 					"mark": "1",
 					"costR": "0",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "4",
-					"where": "1away",
-					"move": "0",
-					"effect": "0"
+					"target": "adjacentSquare",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Heatseeker",
+	"Heatseeker": {
 			"color": "red",
 			"costR": "2",
 			"costB": "0",
 			"costY": "1",
-			"type": "1",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "3",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "notSight",
-					"move": "0",
-					"effect": "0"
+					"target": "notVisible",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Hellion",
+	"Hellion": {
 			"color": "red",
 			"costR": "1",
 			"costB": "0",
 			"costY": "1",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "1",
-					"targetsN": "1",
-					"where": "1min",
-					"move": "0",
+					"target": "notShooterSquareVisible",
+					"destination": "none",
 					"effect": "hellion"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "0",
 					"mark": "2",
 					"costR": "1",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "1",
-					"where": "1min",
-					"move": "0",
+					"target": "notShooterSquareVisible",
+					"destination": "none",
 					"effect": "hellion"
 				}
 			]
 		},
-		{
-			"name": "Flamethrower",
+	"Flamethrower": {
 			"color": "red",
 			"costR": "1",
 			"costB": "0",
 			"costY": "0",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "0",
-					"targetsN": "2",
-					"where": "2row1",
-					"move": "0",
-					"effect": "0"
+					"target": "flamethrowerMain",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "2",
-					"dmg2": "1",
-					"steps": "1",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "2",
-					"targetsN": "4",
-					"where": "2row2",
-					"move": "0",
-					"effect": "flamethrower"
+					"target": "flamethrowerAlt",
+					"destination": "none",
+					"effect": "flamethrowerAlt"
 				}
 			]
 		},
-		{
-			"name": "Grenade Launcher",
+	"Grenade Launcher": {
 			"color": "red",
 			"costR": "1",
 			"costB": "0",
 			"costY": "0",
-			"type": "3",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "0",
-					"targetsN": "1",
-					"move": "1",
-					"effect": "dmgMove",
-					"where": "sight",
-					"moveType": "onHit"
+					"target": "1visible",
+					"destination": "adjacentToTarget",
+					"effect": "damageMove"
 				},
 				{
-					"mode": "OPTION1",
+					"name": "OPTION1",
 					"dmg": "1",
 					"mark": "0",
 					"costR": "1",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "4",
-					"where": "allSquare",
-					"move": "0",
-					"effect": "0"
+					"target": "grenadeLauncher1",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Rocket Launcher",
+	"Rocket Launcher": {
 			"color": "red",
 			"costR": "1",
 			"costB": "0",
 			"costY": "0",
-			"type": "4",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "2",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "1min",
-					"move": "1",
-					"effect": "dmgMove",
-					"moveType": "onHit2"
+					"target": "notShooterSquareVisible",
+					"destination": "adjacentToTarget",
+					"effect": "damageMove"
 				},
 				{
-					"mode": "OPTION1",
+					"name": "OPTION1",
 					"dmg": "0",
 					"mark": "0",
 					"costR": "0",
 					"costB": "1",
 					"costY": "0",
-					"targetsN": "1",
-					"where": "myself3",
-					"move": "2",
-					"effect": "move",
-					"moveType": "myself3"
+					"target": "rocketLauncher1",
+					"destination": "rocketLauncher1",
+					"effect": "move"
 				},
 				{
-					"mode": "OPTION2",
+					"name": "OPTION2",
 					"dmg": "1",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "1",
-					"targetsN": "4",
-					"where": "previousSquare",
-					"move": "0",
-					"effect": "0"
+					"target": "rocketLauncher2",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Railgun",
+	"Railgun": {
 			"color": "yellow",
 			"costR": "0",
 			"costB": "1",
 			"costY": "2",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "3",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "cardinal1",
-					"move": "0",
-					"effect": "0"
+					"target": "railgunMain",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "2",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "2",
-					"where": "cardinal2",
-					"move": "0",
-					"effect": "0"
+					"target": "railgunAlt",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Cyberblade",
+	"Cyberblade": {
 			"color": "yellow",
 			"costR": "1",
 			"costB": "0",
 			"costY": "1",
-			"type": "4",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "2",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "here2",
-					"move": "0",
-					"effect": "0"
+					"target": "1sameSquare",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "OPTION1",
+					"name": "OPTION1",
 					"dmg": "0",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "1",
-					"where": "myself2",
-					"move": "1",
-					"effect": "move",
-					"moveType": "myself2"
+					"target": "cyberblade1",
+					"destination": "cyberblade1",
+					"effect": "move"
 				},
 				{
-					"mode": "OPTION2",
+					"name": "OPTION2",
 					"dmg": "2",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "1",
-					"targetsN": "1",
-					"where": "hereDifferent",
-					"move": "0",
-					"effect": "0"
+					"target": "1otherSameSquare",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Zx2",
+	"Zx2": {
 			"color": "yellow",
 			"costR": "1",
 			"costB": "0",
 			"costY": "1",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "2",
-					"targetsN": "1",
-					"where": "sight",
-					"move": "0",
-					"effect": "0"
+					"target": "1visible",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "0",
 					"mark": "1",
 					"costR": "0",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "3",
-					"where": "sight3",
-					"move": "0",
-					"effect": "0"
+					"target": "3visible",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Shotgun",
+	"Shotgun": {
 			"color": "yellow",
 			"costR": "0",
 			"costB": "0",
 			"costY": "2",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "3",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "here2",
-					"move": "1",
-					"effect": "dmgMove",
-					"moveType": "onHit3"
+					"target": "1sameSquare",
+					"destination": "adjacentToTarget",
+					"effect": "damageMove"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "2",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "1",
-					"where": "1away3",
-					"move": "0",
-					"effect": "0"
+					"target": "1stepAway",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Power Glove",
+	"Power Glove": {
 			"color": "yellow",
 			"costR": "0",
 			"costB": "1",
 			"costY": "1",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "2",
-					"targetsN": "1",
-					"where": "1away3",
-					"move": "0",
-					"effect": "moveDmg",
-					"moveType": "dash1"
+					"target": "1stepAway",
+					"destination": "targetSquare",
+					"effect": "powerGlove"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "2",
 					"mark": "1",
 					"costR": "0",
 					"costB": "1",
 					"costY": "0",
-					"targetsN": "2",
-					"where": "2steps",
-					"move": "0",
-					"effect": "moveDmg",
-					"moveType": "dash2"
+					"target": "powerGloveAlt",
+					"destination": "powerGloveAlt",
+					"effect": "powerGlove"
 				}
 			]
 		},
-		{
-			"name": "Shockwave",
+	"Shockwave": {
 			"color": "yellow",
 			"costR": "0",
 			"costB": "0",
 			"costY": "1",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "1",
 					"mark": "0",
-					"targetsN": "3",
-					"where": "1awayDifferent",
-					"move": "0",
-					"effect": "0"
+					"target": "shockwaveMain",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "1",
 					"mark": "0",
 					"costR": "0",
 					"costB": "0",
 					"costY": "1",
-					"targetsN": "4",
-					"where": "1away2",
-					"move": "0",
-					"effect": "0"
+					"target": "shockwaveAlt",
+					"destination": "none",
+					"effect": "standard"
 				}
 			]
 		},
-		{
-			"name": "Sledgehammer",
+	"Sledgehammer": {
 			"color": "yellow",
 			"costR": "0",
 			"costB": "0",
 			"costY": "1",
-			"type": "2",
 			"modes": [
 				{
-					"mode": "MAIN",
+					"name": "MAIN",
 					"dmg": "2",
 					"mark": "0",
-					"targetsN": "1",
-					"where": "here2",
-					"move": "0",
-					"effect": "0"
+					"target": "1sameSquare",
+					"destination": "none",
+					"effect": "standard"
 				},
 				{
-					"mode": "SECONDARY",
+					"name": "SECONDARY",
 					"dmg": "3",
 					"mark": "0",
 					"costR": "1",
 					"costB": "0",
 					"costY": "0",
-					"targetsN": "1",
-					"where": "here2",
-					"move": "2",
-					"effect": "dmgMove",
-					"moveType": "push"
+					"target": "1sameSquare",
+					"destination": "sledgehammerAlt",
+					"effect": "damageMove"
 				}
 			]
 		}
-	]
 }
-

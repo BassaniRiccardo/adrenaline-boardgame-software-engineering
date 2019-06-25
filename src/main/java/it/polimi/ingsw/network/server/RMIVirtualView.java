@@ -141,4 +141,14 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
 
     @Override
     public void ping(){}
+
+    @Override
+    public void shutdown(){
+        try {
+            remoteView.shutdown();
+            //TODO: check exception is thrown if it is fast enough
+        }catch (RemoteException e){
+            LOGGER.log(Level.INFO, "Cannot reach client while ordering shutdown.");
+        }
+    }
 }

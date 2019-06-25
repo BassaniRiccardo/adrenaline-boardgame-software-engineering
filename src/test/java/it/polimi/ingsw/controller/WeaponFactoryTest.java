@@ -140,17 +140,17 @@ public class WeaponFactoryTest {
     /**
      * Tests that the fire mode cost of a particular weapon is correct
      */
-    @Test
+/*    @Test
     public void getFireModeCost() throws NoMoreCardsException, UnacceptableItemNumberException {
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.SHOCKWAVE);
-        AmmoPack ammoPack = weaponFactory.getFireModeCost(w.getWeaponName(), FireMode.FireModeName.SECONDARY);
+        AmmoPack ammoPack = weaponFactory*.getFireModeCost(w.getWeaponName(), FireMode.FireModeName.SECONDARY);
         assertEquals(1,ammoPack.getYellowAmmo());
         assertEquals(0,ammoPack.getRedAmmo());
         assertEquals(0,ammoPack.getBlueAmmo());
     }
-
+*/
     @Test
     public void createAllWeapon() throws NoMoreCardsException, UnacceptableItemNumberException{
         Board b = BoardConfigurer.simulateScenario();
@@ -667,6 +667,7 @@ public class WeaponFactoryTest {
         //OPTION 1 TARGETS
         assertEquals("[[Player 1 : anonymous(D_struct_or)]]",rocketLauncher.getFireModeList().get(1).findTargets().toString());
         //OPTION 1 DESTINATIONS
+        System.out.println(rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());
         assertEquals("[Square 1, Square 2, Square 5]", rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());
         shooter.addMainTarget(banshee);
         assertEquals("[Square 1, Square 2, Square 4, Square 5, Square 8]", rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());
@@ -841,14 +842,14 @@ public class WeaponFactoryTest {
         //MAIN TARGETS
         assertEquals("[[Player 2 : anonymous(Banshee)], [Player 4 : anonymous(Violet)]]", powerglove.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
-        assertTrue(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
-        assertTrue(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(violet))).isEmpty());
+        assertFalse(powerglove.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+        assertFalse(powerglove.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(violet))).isEmpty());
         //SECONDARY TARGETS
         assertEquals("[[Player 4 : anonymous(Violet)], [Player 2 : anonymous(Banshee)], [Player 5 : anonymous(Sprog)], [Player 2 : anonymous(Banshee), Player 5 : anonymous(Sprog)]]",powerglove.getFireModeList().get(1).findTargets().toString());
         //SECONDAY DESTINATIONS
-        assertTrue(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
-        assertTrue(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(violet))).isEmpty());
-        assertTrue(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(sprog))).isEmpty());
+        assertFalse(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(banshee))).isEmpty());
+        assertFalse(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(violet))).isEmpty());
+        assertFalse(powerglove.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(sprog))).isEmpty());
 
     }
 

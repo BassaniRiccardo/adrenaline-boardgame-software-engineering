@@ -1,6 +1,5 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
@@ -189,11 +188,4 @@ public class StatusSaver {
     }
 
 
-    public void displayPowerUps(){
-        String powerups = "";
-        for (Player p : board.getActivePlayers()) {
-            powerups += p.getPowerUpList() + "  ";
-        }
-        LOGGER.log(Level.FINE, "playersPowerups: {0}", powerups);
-    }
 }

@@ -1,5 +1,3 @@
-//TODO load data from JSON/XML
-
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.*;

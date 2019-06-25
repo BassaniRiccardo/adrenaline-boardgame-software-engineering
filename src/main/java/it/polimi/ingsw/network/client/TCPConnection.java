@@ -127,6 +127,8 @@ public class TCPConnection implements Runnable {
             case "UPD" :    System.out.println(jMessage);
                             clientMain.update(jMessage);
                             break;
+            case "KILL" :   //TODO: close conenction
+                            clientMain.shutdown();
             default:        break;
         }
     }

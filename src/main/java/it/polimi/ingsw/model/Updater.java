@@ -118,11 +118,17 @@ public class Updater {
     }
 
     public static JsonObject get(String s, Player p, AmmoPack a) {
+
+        System.out.println(s + " " + p + "bry " + a.getBlueAmmo() + a.getRedAmmo() + a.getYellowAmmo());
+
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
         j.addProperty(RED_AMMO_PROP, a.getRedAmmo());
         j.addProperty(BLUE_AMMO_PROP, a.getBlueAmmo());
         j.addProperty(YELLOW_AMMO_PROP, a.getYellowAmmo());
+
+        System.out.println(j);
+
         return j;
         //useAmmo, addAmmo
     }
@@ -177,67 +183,6 @@ public class Updater {
         //removeAmmoTile
     }
 
-    /*
-
-    public static JsonObject getRevert(Board board) {
-        JsonObject j = getFreshUpdate("revert");
-        JsonArray playerArray = new JsonArray();
-        JsonArray damageArray = new JsonArray();
-        JsonArray powerUpArray = new JsonArray();
-        JsonArray blueAmmoArray = new JsonArray();
-        JsonArray redAmmoArray = new JsonArray();
-        JsonArray yellowAmmoArray = new JsonArray();
-        for (Player p : board.getPlayers()) {
-            playerArray.add(p.getId());
-            JsonArray temp = new JsonArray();
-            for (Player q : p.getDamages()) {
-                temp.add(q.getId());
-            }
-            damageArray.add(temp);
-            JsonArray temp2 = new JsonArray();
-            for (PowerUp q : p.getPowerUpList()) {
-                temp2.add(q.getName().toString());
-            }
-            powerUpArray.add(temp2);
-            blueAmmoArray.add(p.getAmmoPack().getBlueAmmo());
-            redAmmoArray.add(p.getAmmoPack().getRedAmmo());
-            yellowAmmoArray.add(p.getAmmoPack().getYellowAmmo());
-        }
-        j.add("players", playerArray);
-        j.add("damage", damageArray);
-        j.add("powerup", powerUpArray);
-        j.add("blueammo", blueAmmoArray);
-        j.add("redammo", redAmmoArray);
-        j.add("yellowammo", yellowAmmoArray);
-
-        JsonArray weaponArray = new JsonArray();
-        JsonArray loadedWeaponArray = new JsonArray();
-        for (Weapon w : board.getCurrentPlayer().getWeaponList()) {
-            weaponArray.add(w.getWeaponName().toString());
-            if (w.isLoaded()) {
-                loadedWeaponArray.add(w.getWeaponName().toString());
-            }
-        }
-        j.add("weapons", weaponArray);
-        j.add("loadedweapons", loadedWeaponArray);
-
-        JsonArray squareArray = new JsonArray();
-        JsonArray weaponsInSquareArray = new JsonArray();
-        for (WeaponSquare s : board.getSpawnPoints()) {
-            squareArray.add(s.getId());
-            JsonArray temp = new JsonArray();
-            for (Weapon w : s.getWeapons()) {
-                temp.add(w.getWeaponName().toString());
-            }
-            weaponsInSquareArray.add(temp);
-        }
-        j.add("squares", squareArray);
-        j.add("weaponsinsquare", weaponsInSquareArray);
-
-        return j;
-    }*/
-
-
     /**
      * Creates a message that updates the ClientModel of the specified player on the specified board and returns it.
      *
@@ -264,30 +209,7 @@ public class Updater {
 
         for (Player p : board.getPlayers()){
 
-            //create a new simplePlayer
-            List<Integer> damages = new ArrayList<>();
-            for (Player shooter : p.getDamages()){
-                damages.add(shooter.getId());
-            }
-            List<Integer> marks = new ArrayList<>();
-            for (Player marker : p.getMarks()){
-                marks.add(marker.getId());
-            }
-            List<ClientModel.SimpleWeapon> weapons = new ArrayList<>();
-            for (Weapon weapon : p.getWeaponList()){
-                weapons.add(ClientModel.toSimpleWeapon(weapon));
-            }
-            ClientModel.SimpleSquare position = null;
-            boolean isInGame = false;
-            try {
-                if (board.getSpawnPoints().contains(p.getPosition())) position = ClientModel.toSimpleSquare((WeaponSquare)p.getPosition());
-                else position = ClientModel.toSimpleSquare((AmmoSquare)p.getPosition());
-                isInGame = true;
-
-            } catch (NotAvailableAttributeException e) {
-                LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
-            }
-            ClientModel.SimplePlayer simplePlayer = new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
+            ClientModel.SimplePlayer simplePlayer = createSimplePlayer(p, board);
             simplePlayers.add(simplePlayer);
 
 
@@ -341,6 +263,38 @@ public class Updater {
 
         return jsonObject;
     }
+
+    public static ClientModel.SimplePlayer createSimplePlayer(Player p, Board board){
+
+        //create a new simplePlayer
+        List<Integer> damages = new ArrayList<>();
+        for (Player shooter : p.getDamages()){
+            damages.add(shooter.getId());
+        }
+        List<Integer> marks = new ArrayList<>();
+        for (Player marker : p.getMarks()){
+            marks.add(marker.getId());
+        }
+        List<ClientModel.SimpleWeapon> weapons = new ArrayList<>();
+        for (Weapon weapon : p.getWeaponList()){
+            weapons.add(ClientModel.toSimpleWeapon(weapon));
+        }
+        ClientModel.SimpleSquare position = null;
+        boolean isInGame = false;
+        try {
+            if (board.getSpawnPoints().contains(p.getPosition())) position = ClientModel.toSimpleSquare((WeaponSquare)p.getPosition());
+            else position = ClientModel.toSimpleSquare((AmmoSquare)p.getPosition());
+            isInGame = true;
+
+        } catch (NotAvailableAttributeException e) {
+            LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
+        }
+
+        return new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
+
+
+    }
+
 
 
     /**

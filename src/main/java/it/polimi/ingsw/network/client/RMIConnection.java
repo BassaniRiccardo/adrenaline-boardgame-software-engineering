@@ -130,4 +130,9 @@ public class RMIConnection implements Runnable, RemoteView {
         }
     }
 
+    public void shutdown() throws RemoteException{
+        //TODO: close connection
+        clientMain.shutdown();
+    }
+
 }

@@ -149,19 +149,18 @@ public class ServerMain {
     /**
      * Checks if a player can be added to the waiting list and, if it can, adds it.
      *
-     * @param name          the player's name
      * @param p             the player attempting to log in
      */
-    public synchronized boolean login(String name, VirtualView p){      //this method needs to be synchronized most likely
-        LOGGER.log(Level.FINE, "Someone is attempting to login as {0}", name);
+    public synchronized boolean login( VirtualView p){      //this method needs to be synchronized most likely
+        LOGGER.log(Level.FINE, "Someone is attempting to login as {0}", p.getName());
         for(VirtualView pc : players){
-            if(pc.getName().equals(name)){
+            if(pc.getName().equals(p.getName())){
                 LOGGER.log(Level.FINE, "Login unsuccessful");
                 return false;
             }
         }
         addPlayer(p);
-        LOGGER.log(Level.INFO,"{0} logged in", name);
+        LOGGER.log(Level.INFO,"{0} logged in", p.getName());
         return true;
     }
 
@@ -187,14 +186,10 @@ public class ServerMain {
      * @param p             the player attempting to resume
      * @return              true if the operation was successful, else false
      */
-    public synchronized boolean resume(String name, VirtualView p) {        //sychronize this
+    public synchronized boolean resume(VirtualView p) {
         for (GameEngine g : currentGames) {
-            for (VirtualView old : g.getPlayers()) {
-                if (old.getName().equals(name) && old.isSuspended()) {
-                    g.setPlayer(g.getPlayers().indexOf(old), p);
-                    LOGGER.log(Level.INFO,"{0} resumed", name);
-                    return true;
-                }
+            if (g.tryResuming(p)) {
+                return true;
             }
         }
         return false;

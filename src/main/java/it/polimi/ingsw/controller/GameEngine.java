@@ -13,7 +13,9 @@ import it.polimi.ingsw.network.server.VirtualView;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
+import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.controller.ServerMain.main;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
@@ -40,10 +42,11 @@ public class GameEngine implements Runnable{
     private final Map<VirtualView, String> notifications;
     private Timer timer;
     private boolean exitGame;
+    private List<VirtualView> resuming;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    private static final int TURN_DURATION = 6000;
+    private static final int TURN_DURATION = 6;
 
 
     /**
@@ -65,6 +68,7 @@ public class GameEngine implements Runnable{
         this.notifications = new HashMap<>();
         this.timer = new Timer(TURN_DURATION);
         this.exitGame = false;
+        this.resuming = new ArrayList<>();
         //todo: load from config
         LOGGER.log(Level.FINE, "Initialized GameEngine " + this);
 
@@ -132,13 +136,17 @@ public class GameEngine implements Runnable{
         ExecutorService executor = Executors.newCachedThreadPool();
         while (!gameOver){
             LOGGER.log(Level.FINE, "Running turn");
+            allowPlayersToResume();
             try {
-                runTurn(executor, TURN_TIME, false);
-            } catch (NotEnoughPlayersException e) {
+                try {
+                    runTurn(executor, TURN_TIME, false);
+                } catch (SlowAnswerException ex) {
+                    currentPlayer.suspend();
+                    checkForSuspension();
+                }
+            }catch (NotEnoughPlayersException e) {
                 exitGame = true;
                 break;
-            } catch (SlowAnswerException ex) {
-                currentPlayer.suspend();
             }
 
             if (killShotTrack.getSkullsLeft() == 0) {
@@ -576,7 +584,6 @@ public class GameEngine implements Runnable{
             }
             LOGGER.log(Level.INFO, "Notified players of the disconnection of {0}", justSuspended);
         }
-        //TODO: check how many players are left for game continuation
         if (playersInGame < 3) throw new NotEnoughPlayersException("Not enough players to continue the game. Game over");
     }
 
@@ -646,6 +653,37 @@ public class GameEngine implements Runnable{
                     p.addWeapon(w);
                     break;
                 }
+        }
+    }
+
+    public synchronized boolean tryResuming(VirtualView p){   //TODO: synchronize?
+        for (VirtualView v : players){
+            if (v.isSuspended()&&!resuming.stream().map(x->x.getName()).collect(Collectors.toList()).contains(p)){
+                resuming.add(p);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private synchronized void allowPlayersToResume(){
+        List<VirtualView> temp = new ArrayList<>(resuming);
+        for(VirtualView v : temp){
+            for(VirtualView old : players){
+                if(v.getName().equals(old.getName())&&old.isSuspended()){
+                    players.set(players.indexOf(old), v);
+                    resuming.remove(v);
+                    ServerMain.getInstance().getPlayers().remove(old);
+                    for(VirtualView p : players){
+                        if(p.equals(v)){
+                            p.display("You are back!");
+                        }else{
+                            p.display(v.getName() + " is back!");
+                        }
+                    }
+                    break;  //working?
+                }
+            }
         }
     }
 

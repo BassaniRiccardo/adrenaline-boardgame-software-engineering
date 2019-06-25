@@ -51,12 +51,12 @@ public abstract class VirtualView implements Runnable{
         name = getInputNow("Select a name.\n"+playersAlreadyConnected, 16);
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
-        while(!ServerMain.getInstance().login(name, this)){
+        while(!ServerMain.getInstance().login(this)){
             if(ServerMain.getInstance().canResume(name)){
                 int ans = chooseNow("Do you want to resume?", Arrays.asList("yes", "no"));
 
                 if(ans==1) {
-                    if(ServerMain.getInstance().resume(name, this)){
+                    if(ServerMain.getInstance().resume(this)){
                         break;
                     } else {
                         display("Somebody already resumed.");
@@ -108,11 +108,13 @@ public abstract class VirtualView implements Runnable{
         this.suspended = suspended;
     }
 
+    abstract void shutdown();
+
     /**
      * Suspends related player
      */
     public void suspend() {
-        display("You have been suspended. Close the game and log with the same name to resume");
+        shutdown();
         busy=false;
         if(!suspended) {
             this.suspended = true;

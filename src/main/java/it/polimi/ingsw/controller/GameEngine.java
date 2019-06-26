@@ -45,8 +45,8 @@ public class GameEngine implements Runnable{
     private boolean lastFrenzyPlayer;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    public static boolean endphaseSimulation = true;
-    private static final int TURN_DURATION = 6000;
+    public static boolean endphaseSimulation = false;
+    private static final int TURN_DURATION = 60;
 
 
     /**

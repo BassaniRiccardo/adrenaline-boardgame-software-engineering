@@ -42,6 +42,7 @@ public class TCPConnection implements Runnable {
     static final Logger LOGGER = Logger.getLogger("clientLogger");
     private ExecutorService executor = Executors.newCachedThreadPool();
     private static final int SOTIMEOUT = 100;
+    private boolean shutdown;
 
     /**
      * Constructor establishing a TCP connection
@@ -52,6 +53,7 @@ public class TCPConnection implements Runnable {
      */
     public TCPConnection(ClientMain clientMain, String address, int port){
         this.clientMain = clientMain;
+        this.shutdown = false;
         LOGGER.log(Level.INFO, "Starting TCP connection");
         try {
             System.out.println(address + port);
@@ -74,7 +76,7 @@ public class TCPConnection implements Runnable {
 
     public void run(){
         JsonParser jsonParser = new JsonParser();
-        while(Thread.currentThread().isAlive()){
+        while(Thread.currentThread().isAlive()&&!shutdown){
             try {
                 String message = receive();
                 JsonObject jMessage = (JsonObject) jsonParser.parse(message);
@@ -176,6 +178,7 @@ public class TCPConnection implements Runnable {
     }
 
     public void shutdown(){
+        shutdown=true;
         try {
             socket.close();
         }catch (IOException ex){

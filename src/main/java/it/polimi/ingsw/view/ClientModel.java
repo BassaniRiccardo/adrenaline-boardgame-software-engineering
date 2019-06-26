@@ -36,13 +36,12 @@ public class ClientModel {
     private int currentPlayerId;
     private List<SimplePlayer> killShotTrack;
     private int skullsLeft;
+    private int points;
     private List<String> powerUpInHand;
     private List<String> colorPowerUpInHand;
     private int playerID;
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
-
-    //TODO ADD PLAYER ID AND NUMBER OF DEATHS
 
     public ClientModel(){}
 
@@ -128,8 +127,10 @@ public class ClientModel {
         private boolean inGame;
         private int points;
         private int deaths;
+        private int nextDeathAwards;
+        private String status;
 
-        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int redAmmo, int blueAmmo, int yellowAmmo, boolean inGame, boolean flipped, int points, int deaths) {
+        public SimplePlayer(int id, String color, int cardNumber, List<Integer> damage, List<Integer> marks, List<SimpleWeapon> weapons, SimpleSquare position, String username, int redAmmo, int blueAmmo, int yellowAmmo, boolean inGame, boolean flipped, int points, int deaths, int nextDeathAwards, String status) {
             this.id = id;
             this.color = color;
             this.cardNumber = cardNumber;
@@ -145,15 +146,21 @@ public class ClientModel {
             this.flipped = flipped;
             this.points = points;
             this.deaths = deaths;
+            this.nextDeathAwards = nextDeathAwards;
+            this.status = status;
         }
+
+        public void setStatus(String status, boolean flipped){
+            this.flipped = flipped;
+            this.status = status;
+        }
+        public int getNextDeathAwards(){ return nextDeathAwards;}
+        public void setNextDeathAwards(int nextDeathAwards){ this.nextDeathAwards = nextDeathAwards;}
+        public String getStatus(){ return this.status;}
 
         public boolean isInGame() { return inGame; }
 
         public boolean isFlipped() { return flipped; }
-
-        public void flip(){
-            this.flipped = !flipped;
-        }
 
         public void setInGame(boolean inGame){this.inGame = inGame;}
 
@@ -412,6 +419,10 @@ public class ClientModel {
         this.killShotTrack = killShotTrack;
     }
 
+    public int getPoints(){return this.points;}
+
+    public void setPoints(int points){this.points = points;}
+
     public List<String> getPowerUpInHand() {
         return powerUpInHand;
     }
@@ -452,10 +463,6 @@ public class ClientModel {
         System.out.println(p);
         System.out.println(s);
         p.setPosition(s);
-    }
-
-    public void flip(int player) {
-        getPlayer(player).flip();
     }
 
     public void damage(int player, JsonArray damage){

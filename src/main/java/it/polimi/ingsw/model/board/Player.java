@@ -260,11 +260,11 @@ public class Player {
 
     public void setPoints(int points) { this.points = points;}
 
-    public void setStatus(Status status){this.status=status;}
+    public void setStatus(Status status){this.status=status;board.addToUpdateQueue(Updater.get(Updater.STATUS_UPD, this));}
 
     public void setJustDamaged(boolean justDamaged){this.justDamaged = justDamaged;}
 
-    public void setFlipped(boolean flipped){this.flipped = flipped; board.addToUpdateQueue(Updater.get(Updater.FLIP_UPD, this));
+    public void setFlipped(boolean flipped){this.flipped = flipped; board.addToUpdateQueue(Updater.get(Updater.STATUS_UPD, this));
     }
 
     public void setInGame(boolean inGame) {
@@ -295,7 +295,7 @@ public class Player {
 
     public void addDeath() {
         this.deaths++;
-        board.addToUpdateQueue(Updater.get(Updater.ADD_DEATH_UPD, this));
+        board.addToUpdateQueue(Updater.get(Updater.ADD_DEATH_UPD, this, pointsToGive));
     }
 
     /**

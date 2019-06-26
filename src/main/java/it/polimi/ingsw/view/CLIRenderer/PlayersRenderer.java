@@ -11,7 +11,7 @@ import static it.polimi.ingsw.view.CLIRenderer.MainRenderer.RESET;
 public class PlayersRenderer {
 
     private static final int PLAYERS_WIDTH = 55;
-    private static final int LINES_PER_PLAYER = 6;
+    private static final int LINES_PER_PLAYER = 7;
 
     public static String[][] get(ClientModel clientModel){
 
@@ -20,17 +20,19 @@ public class PlayersRenderer {
         String[] names = new String[playerNum];
         String[] weapons = new String[playerNum];
         String[][] ammo = new String[playerNum][PLAYERS_WIDTH];
+        String[] deaths = new String[playerNum];
         for(int i=0; i<playerNum; i++){
             names[i] = "";
             weapons[i] = "";
             for(int j=0; j<ammo[i].length; j++){
                 ammo[i][j] = " ";
             }
+            deaths[i] = "";
         }
 
         for(int i = 0; i<playerNum; i++){
             ClientModel.SimplePlayer p = players.get(i);
-            names[i] = p.getUsername();
+            names[i] = p.getUsername() + (p.getStatus().equalsIgnoreCase("basic")? "":" [" + p.getStatus() + "]") + (p.isFlipped()? " [FLIPPED]":"");
             if(clientModel.getCurrentPlayer().getId()==p.getId()){
                 names[i] = names[i] + " [current]";
             }
@@ -65,6 +67,7 @@ public class PlayersRenderer {
                 ammo[i][count] = clientModel.getEscapeCode("yellow") + "|"+RESET;
                 count++;
             }
+            deaths[i] = "Deaths: " + p.getDeaths() + " (next death awards " + p.getNextDeathAwards() + " points)";
         }
 
         int playersHeight = (playerNum-1)*LINES_PER_PLAYER + 1;
@@ -126,6 +129,10 @@ public class PlayersRenderer {
                 String hand = "Cards in hand: " + clientModel.getPlayer(i+1).getCardNumber();
                 for(int j = 0; j < hand.length()&&j+3<PLAYERS_WIDTH; j++){
                     box[row * LINES_PER_PLAYER + 5][j + 3] = String.valueOf(hand.charAt(j));
+                }
+
+                for(int j=0; j<deaths[i].length()&&j+3<PLAYERS_WIDTH; j++){
+                    box[row * LINES_PER_PLAYER + 6][j + 3] = String.valueOf(deaths[i].charAt(j));
                 }
             } else{
                 row--;

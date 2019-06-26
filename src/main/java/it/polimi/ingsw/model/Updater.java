@@ -37,7 +37,7 @@ public class Updater {
     public static final String USE_AMMO_UPD = "useAmmo";
     public static final String ADD_AMMO_UPD = "addAmmo";
     public static final String MOVE_UPD = "move";
-    public static final String FLIP_UPD = "flip";
+    public static final String STATUS_UPD = "status";
     public static final String ADD_DEATH_UPD = "addDeath";
     public static final String DAMAGE_UPD = "damage";
     public static final String MARK_UPD = "mark";
@@ -67,6 +67,8 @@ public class Updater {
     public static final String PLAYER_LIST_PROP = "playerList";
     public static final String BOOLEAN_PROP = "boolean";
     public static final String MODEL_PROP = "model";
+    public static final String POINTS_PROP = "points";
+    public static final String STATUS_PROP = "status";
 
 
 
@@ -144,8 +146,18 @@ public class Updater {
     public static JsonObject get(String s, Player p) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
+        j.addProperty(STATUS_PROP, p.getStatus().toString());
+        j.addProperty(BOOLEAN_PROP, p.isFlipped());
         return j;
-        //flip, addDeath
+        //status
+    }
+
+    public static JsonObject get(String s, Player p, int points){
+        JsonObject j = getFreshUpdate(s);
+        j.addProperty(PLAYER_PROP, p.getId());
+        j.addProperty(POINTS_PROP, points);
+        return j;
+        //addDeath
     }
 
     public static JsonObject get(String s, Player p, List<Player> l) {
@@ -225,11 +237,8 @@ public class Updater {
         }
         cm.setPlayers(simplePlayers);
         cm.setCurrentPlayerId(board.getCurrentPlayer().getId());
-        System.out.println("currentPlayer ammo client side");
-        System.out.println("r " + cm.getCurrentPlayer().getRedAmmo());
-        System.out.println("b " + cm.getCurrentPlayer().getBlueAmmo());
-        System.out.println("y " + cm.getCurrentPlayer().getYellowAmmo());
         cm.setPlayerID(player.getId());
+        cm.setPoints(player.getPoints());
 
         cm.setKillShotTrack(killers);
         try {
@@ -294,8 +303,7 @@ public class Updater {
             LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
         }
 
-        return new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths());
-
+        return new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths(), p.getPointsToGive(), p.getStatus().toString());
 
     }
 

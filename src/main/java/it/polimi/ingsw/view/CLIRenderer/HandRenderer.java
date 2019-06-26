@@ -11,7 +11,7 @@ import static it.polimi.ingsw.view.CLIRenderer.MainRenderer.RESET;
 public class HandRenderer {
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
-    private static final int HAND_HEIGHT = 7;
+    private static final int HAND_HEIGHT = 9;
     private static final int HAND_WIDTH = 55;
 
 
@@ -26,13 +26,13 @@ public class HandRenderer {
             }
         }
 
-        if (HAND_HEIGHT<5 || HAND_WIDTH <50) {
+        if (HAND_HEIGHT<7 || HAND_WIDTH <50) {
             return box;
         }
 
         //printing name
         ClientModel.SimplePlayer you = clientModel.getPlayer(clientModel.getPlayerID());
-        String name =  "You (" + you.getUsername() + ")";
+        String name =  "You (" + you.getUsername() + ")" + (you.getStatus().equalsIgnoreCase("basic")? "":" [" + you.getStatus() + "]") + (you.isFlipped()? " [FLIPPED]":"");
         for(int i=0; i<name.length()&&i<HAND_WIDTH; i++){
             box[1][i+3] = ClientModel.getEscapeCode(you.getColor()) + name.charAt(i) + RESET;
         }
@@ -131,6 +131,16 @@ public class HandRenderer {
                 }
             }
         }
+        String deaths = "Deaths: " + you.getDeaths() + " (next death awards " + you.getNextDeathAwards() + " points)";
+        for(int i=0; i<deaths.length()&&i+3<HAND_WIDTH; i++){
+            box[6][i+3] = String.valueOf(deaths.charAt(i));
+        }
+
+        String points = "Points: " + clientModel.getPoints();
+        for(int i=0; i<points.length()&&i+3<HAND_WIDTH; i++){
+            box[7][i+3] = String.valueOf(points.charAt(i));
+        }
+
         return box;
     }
 }

@@ -62,11 +62,12 @@ public class ClientUpdater {
                 clientModel.moveTo(j.get(PLAYER_PROP).getAsInt(), j.get(SQUARE_PROP).getAsInt());
                 ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " moved to square " + j.get(SQUARE_PROP).getAsInt());
                 break;
-            case (FLIP_UPD):
-                clientModel.flip(j.get(PLAYER_PROP).getAsInt());
+            case (STATUS_UPD):
+                clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setStatus(j.get(STATUS_PROP).getAsString(), j.get(BOOLEAN_PROP).getAsBoolean());
                 break;
             case (ADD_DEATH_UPD):
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).addDeath();
+                clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setNextDeathAwards(j.get(POINTS_PROP).getAsInt());
                 ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was killed!");
                 break;
             case (DAMAGE_UPD):

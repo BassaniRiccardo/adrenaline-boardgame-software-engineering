@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
+import static java.util.Collections.max;
 
 //FIXME: game setup temporarily commented out to allow for quicker testing
 
@@ -42,7 +43,7 @@ public class GameEngine implements Runnable{
     private boolean lastFrenzyPlayer;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    public static boolean endphaseSimulation = false;
+    public static boolean endphaseSimulation = true;
     private static final int TURN_DURATION = 60;
 
 
@@ -459,19 +460,30 @@ public class GameEngine implements Runnable{
 
         System.out.println("\nGame over.\n");
 
-        if (players.get(0).getModel().getPoints() == players.get(1).getModel().getPoints() && !killShotTrack.getKillers().contains(players.get(0).getModel()) && !killShotTrack.getKillers().contains(players.get(1).getModel())) {
-            LOGGER.log(Level.INFO,() -> P + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
-
-            players.get(0).showEnd(addLeaderboard("\n\nGAME OVER\n\nYou and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
-            for (int i = 2; i < players.size(); i++) {
-                showToLoser(i);
+        int maxScore = players.get(0).getModel().getPoints();
+        List<VirtualView> winners = new ArrayList<>();
+        boolean existsKill = false;
+        for (VirtualView p : players){
+            if (p.getModel().getPoints() == maxScore) {
+                winners.add(p);
+                if (killShotTrack.getKillers().contains(p.getModel())){
+                    existsKill = true;
+                }
             }
-        } else {
-            LOGGER.log(Level.INFO,() -> "Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
+        }
 
+        if (existsKill || winners.size()==1){
             players.get(0).showEnd(addLeaderboard("\n\nGAME OVER\n\nYou Won!"));
             for (int i = 1; i < players.size(); i++) {
-
+                showToLoser(i);
+            }
+        }
+        else {
+            for (VirtualView v : winners){
+                v.showEnd(addLeaderboard("\n\nGAME OVER\n\nYou and other players made the most points but did not kill anyone. Shame on you! The game ends with a draw."));
+            }
+            for (int i = winners.size(); i < players.size(); i++) {
+                showToLoser(i);
             }
         }
 
@@ -654,29 +666,33 @@ public class GameEngine implements Runnable{
         BoardConfigurer.configureKillShotTrack(1, board);
         try {
             this.killShotTrack = board.getKillShotTrack();
-        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
+        } catch (NotAvailableAttributeException e) {
+            LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while configuring the kill shot track", e);
+        }
         p1.addDeath();
         p2.addDeath();
         p3.addDeath();
         p1.addDeath();
         p3.addDeath();
-        board.getKillShotTrack().getKillers().addAll(Arrays.asList(p2,p3,p1,p2,p1));
+        board.getKillShotTrack().getKillers().addAll(Arrays.asList(p2, p3, p1, p2, p1));
         p1.setPointsToGive(4);
         p2.setPointsToGive(6);
         p3.setPointsToGive(4);
 
         //assigns damages and update status
-        for (int i=0; i<2; i++)
+        for (int i = 0; i < 2; i++)
             p1.getDamages().add(p2);
         p1.setStatus(Player.Status.BASIC);
 
-        for (int i=0; i<4; i++)
+        for (int i = 0; i < 4; i++)
             p2.getDamages().add(p1);
-        for (int i=0; i<6; i++)
+        for (int i = 0; i < 6; i++)
             p2.getDamages().add(p3);
         p2.setStatus(Player.Status.ADRENALINE_2);
 
-        p3.getDamages().add(p2);
+        for (int i = 0; i < 4; i++){
+            p3.getDamages().add(p2);
+        }
         p3.getDamages().add(p1);
         p3.getDamages().add(p2);
         p3.setStatus(Player.Status.ADRENALINE_1);

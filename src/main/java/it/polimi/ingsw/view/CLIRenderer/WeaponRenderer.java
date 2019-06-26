@@ -58,9 +58,12 @@ public class WeaponRenderer {
 
         try {
             List<ClientModel.SimplePlayer> shooters = clientModel.getKillShotTrack();
-            String[] killshotTrack = new String[shooters.size()];
+            String[] killshotTrack = new String[shooters.size()+clientModel.getSkullsLeft()];
             for (int i = 0; i < shooters.size(); i++) {
                 killshotTrack[i] = ClientModel.getEscapeCode(shooters.get(i).getColor()) + "♱" + RESET;
+            }
+            for(int i=shooters.size(); i<shooters.size()+clientModel.getSkullsLeft(); i++){
+                killshotTrack[i] = "X";
             }
             for (int i = 0; i < "KillShot: ".length(); i++) {
                 box[rows + 2][i + 3] = String.valueOf("Killshot: ".charAt(i));

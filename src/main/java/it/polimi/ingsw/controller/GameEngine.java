@@ -678,6 +678,7 @@ public class GameEngine implements Runnable{
             for(VirtualView old : players){
                 if(v.getName().equals(old.getName())&&old.isSuspended()){
                     players.set(players.indexOf(old), v);
+                    board.registerObserver(v);
                     resuming.remove(v);
                     ServerMain.getInstance().getPlayers().remove(old);
                     for(VirtualView p : players){

@@ -40,6 +40,7 @@ public class ClientUpdater {
                 if (clientModel.getPlayerID() == j.get(PLAYER_PROP).getAsInt()) {
                     clientModel.getPowerUpInHand().remove(j.get(POWER_UP_NAME_PROP).getAsString());
                 }
+                ui.addHistory(clientModel.getCurrentPlayer().getUsername() + " discarded a " + j.get(POWER_UP_NAME_PROP).getAsString());
                 break;
             case (PICKUP_WEAPON_UPD):
                 clientModel.getCurrentPlayer().pickUpWeapon(j.get(WEAPON_PROP).getAsString());

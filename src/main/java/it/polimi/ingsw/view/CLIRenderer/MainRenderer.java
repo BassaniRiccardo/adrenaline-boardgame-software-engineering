@@ -18,7 +18,7 @@ public class MainRenderer {
     private static final int BOX_WIDTH = 55;
     private static final int MESSAGE_HEIGHT = 10;
     private static final int REQUEST_HEIGHT = 3;
-    private static final int STARTING_MESSAGE_MEMORY = 1;
+    private static final int MESSAGE_MEMORY = 3;
     private static final int PADDING = 1;
     static final String RESET = "\u001b[0m";
 
@@ -27,7 +27,6 @@ public class MainRenderer {
     private List<String> messages;
     private ClientMain clientMain;
     private MapRenderer mapRenderer;
-    private int messageMemory;
 
     /**
      * Standard constructor
@@ -40,7 +39,6 @@ public class MainRenderer {
         this.messages = new ArrayList<>();
         this.clientMain = clientMain;
         this.mapRenderer = new MapRenderer();
-        this.messageMemory = STARTING_MESSAGE_MEMORY;
     }
 
     /**
@@ -126,7 +124,7 @@ public class MainRenderer {
      * @param message   message to add
      */
     public void addMessage(String message){
-        while(messages.size()>=messageMemory) {
+        while(messages.size()>=MESSAGE_MEMORY) {
             messages.remove(0);
         }
         messages.add(message);

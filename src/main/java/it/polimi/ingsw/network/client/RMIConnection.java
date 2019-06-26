@@ -30,6 +30,7 @@ public class RMIConnection implements Runnable, RemoteView {
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private JsonParser jsonParser;
+    private boolean shutdown;
 
 
     /**
@@ -51,7 +52,7 @@ public class RMIConnection implements Runnable, RemoteView {
 
             ExecutorService executor = Executors.newCachedThreadPool();
             executor.submit(()->{
-                while(Thread.currentThread().isAlive()){
+                while(Thread.currentThread().isAlive()&&!shutdown){
                     try {
                         playerStub.ping();
                     }catch(RemoteException ex){
@@ -133,6 +134,7 @@ public class RMIConnection implements Runnable, RemoteView {
     }
 
     public void shutdown(){
+        shutdown = true;
         try {
             UnicastRemoteObject.unexportObject(this, false);
         }catch(NoSuchObjectException ex){

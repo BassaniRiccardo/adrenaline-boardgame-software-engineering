@@ -153,7 +153,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         try{
             remoteView.showSuspension();
         }catch(RemoteException ex){
-            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
+            LOGGER.log(Level.SEVERE, "Unable to send disconnection message to "+name, ex);
         }
     }
 
@@ -162,7 +162,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         try{
             remoteView.showEnd(message);
         }catch(RemoteException ex){
-            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
+            LOGGER.log(Level.SEVERE, "Unable to send disconnection message to" + name, ex);
         }
     }
 }

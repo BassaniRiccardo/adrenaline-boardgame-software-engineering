@@ -43,7 +43,7 @@ public class GameEngine implements Runnable{
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
     public static boolean endphaseSimulation = false;
-    private static final int TURN_DURATION = 60;
+    private static final int TURN_DURATION = 90;
 
 
     /**
@@ -700,6 +700,8 @@ public class GameEngine implements Runnable{
             for(VirtualView old : players){
                 if(v.getName().equals(old.getName())&&old.isSuspended()){
                     players.set(players.indexOf(old), v);
+                    v.setPlayer(old.getModel());
+                    v.setGame(this);
                     board.registerObserver(v);
                     resuming.remove(v);
                     ServerMain.getInstance().getPlayers().remove(old);

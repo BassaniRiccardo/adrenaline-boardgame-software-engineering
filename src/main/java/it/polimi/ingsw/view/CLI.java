@@ -262,22 +262,24 @@ public class CLI implements UI{
 
     public void displayDisconnection(){
         System.out.print("\033[H\033[2J");
-        System.out.print("You cannot reach the server. You can try starting another client and log in with the same username to resume. Press any button to close the game");
+        System.out.println("You cannot reach the server. You can try starting another client and log in with the same username to resume. Press any button to close the game");
         try {
             in.readLine();
         }catch(IOException ex){
             LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
         }
+        System.out.print("\033[H\033[2J");
     }
 
     public void displaySuspension(){
         System.out.print("\033[H\033[2J");
-        System.out.print("You were suspended from the server because you were not able to finish your turn in time. Press any button to close the game.");
+        System.out.println("You were suspended from the server because you were not able to finish your turn in time. Press any button to close the game.");
         try {
             in.readLine();
         }catch(IOException ex){
             LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
         }
+        System.out.print("\033[H\033[2J");
     }
 
     public void displayEnd(String message){
@@ -289,6 +291,7 @@ public class CLI implements UI{
         }catch(IOException ex){
             LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
         }
+        System.out.print("\033[H\033[2J");
     }
 
     public void addHistory(String message){

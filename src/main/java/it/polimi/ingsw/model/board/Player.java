@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static it.polimi.ingsw.model.cards.AmmoPack.MAX_AMMO;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 import static java.util.Collections.*;
 import static it.polimi.ingsw.model.cards.Color.*;
@@ -228,14 +229,7 @@ public class Player {
 
 
     public void setPosition(Square square) {
-
-        if (!this.board.getMap().contains(square)) throw new IllegalArgumentException("The player must be located in a square that belongs to the board.");
-        if (this.position!=null){
-            this.position.removePlayer(this);
-        }
-        previousPosition = position;
-        this.position = square;
-        square.addPlayer(this);
+        setVirtualPosition(square);
         board.addToUpdateQueue(Updater.get(Updater.MOVE_UPD, this, square));
     }
 
@@ -383,8 +377,14 @@ public class Player {
      * @param ammoPack         ammo added.
      */
     public void addAmmoPack(AmmoPack ammoPack) {
-        this.ammoPack.addAmmoPack(ammoPack);
-        board.addToUpdateQueue(Updater.get(Updater.ADD_AMMO_UPD, this, ammoPack));
+
+        int blue = Math.min(MAX_AMMO - this.ammoPack.getBlueAmmo(), ammoPack.getBlueAmmo());
+        int red = Math.min(MAX_AMMO - this.ammoPack.getRedAmmo(), ammoPack.getRedAmmo());
+        int yellow = Math.min(MAX_AMMO - this.ammoPack.getYellowAmmo(), ammoPack.getYellowAmmo());
+        AmmoPack ap = new AmmoPack(red, blue, yellow);
+
+        this.ammoPack.addAmmoPack(ap);
+        board.addToUpdateQueue(Updater.get(Updater.ADD_AMMO_UPD, this, ap));
     }
 
 
@@ -672,6 +672,7 @@ public class Player {
             else pointsToGive -= 2;
         }
         this.damages.clear();
+        this.setStatus(Status.BASIC);
         this.dead = false;
     }
 

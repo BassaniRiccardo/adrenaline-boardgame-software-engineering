@@ -87,6 +87,7 @@ public class FireMode implements Targeted {
         for(Player p : new ArrayList<>(targets)){
             effect.apply(weapon.getHolder(), p, destination);
         }
+        System.out.println("effect applied");
         weapon.getHolder().useAmmo(cost);
     }
 

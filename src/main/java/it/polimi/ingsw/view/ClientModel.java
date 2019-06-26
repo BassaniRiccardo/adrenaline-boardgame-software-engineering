@@ -258,10 +258,6 @@ public class ClientModel {
         public List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
 
         public void pickUpWeapon(String name){
-            System.out.println("vfffffffffffffffffffffffh");
-            System.out.println(this);
-            System.out.println(this.position);
-            System.out.println(this.position.getWeapons());
 
             for(SimpleWeapon w : this.position.getWeapons()){
                 if(w.getName().equals(name)){
@@ -348,8 +344,6 @@ public class ClientModel {
         }
 
         public void setLoaded(boolean loaded) {
-            System.out.println("loading weapon in client model");
-            System.out.println(loaded);
             this.loaded = loaded;
         }
     }
@@ -456,12 +450,8 @@ public class ClientModel {
     }
 
     public void moveTo(int player, int square) {
-        System.out.println(player);
-        System.out.println(square);
         SimplePlayer p = getPlayer(player);
         SimpleSquare s = getSquare(square);
-        System.out.println(p);
-        System.out.println(s);
         p.setPosition(s);
     }
 

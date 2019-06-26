@@ -15,7 +15,6 @@ import java.util.concurrent.*;
 import java.util.logging.*;
 import java.util.stream.Collectors;
 
-import static it.polimi.ingsw.controller.ServerMain.main;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
@@ -43,10 +42,11 @@ public class GameEngine implements Runnable{
     private Timer timer;
     private boolean exitGame;
     private List<VirtualView> resuming;
-
+    private boolean lastFrenzyPlayer;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    private static final int TURN_DURATION = 60;
+    public static boolean endphaseSimulation = true;
+    private static final int TURN_DURATION = 6000;
 
 
     /**
@@ -69,6 +69,7 @@ public class GameEngine implements Runnable{
         this.timer = new Timer(TURN_DURATION);
         this.exitGame = false;
         this.resuming = new ArrayList<>();
+        this.lastFrenzyPlayer = false;
         //todo: load from config
         LOGGER.log(Level.FINE, "Initialized GameEngine " + this);
 
@@ -88,6 +89,8 @@ public class GameEngine implements Runnable{
     public Board getBoard() {
         return board;
     }
+
+    public boolean isLastFrenzyPlayer() {return lastFrenzyPlayer; }
 
     /**
      *  Setters
@@ -131,9 +134,19 @@ public class GameEngine implements Runnable{
         LOGGER.log(Level.FINE, "GameEngine running");
 
         final int TURN_TIME = 3;
-        System.out.println("before setup");
         setup();
-        System.out.println("after setup");
+
+        if (endphaseSimulation) {
+            try {
+                for (VirtualView p : players) {
+                    board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
+                }
+                simulateTillEndphase();
+            } catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e) {
+                LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
+            }
+        }
+
 
         ExecutorService executor = Executors.newCachedThreadPool();
         while (!gameOver){
@@ -210,9 +223,7 @@ public class GameEngine implements Runnable{
         //}
         //else  LOGGER.log(Level.INFO,"Frenzy not active.");
 
-        System.out.println("before setting player");
         setCurrentPlayer(players.get(0));
-        System.out.println("before statussaver");
         statusSaver = new StatusSaver(board);
     }
 
@@ -373,16 +384,14 @@ public class GameEngine implements Runnable{
      * @param frenzy                whether the frenzy is active during the turn.
      */
     public void runTurn (ExecutorService executor, int timeout, boolean frenzy) throws NotEnoughPlayersException, SlowAnswerException{
-        System.out.println("before adding");
         for(VirtualView p : players) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
         }
-        System.out.println("before notifying");
         board.notifyObservers();
-        System.out.println("before timer start");
         timer.start();
-        System.out.println("before new TurnManagerT");
-        new TurnManager(this, board, currentPlayer, players, statusSaver, frenzy).runTurn();
+        try {
+            new TurnManager(this, board, currentPlayer, players, statusSaver, frenzy).runTurn();
+        } catch (Exception e ){ e.printStackTrace();}
         timer.stop();
     }
 
@@ -408,9 +417,15 @@ public class GameEngine implements Runnable{
      */
     public void manageGameEnd(ExecutorService executor) throws NotEnoughPlayersException, SlowAnswerException{
 
-        if (!frenzy) gameOver = true;
+        System.out.println("entering manage");
+        if (!frenzy) {
+            System.out.println("setting gameOver to true");
+            gameOver = true;
+        }
         else {
             for (Player p : board.getPlayers()){
+                if (board.getPlayers().indexOf(p) == board.getPlayers().size()-1)
+                    lastFrenzyPlayer = true;
                 if (p.getDamages().isEmpty()){
                     p.setFlipped(true);
                     p.setPointsToGive(2);
@@ -441,18 +456,22 @@ public class GameEngine implements Runnable{
 
         if (players.get(0).getModel().getPoints() == players.get(1).getModel().getPoints() && !killShotTrack.getKillers().contains(players.get(0).getModel()) && !killShotTrack.getKillers().contains(players.get(1).getModel())) {
             LOGGER.log(Level.INFO,() -> P + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
-            players.get(0).showEnd(addLeaderboard("You and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
+
+            players.get(0).showEnd(addLeaderboard("\n\nGAME OVER\n\nYou and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
             for (int i = 2; i < players.size(); i++) {
                 LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-                players.get(i).showEnd(addLeaderboard("Your position: " + (i+1) + " !"));
+                int pos = i + 1;
+                players.get(i).showEnd(addLeaderboard("\n\nGAME OVER\n\nYour position: " + pos + " !"));
 
             }
         } else {
             LOGGER.log(Level.INFO,() -> "Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
-            players.get(0).showEnd(addLeaderboard("You Won!"));
+
+            players.get(0).showEnd(addLeaderboard("\n\nGAME OVER\n\nYou Won!"));
             for (int i = 1; i < players.size(); i++) {
                 LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-                players.get(i).showEnd(addLeaderboard("Your position: " + i+1 + " !"));
+                int pos = i + 1;
+                players.get(i).showEnd(addLeaderboard("\n\nGAME OVER\n\nYour position: " + pos + " !"));
             }
         }
 
@@ -596,10 +615,10 @@ public class GameEngine implements Runnable{
 
     public void simulateTillEndphase() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
 
-        System.out.println("in");
         Player p1 = board.getPlayers().get(0);
         Player p2 = board.getPlayers().get(1);
         Player p3 = board.getPlayers().get(2);
+
 
         p1.setInGame(true);
         p1.setPosition(board.getMap().get(2));
@@ -608,8 +627,12 @@ public class GameEngine implements Runnable{
         p3.setInGame(true);
         p3.setPosition(board.getMap().get(11));
 
+
         //simulates all the previous deaths
-        board.getKillShotTrack().removeSkulls(5);
+        BoardConfigurer.configureKillShotTrack(1, board);
+        try {
+            this.killShotTrack = board.getKillShotTrack();
+        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
         p1.addDeath();
         p2.addDeath();
         p3.addDeath();
@@ -620,48 +643,24 @@ public class GameEngine implements Runnable{
         p2.setPointsToGive(6);
         p3.setPointsToGive(4);
 
-        //assigns damages
-        p1.setDamages(Arrays.asList(p2, p2, p2, p3, p3, p3, p3, p3, p3, p3));
-        p2.setDamages(Arrays.asList(p1, p1, p1, p1, p1, p1, p1, p1, p1, p1));
-        p3.setDamages(Arrays.asList(p2, p1, p2));
+        //assigns damages and update status
+        for (int i=0; i<2; i++)
+            p1.getDamages().add(p2);
+        p1.setStatus(Player.Status.BASIC);
 
-        //gives weapons
-        //simulateDrawWeapon(p1, Weapon.WeaponName.LOCK_RIFLE);
-        //simulateDrawWeapon(p2, Weapon.WeaponName.HEATSEEKER);
-        //simulateDrawWeapon(p2, Weapon.WeaponName.SLEDGEHAMMER);
-        //simulateDrawWeapon(p3, Weapon.WeaponName.RAILGUN);
-        p1.collect(((WeaponSquare)p1.getPosition()).getWeapons().get(0));
-        p2.collect(((WeaponSquare)p2.getPosition()).getWeapons().get(0));
-        p3.collect(((WeaponSquare)p3.getPosition()).getWeapons().get(0));
+        for (int i=0; i<4; i++)
+            p2.getDamages().add(p1);
+        for (int i=0; i<6; i++)
+            p2.getDamages().add(p3);
+        p2.setStatus(Player.Status.ADRENALINE_2);
 
-
-        System.out.println("out");
+        p3.getDamages().add(p2);
+        p3.getDamages().add(p1);
+        p3.getDamages().add(p2);
+        p3.setStatus(Player.Status.ADRENALINE_1);
 
     }
 
-
-
-
-    private void simulateDrawWeapon(Player p, Weapon.WeaponName weaponName) throws UnacceptableItemNumberException,NoMoreCardsException{
-
-        int i = -1;
-
-        for (Card w : board.getWeaponDeck().getDrawable()){
-            if (((Weapon)w).getWeaponName() == weaponName) i = board.getWeaponDeck().getDrawable().indexOf(w);
-        }
-        if (i!=-1) {
-            p.addWeapon((Weapon) board.getWeaponDeck().getDrawable().get(i));
-            board.getWeaponDeck().getDrawable().remove(board.getWeaponDeck().getDrawable().get(i));
-        }
-        else for (WeaponSquare ws : board.getSpawnPoints()){
-            for (Weapon w : ws.getWeapons())
-                if ((w.getWeaponName()== weaponName)){
-                    ws.removeCard(w);
-                    p.addWeapon(w);
-                    break;
-                }
-        }
-    }
 
     public synchronized boolean tryResuming(VirtualView p){   //TODO: synchronize?
         for (VirtualView v : players){

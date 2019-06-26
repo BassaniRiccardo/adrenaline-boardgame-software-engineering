@@ -21,6 +21,7 @@ public class ClientUpdater {
                 clientModel.getCurrentPlayer().getWeapon(j.get(WEAPON_PROP).getAsString()).setLoaded(j.get(LOADED_PROP).getAsBoolean());
                 break;
             case (REMOVE_SKULL_UPD):
+                System.out.println(clientModel);
                 clientModel.removeSkulls(j.get(SKULL_NUMBER_PROP).getAsInt());
                 break;
             case (POWER_UP_DECK_REGEN_UPD):
@@ -53,10 +54,10 @@ public class ClientUpdater {
                 clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).getWeapons().add(w);
                 break;
             case (USE_AMMO_UPD):
-                clientModel.getCurrentPlayer().subAmmo(j.get(BLUE_AMMO_PROP).getAsInt(), j.get(RED_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
+                clientModel.getCurrentPlayer().subAmmo(j.get(RED_AMMO_PROP).getAsInt(), j.get(BLUE_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
                 break;
             case (ADD_AMMO_UPD):
-                clientModel.getCurrentPlayer().addAmmo(j.get(BLUE_AMMO_PROP).getAsInt(), j.get(RED_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
+                clientModel.getCurrentPlayer().addAmmo(j.get(RED_AMMO_PROP).getAsInt(), j.get(BLUE_AMMO_PROP).getAsInt(), j.get(YELLOW_AMMO_PROP).getAsInt());
                 break;
             case (MOVE_UPD):
                 clientModel.moveTo(j.get(PLAYER_PROP).getAsInt(), j.get(SQUARE_PROP).getAsInt());

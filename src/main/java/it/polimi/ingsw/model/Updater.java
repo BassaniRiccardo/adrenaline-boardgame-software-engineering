@@ -204,6 +204,7 @@ public class Updater {
      */
     public static JsonObject getModel(Board board, Player player) {
 
+
         ClientModel cm = new ClientModel();
 
         //simpleSquares
@@ -217,28 +218,24 @@ public class Updater {
 
         //simplePlayers, currentPlayer, killShotTrack
         List<ClientModel.SimplePlayer> simplePlayers = new ArrayList<>();
-        List<ClientModel.SimplePlayer> killers = new ArrayList<>();
+        List<ClientModel.SimplePlayer> killers = new ArrayList<>(12);
 
         for (Player p : board.getPlayers()){
-
             ClientModel.SimplePlayer simplePlayer = createSimplePlayer(p, board);
             simplePlayers.add(simplePlayer);
-
-
-            //creates the killShotTrack
-            try {
-                for (Player killer : board.getKillShotTrack().getKillers()) {
-                    if (killer.equals(p)) {
-                        killers.add(board.getKillShotTrack().getKillers().indexOf(killer), simplePlayer);
-                    }
-                }
-            } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE, "NotAvailableAtribute exception thrown while getting the killshot track");}
-
         }
+
         cm.setPlayers(simplePlayers);
         cm.setCurrentPlayerId(board.getCurrentPlayer().getId());
         cm.setPlayerID(player.getId());
         cm.setPoints(player.getPoints());
+
+        //creates the killShotTrack
+        try {
+            for (Player killer : board.getKillShotTrack().getKillers()) {
+                    killers.add(cm.getPlayer(killer.getId()));
+                }
+        } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE, "NotAvailableAttribute exception thrown while getting the killshot track");}
 
         cm.setKillShotTrack(killers);
         try {

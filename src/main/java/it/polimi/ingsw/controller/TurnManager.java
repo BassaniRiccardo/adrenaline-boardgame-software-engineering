@@ -736,12 +736,23 @@ public class TurnManager {
 
         else updateAndNotifyAll();
 
+        currentPlayerConnection.display("Asking hit players if they want to use a tagback grenade.");
+
         //grenade
         for (Player p : board.getActivePlayers()){
+            System.out.println(p);
+            System.out.println(p.hasUsableTagbackGrenade());
+            System.out.println(p.isJustDamaged());
+            if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged())
+                getVirtualView(p).display(currentPlayer.userToString() + " shot you.");
             while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged()){
+                System.out.println("entering while");
                 if (!handleTagbackGrenade(p)) break;
             }
         }
+
+        currentPlayerConnection.display("Your turn continues.\n");
+
 
         //update deaths
         for (Player p: board.getActivePlayers()) {
@@ -1005,6 +1016,8 @@ public class TurnManager {
      */
     private boolean handleTagbackGrenade(Player p) throws SlowAnswerException, NotEnoughPlayersException{
 
+        System.out.println("entering handleGrenade");
+
         VirtualView player = getVirtualView(p);
         player.choose("Do you want to use a tagback grenade?", new ArrayList(Arrays.asList("yes", "no")) );
         int answer = Integer.parseInt(gameEngine.wait(player));
@@ -1026,8 +1039,19 @@ public class TurnManager {
             } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while using the tagback grenade", e);}
             if (!askConfirmation("Do you confirm your decisions about grenades?", p)){
                 statusSaver.restoreCheckpoint();
+                board.addToUpdateQueue(Updater.getModel(board, p), getVirtualView(p));
                 board.notifyObserver(getVirtualView(p));
                 return(handleTagbackGrenade(p));
+            }
+            else {
+                System.out.println("entering in else");
+                try {
+                    System.out.println("entering in try");
+                    System.out.println(!p.hasUsableTagbackGrenade());
+                    if (!p.hasUsableTagbackGrenade())
+                        getVirtualView(p).display("The turn of " + currentPlayer + "continues.\n");
+                } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while looking for player's grenade", e);}
+                updateAndNotifyAll();
             }
             return true;
         }
@@ -1038,7 +1062,14 @@ public class TurnManager {
             return(handleTagbackGrenade(p));
         }
 
-        else updateAndNotifyAll();
+        else {
+            getVirtualView(p).display("The turn of " + currentPlayer.userToString() + " continues.\n");
+            updateAndNotifyAll();
+        }
+
+
+        System.out.println("exiting handleGrenade");
+
         return false;
     }
 
@@ -1195,11 +1226,13 @@ public class TurnManager {
     public static List<String> toUserStringList(List<List<Player>> playerGroups){
         List<String> encoded = new ArrayList<>();
         for (List<Player> p : playerGroups ) {
-            String toAdd = "";
+            StringBuilder builder = new StringBuilder();
             for (Player player : p) {
-                toAdd += player.userToString();
+                if (!builder.toString().isEmpty())
+                builder.append(", ");
+                builder.append(player.userToString());
             }
-            encoded.add(toAdd);
+            encoded.add(builder.toString());
         }
         return encoded;
     }

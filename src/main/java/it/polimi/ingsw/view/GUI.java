@@ -45,7 +45,7 @@ import javafx.scene.layout.VBox;
 public class GUI extends Application implements UI, Runnable, EventHandler {
 
     private ClientMain clientMain;
-    private Color color = Color.rgb(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256));
+    private Color color = Color.rgb(255, 255,255);
     private Stage stage;
     private Scene scene;
     private BorderPane root;

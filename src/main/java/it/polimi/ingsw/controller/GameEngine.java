@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
-import static java.util.Collections.max;
 
 //FIXME: game setup temporarily commented out to allow for quicker testing
 
@@ -43,8 +42,8 @@ public class GameEngine implements Runnable{
     private boolean lastFrenzyPlayer;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    public static boolean endphaseSimulation = true;
-    private static final int TURN_DURATION = 60;
+    public static boolean endphaseSimulation = false;
+    private static final int TURN_DURATION = 1000;
 
 
     /**

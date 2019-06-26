@@ -488,7 +488,7 @@ public class Player {
      */
     public boolean hasUsableTagbackGrenade() throws NotAvailableAttributeException {
         for (PowerUp p : getPowerUpList()) {
-            if (p.getName() == PowerUp.PowerUpName.TAGBACK_GRENADE && !(p.findTargets().isEmpty())) return true;
+            if (p.getName() == PowerUp.PowerUpName.TAGBACK_GRENADE) return true;
         }
         return false;
     }

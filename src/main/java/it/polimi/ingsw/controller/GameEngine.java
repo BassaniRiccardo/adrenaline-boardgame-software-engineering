@@ -134,16 +134,13 @@ public class GameEngine implements Runnable{
         LOGGER.log(Level.FINE, "GameEngine running");
 
         final int TURN_TIME = 3;
-        System.out.println("before setup");
         setup();
-        System.out.println("after setup");
 
         if (endphaseSimulation) {
             try {
                 for (VirtualView p : players) {
                     board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
                 }
-                System.out.println("Before simulating endphase");
                 simulateTillEndphase();
             } catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e) {
                 LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
@@ -226,9 +223,7 @@ public class GameEngine implements Runnable{
         //}
         //else  LOGGER.log(Level.INFO,"Frenzy not active.");
 
-        System.out.println("before setting player");
         setCurrentPlayer(players.get(0));
-        System.out.println("before statussaver");
         statusSaver = new StatusSaver(board);
     }
 
@@ -620,9 +615,6 @@ public class GameEngine implements Runnable{
 
     public void simulateTillEndphase() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
 
-        BoardConfigurer.configureKillShotTrack(1, board);
-
-        /*
         Player p1 = board.getPlayers().get(0);
         Player p2 = board.getPlayers().get(1);
         Player p3 = board.getPlayers().get(2);
@@ -637,7 +629,10 @@ public class GameEngine implements Runnable{
 
 
         //simulates all the previous deaths
-        board.setKillShotTrack(new KillShotTrack(1, board));
+        BoardConfigurer.configureKillShotTrack(1, board);
+        try {
+            this.killShotTrack = board.getKillShotTrack();
+        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
         p1.addDeath();
         p2.addDeath();
         p3.addDeath();
@@ -649,14 +644,21 @@ public class GameEngine implements Runnable{
         p3.setPointsToGive(4);
 
         //assigns damages and update status
-        p1.setDamages(Arrays.asList(p2, p2, p2, p3, p3, p3, p3, p3, p3, p3));
-        p1.setStatus(Player.Status.ADRENALINE_2);
-        p2.setDamages(Arrays.asList(p1, p1, p1, p1, p1, p1, p1, p1, p1, p1));
+        for (int i=0; i<2; i++)
+            p1.getDamages().add(p2);
+        p1.setStatus(Player.Status.BASIC);
+
+        for (int i=0; i<4; i++)
+            p2.getDamages().add(p1);
+        for (int i=0; i<6; i++)
+            p2.getDamages().add(p3);
         p2.setStatus(Player.Status.ADRENALINE_2);
-        p3.setDamages(Arrays.asList(p2, p1, p2));
+
+        p3.getDamages().add(p2);
+        p3.getDamages().add(p1);
+        p3.getDamages().add(p2);
         p3.setStatus(Player.Status.ADRENALINE_1);
 
-*/
     }
 
 

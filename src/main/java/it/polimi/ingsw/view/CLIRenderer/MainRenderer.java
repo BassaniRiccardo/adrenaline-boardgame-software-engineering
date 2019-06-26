@@ -197,15 +197,11 @@ public class MainRenderer {
                 col=0;
             } else {
                 if(row>=startFromRow&&row<rows-2*PADDING) {
-                    System.out.println(row-startFromRow+PADDING);
-                    System.out.println(col+PADDING);
                     res[row - startFromRow + PADDING][col + PADDING] = String.valueOf(message.charAt(i));
                 }
                 col++;
                 if(col>width-2-2*PADDING&&row>=startFromRow&&row<rows-2*PADDING){
                     if(i<message.length()-1&&message.charAt(i)!=' '&&message.charAt(i+1)!=' ') {
-                        System.out.println(row-startFromRow+PADDING);
-                        System.out.println(col+PADDING+1);
                         res[row - startFromRow + PADDING][col + PADDING+1] = "-";
                     }
                     row++;

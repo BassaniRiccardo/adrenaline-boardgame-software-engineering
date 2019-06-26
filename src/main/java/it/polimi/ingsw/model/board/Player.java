@@ -672,6 +672,7 @@ public class Player {
             else pointsToGive -= 2;
         }
         this.damages.clear();
+        this.setStatus(Status.BASIC);
         this.dead = false;
     }
 

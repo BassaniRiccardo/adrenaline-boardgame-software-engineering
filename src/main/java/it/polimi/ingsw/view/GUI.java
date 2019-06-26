@@ -6,7 +6,6 @@ import java.awt.*;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -588,6 +587,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         return dataSaver.answer;
 
+    }
+
+    public String get(String type, List<String> list){
+        //TODO: implement this method. It will take the place of get(List<String> list).
+
+        //fake return
+        return "";
     }
 
 

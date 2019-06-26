@@ -81,7 +81,7 @@ public class CLI implements UI{
      * @return      a string containing the number of the option chosen
      */
     @Override
-    public String get(List<String> list){
+    public String get(String type, List<String> list){
         receiving = true;
         boolean verified = false;
         while(!verified) {

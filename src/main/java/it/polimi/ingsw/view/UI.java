@@ -43,7 +43,7 @@ public interface UI extends Runnable {
 
     String get(String max);
 
-    String get(List<String> list);
+    String get(String type, List<String> list);
 
     void render();
 

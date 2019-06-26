@@ -88,13 +88,14 @@ public class TCPVirtualView extends VirtualView {
     }
 
     @Override
-    public void choose(String msg, List<?> options){
+    public void choose(String type, String msg, List<?> options){
         if(busy){
             return;
         }
         busy = true;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "OPT");
+        jsonObject.addProperty("type", type);
         jsonObject.addProperty("text", msg);
 
         JsonArray array = new JsonArray();
@@ -107,15 +108,15 @@ public class TCPVirtualView extends VirtualView {
     }
 
     @Override
-    public void choose(String msg, List<?> options, int timeoutSec){
-        choose(msg, options);
+    public void choose(String type, String msg, List<?> options, int timeoutSec){
+        choose(type, msg, options);
         timeout = true;
         timestamp = timeoutSec*1000 + System.currentTimeMillis();
     }
 
     @Override
-    public int chooseNow(String msg, List<?> options){
-        choose(msg, options);
+    public int chooseNow(String type, String msg, List<?> options){
+        choose(type, msg, options);
         waiting = true;
         return Integer.parseInt(receive());
     }

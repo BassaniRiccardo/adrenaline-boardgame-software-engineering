@@ -122,7 +122,7 @@ public class TCPConnection implements Runnable {
                             }
                             executor.submit(
                                 ()->{
-                                    int choice = clientMain.choose(jMessage.get("text").getAsString(), list);
+                                    int choice = clientMain.choose(jMessage.get("type").getAsString(), jMessage.get("text").getAsString(), list);
                                     send(String.valueOf(choice));
                                 }
                             );

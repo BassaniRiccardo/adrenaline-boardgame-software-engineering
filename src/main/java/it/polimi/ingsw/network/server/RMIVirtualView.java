@@ -52,7 +52,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     @Override
-    public void choose(String msg, List<?> options){
+    public void choose(String type, String msg, List<?> options){
         if(busy) return;
         busy=true;
         synchronized (game.getNotifications()) {
@@ -61,7 +61,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         executor.submit(
             ()-> {
                 try {
-                    int i = remoteView.choose(msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
+                    int i = remoteView.choose(type, msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
                     if(busy) {
                         busy=false;
                         notifyObservers(String.valueOf(i));
@@ -74,7 +74,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     @Override
-    public void choose(String msg, List<?> options, int timeoutSec){
+    public void choose(String type, String msg, List<?> options, int timeoutSec){
         if(busy) return;
         busy=true;
         long timestamp = System.currentTimeMillis() + timeoutSec*1000;
@@ -84,7 +84,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         executor.submit(
                 ()-> {
                     try {
-                        int i = remoteView.choose(msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
+                        int i = remoteView.choose(type, msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
                         if(busy&&System.currentTimeMillis()<timestamp) {
                             busy=false;
                             notifyObservers(String.valueOf(i));
@@ -116,9 +116,9 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     }
 
     @Override
-    public int chooseNow(String msg, List<?> options){
+    public int chooseNow(String type, String msg, List<?> options){
         try {
-            return remoteView.choose(msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
+            return remoteView.choose(type, msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
         }catch(RemoteException ex){
             suspend();
         }

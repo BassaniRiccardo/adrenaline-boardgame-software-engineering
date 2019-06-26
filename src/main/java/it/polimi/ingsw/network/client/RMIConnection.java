@@ -84,8 +84,8 @@ public class RMIConnection implements Runnable, RemoteView {
      * @return          int corresponding to the choice
      * @throws RemoteException
      */
-    public int choose(String msg, List<String> options) throws RemoteException{
-        return clientMain.choose(msg, options);
+    public int choose(String type, String msg, List<String> options) throws RemoteException{
+        return clientMain.choose(type, msg, options);
     }
 
     /**

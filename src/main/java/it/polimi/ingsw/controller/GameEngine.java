@@ -156,7 +156,7 @@ public class GameEngine implements Runnable{
                 allowPlayersToResume();
                 try {
                     try {
-                        runTurn(executor, TURN_TIME, false);
+                        runTurn(false);
                     } catch (SlowAnswerException ex) {
                         currentPlayer.suspend();
                         checkForSuspension();
@@ -183,7 +183,7 @@ public class GameEngine implements Runnable{
 
             ServerMain.getInstance().untrackGame(this);
 
-        } catch (Exception e) {e.printStackTrace();}
+        } catch (Exception e) {e.printStackTrace(); throw e;}
 
     }
 
@@ -386,11 +386,9 @@ public class GameEngine implements Runnable{
      * Runs a turn, starting a timer representing the maximum time the user can use to complete his turn.
      * A turn can be a normal turn or a turn of the frenzy phase.
      *
-     * @param executor              the executor which execute the  thread of TurnManager.
-     * @param timeout               the maximum time to complete a turn.
      * @param frenzy                whether the frenzy is active during the turn.
      */
-    public void runTurn (ExecutorService executor, int timeout, boolean frenzy) throws NotEnoughPlayersException, SlowAnswerException{
+    public void runTurn (boolean frenzy) throws NotEnoughPlayersException, SlowAnswerException{
         for(VirtualView p : players) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
         }
@@ -398,7 +396,7 @@ public class GameEngine implements Runnable{
         timer.start();
         try {
             new TurnManager(this, board, currentPlayer, players, statusSaver, frenzy).runTurn();
-        } catch (Exception e ){ e.printStackTrace();}
+        } catch (Exception e ){ e.printStackTrace(); throw e;}
         timer.stop();
     }
 
@@ -445,7 +443,7 @@ public class GameEngine implements Runnable{
             }
             LOGGER.log(Level.INFO,"\nNo more skulls left:\n\nFrenzy mode!!!!!!\n");
             for (int i=0; i<players.size(); i++){
-                runTurn(executor, 1, true);
+                runTurn(true);
                 changePlayer();
             }
             gameOver = true;

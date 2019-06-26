@@ -105,22 +105,26 @@ public final class Action {
     @Override
     public String toString(){
 
-        String description = "";
+        StringBuilder builder = new StringBuilder();
 
         if (steps > 0){
-            description += "Move up to " + steps + " squares." ;
+            if (!builder.toString().isEmpty())  builder.append(" ");
+            builder.append("Move up to " + steps + " squares.");
         }
         if (collect){
-            description += "Collect.";
+            if (!builder.toString().isEmpty())  builder.append(" ");
+            builder.append("Collect.");
         }
         if (reload){
-            description += "Reload.";
+            if (!builder.toString().isEmpty())  builder.append(" ");
+            builder.append("Reload.");
         }
         if (shoot){
-            description += "Shoot.";
+            if (!builder.toString().isEmpty())  builder.append(" ");
+            builder.append("Shoot.");
         }
 
-        return description;
+        return builder.toString();
 
     }
 

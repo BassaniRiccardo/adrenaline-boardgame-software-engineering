@@ -4,9 +4,6 @@ import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.KillShotTrack;
 import it.polimi.ingsw.model.board.Player;
-import it.polimi.ingsw.model.board.WeaponSquare;
-import it.polimi.ingsw.model.cards.Card;
-import it.polimi.ingsw.model.cards.Weapon;
 import it.polimi.ingsw.model.exceptions.*;
 import it.polimi.ingsw.network.server.VirtualView;
 
@@ -75,6 +72,7 @@ public class GameEngine implements Runnable{
 
     }
 
+
     /**
      *  Getters
      */
@@ -92,6 +90,7 @@ public class GameEngine implements Runnable{
 
     public boolean isLastFrenzyPlayer() {return lastFrenzyPlayer; }
 
+
     /**
      *  Setters
      */
@@ -105,6 +104,7 @@ public class GameEngine implements Runnable{
         this.board.setCurrentPlayer(currentPlayer.getModel());
         LOGGER.log(Level.FINE, "CurrentPlayer set to " + currentPlayer.getName());
     }
+
 
     /**
      * Only for testing
@@ -131,55 +131,59 @@ public class GameEngine implements Runnable{
      */
     public void run(){
 
-        LOGGER.log(Level.FINE, "GameEngine running");
+        try {
 
-        final int TURN_TIME = 3;
-        setup();
+            LOGGER.log(Level.FINE, "GameEngine running");
 
-        if (endphaseSimulation) {
-            try {
-                for (VirtualView p : players) {
-                    board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
-                }
-                simulateTillEndphase();
-            } catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e) {
-                LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
-            }
-        }
+            final int TURN_TIME = 3;
+            setup();
 
-
-        ExecutorService executor = Executors.newCachedThreadPool();
-        while (!gameOver){
-            LOGGER.log(Level.FINE, "Running turn");
-            allowPlayersToResume();
-            try {
+            if (endphaseSimulation) {
                 try {
-                    runTurn(executor, TURN_TIME, false);
-                } catch (SlowAnswerException ex) {
-                    currentPlayer.suspend();
-                    checkForSuspension();
+                    for (VirtualView p : players) {
+                        board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
+                    }
+                    simulateTillEndphase();
+                } catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e) {
+                    LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
                 }
-            }catch (NotEnoughPlayersException e) {
-                exitGame = true;
-                break;
             }
 
-            if (killShotTrack.getSkullsLeft() == 0) {
-                LOGGER.log(Level.FINE, "There are no skulls left, managing the end of the game");
+
+            ExecutorService executor = Executors.newCachedThreadPool();
+            while (!gameOver) {
+                LOGGER.log(Level.FINE, "Running turn");
+                allowPlayersToResume();
                 try {
-                    manageGameEnd(executor);
+                    try {
+                        runTurn(executor, TURN_TIME, false);
+                    } catch (SlowAnswerException ex) {
+                        currentPlayer.suspend();
+                        checkForSuspension();
+                    }
                 } catch (NotEnoughPlayersException e) {
                     exitGame = true;
                     break;
-                }  catch (SlowAnswerException ex) {
-                    currentPlayer.suspend();
                 }
-            }
-            changePlayer();
-        }
-        resolve();
 
-        ServerMain.getInstance().untrackGame(this);
+                if (killShotTrack.getSkullsLeft() == 0) {
+                    LOGGER.log(Level.FINE, "There are no skulls left, managing the end of the game");
+                    try {
+                        manageGameEnd(executor);
+                    } catch (NotEnoughPlayersException e) {
+                        exitGame = true;
+                        break;
+                    } catch (SlowAnswerException ex) {
+                        currentPlayer.suspend();
+                    }
+                }
+                changePlayer();
+            }
+            resolve();
+
+            ServerMain.getInstance().untrackGame(this);
+
+        } catch (Exception e) {e.printStackTrace();}
 
     }
 
@@ -256,6 +260,7 @@ public class GameEngine implements Runnable{
 
     }
 
+
     /**
      * Configures the kill shot track asking the players for their preference.
      */
@@ -280,6 +285,7 @@ public class GameEngine implements Runnable{
 
         LOGGER.log(Level.INFO,() -> "Players voted. Number of skulls: " + averageSkullNumber + ".");
     }
+
 
     /**
      * Adds to the board the players connected to the game.
@@ -310,6 +316,7 @@ public class GameEngine implements Runnable{
 
     }
 
+
     /**
      * Returns the player who has to play after the current one.
      *
@@ -318,7 +325,7 @@ public class GameEngine implements Runnable{
     public VirtualView getNextPlayer(){   //must be robust for an empty list of player
 
         int ind = players.indexOf(currentPlayer);
-        ind++ ;
+        ind++;
 
         if (ind > players.size()-1)  {
             ind = 0;
@@ -459,30 +466,47 @@ public class GameEngine implements Runnable{
 
             players.get(0).showEnd(addLeaderboard("\n\nGAME OVER\n\nYou and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
             for (int i = 2; i < players.size(); i++) {
-                LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-                int pos = i + 1;
-                players.get(i).showEnd(addLeaderboard("\n\nGAME OVER\n\nYour position: " + pos + " !"));
-
+                showToLoser(i);
             }
         } else {
             LOGGER.log(Level.INFO,() -> "Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
 
             players.get(0).showEnd(addLeaderboard("\n\nGAME OVER\n\nYou Won!"));
             for (int i = 1; i < players.size(); i++) {
-                LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
-                int pos = i + 1;
-                players.get(i).showEnd(addLeaderboard("\n\nGAME OVER\n\nYour position: " + pos + " !"));
+
             }
         }
 
     }
 
+
+    /**
+     * Sends to a specific player a message showing his position at the end of the game.
+     * Sent only to the player who did non win the game
+     *
+     * @param i     the index of the player the message must be sent to.
+     */
+    public void showToLoser(int i){
+        LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+        int pos = i + 1;
+        players.get(i).showEnd(addLeaderboard("\n\nGAME OVER\n\nYour position: " + pos + "!"));
+    }
+
+
+    /**
+     * Append to a specified string a string containing information about the leaderboard.
+     *
+     * @param s     the string to modify
+     * @return      the modified string
+     */
     public String addLeaderboard(String s){
-        s += "\n\nLeaderboard:\n";
+        StringBuilder builder = new StringBuilder();
+        builder.append(s);
+        builder.append("\n\nLeaderboard:\n");
         for (VirtualView v : players){
-            s += v.getModel().getUsername() + ": " + v.getModel().getPoints() + " points\n";
+            builder.append(v.getModel().getUsername() + ": " + v.getModel().getPoints() + " points\n");
         }
-        return s;
+        return builder.toString();
     }
 
 
@@ -493,7 +517,6 @@ public class GameEngine implements Runnable{
      * @param timeout       timeout
      * @return answer
      */
-
     public String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
         long start = System.currentTimeMillis();
         long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
@@ -520,6 +543,7 @@ public class GameEngine implements Runnable{
             return notifications.get(current);
         }
     }
+
 
     /**
      * Wait for a player's input for as long as needed.

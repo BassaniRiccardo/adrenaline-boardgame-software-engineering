@@ -83,6 +83,7 @@ public class TurnManager {
     public void runTurn() throws NotEnoughPlayersException, SlowAnswerException {
 
         System.out.println("inside turnManager");
+        currentPlayerConnection.display("\nIt's your turn!\n");
 
         dead.clear();
         updateAndSendModel();
@@ -108,34 +109,37 @@ public class TurnManager {
                 }
 
                 LOGGER.log(Level.FINE, "All actions executed");
+            }
 
-                for (Player p : board.getPlayers()) {
-                    LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
-                }
+            for (Player p : board.getPlayers()) {
+                LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
+            }
 
-                //------>checkpoint
-                updateAndNotifyAll();
+            //------>checkpoint
+            updateAndNotifyAll();
 
-                boolean choice1 = handleUsingPowerUp();
-                boolean choice2 = convertPowerUp(false);
-                boolean choice3 = reload(3);
+            boolean choice1 = handleUsingPowerUp();
+            boolean choice2 = convertPowerUp(false);
+            boolean choice3 = reload(3);
 
-                if (choice1 || choice2 || choice3) {
-                    while (!askConfirmation("Do you confirm the ending phase?")) {
-                        LOGGER.log(Level.FINE, "{0} resets the action", currentPlayer);
-                        statusSaver.restoreCheckpoint();
-                        board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
-                        board.revertUpdates(currentPlayerConnection);
-                        board.notifyObserver(currentPlayerConnection);
-                        board.setReset(false);
-                        handleUsingPowerUp();
-                        convertPowerUp(false);
-                        reload(3);
-                    }
+            if (choice1 || choice2 || choice3) {
+                while (!askConfirmation("Do you confirm the ending phase?")) {
+                    LOGGER.log(Level.FINE, "{0} resets the action", currentPlayer);
+                    statusSaver.restoreCheckpoint();
+                    board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
+                    board.revertUpdates(currentPlayerConnection);
+                    board.notifyObserver(currentPlayerConnection);
+                    board.setReset(false);
+                    handleUsingPowerUp();
+                    convertPowerUp(false);
+                    reload(3);
                 }
             }
+
         } catch(SlowAnswerException e){
             statusSaver.restoreCheckpoint();
+            replaceWeapons();
+            replaceAmmoTiles();
             board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
             board.revertUpdates(currentPlayerConnection);
             board.notifyObserver(currentPlayerConnection);
@@ -181,7 +185,7 @@ public class TurnManager {
             LOGGER.log(Level.FINE, () -> p + ": \t\t" + p.getPoints() + " points \t\t" + p.getDamages().size() + " damages.");
         }
 
-        System.out.println("\n\n\n");
+        currentPlayerConnection.display("\nEnd of the turn\n");
 
     }
 

@@ -25,12 +25,36 @@ public class PlayerBoardRenderer {
     private double scalePB;
     private List<ClientModel.SimplePlayer> players;
     private ClientModel clientModel;
+    private String renderInstruction;
+    private List<Button> inputButtons;
+    private List<String> labelButton;
 
 
-    public PlayerBoardRenderer(double scPB, List<ClientModel.SimplePlayer> pl, ClientModel clientModel){
+    public PlayerBoardRenderer(double scPB, ClientModel clientModel){
         this.scalePB=scPB;
-        this.players = pl;
         this.clientModel=clientModel;
+    }
+
+    public void setScalePB(double scalePB) {
+        this.scalePB = scalePB;
+    }
+
+    public void setPlayers(List<ClientModel.SimplePlayer> players) {this.players = players;}
+
+    public void setClientModel(ClientModel clientModel) {
+        this.clientModel = clientModel;
+    }
+
+    public void setRenderInstruction(String renderInstruction) {
+        this.renderInstruction = renderInstruction;
+    }
+
+    public void setInputButtons(List<Button> inputButtons) {
+        this.inputButtons = inputButtons;
+    }
+
+    public void setLabelButton(List<String> labelButton) {
+        this.labelButton = labelButton;
     }
 
     public List<GridPane> ammoRender(){
@@ -154,6 +178,8 @@ public class PlayerBoardRenderer {
 
     public List<MenuButton> handRenderer(){
         List<ArrayList<ImageView>> weaponHandView = new ArrayList<>();
+        List<ArrayList<Label>> loadUnload = new ArrayList<>();
+        List<ArrayList<Pane>> weaponContainer = new ArrayList<>();
         List<ImageView> puBackHandView = new ArrayList<>();
         List<Label> puHandNumber = new ArrayList<>();
         List<MenuItem> handItem = new ArrayList<>();
@@ -165,16 +191,36 @@ public class PlayerBoardRenderer {
         for(ClientModel.SimplePlayer p : players) {
             handContainer.add(new HBox());
             weaponHandView.add(new ArrayList<>());
+            loadUnload.add(new ArrayList<>());
+            weaponContainer.add(new ArrayList<>());
             weapons = p.getWeapons();
             for (ClientModel.SimpleWeapon w : weapons) {
                 String key = w.getName();
                 weaponImage = new Image(getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png"));
                 weaponHandView.get(players.indexOf(p)).add(new ImageView(weaponImage));
-                handContainer.get(players.indexOf(p)).getChildren().add(weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)));
+                weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setFitHeight(300*scalePB);
+                weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setPreserveRatio(true);
+                loadUnload.get(players.indexOf(p)).add(new Label());
+                if(w.isLoaded()) {
+                    loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setText("CARICA!!!");
+                    loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTextFill(Color.web("#FF0000"));
+                }
+                else {
+                    loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setText("SCARICA");
+                    loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTextFill(Color.web("#F8F8FF"));
+                }
+                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setFont(new Font("Arial", 40*scalePB));
+                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTranslateY(50*scalePB);
+                weaponContainer.get(players.indexOf(p)).add(new Pane());
+                weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().addAll(weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)),
+                        loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)));
+                handContainer.get(players.indexOf(p)).getChildren().add(weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)));
             }
             puBackHandView.add(new ImageView(puBackImage));
+            puBackHandView.get(puBackHandView.size()-1).setFitHeight(200*scalePB);
+            puBackHandView.get(puBackHandView.size()-1).setPreserveRatio(true);
             puHandNumber.add(new Label(Integer.toString(p.getCardNumber())));
-            puHandNumber.get(players.indexOf(p)).setFont(new Font("Arial", 60));
+            puHandNumber.get(players.indexOf(p)).setFont(new Font("Arial", 60*scalePB));
             puHandNumber.get(players.indexOf(p)).setTextFill(Color.web("#F8F8FF"));
             puHandNumber.get(players.indexOf(p)).setTranslateX(-50);
             if(p.getId() != clientModel.getPlayerID())
@@ -186,6 +232,8 @@ public class PlayerBoardRenderer {
                     System.out.println(color+pu.replace(" ","_"));
                     Image puImage = new Image(getClass().getResourceAsStream("/images/cards/"+color+pu.replace(" ","_")+".png"));
                     puView.add(new ImageView(puImage));
+                    puView.get(puView.size()-1).setFitHeight(200*scalePB);
+                    puView.get(puView.size()-1).setPreserveRatio(true);
                     handContainer.get(players.indexOf(p)).getChildren().add(puView.get(puView.size()-1));
                 }
             }

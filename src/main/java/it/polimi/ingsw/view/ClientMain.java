@@ -155,6 +155,7 @@ public class ClientMain {
     public int choose(String type, String msg, List<String> options) {
         ui.display(type, msg, options);
         return Integer.parseInt(ui.get(options));
+
     }
 
     /**

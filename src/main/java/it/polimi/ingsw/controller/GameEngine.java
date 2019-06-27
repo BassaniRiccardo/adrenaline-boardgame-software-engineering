@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
+import static java.util.logging.Level.INFO;
 
 //FIXME: game setup temporarily commented out to allow for quicker testing
 
@@ -43,6 +44,7 @@ public class GameEngine implements Runnable{
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
     public static boolean endphaseSimulation = false;
+    public static boolean test = false;
     private static final int TURN_DURATION = 1000;
 
 
@@ -90,6 +92,7 @@ public class GameEngine implements Runnable{
 
     public boolean isLastFrenzyPlayer() {return lastFrenzyPlayer; }
 
+    public boolean isGameOver() {return gameOver; }
 
     /**
      *  Setters
@@ -112,6 +115,7 @@ public class GameEngine implements Runnable{
     public void setBoard(Board board) {
         this.board = board;
     }
+
 
     /**
      * Adds a VirtualView to the game.
@@ -144,7 +148,7 @@ public class GameEngine implements Runnable{
                         board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
                     }
                     simulateTillEndphase();
-                } catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e) {
+                } catch (NotAvailableAttributeException e) {
                     LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
                 }
             }
@@ -194,18 +198,18 @@ public class GameEngine implements Runnable{
      */
     public void setup(){
 
-        LOGGER.log(Level.INFO,"\n\nAll the players are connected.\n");
+        LOGGER.log(Level.FINE,"\n\nAll the players are connected.\n");
         configureMap();
         configureKillShotTrack();
         //try {
         //    board.getKillShotTrack().removeSkulls(4);
         //} catch ( NotAvailableAttributeException | UnacceptableItemNumberException e){};
         BoardConfigurer.configureDecks(board);
-        LOGGER.log(Level.INFO,"Decks configured.");
+        LOGGER.log(INFO,"Decks configured.");
 
         try {
             BoardConfigurer.setAmmoTilesAndWeapons(board);
-            LOGGER.log(Level.INFO,"Ammo tiles and weapons set.");
+            LOGGER.log(INFO,"Ammo tiles and weapons set.");
         } catch (UnacceptableItemNumberException | NoMoreCardsException e) {LOGGER.log(Level.SEVERE,"Exception thrown while setting ammo tiles and weapons", e);}
         configurePlayers();
 
@@ -256,7 +260,7 @@ public class GameEngine implements Runnable{
             board.registerObserver(p);
         }
 
-        LOGGER.log(Level.INFO,() -> "Players voted: map " + mapId + " selected.");
+        LOGGER.log(INFO,() -> "Players voted: map " + mapId + " selected.");
 
     }
 
@@ -283,7 +287,7 @@ public class GameEngine implements Runnable{
             this.killShotTrack = board.getKillShotTrack();
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
 
-        LOGGER.log(Level.INFO,() -> "Players voted. Number of skulls: " + averageSkullNumber + ".");
+        LOGGER.log(INFO,() -> "Players voted. Number of skulls: " + averageSkullNumber + ".");
     }
 
 
@@ -299,18 +303,19 @@ public class GameEngine implements Runnable{
         for(VirtualView p : players) {
             //p.choose("What hero do you want?", heroList);
             //int selected = Integer.parseInt(waitShort(p, 20));
-            //System.out.println("selected " + selected);
-            System.out.println("index: " + players.indexOf(p));
-            System.out.println(heroList);
+            //LOGGER.log(INFO, "selected {0}", selected);
+            LOGGER.log(INFO, "index: " + players.indexOf(p));
+            LOGGER.log(INFO, heroList.toString());
             Player.HeroName selectedName = heroList.get(0);//heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
-            System.out.println("setplayer");
+            LOGGER.log(INFO,"setplayer");
             board.getPlayers().add(p.getModel());
-            System.out.println("added");
+            LOGGER.log(INFO, "added");
             p.getModel().setUsername(p.getName());
             heroList.remove(selectedName);
-            LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
-            p.display("You selected " + selectedName);
+            LOGGER.log(INFO,P + id + " selected " + selectedName + ".");
+            if (!test)
+                p.display("You selected " + selectedName);
             id++;
         }
 
@@ -349,13 +354,13 @@ public class GameEngine implements Runnable{
     public void resolve(){
 
         if (exitGame) {
-            LOGGER.log(Level.INFO,"Not enough player in the game. The game ends, points are added to the players according to the kill shot track.");
+            LOGGER.log(INFO,"Not enough player in the game. The game ends, points are added to the players according to the kill shot track.");
             for (VirtualView v : players) {
                 v.display("Game Over : less then three players in the game.");
             }
         }
-        else if (!frenzy) LOGGER.log(Level.INFO,"The last skull has been removed. Points are added to the players according to the kill shot track.");
-        else LOGGER.log(Level.INFO,"Frenzy ended. Points are added to the players according to the kill shot track.");
+        else if (!frenzy) LOGGER.log(INFO,"The last skull has been removed. Points are added to the players according to the kill shot track.");
+        else LOGGER.log(INFO,"Frenzy ended. Points are added to the players according to the kill shot track.");
 
         killShotTrack.rewardKillers();
 
@@ -422,9 +427,7 @@ public class GameEngine implements Runnable{
      */
     public void manageGameEnd(ExecutorService executor) throws NotEnoughPlayersException, SlowAnswerException{
 
-        System.out.println("entering manage");
         if (!frenzy) {
-            System.out.println("setting gameOver to true");
             gameOver = true;
         }
         else {
@@ -441,7 +444,7 @@ public class GameEngine implements Runnable{
                     else p.setStatus(Player.Status.FRENZY_2);
                 }
             }
-            LOGGER.log(Level.INFO,"\nNo more skulls left:\n\nFrenzy mode!!!!!!\n");
+            LOGGER.log(INFO,"\nNo more skulls left:\n\nFrenzy mode!!!!!!\n");
             for (int i=0; i<players.size(); i++){
                 runTurn(true);
                 changePlayer();
@@ -457,7 +460,7 @@ public class GameEngine implements Runnable{
      */
     public void gameOver(){
 
-        System.out.println("\nGame over.\n");
+        LOGGER.log(INFO, "\nGame over.\n");
 
         int maxScore = players.get(0).getModel().getPoints();
         List<VirtualView> winners = new ArrayList<>();
@@ -496,7 +499,7 @@ public class GameEngine implements Runnable{
      * @param i     the index of the player the message must be sent to.
      */
     public void showToLoser(int i){
-        LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+        LOGGER.log(INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
         int pos = i + 1;
         players.get(i).showEnd(addLeaderboard("\n\nGAME OVER\n\nYour position: " + pos + "!"));
     }
@@ -529,7 +532,7 @@ public class GameEngine implements Runnable{
     public String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
         long start = System.currentTimeMillis();
         long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
-        LOGGER.log(Level.INFO ,"Waiting for " + current);
+        LOGGER.log(INFO ,"Waiting for " + current);
         while(!hasAnswered(current)){
             checkForSuspension();
             try {
@@ -539,14 +542,14 @@ public class GameEngine implements Runnable{
                 Thread.currentThread().interrupt();
             }
             if(System.currentTimeMillis()>start+timeoutMillis){
-                LOGGER.log(Level.INFO,"Timeout ran out while waiting for " + current.getName() +". Returning default value");
+                LOGGER.log(INFO,"Timeout ran out while waiting for " + current.getName() +". Returning default value");
                 synchronized (notifications){
                     notifications.putIfAbsent(current, "1");
                 }
                 current.display("Your answer did not arrive in time. You have not been suspended, but a default value has been selected.");
             }
         }
-        LOGGER.log(Level.INFO, "Done waiting");
+        LOGGER.log(INFO, "Done waiting");
 
         synchronized (notifications) {
             return notifications.get(current);
@@ -562,20 +565,20 @@ public class GameEngine implements Runnable{
      * @return answer
      */
     public String wait(VirtualView current) throws SlowAnswerException, NotEnoughPlayersException{
-        LOGGER.log(Level.INFO ,"Waiting for {0}", current);
+        LOGGER.log(INFO ,"Waiting for {0}", current);
         while(!hasAnswered(current)){
             checkForSuspension();
             try {
                 TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             }catch(InterruptedException ex){
-                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                LOGGER.log(INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
             if(timer.isOver()){
                 throw new SlowAnswerException("Maximum time exceeded for the user to answer");
             }
         }
-        LOGGER.log(Level.INFO, "Done waiting");
+        LOGGER.log(INFO, "Done waiting");
         synchronized (notifications) {
             return notifications.get(current);
         }
@@ -605,11 +608,12 @@ public class GameEngine implements Runnable{
             synchronized (notifications) {
                 notifications.putIfAbsent(p, message);
             }
-            LOGGER.log(Level.INFO, "{0} just notified the GameEngine", p);
+            LOGGER.log(INFO, "{0} just notified the GameEngine", p);
         }catch (Exception ex){
             LOGGER.log(Level.SEVERE, "Issue with being notified by " + p, ex);
         }
     }
+
 
     /**
      * Getter for notifications
@@ -620,6 +624,7 @@ public class GameEngine implements Runnable{
             return notifications;
         }
     }
+
 
     /**
      * Checks if a player was suspended recently
@@ -641,17 +646,25 @@ public class GameEngine implements Runnable{
                     notifications.remove(p);
                 }
             }
-            LOGGER.log(Level.INFO, "Notified players of the disconnection of {0}", justSuspended);
+            LOGGER.log(INFO, "Notified players of the disconnection of {0}", justSuspended);
         }
         if (playersInGame < 3) throw new NotEnoughPlayersException("Not enough players to continue the game. Game over");
     }
 
-    public void simulateTillEndphase() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
+
+    /**
+     * Sets the game in such a way that only a skull is left on the killshot track.
+     * Three players are set on the board and they are given some damages.
+     * The killshot track, the player points, deaths and status are set in a coherent way.
+     * The method is used to allow to reach quickly the end of the game.
+     *
+     * @throws NotAvailableAttributeException
+     */
+    public void simulateTillEndphase() throws NotAvailableAttributeException {
 
         Player p1 = board.getPlayers().get(0);
         Player p2 = board.getPlayers().get(1);
         Player p3 = board.getPlayers().get(2);
-
 
         p1.setInGame(true);
         p1.setPosition(board.getMap().get(2));
@@ -674,6 +687,9 @@ public class GameEngine implements Runnable{
         p1.addDeath();
         p3.addDeath();
         board.getKillShotTrack().getKillers().addAll(Arrays.asList(p2, p3, p1, p2, p1));
+        p1.setPoints(23);
+        p2.setPoints(27);
+        p3.setPoints(17);
         p1.setPointsToGive(4);
         p2.setPointsToGive(6);
         p3.setPointsToGive(4);
@@ -708,6 +724,8 @@ public class GameEngine implements Runnable{
         }
         return false;
     }
+
+
 
     private synchronized void allowPlayersToResume(){
         List<VirtualView> temp = new ArrayList<>(resuming);

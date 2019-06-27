@@ -378,8 +378,8 @@ public class Player {
      */
     public void addAmmoPack(AmmoPack ammoPack) {
 
-        int blue = Math.min(MAX_AMMO - this.ammoPack.getBlueAmmo(), ammoPack.getBlueAmmo());
         int red = Math.min(MAX_AMMO - this.ammoPack.getRedAmmo(), ammoPack.getRedAmmo());
+        int blue = Math.min(MAX_AMMO - this.ammoPack.getBlueAmmo(), ammoPack.getBlueAmmo());
         int yellow = Math.min(MAX_AMMO - this.ammoPack.getYellowAmmo(), ammoPack.getYellowAmmo());
         AmmoPack ap = new AmmoPack(red, blue, yellow);
 
@@ -389,7 +389,7 @@ public class Player {
 
 
     /**
-     * Collects a weapon.
+     * Collects a card.
      *
      */
     public boolean collect(Card collectedCard) throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
@@ -551,9 +551,7 @@ public class Player {
         } else {
             ap= new AmmoPack(0, 1, 0);
         }
-        ammoPack.addAmmoPack(ap);
-        board.addToUpdateQueue(Updater.get(Updater.ADD_AMMO_UPD, this, ap));
-
+        addAmmoPack(ap);
     }
 
     public String getColor(){

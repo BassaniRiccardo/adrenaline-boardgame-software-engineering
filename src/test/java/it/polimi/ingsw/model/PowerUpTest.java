@@ -165,7 +165,7 @@ public class PowerUpTest {
         PowerUp powerUp = powerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, Color.YELLOW);
 
         //the name and the color are correct
-        System.out.println("\nTesting Powerup.toString().\nYellow Targeting Scope. The output is printed to console since it is not possible to check the color of a string in another way.\n" );
+        System.out.println("\nTesting Powerup.toString().\nYellow Targeting Scope.\nThe output is printed to console since it is the better way to check the color of a string.\n" );
         //it is shown through a println() since it is not possible to check the color of a string in another way
         System.out.println(powerUp.toString());
 

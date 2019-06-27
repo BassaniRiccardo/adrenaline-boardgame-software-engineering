@@ -27,7 +27,6 @@ public class TCPVirtualView extends VirtualView {
     private boolean waiting;
     private String answer;
 
-
     public TCPVirtualView(Socket socket){
         super();
         this.socket = socket;
@@ -164,6 +163,7 @@ public class TCPVirtualView extends VirtualView {
      * @param jmessage  message to send
      */
     private void send (JsonObject jmessage){
+
         try {
             synchronized (game.getNotifications()){
                 game.getNotifications().remove(this);

@@ -69,6 +69,24 @@ public class ServerMain {
     }
 
     /**
+     * Getter for currentGames. Only for testing.
+     *
+     * @return the list of current games.
+     */
+    public List<GameEngine> getCurrentGames() {
+        return currentGames;
+    }
+
+    /**
+     * Getter for waitingPlayers. Only for testing.
+     *
+     * @return the list of waiting players.
+     */
+    public List<VirtualView> getWaitingPlayers() {
+        return waitingPlayers;
+    }
+
+    /**
      * Main method instantiating TCP (on a different thread) and RMI servers. It runs a main loop checking for user input
      * from System.in to close the server, then manages incoming and outgoing messages from sockets being used. Finally,
      * it starts a new game if the number of players waiting and the timer respect given conditions.
@@ -138,7 +156,7 @@ public class ServerMain {
      *
      * @param p             the player to be added
      */
-    private void addPlayer(VirtualView p){
+    public void addPlayer(VirtualView p){
         waitingPlayers.add(p);
         players.add(p);
         LOGGER.log(Level.FINE, "Player added: " + p.getName());
@@ -163,14 +181,14 @@ public class ServerMain {
     }
 
     /**
-     * Checks if the player chose a name belogning to a suspended player and can therefore resume
+     * Checks if the player chose a name belonging to a suspended player and can therefore resume
      *
      * @param name          the player's name
      * @return              true is the player can resume his game, else false
      */
     public synchronized boolean canResume(String name){
         for(VirtualView p : players){
-            if (p.getName().equals(name)&&p.isSuspended()){
+            if (p.getName().equals(name) && p.isSuspended()){
                 return true;
             }
         }
@@ -196,7 +214,7 @@ public class ServerMain {
      * Removes players who were suspended while still waiting for a game
      *
      */
-    private synchronized void removeSuspendedPlayers(){
+    public synchronized void removeSuspendedPlayers(){
         for (VirtualView p : new ArrayList<>(waitingPlayers)){
             if(p.isSuspended()){
                 players.remove(p);

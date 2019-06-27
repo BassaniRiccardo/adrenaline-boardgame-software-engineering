@@ -128,6 +128,11 @@ public abstract class VirtualView implements Runnable{
         this.suspended = suspended;
     }
 
+    //only for testing
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public abstract void shutdown();
 
     public abstract void showSuspension();

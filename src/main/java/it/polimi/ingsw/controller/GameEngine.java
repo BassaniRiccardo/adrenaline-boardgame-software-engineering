@@ -321,7 +321,7 @@ public class GameEngine implements Runnable{
             heroList.remove(selectedName);
             LOGGER.log(INFO,P + id + " selected " + selectedName + ".");
             if (!test)
-                p.display("You selected " + selectedName);
+                p.display("You selected " + selectedName +". Start thinking about a battle-cry...");
             id++;
         }
 

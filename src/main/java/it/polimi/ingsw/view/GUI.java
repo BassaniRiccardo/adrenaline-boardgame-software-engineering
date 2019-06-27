@@ -336,10 +336,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         public void display(String type, String message, List<String> list) {
 
-        for (String opt : list) {
-            opt = removeEscapeCode(opt);
-        }
-
         while (stage==null){
             try {
                 Thread.sleep(2000);
@@ -348,6 +344,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
+            List<String> modifiedList = new ArrayList<>();
+            for (String opt : list) {
+                modifiedList.add(removeEscapeCode(type, opt));
+            }
             VBox opt = new VBox();
             opt.setBackground(new Background(new BackgroundFill(color, null, null)));
             Label label = new Label(message);
@@ -365,10 +365,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             HBox optionList = new HBox();
             optionList.setAlignment(Pos.CENTER);
-            optionList.setSpacing(10 / list.size());
+            optionList.setSpacing(10 / modifiedList.size());
             List<Button> buttons = new ArrayList<>();
 
-            for (String item : list) {
+            for (String item : modifiedList) {
                 Button b = new Button();
                 if(item.equals("reset"))  //reset button is always needed in the message panel
                     interactiveInput = false;
@@ -380,7 +380,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 }else {
                     b.setText(item);
                     inputButtons.add(b);
-                    optionList.getChildren().add(inputButtons.get(list.indexOf(item)));
+                    optionList.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
                 }
                 b.setOnAction(e -> {
                     System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
@@ -414,7 +414,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 mapBoardRenderInstruction ="Square";
             else if(type.equals(CHOOSE_WEAPON.toString())){
                 if(clientModel.getCurrentPlayer().getWeapons().size()>0) {  //verifies if the weapons are in the player hand or on the board
-                    if (list.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName())){
+                    if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName())){
                         playerBoardRenderInstruction = "Weapon";
                   }else{  System.out.println("CHECK1");
                         mapBoardRenderInstruction ="Weapon";}
@@ -456,14 +456,21 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
-    public String removeEscapeCode(String message){
+    public String removeEscapeCode(String type, String message){
         if (message.contains("0m")){
+            if (type.equals(CHOOSE_POWERUP.toString())){
+                message = message.replace("[31m", "Red ");
+                message = message.replace("[33m", "Yellow ");
+                message = message.replace("[34m", "Blue ");
+            }
+            else {
+                message = message.replace("[31m", "");
+                message = message.replace("[33m", "");
+                message = message.replace("[34m", "");
+            }
             message = message.replace("u001b", "");
             message = message.replace("[30m", "");
-            message = message.replace("[31m", "");
             message = message.replace("[32m", "");
-            message = message.replace("[33m", "");
-            message = message.replace("[34m", "");
             message = message.replace("[35m", "");
             message = message.replace("[36m", "");
             message = message.replace("[37m", "");
@@ -492,7 +499,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
-            String mes = removeEscapeCode(message);
+            String mes = removeEscapeCode("display", message);
             if      (mes.contains("Banshee"))       this.color = Color.BLUE;
             else if (mes.contains("Sprog"))         this.color = Color.GREEN;
             else if (mes.contains("Violet"))        this.color = Color.PURPLE;

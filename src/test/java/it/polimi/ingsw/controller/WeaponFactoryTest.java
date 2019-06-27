@@ -667,7 +667,6 @@ public class WeaponFactoryTest {
         //OPTION 1 TARGETS
         assertEquals("[[Player 1 : anonymous(D_struct_or)]]",rocketLauncher.getFireModeList().get(1).findTargets().toString());
         //OPTION 1 DESTINATIONS
-        System.out.println(rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());
         assertEquals("[Square 1, Square 2, Square 5]", rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());
         shooter.addMainTarget(banshee);
         assertEquals("[Square 1, Square 2, Square 4, Square 5, Square 8]", rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());

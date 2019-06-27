@@ -79,6 +79,7 @@ public class Board {
 
         this.reset = false;
 
+        LOGGER.setLevel(Level.SEVERE);
 
     }
 
@@ -722,7 +723,7 @@ public class Board {
     public void addToUpdateQueue(JsonObject jsonObject){
 
         LOGGER.log(Level.INFO, "Adding an update to all queues: {0}", jsonObject.toString());
-        System.out.println("Adding to all: " + jsonObject.toString());
+        LOGGER.log(Level.FINE, "Adding to all: " + jsonObject.toString());
         for(VirtualView v : updates.keySet()){
             updates.get(v).add(jsonObject);
         }

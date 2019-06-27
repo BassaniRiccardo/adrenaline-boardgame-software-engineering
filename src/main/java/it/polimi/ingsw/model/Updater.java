@@ -121,15 +121,11 @@ public class Updater {
 
     public static JsonObject get(String s, Player p, AmmoPack a) {
 
-        System.out.println(s + " " + p + "bry " + a.getBlueAmmo() + a.getRedAmmo() + a.getYellowAmmo());
-
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
         j.addProperty(RED_AMMO_PROP, a.getRedAmmo());
         j.addProperty(BLUE_AMMO_PROP, a.getBlueAmmo());
         j.addProperty(YELLOW_AMMO_PROP, a.getYellowAmmo());
-
-        System.out.println(j);
 
         return j;
         //useAmmo, addAmmo

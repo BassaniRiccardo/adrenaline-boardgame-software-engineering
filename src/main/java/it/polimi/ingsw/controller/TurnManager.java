@@ -75,7 +75,7 @@ public class TurnManager {
         } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while setting the kill shot track", e);}
         this.frenzy = frenzy;
         this.actionsLeft=2;
-        LOGGER.setLevel(Level.FINE);
+        LOGGER.setLevel(Level.ALL);
     }
 
     /**

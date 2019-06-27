@@ -46,6 +46,9 @@ public class GameEngine implements Runnable{
     public static boolean endphaseSimulation = false;
     public static boolean test = false;
     private static final int TURN_DURATION = 1000;
+    private static final int MAX_LENGTH_BATTLECRY = 32;
+
+
 
 
     /**
@@ -151,6 +154,9 @@ public class GameEngine implements Runnable{
                 } catch (NotAvailableAttributeException e) {
                     LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
                 }
+            }
+            else {
+                battleCry();
             }
 
 
@@ -319,6 +325,25 @@ public class GameEngine implements Runnable{
             id++;
         }
 
+    }
+
+    public void battleCry() {
+        List<String> battleCries = new ArrayList<>();
+        for (VirtualView p : players) {
+            battleCries.add(p.getInputNow("Choose a battle-cry!", MAX_LENGTH_BATTLECRY));
+            p.display("Battle-cry selected, wait for the other players.");
+        }
+        for (VirtualView p : players) {
+            StringBuilder builder = new StringBuilder();
+            for (VirtualView otherPlayer : players){
+                if (!otherPlayer.equals(p)){
+                    if (!builder.toString().isEmpty())
+                        builder.append("\n");
+                    builder.append(otherPlayer.getModel().userToString() + " cries out: \"" + battleCries.get(players.indexOf(otherPlayer)) + "\"");
+                }
+            }
+            p.display(builder.toString());
+        }
     }
 
 

@@ -177,7 +177,7 @@ public abstract class VirtualView implements Runnable{
      * @param max       max length of the answer
      * @return          the answer
      */
-    abstract String getInputNow(String msg, int max);
+    abstract public String getInputNow(String msg, int max);
 
 
     /**

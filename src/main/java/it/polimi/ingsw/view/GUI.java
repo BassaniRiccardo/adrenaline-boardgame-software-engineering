@@ -336,6 +336,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         public void display(String type, String message, List<String> list) {
 
+        for (String opt : list) {
+            opt = removeEscapeCode(opt);
+        }
+
         while (stage==null){
             try {
                 Thread.sleep(2000);
@@ -452,12 +456,33 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
+    public String removeEscapeCode(String message){
+        if (message.contains("0m")){
+            message = message.replace("u001b", "");
+            message = message.replace("[30m", "");
+            message = message.replace("[31m", "");
+            message = message.replace("[32m", "");
+            message = message.replace("[33m", "");
+            message = message.replace("[34m", "");
+            message = message.replace("[35m", "");
+            message = message.replace("[36m", "");
+            message = message.replace("[37m", "");
+            message = message.replace("[0m", "");
+            message = message.replace("", "");
+
+        }
+
+        System.out.println(message);
+        return message;
+    }
+
     /**
      * Displays a MSG message
      *
      * @param message   message to be displayed
      */
     public void display(String message) {
+
 
         while (stage==null){
             try {
@@ -467,13 +492,14 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
 
-            if      (message.contains("Banshee"))       this.color = Color.BLUE;
-            else if (message.contains("Sprog"))         this.color = Color.GREEN;
-            else if (message.contains("Violet"))        this.color = Color.PURPLE;
-            else if (message.contains("Dozer"))         this.color = Color.GREY;
-            else if (message.contains("D_struct_or"))   this.color = Color.YELLOW;
+            String mes = removeEscapeCode(message);
+            if      (mes.contains("Banshee"))       this.color = Color.BLUE;
+            else if (mes.contains("Sprog"))         this.color = Color.GREEN;
+            else if (mes.contains("Violet"))        this.color = Color.PURPLE;
+            else if (mes.contains("Dozer"))         this.color = Color.GREY;
+            else if (mes.contains("D_struct_or"))   this.color = Color.YELLOW;
 
-            Label label = new Label(message);
+            Label label = new Label(mes);
             VBox msg = new VBox();
             msg.setBackground(new Background(new BackgroundFill(color, null, null)));
             msg.getChildren().add(label);
@@ -481,7 +507,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             Scene scene = new Scene(msg, 500, 250, color);
             Stage msgStage = new Stage();
 
-            if (message.contains("disconnected")){
+            if (mes.contains("disconnected")){
                 msgStage.setScene(scene);
                 msgStage.show();
                 Button close = new Button("ok");

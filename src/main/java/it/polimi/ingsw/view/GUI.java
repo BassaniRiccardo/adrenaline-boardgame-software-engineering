@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
+
+import it.polimi.ingsw.network.server.VirtualView;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -25,6 +27,9 @@ import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+
+import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.CHOOSE_SQUARE;
+import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.CHOOSE_STRING;
 
 
 /**
@@ -348,11 +353,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     /**
      * Displays a OPT message
-
+     *
+     * @param type      the type of request to display
      * @param message   message to be displayed
      * @param list      the option the user can choose among
      */
-    public void display(String message, List<String> list) {
+    public void display(String type, String message, List<String> list) {
 
         while (stage==null){
             try {
@@ -371,8 +377,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             List<String> labelButton = new ArrayList<>();
             List<Button> inputButtons = new ArrayList<>();
 
-            if(list.get(0).contains("Square")){
-                System.out.println("SQUARE è GiuSTO");
+            if(type.equals(CHOOSE_SQUARE.toString())){
+                System.out.println("SQUARE è giusto");
                 Stage optStage = new Stage();
                 for (String item : list) {
                     Button b = new Button(item);
@@ -587,13 +593,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         return dataSaver.answer;
 
-    }
-
-    public String get(String type, List<String> list){
-        //TODO: implement this method. It will take the place of get(List<String> list).
-
-        //fake return
-        return "";
     }
 
 

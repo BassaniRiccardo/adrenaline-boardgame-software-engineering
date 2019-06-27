@@ -39,6 +39,7 @@ public class ClientUpdater {
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setCardNumber(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getCardNumber() - 1);
                 if (clientModel.getPlayerID() == j.get(PLAYER_PROP).getAsInt()) {
                     clientModel.getPowerUpInHand().remove(j.get(POWER_UP_NAME_PROP).getAsString());
+                    clientModel.getColorPowerUpInHand().remove(j.get(POWER_UP_COLOR_PROP).getAsString());
                 }
                 ui.addHistory(clientModel.getCurrentPlayer().getUsername() + " discarded a " + j.get(POWER_UP_NAME_PROP).getAsString());
                 break;

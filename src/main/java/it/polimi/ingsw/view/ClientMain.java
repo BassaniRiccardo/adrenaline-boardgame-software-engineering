@@ -4,6 +4,7 @@ import com.google.gson.*;
 import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
+import it.polimi.ingsw.network.server.VirtualView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import static it.polimi.ingsw.model.Updater.*;
+import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.CHOOSE_STRING;
 
 /**
 /**
@@ -129,11 +131,11 @@ public class ClientMain {
         executor.submit(ui);
         ui.display(selectedInterface);
 
-        ui.display("Which type of connection do you want to use?\n(if unsure, choose 1)", new ArrayList<>(Arrays.asList("Socket", "RMI")));
-        buff = ui.get("string", new ArrayList<>(Arrays.asList("Socket", "RMI")));
+        ui.display(CHOOSE_STRING.toString(), "Which type of connection do you want to use?\n(if unsure, choose 1)", new ArrayList<>(Arrays.asList("Socket", "RMI")));
+        buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         while (!(buff.equals("1") || buff.equals("2"))) {
             ui.display("Invalid choice. Try again.");
-            buff = ui.get("string", new ArrayList<>(Arrays.asList("Socket", "RMI")));
+            buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         }
         if (buff.equals("2")) {
             System.setProperty("java.rmi.server.hostname", prop.getProperty("myIP", "localhost"));
@@ -151,8 +153,8 @@ public class ClientMain {
      * @return          int corresponding to the option chosen
      */
     public int choose(String type, String msg, List<String> options) {
-        ui.display(msg, options);
-        return Integer.parseInt(ui.get(type, options));
+        ui.display(type, msg, options);
+        return Integer.parseInt(ui.get(options));
     }
 
     /**

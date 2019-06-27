@@ -75,13 +75,13 @@ public class CLI implements UI{
     }
 
     /**
-     * Queries the user to choose amonga list of options
+     * Queries the user to choose among a list of options
      *
      * @param list  list of options
      * @return      a string containing the number of the option chosen
      */
     @Override
-    public String get(String type, List<String> list){
+    public String get(List<String> list){
         receiving = true;
         boolean verified = false;
         while(!verified) {
@@ -172,11 +172,13 @@ public class CLI implements UI{
     /**
      * Displays a choice request
      *
+     * @param type    the type of request to be displayed
      * @param message request to be displayed
      * @param options options to be displayed
      */
     @Override
-    public void display(String message, List<String> options) {
+    public void display(String type, String message, List<String> options) {
+        LOGGER.log(Level.INFO, "{0} request", type);
         StringBuilder bld = new StringBuilder();
         bld.append(message);
         bld.append("\nHere are your choices: ");

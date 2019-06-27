@@ -20,17 +20,6 @@ import static org.junit.Assert.*;
 
 public class PowerUpTest {
 
-
-    /**
-     * Checks that the name is translated correctly
-     */
-    @Test
-    public void toString1() {
-        for (PowerUp.PowerUpName n : PowerUp.PowerUpName.values()){
-            System.out.println(n.toString());
-        }
-    }
-
     /**
      * Checks that a power up is correctly marked as available
      */
@@ -152,15 +141,19 @@ public class PowerUpTest {
         assertTrue(p.findDestinations(b.getPlayers()).isEmpty());
     }
 
+
     /**
      * Tests the method toString() of the enumeration PowerUpName.
      */
     @Test
     public void powerUpNameToString(){
-        PowerUp.PowerUpName powerUpName = PowerUp.PowerUpName.NEWTON;
-        assertEquals("Newton", powerUpName.toString());
+        assertEquals("Targeting Scope", PowerUp.PowerUpName.TARGETING_SCOPE.toString() );
+        assertEquals("Newton", PowerUp.PowerUpName.NEWTON.toString());
+        assertEquals("Tagback Grenade", PowerUp.PowerUpName.TAGBACK_GRENADE.toString());
+        assertEquals("Teleporter", PowerUp.PowerUpName.TELEPORTER.toString());
 
     }
+
 
     /**
      * Tests the method toString() of the class PowerUp.
@@ -172,6 +165,7 @@ public class PowerUpTest {
         PowerUp powerUp = powerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, Color.YELLOW);
 
         //the name and the color are correct
+        System.out.println("\nTesting Powerup.toString().\nYellow Targeting Scope. The output is printed to console since it is not possible to check the color of a string in another way.\n" );
         //it is shown through a println() since it is not possible to check the color of a string in another way
         System.out.println(powerUp.toString());
 

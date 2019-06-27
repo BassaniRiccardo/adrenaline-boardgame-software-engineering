@@ -28,7 +28,7 @@ public class WeaponFactoryTest {
          Board b = BoardConfigurer.simulateScenario();
          WeaponFactory weaponFactory = new WeaponFactory(b);
          Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
-         System.out.println(w.getColor());
+         assertEquals("Blue", w.getColor().toString());
      }
 
     /**
@@ -155,12 +155,17 @@ public class WeaponFactoryTest {
     public void createAllWeapon() throws NoMoreCardsException, UnacceptableItemNumberException{
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
+        StringBuilder builder = new StringBuilder();
         for(Weapon.WeaponName weaponName : Weapon.WeaponName.values()){
             weaponFactory.createWeapon(weaponName);
-            System.out.println(weaponName);
+            if (!builder.toString().isEmpty())
+                builder.append(", ") ;
+            builder.append(weaponName);
         }
+        assertEquals("Lock Rifle, Machine Gun, Thor, Plasma Gun, Whisper, Electroscythe, Tractor Beam, Vortex Cannon, Furnace, Heatseeker, Hellion, Flamethrower, Grenade Launcher, Rocket Launcher, Railgun, Cyberblade, Zx2, Shotgun, Power Glove, Shockwave, Sledgehammer", builder.toString());
     }
 
+    /*
     @Test
     public void pintAllTargetFinder() throws NoMoreCardsException, UnacceptableItemNumberException{
         Board b = BoardConfigurer.simulateScenario();
@@ -171,6 +176,7 @@ public class WeaponFactoryTest {
             //for (FireMode.FireModeName fireModeName : weaponName.getFireModeList)
         }
     }
+    */
 
 
     /**

@@ -1171,9 +1171,30 @@ public class PlayerTest {
     public void heroNameToString(){
         Player.HeroName heroName = Player.HeroName.BANSHEE;
         assertEquals("Banshee", heroName.toString());
-
     }
 
+
+    /**
+     * Tests the method toString() of Player.
+     */
+    @Test
+    public void standardToString(){
+        Player p = new Player(1, Player.HeroName.BANSHEE, new Board());
+        p.setUsername("username");
+        assertEquals("Player 1 : username(Banshee)", p.toString());
+    }
+
+    /**
+     * Tests the method userToString() of Player.
+     */
+    @Test
+    public void userToString(){
+        Player p = new Player(1, Player.HeroName.BANSHEE, new Board());
+        p.setUsername("username");
+        //the name and the color are correct
+        System.out.println("\nTesting Player.userToString().\nHero: Banshee.Username: username. The output is printed to console since it is not possible to check the color of a string in another way.\n" );
+        //it is shown through a println() since it is not possible to check the color of a string in another way
+        System.out.println(p.userToString());}
 
 
 

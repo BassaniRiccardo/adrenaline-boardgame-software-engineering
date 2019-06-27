@@ -677,21 +677,21 @@ public class WeaponFactory {
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
-                                System.out.println("Looking in direction " + d + " there are: " + candidate);
+                                //System.out.println("Looking in direction " + d + " there are: " + candidate);
                                 if (!candidate.isEmpty()) {
                                     directionalTargets.add(candidate);
                                 }
                             }
-                            System.out.println("These are the directional targets: " + directionalTargets);
+                            //System.out.println("These are the directional targets: " + directionalTargets);
                             for (int i = 0; i < directionalTargets.size(); i++) {
                                 targets.addAll(directionalTargets.get(i));
-                                System.out.println("adding all these dir targets: " + directionalTargets.get(i));
+                                //System.out.println("adding all these dir targets: " + directionalTargets.get(i));
                                 for (int j = i + 1; j < directionalTargets.size(); j++) {
                                     targets.addAll(cartesian(directionalTargets.get(i), directionalTargets.get(j)));
-                                    System.out.println("Adding all these pairs: " + cartesian(directionalTargets.get(i), directionalTargets.get(j)));
+                                    //System.out.println("Adding all these pairs: " + cartesian(directionalTargets.get(i), directionalTargets.get(j)));
                                     for (int k = j + 1; k < directionalTargets.size(); k++) {
                                         targets.addAll(cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
-                                        System.out.println("Adding all these triples: " + cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
+                                        //System.out.println("Adding all these triples: " + cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
                                     }
                                 }
                             }

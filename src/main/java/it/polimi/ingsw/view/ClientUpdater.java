@@ -21,7 +21,6 @@ public class ClientUpdater {
                 clientModel.getCurrentPlayer().getWeapon(j.get(WEAPON_PROP).getAsString()).setLoaded(j.get(LOADED_PROP).getAsBoolean());
                 break;
             case (REMOVE_SKULL_UPD):
-                System.out.println(clientModel);
                 clientModel.removeSkulls(j.get(SKULL_NUMBER_PROP).getAsInt());
                 break;
             case (POWER_UP_DECK_REGEN_UPD):

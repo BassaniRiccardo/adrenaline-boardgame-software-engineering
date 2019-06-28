@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 import java.util.logging.*;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
@@ -143,7 +144,17 @@ public class GameEngine implements Runnable{
             LOGGER.log(Level.FINE, "GameEngine running");
 
             final int TURN_TIME = 3;
-            setup();
+
+            /*
+            try {
+                setup();
+            }catch (NotEnoughPlayersException e) {
+                exitGame = true;
+            }
+            */
+
+
+            fakeSetup();
 
             if (endphaseSimulation) {
                 try {
@@ -202,14 +213,11 @@ public class GameEngine implements Runnable{
      * Sets up the game.
      *
      */
-    public void setup(){
+    public void setup() throws NotEnoughPlayersException{
 
         LOGGER.log(Level.FINE,"\n\nAll the players are connected.\n");
         configureMap();
         configureKillShotTrack();
-        //try {
-        //    board.getKillShotTrack().removeSkulls(4);
-        //} catch ( NotAvailableAttributeException | UnacceptableItemNumberException e){};
         BoardConfigurer.configureDecks(board);
         LOGGER.log(INFO,"Decks configured.");
 
@@ -217,25 +225,10 @@ public class GameEngine implements Runnable{
             BoardConfigurer.setAmmoTilesAndWeapons(board);
             LOGGER.log(INFO,"Ammo tiles and weapons set.");
         } catch (UnacceptableItemNumberException | NoMoreCardsException e) {LOGGER.log(Level.SEVERE,"Exception thrown while setting ammo tiles and weapons", e);}
-        configurePlayers();
 
-        //set frenzy options
-        //List<String> frenzyOptions = new ArrayList<>();
-        //int yes = 0;
-        //int no = 0;
-        //frenzyOptions.addAll(Arrays.asList("yes", "no"));
-        //for (VirtualView p: players) {
-        //    p.choose("Do you want to play with the frenzy?", frenzyOptions);
-        //}
-        //for(VirtualView p : players){
-        //    if(Integer.parseInt(waitShort(p, 20))==1) yes++;
-        //    else no++;
-        //}
-        //if (yes>=no) {
-        //    frenzy=true;
-        //    LOGGER.log(Level.INFO,"Frenzy active.");
-        //}
-        //else  LOGGER.log(Level.INFO,"Frenzy not active.");
+        configureFrenzyOption();
+
+        configurePlayers();
 
         setCurrentPlayer(players.get(0));
         statusSaver = new StatusSaver(board);
@@ -245,24 +238,25 @@ public class GameEngine implements Runnable{
     /**
      * Configures the map asking the players for their preference.
      */
-    private void configureMap(){
+    private void configureMap() throws NotEnoughPlayersException{
 
         List<Integer> mapIDs = new ArrayList<>(Arrays.asList(1,2,3,4));
         List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
-        //for(VirtualView p : players) {
-        //    p.choose("Vote for the map you want:", mapIDs);
-        //}
+        for(VirtualView p : players) {
+            p.choose(CHOOSE_STRING.toString(), "Vote for the map you want:", mapIDs);
+        }
 
-        //for(VirtualView p : players) {
-        //    int vote = Integer.parseInt(waitShort(p, 20));
-        //    votes.set(vote-1, votes.get(vote-1)+1);
-        //}
-        int mapId = 4;//votes.indexOf(Collections.max(votes)) + 1;
+        for(VirtualView p : players) {
+            int vote = Integer.parseInt(waitShort(p, 20));
+            votes.set(vote-1, votes.get(vote-1)+1);
+        }
+        int mapId = votes.indexOf(Collections.max(votes)) + 1;
 
         board = BoardConfigurer.configureMap(mapId);
 
         for(VirtualView p : players) {
+            p.display("Voting ended. Map " + mapId + " selected.");
             board.registerObserver(p);
         }
 
@@ -274,26 +268,59 @@ public class GameEngine implements Runnable{
     /**
      * Configures the kill shot track asking the players for their preference.
      */
-    private void configureKillShotTrack(){
+    private void configureKillShotTrack() throws NotEnoughPlayersException{
 
         List<Integer> skullsOptions = new ArrayList<>(Arrays.asList(5,6,7,8));
         int totalSkullNumber = 0;
 
-        //for (VirtualView p : players) {
-        //    p.choose("How many skulls do you want?", skullsOptions);
-        //}
-        //for (VirtualView p : players) {
-        //    int selected = Integer.parseInt(waitShort(p, 20));
-        //    totalSkullNumber = totalSkullNumber + selected + 4;
-        //}
+        for (VirtualView p : players) {
+            p.choose(CHOOSE_STRING.toString(), "How many skulls do you want?", skullsOptions);
+        }
+        for (VirtualView p : players) {
+            int selected = Integer.parseInt(waitShort(p, 20));
+            totalSkullNumber = totalSkullNumber + selected + 4;
+        }
 
-        int averageSkullNumber = 6;//Math.round((float)totalSkullNumber/(float)players.size());
+        int averageSkullNumber = Math.round((float)totalSkullNumber/(float)players.size());
         BoardConfigurer.configureKillShotTrack(averageSkullNumber, board);
         try {
             this.killShotTrack = board.getKillShotTrack();
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
 
+        for (VirtualView p : players) {
+            p.display("Voting ended. Number of skulls selected: " + averageSkullNumber + ".");
+        }
+
         LOGGER.log(INFO,() -> "Players voted. Number of skulls: " + averageSkullNumber + ".");
+    }
+
+
+    /**
+     * Configures the frenzy option asking the players for their preference.
+     */
+    private void configureFrenzyOption()throws NotEnoughPlayersException{
+
+        List<String> frenzyOptions = new ArrayList<>();
+        int yes = 0;
+        int no = 0;
+        frenzyOptions.addAll(Arrays.asList("yes", "no"));
+        for (VirtualView p: players) {
+            p.choose(CHOOSE_STRING.toString(), "Do you want to play with the frenzy?", frenzyOptions);
+        }
+        for(VirtualView p : players){
+            if(Integer.parseInt(waitShort(p, 20))==1) yes++;
+            else no++;
+        }
+        if (yes>=no) {
+            frenzy=true;
+            LOGGER.log(Level.INFO,"Frenzy active.");
+        }
+        else  LOGGER.log(Level.INFO,"Frenzy not active.");
+
+        for(VirtualView p : players){
+            if(frenzy) p.display("Voting ended: Frenzy active");
+            else p.display("Voting ended: Frenzy not active");
+        }
     }
 
 
@@ -301,18 +328,18 @@ public class GameEngine implements Runnable{
      * Adds to the board the players connected to the game.
      * Asks the players which hero they want, providing only the remaining options.
      */
-    private void configurePlayers(){
+    private void configurePlayers() throws NotEnoughPlayersException{
 
         List<Player.HeroName> heroList = new ArrayList<>(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
         int id = 1;
 
         for(VirtualView p : players) {
-            //p.choose("What hero do you want?", heroList);
-            //int selected = Integer.parseInt(waitShort(p, 20));
-            //LOGGER.log(INFO, "selected {0}", selected);
+            p.choose(CHOOSE_STRING.toString(), "What hero do you want?", heroList);
+            int selected = Integer.parseInt(waitShort(p, 20));
+            LOGGER.log(INFO, "selected {0}", selected);
             LOGGER.log(INFO, "index: " + players.indexOf(p));
             LOGGER.log(INFO, heroList.toString());
-            Player.HeroName selectedName = heroList.get(0);//heroList.get(selected-1);
+            Player.HeroName selectedName = heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
             LOGGER.log(INFO,"setplayer");
             board.getPlayers().add(p.getModel());
@@ -557,8 +584,9 @@ public class GameEngine implements Runnable{
     public String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
         long start = System.currentTimeMillis();
         long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
+        boolean expired = false;
         LOGGER.log(INFO ,"Waiting for " + current);
-        while(!hasAnswered(current)){
+        while(!hasAnswered(current) && !expired){
             checkForSuspension();
             try {
                 TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
@@ -572,9 +600,12 @@ public class GameEngine implements Runnable{
                     notifications.putIfAbsent(current, "1");
                 }
                 current.display("Your answer did not arrive in time. You have not been suspended, but a default value has been selected.");
+                expired = true;
             }
         }
         LOGGER.log(INFO, "Done waiting");
+
+        if (expired) return "1";
 
         synchronized (notifications) {
             return notifications.get(current);
@@ -772,6 +803,44 @@ public class GameEngine implements Runnable{
                 }
             }
         }
+    }
+
+    public void fakeSetup(){
+
+        board = BoardConfigurer.configureMap(4);
+
+        for(VirtualView p : players) {
+            board.registerObserver(p);
+        }
+
+        BoardConfigurer.configureKillShotTrack(6, board);
+        try {
+            this.killShotTrack = board.getKillShotTrack();
+        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
+
+        BoardConfigurer.configureDecks(board);
+
+        try {
+            BoardConfigurer.setAmmoTilesAndWeapons(board);
+        } catch (UnacceptableItemNumberException | NoMoreCardsException e) {LOGGER.log(Level.SEVERE,"Exception thrown while setting ammo tiles and weapons", e);}
+
+        List<Player.HeroName> heroList = new ArrayList<>(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
+        int id = 1;
+
+        for(VirtualView p : players) {
+            Player.HeroName selectedName = heroList.get(0);
+            p.setPlayer(new Player(id, selectedName, board));
+            board.getPlayers().add(p.getModel());
+            p.getModel().setUsername(p.getName());
+            heroList.remove(selectedName);
+            LOGGER.log(INFO,P + id + " selected " + selectedName + ".");
+            id++;
+        }
+
+        frenzy = true;
+
+        setCurrentPlayer(players.get(0));
+        statusSaver = new StatusSaver(board);
     }
 
 }

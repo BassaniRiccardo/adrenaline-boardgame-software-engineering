@@ -96,6 +96,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         );
     }
 
+
     @Override
     public void display(String msg){
         try{

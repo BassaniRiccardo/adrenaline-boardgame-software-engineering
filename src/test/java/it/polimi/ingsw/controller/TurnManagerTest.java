@@ -37,8 +37,6 @@ public class TurnManagerTest {
     @Test
     public void replaceWeapons() throws NoMoreCardsException {
 
-        test = true;
-
         List<VirtualView> connections = new ArrayList<>();
         connections.add(new TCPVirtualView(null));
         connections.add(new TCPVirtualView(null));
@@ -49,7 +47,7 @@ public class TurnManagerTest {
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
 
-        gameEngine.setup();
+        gameEngine.fakeSetup();
 
         TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
 
@@ -82,7 +80,7 @@ public class TurnManagerTest {
         connections.add(new TCPVirtualView(null));
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
-        gameEngine.setup();
+        gameEngine.fakeSetup();
         TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
         AmmoTile ammoTile;
         ammoTile = gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile();
@@ -108,7 +106,7 @@ public class TurnManagerTest {
         connections.add(new TCPVirtualView(null));
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
-        gameEngine.setup();
+        gameEngine.fakeSetup();
         TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
         AmmoTile ammoTile;
         gameEngine.getBoard().getAmmoSquares().get(0).removeCard(gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile());
@@ -136,7 +134,7 @@ public class TurnManagerTest {
         connections.add(new TCPVirtualView(null));
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
-        gameEngine.setup();
+        gameEngine.fakeSetup();
         TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
         AmmoTile ammoTile;
         gameEngine.getBoard().getAmmoSquares().get(0).removeCard(gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile());

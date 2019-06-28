@@ -6,7 +6,6 @@ import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.cards.AmmoTile;
 import it.polimi.ingsw.model.exceptions.*;
-import it.polimi.ingsw.network.server.RMIVirtualView;
 import it.polimi.ingsw.network.server.TCPVirtualView;
 import it.polimi.ingsw.network.server.VirtualView;
 import org.junit.Test;
@@ -15,13 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.controller.GameEngine.test;
 import static it.polimi.ingsw.controller.TurnManager.toStringList;
 import static it.polimi.ingsw.controller.TurnManager.toUserStringList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test the methods of TurnManager which can be tested without simulating a game.
@@ -30,6 +27,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 public class TurnManagerTest {
+
 
     /**
      * Tests the method replaceWeapons(), checking that the drawn weapons are replace after it is called.
@@ -100,7 +98,7 @@ public class TurnManagerTest {
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
 
-        gameEngine.setup();
+        gameEngine.fakeSetup();
 
         TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
 
@@ -133,7 +131,7 @@ public class TurnManagerTest {
         connections.add(new TCPVirtualView(null));
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
-        gameEngine.setup();
+        gameEngine.fakeSetup();
         TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
         AmmoTile ammoTile;
         ammoTile = gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile();
@@ -159,14 +157,13 @@ public class TurnManagerTest {
         connections.add(new TCPVirtualView(null));
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
-        gameEngine.setup();
+        gameEngine.fakeSetup();
         TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
         AmmoTile ammoTile;
         gameEngine.getBoard().getAmmoSquares().get(0).removeCard(gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile());
         ammoTile = gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile();
 
     }
-
 
     /**
      * Tests the method replaceAmmoTiles(), by showing that the square from which an ammo tile has been removed
@@ -187,7 +184,7 @@ public class TurnManagerTest {
         connections.add(new TCPVirtualView(null));
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
-        gameEngine.setup();
+        gameEngine.fakeSetup();
         TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
         AmmoTile ammoTile;
         gameEngine.getBoard().getAmmoSquares().get(0).removeCard(gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile());

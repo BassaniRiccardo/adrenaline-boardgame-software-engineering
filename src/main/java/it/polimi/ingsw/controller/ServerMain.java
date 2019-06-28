@@ -34,8 +34,9 @@ public class ServerMain {
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     public static final int SLEEP_TIMEOUT = 100;
-    private String serverLogFilename;
-    private String serverPropertiesFilename;
+    private static final String SERVER_LOG_FILENAME = "serverLog.txt";
+    private static final String SERVER_PROPERTIES_FILENAME = "/server.properties";
+
     public static final int MAX_PLAYERS = 5;
     public static final int MIN_PLAYERS = 3;
 
@@ -61,7 +62,6 @@ public class ServerMain {
         timer = null;
         executor = Executors.newCachedThreadPool();
         oldMessage = "";
-        loadParams();
     }
 
     /**
@@ -244,11 +244,11 @@ public class ServerMain {
     /**
      * Initializes the logger so that it writes to a txt file
      */
-    private void initializeLogger(){
+    public void initializeLogger(){
         try {
             ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.ALL);
-            FileHandler fileHandler = new FileHandler(serverLogFilename);
+            FileHandler fileHandler = new FileHandler(SERVER_LOG_FILENAME);
             LOGGER.setLevel(Level.ALL);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
@@ -266,7 +266,7 @@ public class ServerMain {
     public Properties loadConfig(){
         Properties prop = new Properties();
         try {
-            InputStream input = getClass().getResourceAsStream(serverPropertiesFilename);
+            InputStream input = getClass().getResourceAsStream(SERVER_PROPERTIES_FILENAME);
             prop.load(input);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "IOException while loading config", ex);
@@ -357,13 +357,4 @@ public class ServerMain {
         return bld.toString();
     }
 
-
-    /**
-     * Loads parameters from properties
-     */
-    private void loadParams(){
-        Properties prop = ServerMain.getInstance().loadConfig();
-        this.serverLogFilename = (prop.getProperty("serverLogFilename", "serverLog.txt"));
-        this.serverPropertiesFilename = prop.getProperty("defaultAnswer", "/server.properties");
-    }
 }

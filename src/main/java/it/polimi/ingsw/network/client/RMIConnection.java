@@ -73,6 +73,7 @@ public class RMIConnection implements Runnable, RemoteView {
             LOGGER.log(Level.SEVERE, "RMI server disconnected, shutting down", ex);
             System.exit(0);
         }
+
     }
 
     public void run(){}

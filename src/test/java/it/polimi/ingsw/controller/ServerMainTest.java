@@ -83,7 +83,8 @@ public class ServerMainTest {
      */
     @Test
     public void initializeLogger() {
-        this.initializeLogger();
+
+        ServerMain.getInstance().initializeLogger();
         Logger LOGGER = Logger.getLogger("serverLogger");
         assertEquals(ALL, LOGGER.getLevel());
         LOGGER.setLevel(SEVERE);

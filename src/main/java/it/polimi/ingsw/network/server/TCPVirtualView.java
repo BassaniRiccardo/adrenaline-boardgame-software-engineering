@@ -27,8 +27,6 @@ public class TCPVirtualView extends VirtualView {
     private boolean waiting;
     private String answer;
 
-    public TCPVirtualView(){}
-
     public TCPVirtualView(Socket socket){
         super();
         this.socket = socket;
@@ -93,6 +91,13 @@ public class TCPVirtualView extends VirtualView {
         if(busy){
             return;
         }
+        try {
+            synchronized (game.getNotifications()){
+                game.getNotifications().remove(this);
+            }
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+        }
         busy = true;
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "OPT");
@@ -132,6 +137,13 @@ public class TCPVirtualView extends VirtualView {
 
     @Override
     public String getInputNow(String msg, int max){
+        try {
+            synchronized (game.getNotifications()){
+                game.getNotifications().remove(this);
+            }
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+        }
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "REQ");
         jsonObject.addProperty("text", msg);
@@ -165,14 +177,6 @@ public class TCPVirtualView extends VirtualView {
      * @param jmessage  message to send
      */
     private void send (JsonObject jmessage){
-
-        try {
-            synchronized (game.getNotifications()){
-                game.getNotifications().remove(this);
-            }
-        }catch(NullPointerException ex){
-            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
-        }
         out.println(jmessage.toString());
         out.flush();
         LOGGER.log(Level.FINE, "Sending a message over TCP connection");

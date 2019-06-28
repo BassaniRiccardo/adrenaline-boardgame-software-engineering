@@ -16,6 +16,7 @@ import static it.polimi.ingsw.controller.ServerMain.MIN_PLAYERS;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
+import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
 //FIXME: game setup temporarily commented out to allow for quicker testing
 
@@ -62,11 +63,8 @@ public class GameEngine implements Runnable{
 
     private boolean endphaseSimulation;
     private int turnDuration;
-
-
     public static boolean test = false;     //TODO: remove once you have rewritten tests
-
-
+    private static final int MAX_LENGTH_BATTLECRY = 32;
 
     /**
      * Constructs a GameEngine with a list of Player Controller.
@@ -92,8 +90,6 @@ public class GameEngine implements Runnable{
 
         this.notifications = new HashMap<>();
         this.resuming = new ArrayList<>();
-
-        loadParams();
 
         LOGGER.log(Level.FINE, "Initialized GameEngine {0}", this);
     }
@@ -140,6 +136,7 @@ public class GameEngine implements Runnable{
         this.board = board;
     }
 
+
     /**
      * Runs a game.
      *
@@ -147,11 +144,20 @@ public class GameEngine implements Runnable{
      */
     public void run(){
 
+        loadParams();
         try {
 
             LOGGER.log(Level.FINE, "GameEngine running");
 
-            setup();
+
+            try {
+                setup();
+            }catch (NotEnoughPlayersException e) {
+                exitGame = true;
+            }
+
+
+            //fakeSetup();
 
             if (endphaseSimulation) {
                 try {
@@ -162,6 +168,9 @@ public class GameEngine implements Runnable{
                 } catch (NotAvailableAttributeException e) {
                     LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
                 }
+            }
+            else {
+                battleCry();
             }
 
 
@@ -207,14 +216,11 @@ public class GameEngine implements Runnable{
      * Sets up the game.
      *
      */
-    public void setup(){
+    public void setup() throws NotEnoughPlayersException{
 
         LOGGER.log(Level.FINE,"All the players are connected.");
         configureMap();
         configureKillShotTrack();
-        //try {
-        //    board.getKillShotTrack().removeSkulls(4);
-        //} catch ( NotAvailableAttributeException | UnacceptableItemNumberException e){};
         BoardConfigurer.configureDecks(board);
         LOGGER.log(Level.INFO,"Decks configured.");
 
@@ -222,25 +228,10 @@ public class GameEngine implements Runnable{
             BoardConfigurer.setAmmoTilesAndWeapons(board);
             LOGGER.log(Level.INFO,"Ammo tiles and weapons set.");
         } catch (UnacceptableItemNumberException | NoMoreCardsException e) {LOGGER.log(Level.SEVERE,"Exception thrown while setting ammo tiles and weapons", e);}
-        configurePlayers();
 
-        //set frenzy options
-        //List<String> frenzyOptions = new ArrayList<>();
-        //int yes = 0;
-        //int no = 0;
-        //frenzyOptions.addAll(Arrays.asList("yes", "no"));
-        //for (VirtualView p: players) {
-        //    p.choose(FRENZY_REQUEST, frenzyOptions);
-        //}
-        //for(VirtualView p : players){
-        //    if(Integer.parseInt(waitShort(p, 20))==1) yes++;
-        //    else no++;
-        //}
-        //if (yes>=no) {
-        //    frenzy=true;
-        //    LOGGER.log(Level.INFO,"Frenzy active.");
-        //}
-        //else  LOGGER.log(Level.INFO,"Frenzy not active.");
+        configureFrenzyOption();
+
+        configurePlayers();
 
         setCurrentPlayer(players.get(0));
         statusSaver = new StatusSaver(board);
@@ -250,28 +241,30 @@ public class GameEngine implements Runnable{
     /**
      * Configures the map asking the players for their preference.
      */
-    private void configureMap(){
+    private void configureMap() throws NotEnoughPlayersException{
 
         List<Integer> mapIDs = new ArrayList<>(Arrays.asList(1,2,3,4));
         List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
-        //for(VirtualView p : players) {
-        //    p.choose(MAP_REQUEST, mapIDs);
-        //}
 
-        //for(VirtualView p : players) {
-        //    int vote = Integer.parseInt(waitShort(p, 20));
-        //    votes.set(vote-1, votes.get(vote-1)+1);
-        //}
-        int mapId = 4;//votes.indexOf(Collections.max(votes)) + 1;
+        for(VirtualView p : players) {
+            p.choose(CHOOSE_STRING.toString(), MAP_REQUEST, mapIDs, 20);
+        }
+
+        for(VirtualView p : players) {
+            int vote = Integer.parseInt(waitShort(p, 20));
+            votes.set(vote-1, votes.get(vote-1)+1);
+        }
+        int mapId = votes.indexOf(Collections.max(votes)) + 1;
 
         board = BoardConfigurer.configureMap(mapId);
 
         for(VirtualView p : players) {
+            p.display("Voting ended. Map " + mapId + " selected.");
             board.registerObserver(p);
         }
 
-        LOGGER.log(Level.INFO,() -> "Players voted: map " + mapId + " selected.");
+        LOGGER.log(Level.INFO,"Players voted: map " + mapId + " selected.");
 
     }
 
@@ -279,26 +272,59 @@ public class GameEngine implements Runnable{
     /**
      * Configures the kill shot track asking the players for their preference.
      */
-    private void configureKillShotTrack(){
+    private void configureKillShotTrack() throws NotEnoughPlayersException{
 
         List<Integer> skullsOptions = new ArrayList<>(Arrays.asList(5,6,7,8));
         int totalSkullNumber = 0;
 
-        //for (VirtualView p : players) {
-        //    p.choose(SKULL_REQUEST, skullsOptions);
-        //}
-        //for (VirtualView p : players) {
-        //    int selected = Integer.parseInt(waitShort(p, 20));
-        //    totalSkullNumber = totalSkullNumber + selected + 4;
-        //}
+        for (VirtualView p : players) {
+            p.choose(CHOOSE_STRING.toString(), SKULL_REQUEST, skullsOptions, 20);
+        }
+        for (VirtualView p : players) {
+            int selected = Integer.parseInt(waitShort(p, 20));
+            totalSkullNumber = totalSkullNumber + selected + 4;
+        }
 
-        int averageSkullNumber = 6;//Math.round((float)totalSkullNumber/(float)players.size());
+        int averageSkullNumber = Math.round((float)totalSkullNumber/(float)players.size());
         BoardConfigurer.configureKillShotTrack(averageSkullNumber, board);
         try {
             this.killShotTrack = board.getKillShotTrack();
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
 
+        for (VirtualView p : players) {
+            p.display("Voting ended. Number of skulls selected: " + averageSkullNumber + ".");
+        }
+
         LOGGER.log(Level.INFO,() -> "Players voted. Number of skulls: " + averageSkullNumber + ".");
+    }
+
+
+    /**
+     * Configures the frenzy option asking the players for their preference.
+     */
+    private void configureFrenzyOption()throws NotEnoughPlayersException{
+
+        List<String> frenzyOptions = new ArrayList<>();
+        int yes = 0;
+        int no = 0;
+        frenzyOptions.addAll(Arrays.asList("yes", "no"));
+        for (VirtualView p: players) {
+            p.choose(CHOOSE_STRING.toString(), "Do you want to play with the frenzy?", frenzyOptions, 20);
+        }
+        for(VirtualView p : players){
+            if(Integer.parseInt(waitShort(p, 20))==1) yes++;
+            else no++;
+        }
+        if (yes>=no) {
+            frenzy=true;
+            LOGGER.log(Level.INFO,"Frenzy active.");
+        }
+        else  LOGGER.log(Level.INFO,"Frenzy not active.");
+
+        for(VirtualView p : players){
+            if(frenzy) p.display("Voting ended: Frenzy active");
+            else p.display("Voting ended: Frenzy not active");
+        }
     }
 
 
@@ -306,18 +332,18 @@ public class GameEngine implements Runnable{
      * Adds to the board the players connected to the game.
      * Asks the players which hero they want, providing only the remaining options.
      */
-    private void configurePlayers(){
+    private void configurePlayers() throws NotEnoughPlayersException{
 
         List<Player.HeroName> heroList = new ArrayList<>(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
         int id = 1;
 
         for(VirtualView p : players) {
-            //p.choose(HERO_REQUEST, heroList);
-            //int selected = Integer.parseInt(waitShort(p, 20));
-            //LOGGER.log(INFO, "selected {0}", selected);
-            LOGGER.log(Level.INFO, "index: {0}", players.indexOf(p));
+            p.choose(CHOOSE_STRING.toString(), HERO_REQUEST, heroList, 20);
+            int selected = Integer.parseInt(waitShort(p, 20));
+            LOGGER.log(Level.INFO, "selected {0}", selected);
+            LOGGER.log(Level.INFO, "index: " + players.indexOf(p));
             LOGGER.log(Level.INFO, heroList.toString());
-            Player.HeroName selectedName = heroList.get(0);//heroList.get(selected-1);
+            Player.HeroName selectedName = heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
             LOGGER.log(Level.INFO,"setplayer");
             board.getPlayers().add(p.getModel());
@@ -326,10 +352,29 @@ public class GameEngine implements Runnable{
             heroList.remove(selectedName);
             LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
             if (!test)
-                p.display(PLAYER_SELECTION + selectedName + ".");
+                p.display("You selected " + selectedName +". Start thinking about a battle-cry...");
             id++;
         }
 
+    }
+
+    public void battleCry() {
+        List<String> battleCries = new ArrayList<>();
+        for (VirtualView p : players) {
+            battleCries.add(p.getInputNow("Choose a battle-cry!", MAX_LENGTH_BATTLECRY));
+            p.display("Battle-cry selected, wait for the other players.");
+        }
+        for (VirtualView p : players) {
+            StringBuilder builder = new StringBuilder();
+            for (VirtualView otherPlayer : players){
+                if (!otherPlayer.equals(p)){
+                    if (!builder.toString().isEmpty())
+                        builder.append("\n");
+                    builder.append(otherPlayer.getModel().userToString() + " cries out: \"" + battleCries.get(players.indexOf(otherPlayer)) + "\"");
+                }
+            }
+            p.display(builder.toString());
+        }
     }
 
 
@@ -472,7 +517,6 @@ public class GameEngine implements Runnable{
     public void gameOver(){
 
         LOGGER.log(Level.INFO, "\nGame over.\n");
-
         int maxScore = players.get(0).getModel().getPoints();
         List<VirtualView> winners = new ArrayList<>();
         boolean existsKill = false;
@@ -531,70 +575,6 @@ public class GameEngine implements Runnable{
         }
         return builder.toString();
     }
-
-
-    /**
-     * Sets the game in such a way that only a skull is left on the killshot track.
-     * Three players are set on the board and they are given some damages.
-     * The killshot track, the player points, deaths and status are set in a coherent way.
-     * The method is used to allow to reach quickly the end of the game.
-     *
-     * @throws NotAvailableAttributeException
-     */
-    public void simulateTillEndphase() throws NotAvailableAttributeException {
-
-        Player p1 = board.getPlayers().get(0);
-        Player p2 = board.getPlayers().get(1);
-        Player p3 = board.getPlayers().get(2);
-
-        p1.setInGame(true);
-        p1.setPosition(board.getMap().get(2));
-        p2.setInGame(true);
-        p2.setPosition(board.getMap().get(4));
-        p3.setInGame(true);
-        p3.setPosition(board.getMap().get(11));
-
-
-        //simulates all the previous deaths
-        BoardConfigurer.configureKillShotTrack(1, board);
-        try {
-            this.killShotTrack = board.getKillShotTrack();
-        } catch (NotAvailableAttributeException e) {
-            LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while configuring the kill shot track", e);
-        }
-        p1.addDeath();
-        p2.addDeath();
-        p3.addDeath();
-        p1.addDeath();
-        p3.addDeath();
-        board.getKillShotTrack().getKillers().addAll(Arrays.asList(p2, p3, p1, p2, p1));
-        p1.setPoints(23);
-        p2.setPoints(27);
-        p3.setPoints(17);
-        p1.setPointsToGive(4);
-        p2.setPointsToGive(6);
-        p3.setPointsToGive(4);
-
-        //assigns damages and update status
-        for (int i = 0; i < 2; i++)
-            p1.getDamages().add(p2);
-        p1.setStatus(Player.Status.BASIC);
-
-        for (int i = 0; i < 4; i++)
-            p2.getDamages().add(p1);
-        for (int i = 0; i < 6; i++)
-            p2.getDamages().add(p3);
-        p2.setStatus(Player.Status.ADRENALINE_2);
-
-        for (int i = 0; i < 4; i++){
-            p3.getDamages().add(p2);
-        }
-        p3.getDamages().add(p1);
-        p3.getDamages().add(p2);
-        p3.setStatus(Player.Status.ADRENALINE_1);
-
-    }
-
 
     /**
      * Waits for a player's input. If player takes too long to answer, default answer "1" is returned. Used in the game configuration phase.
@@ -684,6 +664,7 @@ public class GameEngine implements Runnable{
             synchronized (notifications) {
                 notifications.putIfAbsent(p, message);
             }
+            System.out.println(p.getName() + "just notified");
             LOGGER.log(Level.INFO, "{0} just notified the GameEngine", p.getName());
         }catch (Exception ex){
             LOGGER.log(Level.SEVERE, "Issue with being notified by " + p.getName(), ex);
@@ -728,6 +709,67 @@ public class GameEngine implements Runnable{
         if (players.stream().filter(x->!x.isSuspended()).count() < MIN_PLAYERS) throw new NotEnoughPlayersException("Not enough players to continue the game. Game over");
     }
 
+    /**
+     * Sets the game in such a way that only a skull is left on the killshot track.
+     * Three players are set on the board and they are given some damages.
+     * The killshot track, the player points, deaths and status are set in a coherent way.
+     * The method is used to allow to reach quickly the end of the game.
+     *
+     * @throws NotAvailableAttributeException
+     */
+    public void simulateTillEndphase() throws NotAvailableAttributeException {
+
+        Player p1 = board.getPlayers().get(0);
+        Player p2 = board.getPlayers().get(1);
+        Player p3 = board.getPlayers().get(2);
+
+        p1.setInGame(true);
+        p1.setPosition(board.getMap().get(2));
+        p2.setInGame(true);
+        p2.setPosition(board.getMap().get(4));
+        p3.setInGame(true);
+        p3.setPosition(board.getMap().get(11));
+
+
+        //simulates all the previous deaths
+        BoardConfigurer.configureKillShotTrack(1, board);
+        try {
+            this.killShotTrack = board.getKillShotTrack();
+        } catch (NotAvailableAttributeException e) {
+            LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while configuring the kill shot track", e);
+        }
+        p1.addDeath();
+        p2.addDeath();
+        p3.addDeath();
+        p1.addDeath();
+        p3.addDeath();
+        board.getKillShotTrack().getKillers().addAll(Arrays.asList(p2, p3, p1, p2, p1));
+        p1.setPoints(23);
+        p2.setPoints(27);
+        p3.setPoints(17);
+        p1.setPointsToGive(4);
+        p2.setPointsToGive(6);
+        p3.setPointsToGive(4);
+
+        //assigns damages and update status
+        for (int i = 0; i < 2; i++)
+            p1.getDamages().add(p2);
+        p1.setStatus(Player.Status.BASIC);
+
+        for (int i = 0; i < 4; i++)
+            p2.getDamages().add(p1);
+        for (int i = 0; i < 6; i++)
+            p2.getDamages().add(p3);
+        p2.setStatus(Player.Status.ADRENALINE_2);
+
+        for (int i = 0; i < 4; i++){
+            p3.getDamages().add(p2);
+        }
+        p3.getDamages().add(p1);
+        p3.getDamages().add(p2);
+        p3.setStatus(Player.Status.ADRENALINE_1);
+
+    }
 
     /**
      * Checks if a certain player can resume, and if so, adds it to a waiting list
@@ -772,13 +814,52 @@ public class GameEngine implements Runnable{
         }
     }
 
+
     /**
      * Loads parameters from properties
      */
-    private void loadParams(){
+    private void loadParams() {
         Properties prop = ServerMain.getInstance().loadConfig();
         this.endphaseSimulation = Boolean.parseBoolean(prop.getProperty("endPhaseSimulation", "false"));
         this.turnDuration = Integer.parseInt(prop.getProperty("turnDuration", "60"));
+    }
+
+    public void fakeSetup(){
+
+        board = BoardConfigurer.configureMap(4);
+
+        for(VirtualView p : players) {
+            board.registerObserver(p);
+        }
+
+        BoardConfigurer.configureKillShotTrack(6, board);
+        try {
+            this.killShotTrack = board.getKillShotTrack();
+        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
+
+        BoardConfigurer.configureDecks(board);
+
+        try {
+            BoardConfigurer.setAmmoTilesAndWeapons(board);
+        } catch (UnacceptableItemNumberException | NoMoreCardsException e) {LOGGER.log(Level.SEVERE,"Exception thrown while setting ammo tiles and weapons", e);}
+
+        List<Player.HeroName> heroList = new ArrayList<>(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
+        int id = 1;
+
+        for(VirtualView p : players) {
+            Player.HeroName selectedName = heroList.get(0);
+            p.setPlayer(new Player(id, selectedName, board));
+            board.getPlayers().add(p.getModel());
+            p.getModel().setUsername(p.getName());
+            heroList.remove(selectedName);
+            LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
+            id++;
+        }
+
+        frenzy = true;
+
+        setCurrentPlayer(players.get(0));
+        statusSaver = new StatusSaver(board);
     }
 
 }

@@ -32,15 +32,6 @@ public abstract class VirtualView implements Runnable{
         }
     }
 
-    /*
-    public static final String CHOOSE_WEAPON = "weapon";
-    public static final String CHOOSE_POWERUP = "powerup";
-    public static final String CHOOSE_SQUARE = "square";
-    public static final String CHOOSE_PLAYER = "player";
-    public static final String CHOOSE_STRING = "string";
-    */
-
-
     protected GameEngine game;
     protected String name;
     boolean suspended;
@@ -127,6 +118,8 @@ public abstract class VirtualView implements Runnable{
     public void setSuspended(boolean suspended){
         this.suspended = suspended;
     }
+
+    public void setBusy(boolean busy){this.busy = busy;}
 
     //only for testing
     public void setName(String name) {

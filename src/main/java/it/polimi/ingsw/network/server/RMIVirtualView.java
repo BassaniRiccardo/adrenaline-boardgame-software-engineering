@@ -63,9 +63,9 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
                 try {
                     int i = remoteView.choose(type, msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
                     if(busy) {
-                        busy=false;
                         notifyObservers(String.valueOf(i));
                     }
+                    busy=false;
                 } catch (RemoteException ex) {
                     suspend();
                 }
@@ -86,15 +86,16 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
                     try {
                         int i = remoteView.choose(type, msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
                         if(busy&&System.currentTimeMillis()<timestamp) {
-                            busy=false;
                             notifyObservers(String.valueOf(i));
                         }
+                        busy=false;
                     } catch (RemoteException ex) {
                         suspend();
                     }
                 }
         );
     }
+
 
     @Override
     public void display(String msg){

@@ -6,9 +6,10 @@ import java.awt.*;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
+
+import it.polimi.ingsw.network.server.VirtualView;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -26,6 +27,8 @@ import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+
+import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
 
 /**
@@ -45,7 +48,7 @@ import javafx.scene.layout.VBox;
 public class GUI extends Application implements UI, Runnable, EventHandler {
 
     private ClientMain clientMain;
-    private Color color = Color.rgb(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256));
+    private Color color = Color.rgb(255, 255,255);
     private Stage stage;
     private Scene scene;
     private BorderPane root;
@@ -68,9 +71,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private double userHeightResolution;
     private double scale;
     private MapBoardRenderer mapBoardRenderer;
-    private String renderMessage; //andrà cancellato credo
+    private PlayerBoardRenderer playerBoardRenderer;
+    private String mapBoardRenderInstruction; //andrà cancellato credo
+    private String playerBoardRenderInstruction;
     private boolean renderAlreadyLaunched;
-  //  private BorderPane pane;
 
 
     public ClientMain getClientMain() {
@@ -119,9 +123,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         messagePanel = new Pane();
         justDamaged = new ArrayList<>();
         clientModel = null;
-        renderMessage = null;
+        mapBoardRenderInstruction = "Normal";
+        playerBoardRenderInstruction = "Normal";
         renderAlreadyLaunched = false;
-        //pane = new BorderPane();
     }
 
     public void setClientMain(ClientMain clientMain) {
@@ -138,24 +142,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     public void start(Stage primaryStage) throws Exception {
 
         Platform.runLater( () -> {
-           /* stage = primaryStage;
-            stage.setOnCloseRequest(e -> {System.exit(0);});
-            stage.setTitle("Adrenaline");
-            BorderPane pane = new BorderPane();
-            pane.setBackground(new Background(new BackgroundFill(color, null, null)));
-            Scene scene = new Scene(pane, 500, 250);
-            stage.setScene(scene);
-            Label label = new Label("Entering the configuration phase...");
-            pane.setCenter(label);
-            stage.show();*/
-/*
-            lo stage deve essere fullScreen fin da qui e composto da:
-            -   messagePanel, per mostrare i messaggi
-            -   il resto dello schermo va riempito in modo appropriato fin da ora (immagine e/o scritta+colore)
-                e andrá poi rimepito con la mappa dal render
-             */
 
-            Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+           Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
             userWidthResolution = screenSize.getWidth();
             userHeightResolution = screenSize.getHeight();
             double fakeScale;
@@ -167,6 +155,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 fakeScale = userWidthResolution*3/(4* DEVELOPER_WIDTH_RESOLUTION); //sets at 3/4 of the screen width
             scale=fakeScale; //needed for lamba necessities
             mapBoardRenderer = new MapBoardRenderer(scale, clientModel);
+            playerBoardRenderer = new PlayerBoardRenderer(scalePB, clientModel);
 
             mapStage = new Stage();
             stage = primaryStage;
@@ -218,7 +207,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             clientModel=clientMain.getClientModel(); //penso sia utile solo per il test
             mapBoardRenderer.setClientModel(clientModel);
-            mapBoardRenderer.setRenderInstruction(renderMessage);
+            System.out.println(mapBoardRenderInstruction);
+            mapBoardRenderer.setRenderInstruction(mapBoardRenderInstruction);
 
             Animations animation = new Animations();
 
@@ -258,7 +248,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             userPlayerBoardWidth = playerView.get(0).getFitWidth();
             scalePB= userPlayerBoardWidth/ DEVELOPER_PLAYER_BOARD_WIDTH;
-            PlayerBoardRenderer playerBoardRenderer = new PlayerBoardRenderer(scalePB, players, clientModel);
+            playerBoardRenderer.setScalePB(scalePB);
+            playerBoardRenderer.setPlayers(players);
+            playerBoardRenderer.setClientModel(clientModel);
+            playerBoardRenderer.setRenderInstruction(playerBoardRenderInstruction);
 
             //icons
             List<ImageView> icons = mapBoardRenderer.iconsRenderer();
@@ -279,6 +272,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 for (ClientModel.SimplePlayer p : players)
                     if(justDamaged.get(players.indexOf(p))!=p.getDamageID().size())
                         animation.flash(icons.get(players.indexOf(p)));
+            justDamaged.clear();
 
             //ammo
             List<GridPane> playerAmmoGrid = playerBoardRenderer.ammoRender();
@@ -332,28 +326,15 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             board.setStyle("-fx-background-color: #000000");
             scene.setRoot(board);
-           /* Scene sceneMap = new Scene(board, 1500*scale, 900*scale);
-                mapStage.setScene(sceneMap);
-                mapStage.setFullScreen(true);
-                if (!started){
-                    mapStage.show();
-                    started = true;
-                }*/
-            renderMessage=null;
+            mapBoardRenderInstruction ="Normal";
+            playerBoardRenderInstruction ="Normal";
             //}catch (FileNotFoundException e){
             //    e.printStackTrace();
             //}
         });
     }
 
-
-    /**
-     * Displays a OPT message
-
-     * @param message   message to be displayed
-     * @param list      the option the user can choose among
-     */
-    public void display(String message, List<String> list) {
+        public void display(String type, String message, List<String> list) {
 
         while (stage==null){
             try {
@@ -371,35 +352,45 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             opt.setSpacing(40);
             List<String> labelButton = new ArrayList<>();
             List<Button> inputButtons = new ArrayList<>();
+            boolean interactiveInput;
+            System.out.println(type);
+            if(type.equals(CHOOSE_SQUARE.toString())||type.equals(CHOOSE_WEAPON.toString()))  //!type.equals("string")
+                interactiveInput = true;
+            else
+                interactiveInput = false;
 
-            if(list.get(0).contains("Square")){
-                System.out.println("SQUARE è GiuSTO");
-                Stage optStage = new Stage();
-                for (String item : list) {
-                    Button b = new Button(item);
+            HBox optionList = new HBox();
+            optionList.setAlignment(Pos.CENTER);
+            optionList.setSpacing(10 / list.size());
+            List<Button> buttons = new ArrayList<>();
+
+            for (String item : list) {
+                Button b = new Button();
+                if(item.equals("reset"))  //reset button is always needed in the message panel
+                    interactiveInput = false;
+                if(interactiveInput) {
+                    b.setText(" ");
                     inputButtons.add(b);
                     labelButton.add(item);
-                    b.setOnAction(e -> {
-                        System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
-                        dataSaver.message = message;
-                        dataSaver.answer = Integer.toString(inputButtons.indexOf(b) + 1);
-                        dataSaver.update = true;
-                        optStage.close();
-                    });
+
+                }else {
+                    b.setText(item);
+                    inputButtons.add(b);
+                    optionList.getChildren().add(inputButtons.get(list.indexOf(item)));
                 }
-
-                System.out.println(inputButtons);
-                System.out.println(labelButton);
-                mapBoardRenderer.setInputButtons(inputButtons);
-                mapBoardRenderer.setLabelButton(labelButton);
-                mapBoardRenderer.setRenderInstruction("Square");
-                renderMessage="Square";
-
-            } else {
+                b.setOnAction(e -> {
+                    System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
+                    dataSaver.message = message;
+                    dataSaver.answer = Integer.toString(inputButtons.indexOf(b) + 1);
+                    dataSaver.update = true;
+                });
+            }
+            opt.getChildren().add(optionList);
+                //mapBoardRenderer.setRenderInstruction("Square");
+           /*  else {
                 HBox optionList = new HBox();
                 optionList.setAlignment(Pos.CENTER);
                 optionList.setSpacing(40 / list.size());
-                Stage optStage = new Stage();
 
                 List<Button> buttons = new ArrayList<>();
                 for (String item : list) {
@@ -410,12 +401,36 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                         dataSaver.message = message;
                         dataSaver.answer = Integer.toString(buttons.indexOf(b) + 1);
                         dataSaver.update = true;
-                        optStage.close();
                     });
                 }
                 optionList.getChildren().addAll(buttons);
                 opt.getChildren().add(optionList);
+            }*/
+            if(type.equals(CHOOSE_SQUARE.toString()))
+                mapBoardRenderInstruction ="Square";
+            else if(type.equals(CHOOSE_WEAPON.toString())){
+                if(clientModel.getCurrentPlayer().getWeapons().size()>0) {  //verifies if the weapons are in the player hand or on the board
+                    if (list.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName())){
+                        playerBoardRenderInstruction = "Weapon";
+                  }else{  System.out.println("CHECK1");
+                        mapBoardRenderInstruction ="Weapon";}
+                }
+                else{  System.out.println("CHECK1");
+                    mapBoardRenderInstruction ="Weapon";}
+            }else if(type.equals(CHOOSE_POWERUP.toString()))
+                playerBoardRenderInstruction="PowerUp";
+            else if(type.equals(CHOOSE_PLAYER.toString()))
+                mapBoardRenderInstruction="Player";
+            else{
+                System.out.println("NOOOOOOO");
+                mapBoardRenderInstruction = "Normal";
+                playerBoardRenderInstruction = "Normal";
             }
+
+            mapBoardRenderer.setInputButtons(inputButtons);
+            mapBoardRenderer.setLabelButton(labelButton);
+            playerBoardRenderer.setInputButtons(inputButtons);
+            playerBoardRenderer.setLabelButton(labelButton);
             messagePanel = opt;
           /* if(renderAlreadyLaunched)
                 render();
@@ -433,11 +448,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             }else {
                 render();
             }
-            //da togliere
-          //  Scene scene = new Scene(opt, 500,250, color);
-           // stage.setScene(scene);
-            //stage.show();
-
         });
 
     }
@@ -483,17 +493,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             }
 
             else {
-
-                //da aggiungere
                 messagePanel = msg;
                 if(clientModel==null){
                     printer();
                 } else
                     render();
-                //da togliere
-                // stage.setScene(scene);
-                //stage.show();
-
             }
         });
     }
@@ -545,18 +549,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     }
             );
 
-            //da aggiungere
             messagePanel = req;
             if(clientModel==null){
                 printer();
             }
             else
                 render();
-            //da togliere
-            //  Scene info = new Scene(req, 500, 250, color);
-            //stage.setScene(info);
-            //stage.show();
-
         });
 
     }

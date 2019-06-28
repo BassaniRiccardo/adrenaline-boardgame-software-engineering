@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 import java.util.logging.*;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.controller.ServerMain.MIN_PLAYERS;
 import static it.polimi.ingsw.model.board.Player.HeroName.*;
 import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
@@ -31,19 +32,40 @@ public class GameEngine implements Runnable{
     private List<VirtualView> players;
     private VirtualView currentPlayer;
     private Board board;
-    private boolean gameOver;
     private KillShotTrack killShotTrack;
-    private boolean frenzy;
-    private StatusSaver statusSaver;
-    private final Map<VirtualView, String> notifications;
     private Timer timer;
-    private boolean exitGame;
-    private List<VirtualView> resuming;
+    private StatusSaver statusSaver;
+
+    private boolean gameOver;
+    private boolean frenzy;
     private boolean lastFrenzyPlayer;
+    private boolean exitGame;
+
+    private final Map<VirtualView, String> notifications;
+    private List<VirtualView> resuming;
+
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    public static boolean endphaseSimulation = false;
-    private static final int TURN_DURATION = 90;
+    private static final String PLAYER_SELECTION = "You selected ";
+    private static final String SKULL_REQUEST = "How many skulls do you want?";
+    private static final String HERO_REQUEST = "What hero do you want?";
+    private static final String FRENZY_REQUEST = "Do you want to play with the frenzy?";
+    private static final String MAP_REQUEST = "Vote for the map you want:";
+    private static final String WINNER_MESSAGE = "\n\nGAME OVER\n\nYou Won!";
+    private static final String DRAW_MESSAGE = "\n\nGAME OVER\n\nYou and other players made the most points but did not kill anyone. Shame on you! The game ends with a draw.";
+    private static final String POSITION_MESSAGE = "\n\nGAME OVER\n\nYour position: ";
+    private static final String WAIT_SHORT_MESSAGE = "Your answer did not arrive in time. You have not been suspended, but a default value has been selected.";
+    private static final String YOU_ARE_BACK_MESSAGE = "You are back!";
+    private static final String IS_BACK_MESSAGE = " is back!";
+
+    private static final String DEFAULT_ANSWER = "1";
+
+    private boolean endphaseSimulation;
+    private int turnDuration;
+
+
+    public static boolean test = false;     //TODO: remove once you have rewritten tests
+
 
 
     /**
@@ -55,21 +77,25 @@ public class GameEngine implements Runnable{
         this.players = players;
         this.currentPlayer = null;
         this.board = null;
-        this.gameOver = false;
         this.killShotTrack = null;
-        this.frenzy = false;
+        this.timer = new Timer(turnDuration);
         this.statusSaver = null;
+
+        this.gameOver = false;
+        this.frenzy = false;
+        this.lastFrenzyPlayer = false;
+        this.exitGame = false;
+
         for(VirtualView p : players){
             p.setGame(this);
         }
-        this.notifications = new HashMap<>();
-        this.timer = new Timer(TURN_DURATION);
-        this.exitGame = false;
-        this.resuming = new ArrayList<>();
-        this.lastFrenzyPlayer = false;
-        //todo: load from config
-        LOGGER.log(Level.FINE, "Initialized GameEngine " + this);
 
+        this.notifications = new HashMap<>();
+        this.resuming = new ArrayList<>();
+
+        loadParams();
+
+        LOGGER.log(Level.FINE, "Initialized GameEngine {0}", this);
     }
 
 
@@ -90,13 +116,14 @@ public class GameEngine implements Runnable{
 
     public boolean isLastFrenzyPlayer() {return lastFrenzyPlayer; }
 
+    public boolean isGameOver() {return gameOver; }
 
     /**
      *  Setters
      */
-    public void setPlayers(List<VirtualView> players) {
+    public synchronized void setPlayers(List<VirtualView> players) {
         this.players = players;
-        LOGGER.log(Level.FINEST, "Set players to a new list sized " + players.size());
+        LOGGER.log(Level.FINEST, "Set players to a new list sized {0}", players.size());
     }
 
     public void setCurrentPlayer(VirtualView currentPlayer) {
@@ -114,17 +141,6 @@ public class GameEngine implements Runnable{
     }
 
     /**
-     * Adds a VirtualView to the game.
-     *
-     * @param index         the position of the new VirtualView in the VirtualView list.
-     * @param p             the player connection to addList.
-     */
-    public void setPlayer(int index, VirtualView p) {
-        this.players.set(index, p);     //this and other methods need to be synchronized
-    }
-
-
-    /**
      * Runs a game.
      *
      * @requires 3 <= players.size() && players.size() <= 5
@@ -135,7 +151,6 @@ public class GameEngine implements Runnable{
 
             LOGGER.log(Level.FINE, "GameEngine running");
 
-            final int TURN_TIME = 3;
             setup();
 
             if (endphaseSimulation) {
@@ -144,7 +159,7 @@ public class GameEngine implements Runnable{
                         board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
                     }
                     simulateTillEndphase();
-                } catch (NotAvailableAttributeException | NoMoreCardsException | UnacceptableItemNumberException | WrongTimeException e) {
+                } catch (NotAvailableAttributeException e) {
                     LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
                 }
             }
@@ -194,7 +209,7 @@ public class GameEngine implements Runnable{
      */
     public void setup(){
 
-        LOGGER.log(Level.INFO,"\n\nAll the players are connected.\n");
+        LOGGER.log(Level.FINE,"All the players are connected.");
         configureMap();
         configureKillShotTrack();
         //try {
@@ -215,7 +230,7 @@ public class GameEngine implements Runnable{
         //int no = 0;
         //frenzyOptions.addAll(Arrays.asList("yes", "no"));
         //for (VirtualView p: players) {
-        //    p.choose("Do you want to play with the frenzy?", frenzyOptions);
+        //    p.choose(FRENZY_REQUEST, frenzyOptions);
         //}
         //for(VirtualView p : players){
         //    if(Integer.parseInt(waitShort(p, 20))==1) yes++;
@@ -241,7 +256,7 @@ public class GameEngine implements Runnable{
         List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
 
         //for(VirtualView p : players) {
-        //    p.choose("Vote for the map you want:", mapIDs);
+        //    p.choose(MAP_REQUEST, mapIDs);
         //}
 
         //for(VirtualView p : players) {
@@ -270,7 +285,7 @@ public class GameEngine implements Runnable{
         int totalSkullNumber = 0;
 
         //for (VirtualView p : players) {
-        //    p.choose("How many skulls do you want?", skullsOptions);
+        //    p.choose(SKULL_REQUEST, skullsOptions);
         //}
         //for (VirtualView p : players) {
         //    int selected = Integer.parseInt(waitShort(p, 20));
@@ -297,20 +312,21 @@ public class GameEngine implements Runnable{
         int id = 1;
 
         for(VirtualView p : players) {
-            //p.choose("What hero do you want?", heroList);
+            //p.choose(HERO_REQUEST, heroList);
             //int selected = Integer.parseInt(waitShort(p, 20));
-            //System.out.println("selected " + selected);
-            System.out.println("index: " + players.indexOf(p));
-            System.out.println(heroList);
+            //LOGGER.log(INFO, "selected {0}", selected);
+            LOGGER.log(Level.INFO, "index: {0}", players.indexOf(p));
+            LOGGER.log(Level.INFO, heroList.toString());
             Player.HeroName selectedName = heroList.get(0);//heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
-            System.out.println("setplayer");
+            LOGGER.log(Level.INFO,"setplayer");
             board.getPlayers().add(p.getModel());
-            System.out.println("added");
+            LOGGER.log(Level.INFO, "added");
             p.getModel().setUsername(p.getName());
             heroList.remove(selectedName);
             LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
-            p.display("You selected " + selectedName);
+            if (!test)
+                p.display(PLAYER_SELECTION + selectedName + ".");
             id++;
         }
 
@@ -422,9 +438,7 @@ public class GameEngine implements Runnable{
      */
     public void manageGameEnd(ExecutorService executor) throws NotEnoughPlayersException, SlowAnswerException{
 
-        System.out.println("entering manage");
         if (!frenzy) {
-            System.out.println("setting gameOver to true");
             gameOver = true;
         }
         else {
@@ -457,21 +471,32 @@ public class GameEngine implements Runnable{
      */
     public void gameOver(){
 
-        System.out.println("\nGame over.\n");
+        LOGGER.log(Level.INFO, "\nGame over.\n");
 
-        if (players.get(0).getModel().getPoints() == players.get(1).getModel().getPoints() && !killShotTrack.getKillers().contains(players.get(0).getModel()) && !killShotTrack.getKillers().contains(players.get(1).getModel())) {
-            LOGGER.log(Level.INFO,() -> P + players.get(0).getModel().getId() + " and Player " + players.get(1).getModel().getId() + ", you did not kill anyone. Shame on you! The game ends with a draw.\n");
+        int maxScore = players.get(0).getModel().getPoints();
+        List<VirtualView> winners = new ArrayList<>();
+        boolean existsKill = false;
+        for (VirtualView p : players){
+            if (p.getModel().getPoints() == maxScore) {
+                winners.add(p);
+                if (killShotTrack.getKillers().contains(p.getModel())){
+                    existsKill = true;
+                }
+            }
+        }
 
-            players.get(0).showEnd(addLeaderboard("\n\nGAME OVER\n\nYou and " + players.get(1).getModel().getUsername() + " made the most points but you did not kill anyone. Shame on you! The game ends with a draw."));
-            for (int i = 2; i < players.size(); i++) {
+        if (existsKill || winners.size()==1){
+            players.get(0).showEnd(addLeaderboard(WINNER_MESSAGE));
+            for (int i = 1; i < players.size(); i++) {
                 showToLoser(i);
             }
-        } else {
-            LOGGER.log(Level.INFO,() -> "Winner: Player " + players.get(0).getModel().getId() + ", with " + players.get(0).getModel().getPoints() + " points!\n");
-
-            players.get(0).showEnd(addLeaderboard("\n\nGAME OVER\n\nYou Won!"));
-            for (int i = 1; i < players.size(); i++) {
-
+        }
+        else {
+            for (VirtualView v : winners){
+                v.showEnd(addLeaderboard(DRAW_MESSAGE));
+            }
+            for (int i = winners.size(); i < players.size(); i++) {
+                showToLoser(i);
             }
         }
 
@@ -487,7 +512,7 @@ public class GameEngine implements Runnable{
     public void showToLoser(int i){
         LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
         int pos = i + 1;
-        players.get(i).showEnd(addLeaderboard("\n\nGAME OVER\n\nYour position: " + pos + "!"));
+        players.get(i).showEnd(addLeaderboard(POSITION_MESSAGE + pos + "!"));
     }
 
 
@@ -509,138 +534,18 @@ public class GameEngine implements Runnable{
 
 
     /**
-     * Wait for a player's input. If player takes too long to answer, default answer "1" is returned.
+     * Sets the game in such a way that only a skull is left on the killshot track.
+     * Three players are set on the board and they are given some damages.
+     * The killshot track, the player points, deaths and status are set in a coherent way.
+     * The method is used to allow to reach quickly the end of the game.
      *
-     * @param current       player to wait for
-     * @param timeout       timeout
-     * @return answer
+     * @throws NotAvailableAttributeException
      */
-    public String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
-        long start = System.currentTimeMillis();
-        long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
-        LOGGER.log(Level.INFO ,"Waiting for " + current);
-        while(!hasAnswered(current)){
-            checkForSuspension();
-            try {
-                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
-            }catch(InterruptedException ex){
-                LOGGER.log(Level.FINE,"Skipped waiting time.");
-                Thread.currentThread().interrupt();
-            }
-            if(System.currentTimeMillis()>start+timeoutMillis){
-                LOGGER.log(Level.INFO,"Timeout ran out while waiting for " + current.getName() +". Returning default value");
-                synchronized (notifications){
-                    notifications.putIfAbsent(current, "1");
-                }
-                current.display("Your answer did not arrive in time. You have not been suspended, but a default value has been selected.");
-            }
-        }
-        LOGGER.log(Level.INFO, "Done waiting");
-
-        synchronized (notifications) {
-            return notifications.get(current);
-        }
-    }
-
-
-    /**
-     * Wait for a player's input for as long as needed.
-     *
-     * @param current       player to wait for
-     * @throws SlowAnswerException      if the turn timer runs out
-     * @return answer
-     */
-    public String wait(VirtualView current) throws SlowAnswerException, NotEnoughPlayersException{
-        LOGGER.log(Level.INFO ,"Waiting for {0}", current);
-        while(!hasAnswered(current)){
-            checkForSuspension();
-            try {
-                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
-            }catch(InterruptedException ex){
-                LOGGER.log(Level.INFO,"Skipped waiting time.");
-                Thread.currentThread().interrupt();
-            }
-            if(timer.isOver()){
-                throw new SlowAnswerException("Maximum time exceeded for the user to answer");
-            }
-        }
-        LOGGER.log(Level.INFO, "Done waiting");
-        synchronized (notifications) {
-            return notifications.get(current);
-        }
-    }
-
-
-    /**
-     * States if a certain player's answer has not been checked yet.
-     *
-     * @param p       player to check
-     * @return      true if player has answered, else false
-     */
-    public boolean hasAnswered(VirtualView p){
-        synchronized (notifications) {
-            return notifications.containsKey(p);
-        }
-    }
-
-
-    /**
-     * Method called externally to notify changes in an observed object
-     * @param p         observer player that has input
-     * @param message   input message
-     */
-    public void notify(VirtualView p, String message){
-        try {
-            synchronized (notifications) {
-                notifications.putIfAbsent(p, message);
-            }
-            LOGGER.log(Level.INFO, "{0} just notified the GameEngine", p);
-        }catch (Exception ex){
-            LOGGER.log(Level.SEVERE, "Issue with being notified by " + p, ex);
-        }
-    }
-
-    /**
-     * Getter for notifications
-     * @return      mapping of players to incoming messages
-     */
-    public Map<VirtualView, String> getNotifications(){
-        synchronized (notifications) {
-            return notifications;
-        }
-    }
-
-    /**
-     * Checks if a player was suspended recently
-     */
-    private synchronized void checkForSuspension() throws NotEnoughPlayersException{
-        List<VirtualView> justSuspended = new ArrayList<>();
-        int playersInGame = 0;
-        for(VirtualView v : players){
-            if(v.isJustSuspended()) {
-                justSuspended.add(v);
-                v.setJustSuspended(false);
-            }
-            else playersInGame++;
-        }
-        for(VirtualView v : justSuspended){
-            for(VirtualView p : players){
-                p.display(P + v.getName() + " was disconnected");
-                synchronized (notifications) {
-                    notifications.remove(p);
-                }
-            }
-            LOGGER.log(Level.INFO, "Notified players of the disconnection of {0}", justSuspended);
-        }
-        if (playersInGame < 3) throw new NotEnoughPlayersException("Not enough players to continue the game. Game over");
-    }
-
-    public void simulateTillEndphase() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
+    public void simulateTillEndphase() throws NotAvailableAttributeException {
 
         Player p1 = board.getPlayers().get(0);
         Player p2 = board.getPlayers().get(1);
         Player p3 = board.getPlayers().get(2);
-
 
         p1.setInGame(true);
         p1.setPosition(board.getMap().get(2));
@@ -654,29 +559,36 @@ public class GameEngine implements Runnable{
         BoardConfigurer.configureKillShotTrack(1, board);
         try {
             this.killShotTrack = board.getKillShotTrack();
-        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
+        } catch (NotAvailableAttributeException e) {
+            LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while configuring the kill shot track", e);
+        }
         p1.addDeath();
         p2.addDeath();
         p3.addDeath();
         p1.addDeath();
         p3.addDeath();
-        board.getKillShotTrack().getKillers().addAll(Arrays.asList(p2,p3,p1,p2,p1));
+        board.getKillShotTrack().getKillers().addAll(Arrays.asList(p2, p3, p1, p2, p1));
+        p1.setPoints(23);
+        p2.setPoints(27);
+        p3.setPoints(17);
         p1.setPointsToGive(4);
         p2.setPointsToGive(6);
         p3.setPointsToGive(4);
 
         //assigns damages and update status
-        for (int i=0; i<2; i++)
+        for (int i = 0; i < 2; i++)
             p1.getDamages().add(p2);
         p1.setStatus(Player.Status.BASIC);
 
-        for (int i=0; i<4; i++)
+        for (int i = 0; i < 4; i++)
             p2.getDamages().add(p1);
-        for (int i=0; i<6; i++)
+        for (int i = 0; i < 6; i++)
             p2.getDamages().add(p3);
         p2.setStatus(Player.Status.ADRENALINE_2);
 
-        p3.getDamages().add(p2);
+        for (int i = 0; i < 4; i++){
+            p3.getDamages().add(p2);
+        }
         p3.getDamages().add(p1);
         p3.getDamages().add(p2);
         p3.setStatus(Player.Status.ADRENALINE_1);
@@ -684,38 +596,189 @@ public class GameEngine implements Runnable{
     }
 
 
-    public synchronized boolean tryResuming(VirtualView p){   //TODO: synchronize?
+    /**
+     * Waits for a player's input. If player takes too long to answer, default answer "1" is returned. Used in the game configuration phase.
+     *
+     * @param current       player to wait for
+     * @param timeout       timeout
+     * @throws NotEnoughPlayersException    if less than the minimum number of players are left
+     * @return the player's answer
+     */
+    private String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
+        long start = System.currentTimeMillis();
+        long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
+        LOGGER.log(Level.INFO ,"Waiting for {0}'s answer", current.getName());
+        while(!hasAnswered(current)){
+            checkForSuspension();
+            try {
+                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
+            }catch(InterruptedException ex){
+                LOGGER.log(Level.FINE,"Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+            if(System.currentTimeMillis()>start+timeoutMillis){
+                LOGGER.log(Level.INFO,"Timeout ran out while waiting for " + current.getName() +". Returning default value");
+                synchronized (notifications){
+                    notifications.putIfAbsent(current, DEFAULT_ANSWER);
+                }
+                current.display(WAIT_SHORT_MESSAGE);
+            }
+        }
+        LOGGER.log(Level.INFO, "Done waiting");
+        synchronized (notifications) {
+            return notifications.get(current);
+        }
+    }
+
+    /**
+     * Wait for a player's input for as long as needed (or until the turn timer runs out)
+     *
+     * @param current       player to wait for
+     * @throws SlowAnswerException      if the turn timer runs out
+     * @throws NotEnoughPlayersException    if less than the minimum number of players are left
+     * @return the player's answer
+     */
+    public String wait(VirtualView current) throws SlowAnswerException, NotEnoughPlayersException{
+        LOGGER.log(Level.INFO ,"Waiting for {0}'s answer", current);
+        while(!hasAnswered(current)){
+            checkForSuspension();
+            try {
+                TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
+            }catch(InterruptedException ex){
+                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                Thread.currentThread().interrupt();
+            }
+            if(timer.isOver()){
+                LOGGER.log(Level.FINE, "Player {0} took too long to answer and will be suspended", current.getName());
+                throw new SlowAnswerException("Maximum time exceeded for the user to answer.");
+            }
+        }
+        LOGGER.log(Level.INFO, "Done waiting");
+        synchronized (notifications) {
+            return notifications.get(current);
+        }
+    }
+
+
+    /**
+     * States if a certain player's has answered a request from the server
+     *
+     * @param p         player to check
+     * @return          true if player has answered, else false
+     */
+    private boolean hasAnswered(VirtualView p){
+        synchronized (notifications) {
+            return notifications.containsKey(p);
+        }
+    }
+
+
+    /**
+     * Method called externally to notify changes in an observed object. Usually called by a VirtualView to notify incoming messages
+     *
+     * @param p         the observed object
+     * @param message   a notification from the observed object
+     */
+    public void notify(VirtualView p, String message){
+        try {
+            synchronized (notifications) {
+                notifications.putIfAbsent(p, message);
+            }
+            LOGGER.log(Level.INFO, "{0} just notified the GameEngine", p.getName());
+        }catch (Exception ex){
+            LOGGER.log(Level.SEVERE, "Issue with being notified by " + p.getName(), ex);
+        }
+    }
+
+
+    /**
+     * Getter for notifications (map connecting each player to a list of messags they sent)
+     *
+     * @return      mapping of players to incoming messages
+     */
+    public Map<VirtualView, String> getNotifications(){
+        synchronized (notifications) {
+            return notifications;
+        }
+    }
+
+
+    /**
+     * Checks if a player was suspended recently and, if so, notifies other players.
+     *
+     * @throws NotEnoughPlayersException if less than the minimum number of  players are left
+     */
+    private synchronized void checkForSuspension() throws NotEnoughPlayersException{
+        List<VirtualView> justSuspended = new ArrayList<>();
+        for(VirtualView v : players){
+            if(v.isJustSuspended()) {
+                justSuspended.add(v);
+                v.setJustSuspended(false);
+            }
+        }
+        for(VirtualView v : justSuspended){
+            for(VirtualView p : players){
+                p.display(P + v.getName() + " was disconnected");
+                synchronized (notifications) {
+                    notifications.remove(p);
+                }
+            }
+            LOGGER.log(Level.INFO, "Notified players of the disconnection of {0}", justSuspended);
+        }
+        if (players.stream().filter(x->!x.isSuspended()).count() < MIN_PLAYERS) throw new NotEnoughPlayersException("Not enough players to continue the game. Game over");
+    }
+
+
+    /**
+     * Checks if a certain player can resume, and if so, adds it to a waiting list
+     *
+     * @param p     player trying to resume
+     * @return      true if resuming is possible, else false
+     */
+    public synchronized boolean tryResuming(VirtualView p){
         for (VirtualView v : players){
-            if (v.isSuspended()&&!resuming.stream().map(x->x.getName()).collect(Collectors.toList()).contains(p)){
+            if (v.isSuspended()&&!resuming.stream().map(VirtualView::getName).collect(Collectors.toList()).contains(p)){
                 resuming.add(p);
+                LOGGER.log(Level.INFO, "{0} was added to the list of resuming players.", p.getName());
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * After every turn, this function is called to allow players who have requested to resume back in the game.
+     */
     private synchronized void allowPlayersToResume(){
         List<VirtualView> temp = new ArrayList<>(resuming);
         for(VirtualView v : temp){
             for(VirtualView old : players){
                 if(v.getName().equals(old.getName())&&old.isSuspended()){
                     players.set(players.indexOf(old), v);
-                    v.setPlayer(old.getModel());
-                    v.setGame(this);
                     board.registerObserver(v);
                     resuming.remove(v);
                     ServerMain.getInstance().getPlayers().remove(old);
                     for(VirtualView p : players){
                         if(p.equals(v)){
-                            p.display("You are back!");
+                            p.display(YOU_ARE_BACK_MESSAGE);
                         }else{
-                            p.display(v.getName() + " is back!");
+                            p.display(v.getName() + IS_BACK_MESSAGE);
                         }
                     }
-                    break;  //working?
+                    LOGGER.log(Level.INFO, "{0} successfully resumed and can now play.", v.getName());
+                    break;
                 }
             }
         }
+    }
+
+    /**
+     * Loads parameters from properties
+     */
+    private void loadParams(){
+        Properties prop = ServerMain.getInstance().loadConfig();
+        this.endphaseSimulation = Boolean.parseBoolean(prop.getProperty("endPhaseSimulation", "false"));
+        this.turnDuration = Integer.parseInt(prop.getProperty("turnDuration", "60"));
     }
 
 }

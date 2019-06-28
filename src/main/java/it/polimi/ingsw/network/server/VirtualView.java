@@ -21,6 +21,26 @@ import java.util.logging.Logger;
  */
 
 public abstract class VirtualView implements Runnable{
+
+    public enum ChooseOptionsType{
+
+        CHOOSE_WEAPON, CHOOSE_POWERUP, CHOOSE_SQUARE, CHOOSE_PLAYER, CHOOSE_STRING;
+
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase().substring("CHOOSE_".length());
+        }
+    }
+
+    /*
+    public static final String CHOOSE_WEAPON = "weapon";
+    public static final String CHOOSE_POWERUP = "powerup";
+    public static final String CHOOSE_SQUARE = "square";
+    public static final String CHOOSE_PLAYER = "player";
+    public static final String CHOOSE_STRING = "string";
+    */
+
+
     protected GameEngine game;
     protected String name;
     boolean suspended;
@@ -31,7 +51,7 @@ public abstract class VirtualView implements Runnable{
     boolean timeout;
     long timestamp;
 
-    VirtualView(){
+    public VirtualView(){
         this.game = null;
         this.name = null;
         this.suspended = false;
@@ -53,7 +73,7 @@ public abstract class VirtualView implements Runnable{
 
         while(!ServerMain.getInstance().login(this)){
             if(ServerMain.getInstance().canResume(name)){
-                int ans = chooseNow("Do you want to resume?", Arrays.asList("yes", "no"));
+                int ans = chooseNow(ChooseOptionsType.CHOOSE_STRING.toString(), "Do you want to resume?", Arrays.asList("yes", "no"));
 
                 if(ans==1) {
                     if(ServerMain.getInstance().resume(this)){
@@ -108,6 +128,11 @@ public abstract class VirtualView implements Runnable{
         this.suspended = suspended;
     }
 
+    //only for testing
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public abstract void shutdown();
 
     public abstract void showSuspension();
@@ -134,9 +159,9 @@ public abstract class VirtualView implements Runnable{
      * @param msg       message to be displayed
      * @param options   list of options to choose from
      */
-    abstract public void choose(String msg, List<?> options);
+    abstract public void choose(String type, String msg, List<?> options);
 
-    abstract public void choose(String msg, List<?> options, int timeoutSec);
+    abstract public void choose(String type, String msg, List<?> options, int timeoutSec);
 
     /**
      * Displays a message to the player
@@ -152,7 +177,7 @@ public abstract class VirtualView implements Runnable{
      * @param max       max length of the answer
      * @return          the answer
      */
-    abstract String getInputNow(String msg, int max);
+    abstract public String getInputNow(String msg, int max);
 
 
     /**
@@ -161,7 +186,7 @@ public abstract class VirtualView implements Runnable{
      * @param options   options to choose from
      * @return          the player's choice as the index of the list of options
      */
-    abstract int chooseNow(String msg, List<?> options);
+    abstract public int chooseNow(String type, String msg, List<?> options);
 
     /**
      * Sends a request for an update to the client

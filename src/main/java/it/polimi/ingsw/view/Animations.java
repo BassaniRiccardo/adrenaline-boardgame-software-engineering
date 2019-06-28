@@ -36,6 +36,10 @@ public class Animations {
         ft.setAutoReverse(true);
         ft.play();
     }
+
+    public void move(ImageView player){
+
+    }
   /*  public
     TranslateTransition movement = new TranslateTransition();
     translateTransition.setDuration(Duration.millis(1000));

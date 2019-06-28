@@ -75,7 +75,7 @@ public class CLI implements UI{
     }
 
     /**
-     * Queries the user to choose amonga list of options
+     * Queries the user to choose among a list of options
      *
      * @param list  list of options
      * @return      a string containing the number of the option chosen
@@ -172,11 +172,13 @@ public class CLI implements UI{
     /**
      * Displays a choice request
      *
+     * @param type    the type of request to be displayed
      * @param message request to be displayed
      * @param options options to be displayed
      */
     @Override
-    public void display(String message, List<String> options) {
+    public void display(String type, String message, List<String> options) {
+        LOGGER.log(Level.INFO, "{0} request", type);
         StringBuilder bld = new StringBuilder();
         bld.append(message);
         bld.append("\nHere are your choices: ");
@@ -262,24 +264,22 @@ public class CLI implements UI{
 
     public void displayDisconnection(){
         System.out.print("\033[H\033[2J");
-        System.out.println("You cannot reach the server. You can try starting another client and log in with the same username to resume. Press any button to close the game");
+        System.out.print("You cannot reach the server. You can try starting another client and log in with the same username to resume. Press any button to close the game");
         try {
             in.readLine();
         }catch(IOException ex){
             LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
         }
-        System.out.print("\033[H\033[2J");
     }
 
     public void displaySuspension(){
         System.out.print("\033[H\033[2J");
-        System.out.println("You were suspended from the server because you were not able to finish your turn in time. Press any button to close the game.");
+        System.out.print("You were suspended from the server because you were not able to finish your turn in time. Press any button to close the game.");
         try {
             in.readLine();
         }catch(IOException ex){
             LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
         }
-        System.out.print("\033[H\033[2J");
     }
 
     public void displayEnd(String message){
@@ -291,7 +291,6 @@ public class CLI implements UI{
         }catch(IOException ex){
             LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
         }
-        System.out.print("\033[H\033[2J");
     }
 
     public void addHistory(String message){

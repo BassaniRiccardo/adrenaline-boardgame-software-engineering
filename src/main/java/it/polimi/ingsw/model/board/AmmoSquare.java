@@ -131,7 +131,7 @@ public class AmmoSquare extends Square  {
     /**
      * Getter for ammoTile.
      *
-     * @return      the ammo tile in the square.
+     * @return      the presence of an ammo tile in the square.
      */
     public boolean hasAmmoTile() {
         return (ammoTile!=null);
@@ -139,10 +139,10 @@ public class AmmoSquare extends Square  {
 
 
     /**
-     * Returns true if the compared objects are two weapon squares belonging to the same board with the same id.
+     * Returns true if the compared objects are two ammo squares belonging to the same board with the same id.
      *
      * @param o    the ammo square to compare to the current ammo square.
-     * @return     true if the compared objects are two weapon squares belonging to the same board with the same id.
+     * @return     true if the compared objects are two ammo squares belonging to the same board with the same id.
      *             false otherwise.
      */
     @Override

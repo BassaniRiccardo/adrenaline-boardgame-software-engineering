@@ -1,6 +1,7 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.Board;
+import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.cards.*;
 
@@ -44,12 +45,11 @@ public class PowerUpFactory  {
 
         switch (powerUpName) {
             case TARGETING_SCOPE:
-
                 effect = (shooter, target, destination)-> target.sufferDamage(j.getInt("targetingScopeDmg"), shooter);
                 targetFinder = p -> board.getPlayers().stream()
-                        .filter(x->x.isJustDamaged())
+                        .filter(Player::isJustDamaged)
                         .distinct()
-                        .map(x -> Arrays.asList(x))
+                        .map(Arrays::asList)
                         .collect(Collectors.toList());
                 destinationFinder = (p, t) -> new ArrayList<>();
                 break;
@@ -59,7 +59,7 @@ public class PowerUpFactory  {
                 targetFinder = p -> board.getActivePlayers().stream()
                         .filter(x->!x.equals(p))
                         .distinct()
-                        .map(x -> Arrays.asList(x))
+                        .map(Arrays::asList)
                         .collect(Collectors.toList());
                 destinationFinder = (p, t) -> {
                     if(t.isEmpty()){

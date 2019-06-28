@@ -2,6 +2,7 @@ package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.*;
 import org.junit.Test;
@@ -9,6 +10,8 @@ import org.junit.Test;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -28,7 +31,7 @@ public class WeaponFactoryTest {
          Board b = BoardConfigurer.simulateScenario();
          WeaponFactory weaponFactory = new WeaponFactory(b);
          Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
-         System.out.println(w.getColor());
+         assertEquals("Blue", w.getColor().toString());
      }
 
     /**
@@ -155,12 +158,17 @@ public class WeaponFactoryTest {
     public void createAllWeapon() throws NoMoreCardsException, UnacceptableItemNumberException{
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
+        StringBuilder builder = new StringBuilder();
         for(Weapon.WeaponName weaponName : Weapon.WeaponName.values()){
             weaponFactory.createWeapon(weaponName);
-            System.out.println(weaponName);
+            if (!builder.toString().isEmpty())
+                builder.append(", ") ;
+            builder.append(weaponName);
         }
+        assertEquals("Lock Rifle, Machine Gun, Thor, Plasma Gun, Whisper, Electroscythe, Tractor Beam, Vortex Cannon, Furnace, Heatseeker, Hellion, Flamethrower, Grenade Launcher, Rocket Launcher, Railgun, Cyberblade, Zx2, Shotgun, Power Glove, Shockwave, Sledgehammer", builder.toString());
     }
 
+    /*
     @Test
     public void pintAllTargetFinder() throws NoMoreCardsException, UnacceptableItemNumberException{
         Board b = BoardConfigurer.simulateScenario();
@@ -171,6 +179,7 @@ public class WeaponFactoryTest {
             //for (FireMode.FireModeName fireModeName : weaponName.getFireModeList)
         }
     }
+    */
 
 
     /**
@@ -667,7 +676,6 @@ public class WeaponFactoryTest {
         //OPTION 1 TARGETS
         assertEquals("[[Player 1 : anonymous(D_struct_or)]]",rocketLauncher.getFireModeList().get(1).findTargets().toString());
         //OPTION 1 DESTINATIONS
-        System.out.println(rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());
         assertEquals("[Square 1, Square 2, Square 5]", rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());
         shooter.addMainTarget(banshee);
         assertEquals("[Square 1, Square 2, Square 4, Square 5, Square 8]", rocketLauncher.getFireModeList().get(1).findDestinations(new ArrayList<>(Arrays.asList(shooter))).toString());

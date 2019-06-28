@@ -21,7 +21,6 @@ public class ClientUpdater {
                 clientModel.getCurrentPlayer().getWeapon(j.get(WEAPON_PROP).getAsString()).setLoaded(j.get(LOADED_PROP).getAsBoolean());
                 break;
             case (REMOVE_SKULL_UPD):
-                System.out.println(clientModel);
                 clientModel.removeSkulls(j.get(SKULL_NUMBER_PROP).getAsInt());
                 break;
             case (POWER_UP_DECK_REGEN_UPD):
@@ -39,6 +38,7 @@ public class ClientUpdater {
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setCardNumber(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getCardNumber() - 1);
                 if (clientModel.getPlayerID() == j.get(PLAYER_PROP).getAsInt()) {
                     clientModel.getPowerUpInHand().remove(j.get(POWER_UP_NAME_PROP).getAsString());
+                    clientModel.getColorPowerUpInHand().remove(j.get(POWER_UP_COLOR_PROP).getAsString());
                 }
                 ui.addHistory(clientModel.getCurrentPlayer().getUsername() + " discarded a " + j.get(POWER_UP_NAME_PROP).getAsString());
                 break;

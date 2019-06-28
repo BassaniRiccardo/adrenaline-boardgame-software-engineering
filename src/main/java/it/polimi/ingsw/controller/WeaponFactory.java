@@ -21,9 +21,9 @@ import static it.polimi.ingsw.model.cards.Color.*;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 
 /**
- * Factory class to create a weapon.
+ * Factory class that creates Weapons loading attributes from a Json file.
  *
- * @author  marcobaga, davidealde
+ * @author  marcobaga
  */
 
 public class WeaponFactory {
@@ -31,21 +31,24 @@ public class WeaponFactory {
 
     private Board board;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
-    private static final String weaponsFile = "weapons.json";
+    private static final String WEAPONS_FILE = "weapons.json";
+
+    private static final String MODES_TAG = "modes";
+    private static final String NAME_TAG = "name";
+    private static final String COLOR_TAG = "color";
 
     /**
      * Constructs a weapon factory with a reference to the game board.
      *
-     * @param board         the board of the game.
-     * @return      a WeaponFactory
+     * @param board         the game board
      */
     public WeaponFactory(Board board){this.board = board;}
 
     /**
      *Creates a Weapon object according to its name
      *
-     * @param  weaponName  the name of the weapon to be created
-     * @return      the Weapon object created
+     * @param       weaponName  the name of the weapon to create
+     * @return      the Weapon created
      */
     public Weapon createWeapon(Weapon.WeaponName weaponName) {
 
@@ -60,13 +63,13 @@ public class WeaponFactory {
         AmmoPack fullCost = getFullCost(weaponTree);
         AmmoPack reducedCost = getReducedCost(fullCost, color);
 
-        JsonArray fireModeArray = weaponTree.getAsJsonArray("modes");
+        JsonArray fireModeArray = weaponTree.getAsJsonArray(MODES_TAG);
         List<FireMode> fireModeList = new ArrayList<>(fireModeArray.size());
         AmmoPack fireModeCost;
 
         for (JsonElement firemodeElement : fireModeArray) {
             JsonObject firemode = firemodeElement.getAsJsonObject();
-            FireMode.FireModeName name = getFireModeName(firemode.get("name").getAsString());
+            FireMode.FireModeName name = getFireModeName(firemode.get(NAME_TAG).getAsString());
             effect = getEffect(firemode);
             targetFinder = getTargetFinder(firemode);
             destinationFinder = getDestinationFinder(firemode);
@@ -84,11 +87,11 @@ public class WeaponFactory {
         return weapon;
     }
 
-    public JsonObject getWeaponTree(Weapon.WeaponName weaponName){
+    private JsonObject getWeaponTree(Weapon.WeaponName weaponName){
         JsonParser parser = new JsonParser();
         JsonObject weaponTree = new JsonObject();
         try {
-            JsonElement weaponElement = parser.parse(new InputStreamReader(this.getClass().getResourceAsStream("/" + weaponsFile)));
+            JsonElement weaponElement = parser.parse(new InputStreamReader(this.getClass().getResourceAsStream("/" + WEAPONS_FILE)));
             JsonObject weaponList = weaponElement.getAsJsonObject();
             weaponTree = weaponList.getAsJsonObject(weaponName.toString());
         }catch (JsonIOException e) {
@@ -100,7 +103,7 @@ public class WeaponFactory {
     public Color getColor(JsonObject weaponTree) {
         String color = "";
         try {
-            color = weaponTree.get("color").getAsString();
+            color = weaponTree.get(COLOR_TAG).getAsString();
         } catch (JsonIOException e) {
             LOGGER.log(Level.SEVERE, "Unable to read color in weaponTree", e);
         }
@@ -109,11 +112,11 @@ public class WeaponFactory {
                 return c;
             }
         }
-        LOGGER.log(Level.SEVERE, "Color from weapon file does not match: " + color);
+        LOGGER.log(Level.SEVERE, "Color from weapon file does not match: {0}", color);
         return PURPLE;
     }
 
-    public AmmoPack getFullCost(JsonObject weaponTree) {
+    private AmmoPack getFullCost(JsonObject weaponTree) {
         try {
             int r = weaponTree.get("costR").getAsInt();
             int b = weaponTree.get("costB").getAsInt();
@@ -125,7 +128,7 @@ public class WeaponFactory {
         return new AmmoPack(0,0,0);
     }
 
-    public AmmoPack getReducedCost(AmmoPack ammoPack, Color color) {
+    private AmmoPack getReducedCost(AmmoPack ammoPack, Color color) {
         AmmoPack reduced = new AmmoPack(ammoPack.getRedAmmo(), ammoPack.getBlueAmmo(), ammoPack.getYellowAmmo());
         if (color == RED ) {
             reduced.subAmmoPack(new AmmoPack(1,0,0));
@@ -139,7 +142,7 @@ public class WeaponFactory {
         return reduced;
     }
 
-    public FireMode.FireModeName getFireModeName (String name){
+    private FireMode.FireModeName getFireModeName (String name){
         for(FireMode.FireModeName fn : FireMode.FireModeName.values()){
             if(fn.toString().equalsIgnoreCase(name)){
                 return fn;
@@ -149,7 +152,7 @@ public class WeaponFactory {
         return MAIN;
     }
 
-    public AmmoPack getFireModeCost (JsonObject fireMode) {
+    private AmmoPack getFireModeCost (JsonObject fireMode) {
         try {
             if (fireMode.get("name").getAsString().equalsIgnoreCase("MAIN")) {
                 return new AmmoPack(0, 0, 0);
@@ -164,7 +167,7 @@ public class WeaponFactory {
         return new AmmoPack(0,0,0);
     }
 
-    public TargetFinder getTargetFinder(JsonObject firemode) {
+    private TargetFinder getTargetFinder(JsonObject firemode) {
 
         String target = "";
         try {
@@ -177,7 +180,7 @@ public class WeaponFactory {
             case "1visible":
                 return p -> board.getVisible(p.getPosition()).stream()
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
@@ -185,7 +188,7 @@ public class WeaponFactory {
             case "1otherVisible":
                 return p -> (p.getMainTargets().isEmpty() ? new ArrayList<>() : board.getVisible(p.getPosition()).stream()
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .filter(x -> !x.equals(p) && !p.getMainTargets().isEmpty())
                         .filter(x -> !p.getMainTargets().contains(x))
@@ -195,7 +198,7 @@ public class WeaponFactory {
                 return p -> {
                     List<List<Player>> res = board.getVisible(p.getPosition()).stream()
                             .map(Square::getPlayers)
-                            .flatMap(x -> x.stream())
+                            .flatMap(List::stream)
                             .distinct()
                             .filter(x -> !x.equals(p))
                             .map(Arrays::asList)
@@ -221,7 +224,7 @@ public class WeaponFactory {
                             .collect(Collectors.toList());
                     List<List<Player>> others = board.getVisible(p.getPosition()).stream()
                             .map(Square::getPlayers)
-                            .flatMap(x -> x.stream())
+                            .flatMap(List::stream)
                             .distinct()
                             .filter(x -> !x.equals(p))
                             .filter(x -> !(p.getMainTargets().contains(x) || p.getOptionalTargets().contains(x)))
@@ -235,7 +238,7 @@ public class WeaponFactory {
                 return p -> (p.getMainTargets().isEmpty()) ?
                         new ArrayList<>() : board.getVisible(p.getMainTargets().get(0).getPosition()).stream()
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .filter(x -> !p.getMainTargets().contains(x))
                         .filter(x -> !x.equals(p))
@@ -246,7 +249,7 @@ public class WeaponFactory {
                         new ArrayList<>() : board
                         .getVisible(p.getOptionalTargets().get(0).getPosition()).stream()
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .filter(x -> !(p.getMainTargets().contains(x) || p.getOptionalTargets().contains(x)))
                         .filter(x -> !x.equals(p))
@@ -260,14 +263,13 @@ public class WeaponFactory {
                             List<Square> l = board.getReachable(p.getPosition(), 2);
                             for (Square s : l) {
                                 if (!s.containsPlayer(p)) {
-                                    if (!board.getVisible(s).stream()
+                                    if (board.getVisible(s).stream()
                                             .map(Square::getPlayers)
-                                            .flatMap(x -> x.stream())
+                                            .flatMap(List::stream)
                                             .distinct()
                                             .filter(x -> !x.equals(p))
                                             .map(Arrays::asList)
-                                            .collect(Collectors.toList())
-                                            .isEmpty()) {
+                                            .count()!=0) {
                                         return Arrays.asList(Arrays.asList(p));
                                     }
                                 }
@@ -277,7 +279,7 @@ public class WeaponFactory {
             case "whisper":
                 return p -> board.getVisible(p.getPosition()).stream()
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .filter(x -> !x.equals(p))
                         .filter(x -> {
@@ -305,7 +307,7 @@ public class WeaponFactory {
                     return temp.stream()
                             .distinct()
                             .map(Square::getPlayers)
-                            .flatMap(x -> x.stream())
+                            .flatMap(List::stream)
                             .distinct()
                             .filter(x -> !x.equals(p))
                             .map(Arrays::asList)
@@ -314,7 +316,7 @@ public class WeaponFactory {
             case "tractorBeamAlt":
                 return p -> board.getReachable(p.getPosition(), 2).stream()
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
@@ -328,7 +330,7 @@ public class WeaponFactory {
                             }
                             return temp.stream()
                                     .map(Square::getPlayers)
-                                    .flatMap(x -> x.stream())
+                                    .flatMap(List::stream)
                                     .distinct()
                                     .filter(x -> !x.equals(p))
                                     .map(Arrays::asList)
@@ -341,7 +343,7 @@ public class WeaponFactory {
                             }
                             List<List<Player>> lp = board.getReachable(p.getMainTargets().get(0).getPosition(), 1).stream()
                                     .map(Square::getPlayers)
-                                    .flatMap(x -> x.stream())
+                                    .flatMap(List::stream)
                                     .distinct()
                                     .filter(x -> !x.equals(p))
                                     .filter(x -> !p.getMainTargets().contains(x))
@@ -396,7 +398,7 @@ public class WeaponFactory {
                             }
                         })
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
@@ -405,7 +407,7 @@ public class WeaponFactory {
                 return p -> board.getVisible(p.getPosition()).stream()
                         .filter(x -> !x.containsPlayer(p))
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
@@ -423,7 +425,7 @@ public class WeaponFactory {
                                             }
                                         })
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
@@ -437,7 +439,7 @@ public class WeaponFactory {
                                             }
                                         })
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
@@ -461,7 +463,7 @@ public class WeaponFactory {
                                             }
                                         })
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .collect(Collectors.toList());
                                 if(!line.isEmpty()) {
@@ -520,7 +522,7 @@ public class WeaponFactory {
                                 List<List<Player>> single = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
                                         .stream()
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
@@ -548,7 +550,7 @@ public class WeaponFactory {
                                 List<List<Player>> single = board.getSquaresInLineIgnoringWalls(p.getPosition(), d)
                                         .stream()
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
@@ -592,7 +594,7 @@ public class WeaponFactory {
                             List<List<Player>> targets = new ArrayList<>();
                             List<List<Player>> single = board.getVisible(p.getPosition()).stream()
                                     .map(Square::getPlayers)
-                                    .flatMap(x -> x.stream())
+                                    .flatMap(List::stream)
                                     .distinct()
                                     .filter(x -> !x.equals(p))
                                     .map(Arrays::asList)
@@ -606,7 +608,7 @@ public class WeaponFactory {
                 return p -> board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> (!x.getPlayers().contains(p)))
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
@@ -625,7 +627,7 @@ public class WeaponFactory {
                                             }
                                         })
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
@@ -648,7 +650,7 @@ public class WeaponFactory {
                                             }
                                         })
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
@@ -673,25 +675,20 @@ public class WeaponFactory {
                                             }
                                         })
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .map(Arrays::asList)
                                         .collect(Collectors.toList());
-                                System.out.println("Looking in direction " + d + " there are: " + candidate);
                                 if (!candidate.isEmpty()) {
                                     directionalTargets.add(candidate);
                                 }
                             }
-                            System.out.println("These are the directional targets: " + directionalTargets);
                             for (int i = 0; i < directionalTargets.size(); i++) {
                                 targets.addAll(directionalTargets.get(i));
-                                System.out.println("adding all these dir targets: " + directionalTargets.get(i));
                                 for (int j = i + 1; j < directionalTargets.size(); j++) {
                                     targets.addAll(cartesian(directionalTargets.get(i), directionalTargets.get(j)));
-                                    System.out.println("Adding all these pairs: " + cartesian(directionalTargets.get(i), directionalTargets.get(j)));
                                     for (int k = j + 1; k < directionalTargets.size(); k++) {
                                         targets.addAll(cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
-                                        System.out.println("Adding all these triples: " + cartesian(cartesian(directionalTargets.get(i), directionalTargets.get(j)), directionalTargets.get(k)));
                                     }
                                 }
                             }
@@ -701,7 +698,7 @@ public class WeaponFactory {
                 return p -> Arrays.asList(board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> (!x.getPlayers().contains(p)))
                         .map(Square::getPlayers)
-                        .flatMap(x -> x.stream())
+                        .flatMap(List::stream)
                         .distinct()
                         .collect(Collectors.toList()));
 
@@ -711,7 +708,7 @@ public class WeaponFactory {
         }
     }
 
-    public DestinationFinder getDestinationFinder(JsonObject firemode) {
+    private DestinationFinder getDestinationFinder(JsonObject firemode) {
         String destination = "";
         try {
             destination = firemode.get("destination").getAsString();
@@ -733,12 +730,11 @@ public class WeaponFactory {
                             for (Square s : l) {
                                 if (board.getVisible(s).stream()
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .filter(x -> !x.equals(p))
                                         .map(Arrays::asList)
-                                        .collect(Collectors.toList())
-                                        .isEmpty()) {
+                                        .count()==0) {
                                     selectable.remove(s);
                                 }
                             }
@@ -787,11 +783,11 @@ public class WeaponFactory {
                                 if (board.getVisible(s).stream()
                                         .filter(x -> !x.equals(s))
                                         .map(Square::getPlayers)
-                                        .flatMap(x -> x.stream())
+                                        .flatMap(List::stream)
                                         .distinct()
                                         .filter(x -> !x.equals(p))
                                         .map(Arrays::asList)
-                                        .collect(Collectors.toList()).isEmpty()) {
+                                        .count()==0) {
                                     res.remove(s);
                                 }
                             }
@@ -845,7 +841,7 @@ public class WeaponFactory {
         }
     }
 
-    public Effect getEffect(JsonObject firemode) {
+    private Effect getEffect(JsonObject firemode) {
         String effect = "";
         int tmpDmg = 0;
         int tmpMark = 0;
@@ -899,7 +895,7 @@ public class WeaponFactory {
         }
     }
 
-    public Effect createEffect(int damage, int marks){
+    private Effect createEffect(int damage, int marks){
 
         if(damage<0 || marks<0){
             throw new IllegalArgumentException("Damage and marks must be positive.");
@@ -916,14 +912,14 @@ public class WeaponFactory {
         return (shooter, target, destination) -> target.sufferDamage(damage, shooter);
     }
 
-    public List<List<Player>> cartesian (List<List<Player>> a, List<List<Player>> b){
+    private List<List<Player>> cartesian (List<List<Player>> a, List<List<Player>> b){
         List<List<Player>> atemp = a.stream()
                 .filter(x->!x.isEmpty())
                 .distinct()
                 .collect(Collectors.toList());
         List<Player> btemp = b.stream()
                 .filter(x->!x.isEmpty())
-                .flatMap(x->x.stream())
+                .flatMap(List::stream)
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
@@ -934,8 +930,7 @@ public class WeaponFactory {
         for (List<Player> l : atemp){
             for (Player p : btemp){
                 if(!l.contains(p)) {
-                    temp = new ArrayList<>();
-                    temp.addAll(l);
+                    temp = new ArrayList<>(l);
                     temp.add(p);
                     res.add(temp);
                 }

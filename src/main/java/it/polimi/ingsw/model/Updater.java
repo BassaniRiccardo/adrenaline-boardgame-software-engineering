@@ -121,15 +121,11 @@ public class Updater {
 
     public static JsonObject get(String s, Player p, AmmoPack a) {
 
-        System.out.println(s + " " + p + "bry " + a.getBlueAmmo() + a.getRedAmmo() + a.getYellowAmmo());
-
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
         j.addProperty(RED_AMMO_PROP, a.getRedAmmo());
         j.addProperty(BLUE_AMMO_PROP, a.getBlueAmmo());
         j.addProperty(YELLOW_AMMO_PROP, a.getYellowAmmo());
-
-        System.out.println(j);
 
         return j;
         //useAmmo, addAmmo
@@ -300,7 +296,7 @@ public class Updater {
             LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
         }
 
-        return new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths(), p.getPointsToGive(), p.getStatus().toString());
+        return new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths(), p.getPointsToGive(), p.getStatus().toString());
 
     }
 

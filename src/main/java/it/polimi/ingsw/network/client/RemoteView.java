@@ -10,7 +10,7 @@ import java.util.List;
 public interface RemoteView extends Remote {
 
 
-    int choose(String msg, List<String> options) throws RemoteException;
+    int choose(String type, String msg, List<String> options) throws RemoteException;
 
     void display(String msg) throws RemoteException;
 

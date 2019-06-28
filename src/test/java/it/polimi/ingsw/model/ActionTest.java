@@ -63,12 +63,44 @@ public class ActionTest {
     @Test
     public void equalsEqualsActions() {
 
+        //Instantiates 2 Actions that are equal
+        Action a1=new Action(1,true,false,false);
+        Action a2=new Action(1,true,false,false);
+
+        //Checks that they're equal
+        assertTrue(a1.equals(a2));
+    }
+
+
+    /**
+     * Tests the hashCode generation of two equals Actions
+     */
+    @Test
+    public void hashCodeTest() {
+
         //Instantiates 2 Actions that are different
         Action a1=new Action(1,true,false,false);
         Action a2=new Action(1,true,false,false);
 
         //Checks that they're not equal
-        assertTrue(a1.equals(a2));
+        assertEquals(a1.hashCode(),a2.hashCode());
+    }
+
+
+    /**
+     * Tests the toString() method.
+     */
+    @Test
+    public void actionToString() {
+
+        //Instantiates 2 Actions that are different
+        Action a1=new Action(1,true,false,false);
+        Action a2=new Action(3,false,false,false);
+
+        //Checks that they're not equal
+        assertEquals("Move up to 1 squares. Collect.",a1.toString());
+        assertEquals("Move up to 3 squares.",a2.toString());
+
     }
 
 }

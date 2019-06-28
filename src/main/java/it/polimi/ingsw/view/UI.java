@@ -31,7 +31,7 @@ public interface UI extends Runnable {
      * @param message message to be displayed
      * @param options options to be displayed
      */
-    void display(String message, List<String> options);
+    void display(String type, String message, List<String> options);
 
 
     /**

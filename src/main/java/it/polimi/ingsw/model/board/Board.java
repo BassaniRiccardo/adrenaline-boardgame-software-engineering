@@ -79,6 +79,7 @@ public class Board {
 
         this.reset = false;
 
+        LOGGER.setLevel(Level.SEVERE);
 
     }
 
@@ -681,7 +682,7 @@ public class Board {
      * @param p     the registering VirtualView
      */
     public void registerObserver(VirtualView p){
-        LOGGER.log(Level.INFO, "{0} registered as an observer to Board.", p);
+        LOGGER.log(Level.FINE, "{0} registered as an observer to Board.", p);
         observers.add(p);
         updates.put(p, new ArrayList<>());
     }
@@ -708,7 +709,7 @@ public class Board {
      * @param p     the VirtualView to be notified
      */
     public void notifyObserver(VirtualView p){
-        LOGGER.log(Level.INFO, "Notifying observer {0}", p);
+        LOGGER.log(Level.FINE, "Notifying observer {0}", p);
         for(JsonObject update : updates.get(p)) {
             p.update(update);
         }
@@ -721,8 +722,8 @@ public class Board {
      */
     public void addToUpdateQueue(JsonObject jsonObject){
 
-        LOGGER.log(Level.INFO, "Adding an update to all queues: {0}", jsonObject.toString());
-        System.out.println("Adding to all: " + jsonObject.toString());
+        LOGGER.log(Level.FINE, "Adding an update to all queues: {0}", jsonObject.toString());
+        LOGGER.log(Level.FINE, "Adding to all: " + jsonObject.toString());
         for(VirtualView v : updates.keySet()){
             updates.get(v).add(jsonObject);
         }
@@ -734,8 +735,8 @@ public class Board {
      * @param v             the VirtualView meant to receive the update
      */
     public void addToUpdateQueue(JsonObject jsonObject, VirtualView v){
-        LOGGER.log(Level.INFO, "Adding an update to a single queues");
-        System.out.println(v + " Adding update " + jsonObject.toString());
+        LOGGER.log(Level.FINE, "Adding an update to a single queues");
+        LOGGER.log(Level.FINE, v + " Adding update " + jsonObject.toString());
         updates.get(v).add(jsonObject);
     }
 
@@ -747,7 +748,7 @@ public class Board {
         for(VirtualView other : updates.keySet()){
             if(!other.equals(v)){
                 updates.get(other).clear();
-                LOGGER.log(Level.INFO, "Removed all updates outgoing to {0}", other.getName());
+                LOGGER.log(Level.FINE, "Removed all updates outgoing to {0}", other.getName());
             }
         }
     }

@@ -13,9 +13,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 
-//TODO: check synchronization
-//FIXME: if an rmi player disconnects, its name is kept locked
-
 /**
  * Main class that manages connections and matchmaking.
  *
@@ -37,10 +34,20 @@ public class ServerMain {
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     public static final int SLEEP_TIMEOUT = 100;
-    private static final String SERVER_LOG_FILENAME = "serverLog.txt";
-    private static final String SERVER_PROPERTIES_FILENAME = "/server.properties";
+    private String serverLogFilename;
+    private String serverPropertiesFilename;
+    public static final int MAX_PLAYERS = 5;
+    public static final int MIN_PLAYERS = 3;
 
-
+    private static final String SETUP_COMPLETED_MESSAGE = "Setup completed, starting matchmaking, press q to quit";
+    private static final String QUITTING_MESSAGE = "Quitting";
+    private static final String QUIT_KEY = "q";
+    private static final String QUITTING_PROMPT = "Press q to quit";
+    private static final String GAME_STARTED_MESSAGE = "Game started with ";
+    private static final String TIME_LEFT_MESSAGE = "Time left: ";
+    private static final String STARTING_GAME_MESSAGE = "Game about to start!";
+    private static final String WAITING_MESSAGE = "Waiting for more players";
+    private static final String CONNECTED_LIST_MESSAGE = "Connected players:";
 
     /**
      * Standard private constructor
@@ -54,6 +61,7 @@ public class ServerMain {
         timer = null;
         executor = Executors.newCachedThreadPool();
         oldMessage = "";
+        loadParams();
     }
 
     /**
@@ -69,6 +77,24 @@ public class ServerMain {
     }
 
     /**
+     * Getter for currentGames. Only for testing.
+     *
+     * @return the list of current games.
+     */
+    public List<GameEngine> getCurrentGames() {
+        return currentGames;
+    }
+
+    /**
+     * Getter for waitingPlayers. Only for testing.
+     *
+     * @return the list of waiting players.
+     */
+    public List<VirtualView> getWaitingPlayers() {
+        return waitingPlayers;
+    }
+
+    /**
      * Main method instantiating TCP (on a different thread) and RMI servers. It runs a main loop checking for user input
      * from System.in to close the server, then manages incoming and outgoing messages from sockets being used. Finally,
      * it starts a new game if the number of players waiting and the timer respect given conditions.
@@ -78,14 +104,14 @@ public class ServerMain {
     public static void main(String[] args){
         ServerMain  sm = getInstance();
         sm.setup();
-        System.out.println("Setup completed, starting matchmaking, press q to quit");
+        System.out.println(SETUP_COMPLETED_MESSAGE);
         while (sm.running){
             sm.manageInput();
-            synchronized (instance) {
-                sm.refreshConnections();
-                sm.removeSuspendedPlayers();
-                sm.matchmaking();
-            }
+            //synchronized (instance){      //this might cause issues
+            sm.refreshConnections();
+            sm.removeSuspendedPlayers();
+            sm.matchmaking();
+            //}
             try {
                 TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             }catch(InterruptedException ex){
@@ -138,7 +164,7 @@ public class ServerMain {
      *
      * @param p             the player to be added
      */
-    private void addPlayer(VirtualView p){
+    public void addPlayer(VirtualView p){
         waitingPlayers.add(p);
         players.add(p);
         LOGGER.log(Level.FINE, "Player added: " + p.getName());
@@ -149,11 +175,11 @@ public class ServerMain {
      *
      * @param p             the player attempting to log in
      */
-    public synchronized boolean login( VirtualView p){      //this method needs to be synchronized most likely
-        LOGGER.log(Level.FINE, "Someone is attempting to login as {0}", p.getName());
+    public synchronized boolean login( VirtualView p){
+        LOGGER.log(Level.FINE, "Someone is attempting to login as {0}.", p.getName());
         for(VirtualView pc : players){
             if(pc.getName().equals(p.getName())){
-                LOGGER.log(Level.FINE, "Login unsuccessful");
+                LOGGER.log(Level.FINE, "Login unsuccessful for {0}.", p.getName());
                 return false;
             }
         }
@@ -163,14 +189,14 @@ public class ServerMain {
     }
 
     /**
-     * Checks if the player chose a name belogning to a suspended player and can therefore resume
+     * Checks if the player chose a name belonging to a suspended player and can therefore resume
      *
      * @param name          the player's name
-     * @return              true is the player can resume his game, else false
+     * @return              true if the player can resume his game, else false
      */
     public synchronized boolean canResume(String name){
         for(VirtualView p : players){
-            if (p.getName().equals(name)&&p.isSuspended()){
+            if (p.getName().equals(name) && p.isSuspended()){
                 return true;
             }
         }
@@ -196,7 +222,7 @@ public class ServerMain {
      * Removes players who were suspended while still waiting for a game
      *
      */
-    private synchronized void removeSuspendedPlayers(){
+    public synchronized void removeSuspendedPlayers(){
         for (VirtualView p : new ArrayList<>(waitingPlayers)){
             if(p.isSuspended()){
                 players.remove(p);
@@ -209,7 +235,7 @@ public class ServerMain {
     /**
      * Getter for the list of players
      *
-     * @return              the comprehensive list of players
+     * @return              the comprehensive list of all players, waiting or in a game
      */
     public synchronized List<VirtualView> getPlayers() {
         return players;
@@ -218,12 +244,12 @@ public class ServerMain {
     /**
      * Initializes the logger so that it writes to a txt file
      */
-    public static void initializeLogger(){
+    private void initializeLogger(){
         try {
             ConsoleHandler consoleHandler = new ConsoleHandler();
-            consoleHandler.setLevel(Level.FINE);
-            FileHandler fileHandler = new FileHandler(SERVER_LOG_FILENAME);
-            LOGGER.setLevel(Level.INFO);
+            consoleHandler.setLevel(Level.ALL);
+            FileHandler fileHandler = new FileHandler(serverLogFilename);
+            LOGGER.setLevel(Level.ALL);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
             LOGGER.addHandler(consoleHandler);
@@ -240,7 +266,7 @@ public class ServerMain {
     public Properties loadConfig(){
         Properties prop = new Properties();
         try {
-            InputStream input = getClass().getResourceAsStream(SERVER_PROPERTIES_FILENAME);
+            InputStream input = getClass().getResourceAsStream(serverPropertiesFilename);
             prop.load(input);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "IOException while loading config", ex);
@@ -251,11 +277,11 @@ public class ServerMain {
     /**
      * Handles input from keyboard (currently the only way to shutdown the server)
      */
-    private void manageInput(){
+    private synchronized void manageInput(){
         try{
             if (in.ready()) {
-                if(in.readLine().equals("q")){
-                    System.out.println("Quitting");
+                if(in.readLine().equalsIgnoreCase(QUIT_KEY)){
+                    System.out.println(QUITTING_MESSAGE);
                     running = false;
                     tcpServer.shutdown();
                     rmiServer.shutdown();
@@ -263,7 +289,7 @@ public class ServerMain {
                     waitingPlayers.clear();
                     currentGames.clear();
                 }else{
-                    System.out.println("Press q to quit");
+                    System.out.println(QUITTING_PROMPT);
                 }
             }
         }catch(IOException e){
@@ -287,23 +313,23 @@ public class ServerMain {
      */
     private synchronized void matchmaking(){
         List <VirtualView> selectedPlayers = new ArrayList<>();
-        if (waitingPlayers.size() > 4 || (timer.isOver() && waitingPlayers.size() > 2)) {
-            for (int i = 0; i < waitingPlayers.size() && i < 5; i++) {
+        if (waitingPlayers.size() >= MAX_PLAYERS || (timer.isOver() && waitingPlayers.size() >= MIN_PLAYERS)) {
+            for (int i = 0; i < waitingPlayers.size() && i < MAX_PLAYERS; i++) {
                 selectedPlayers.add(waitingPlayers.get(i));
             }
             GameEngine current = new GameEngine(new ArrayList<>(selectedPlayers));
             executor.submit(current);
             currentGames.add(current);
-            System.out.println("Game started with " + selectedPlayers.size() + " players");
-            waitingPlayers.removeAll(selectedPlayers); //toglie i primi n
-        } else if (waitingPlayers.size() < 3) {
+            System.out.println(GAME_STARTED_MESSAGE + selectedPlayers.size() + " players");
+            waitingPlayers.removeAll(selectedPlayers);
+        } else if (waitingPlayers.size() < MIN_PLAYERS) {
             timer.stop();
-        } else if (waitingPlayers.size() > 2 && !timer.isRunning()) {
+        } else if (waitingPlayers.size() >= MIN_PLAYERS && !timer.isRunning()) {
             timer.start();
         }
 
         String alreadyConnected = getAlreadyConnected();
-        String fullMessage = alreadyConnected + "Time left: " + timer.getTimeLeft() + "\n" + (timer.isRunning()? "Game about to start!":"Waiting for more players");
+        String fullMessage = alreadyConnected + TIME_LEFT_MESSAGE + timer.getTimeLeft() + "\n" + (timer.isRunning()? STARTING_GAME_MESSAGE:WAITING_MESSAGE);
         if(!alreadyConnected.isEmpty()&&!oldMessage.equals(fullMessage)) {
             for(VirtualView v : waitingPlayers){
                     v.display(fullMessage);
@@ -313,7 +339,7 @@ public class ServerMain {
     }
 
     /**
-     * Returns a list of waiting players
+     * Returns a list of waiting players formatted as a String
      *
      * @return      a String containing all players already logged in
      */
@@ -321,11 +347,23 @@ public class ServerMain {
         if(waitingPlayers.isEmpty()){
             return "";
         }
-        String res = "Connected players:";
+        StringBuilder bld = new StringBuilder();
+        bld.append(CONNECTED_LIST_MESSAGE);
         for(VirtualView v : waitingPlayers){
-            res = res + "\n\t" + v.getName();
+            bld.append("\n\t");
+            bld.append(v.getName());
         }
-        res = res + "\n";
-        return res;
+        bld.append("\n");
+        return bld.toString();
+    }
+
+
+    /**
+     * Loads parameters from properties
+     */
+    private void loadParams(){
+        Properties prop = ServerMain.getInstance().loadConfig();
+        this.serverLogFilename = (prop.getProperty("serverLogFilename", "serverLog.txt"));
+        this.serverPropertiesFilename = prop.getProperty("defaultAnswer", "/server.properties");
     }
 }

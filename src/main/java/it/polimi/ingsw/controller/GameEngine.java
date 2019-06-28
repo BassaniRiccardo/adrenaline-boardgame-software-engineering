@@ -45,26 +45,54 @@ public class GameEngine implements Runnable{
     private final Map<VirtualView, String> notifications;
     private List<VirtualView> resuming;
 
+    private boolean endphaseSimulation;
+    private int turnDuration;
+
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
-    private static final String PLAYER_SELECTION = "You selected ";
-    private static final String SKULL_REQUEST = "How many skulls do you want?";
-    private static final String HERO_REQUEST = "What hero do you want?";
-    private static final String FRENZY_REQUEST = "Do you want to play with the frenzy?";
+
+    private static final String WAIT_SHORT_MESSAGE = "Your answer did not arrive in time. You have not been suspended, but a default value has been selected.";
+    private static final String WAS_DISCONNECTED = " was disconnected";
+    private static final String IS_BACK_MESSAGE = " is back!";
+    private static final String YOU_ARE_BACK_MESSAGE = "You are back!";
+    private static final String DEFAULT_ANSWER = "1";
+
     private static final String MAP_REQUEST = "Vote for the map you want:";
+    private static final String MAP_SELECTED = "Voting ended. Selected map ";
+    private static final String SKULL_NUMBER_REQUEST = "How many skulls do you want?";
+    private static final String SKULL_NUMBER_SELECTED = "Voting ended. Number of skulls selected: ";
+    private static final String HERO_REQUEST = "What hero do you want?";
+    private static final String HERO_SELECTED = "You selected ";
+    private static final String FRENZY_REQUEST = "Do you want to play with the frenzy?";
+    private static final String YES ="Yes";
+    private static final String NO ="No";
+    private static final String FRENZY_ACTIVE = "Voting ended: Frenzy active.";
+    private static final String FRENZY_NOT_ACTIVE = "Voting ended: Frenzy not active.";
+    private static final String BEFORE_ASKING_BATTLECRY = ". Start thinking about a battle-cry...";
+    private static final String ASK_FOR_BATTLE_CRY = "Choose a battle-cry!";
+    private static final String BATTLE_CRY_SELECTED = "Battle-cry selected, wait for the other players.";
+    private static final String CRIES_OUT = " cries out: \n";
+
+    private static final String ENTER = "\n";
+    private static final String DOT = ".";
+    private static final String COLON = ": ";
+    private static final String EXCLAMATION_POINT = "!";
+
+    private static final String NOT_ENOUGH_PLAYER_GAME_OVER = "Game Over : less then three players in the game.";
     private static final String WINNER_MESSAGE = "\n\nGAME OVER\n\nYou Won!";
     private static final String DRAW_MESSAGE = "\n\nGAME OVER\n\nYou and other players made the most points but did not kill anyone. Shame on you! The game ends with a draw.";
     private static final String POSITION_MESSAGE = "\n\nGAME OVER\n\nYour position: ";
-    private static final String WAIT_SHORT_MESSAGE = "Your answer did not arrive in time. You have not been suspended, but a default value has been selected.";
-    private static final String YOU_ARE_BACK_MESSAGE = "You are back!";
-    private static final String IS_BACK_MESSAGE = " is back!";
+    private static final String LEADERBOARD = "\n\nLeaderboard:\n";
+    private static final String POINTS = " points\n";
 
-    private static final String DEFAULT_ANSWER = "1";
+    private static final String ENDPHASE_SIMULATION = "endPhaseSimulation";
+    private static final String DEFAULT_ENDPHASE_SIMULATION = "false";
+    private static final String TURN_DURATION = "turnDuration";
+    private static final String DEFAULT_TURN_DURATION = "60";
 
-    private boolean endphaseSimulation;
-    private int turnDuration;
-    public static boolean test = false;     //TODO: remove once you have rewritten tests
     private static final int MAX_LENGTH_BATTLECRY = 32;
+
+    public static boolean test = false;     //TODO: remove once you have rewritten tests
 
     /**
      * Constructs a GameEngine with a list of Player Controller.
@@ -72,11 +100,11 @@ public class GameEngine implements Runnable{
      * @param players           the players in the game.
      */
     public GameEngine(List<VirtualView> players){
+
         this.players = players;
         this.currentPlayer = null;
         this.board = null;
         this.killShotTrack = null;
-        this.timer = new Timer(turnDuration);
         this.statusSaver = null;
 
         this.gameOver = false;
@@ -145,19 +173,22 @@ public class GameEngine implements Runnable{
     public void run(){
 
         loadParams();
+        this.timer = new Timer(turnDuration);
+
         try {
 
             LOGGER.log(Level.FINE, "GameEngine running");
 
-
+/*
             try {
                 setup();
             }catch (NotEnoughPlayersException e) {
                 exitGame = true;
             }
 
+*/
 
-            //fakeSetup();
+            fakeSetup();
 
             if (endphaseSimulation) {
                 try {
@@ -260,11 +291,11 @@ public class GameEngine implements Runnable{
         board = BoardConfigurer.configureMap(mapId);
 
         for(VirtualView p : players) {
-            p.display("Voting ended. Map " + mapId + " selected.");
+            p.display(MAP_SELECTED + mapId + DOT);
             board.registerObserver(p);
         }
 
-        LOGGER.log(Level.INFO,"Players voted: map " + mapId + " selected.");
+        LOGGER.log(Level.INFO,"Players voted: map {0} selected.", mapId);
 
     }
 
@@ -278,7 +309,7 @@ public class GameEngine implements Runnable{
         int totalSkullNumber = 0;
 
         for (VirtualView p : players) {
-            p.choose(CHOOSE_STRING.toString(), SKULL_REQUEST, skullsOptions, 20);
+            p.choose(CHOOSE_STRING.toString(), SKULL_NUMBER_REQUEST, skullsOptions, 20);
         }
         for (VirtualView p : players) {
             int selected = Integer.parseInt(waitShort(p, 20));
@@ -292,7 +323,7 @@ public class GameEngine implements Runnable{
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
 
         for (VirtualView p : players) {
-            p.display("Voting ended. Number of skulls selected: " + averageSkullNumber + ".");
+            p.display(SKULL_NUMBER_SELECTED + averageSkullNumber + DOT);
         }
 
         LOGGER.log(Level.INFO,() -> "Players voted. Number of skulls: " + averageSkullNumber + ".");
@@ -307,9 +338,9 @@ public class GameEngine implements Runnable{
         List<String> frenzyOptions = new ArrayList<>();
         int yes = 0;
         int no = 0;
-        frenzyOptions.addAll(Arrays.asList("yes", "no"));
+        frenzyOptions.addAll(Arrays.asList(YES, NO));
         for (VirtualView p: players) {
-            p.choose(CHOOSE_STRING.toString(), "Do you want to play with the frenzy?", frenzyOptions, 20);
+            p.choose(CHOOSE_STRING.toString(), FRENZY_REQUEST, frenzyOptions, 20);
         }
         for(VirtualView p : players){
             if(Integer.parseInt(waitShort(p, 20))==1) yes++;
@@ -322,8 +353,8 @@ public class GameEngine implements Runnable{
         else  LOGGER.log(Level.INFO,"Frenzy not active.");
 
         for(VirtualView p : players){
-            if(frenzy) p.display("Voting ended: Frenzy active");
-            else p.display("Voting ended: Frenzy not active");
+            if(frenzy) p.display(FRENZY_ACTIVE);
+            else p.display(FRENZY_NOT_ACTIVE);
         }
     }
 
@@ -341,8 +372,8 @@ public class GameEngine implements Runnable{
             p.choose(CHOOSE_STRING.toString(), HERO_REQUEST, heroList, 20);
             int selected = Integer.parseInt(waitShort(p, 20));
             LOGGER.log(Level.INFO, "selected {0}", selected);
-            LOGGER.log(Level.INFO, "index: " + players.indexOf(p));
-            LOGGER.log(Level.INFO, heroList.toString());
+            LOGGER.log(Level.INFO, "index: {0}", players.indexOf(p));
+            LOGGER.log(Level.INFO, "{0}", heroList);
             Player.HeroName selectedName = heroList.get(selected-1);
             p.setPlayer(new Player(id, selectedName, board));
             LOGGER.log(Level.INFO,"setplayer");
@@ -352,7 +383,7 @@ public class GameEngine implements Runnable{
             heroList.remove(selectedName);
             LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
             if (!test)
-                p.display("You selected " + selectedName +". Start thinking about a battle-cry...");
+                p.display(HERO_SELECTED + selectedName + BEFORE_ASKING_BATTLECRY);
             id++;
         }
 
@@ -361,16 +392,16 @@ public class GameEngine implements Runnable{
     public void battleCry() {
         List<String> battleCries = new ArrayList<>();
         for (VirtualView p : players) {
-            battleCries.add(p.getInputNow("Choose a battle-cry!", MAX_LENGTH_BATTLECRY));
-            p.display("Battle-cry selected, wait for the other players.");
+            battleCries.add(p.getInputNow(ASK_FOR_BATTLE_CRY, MAX_LENGTH_BATTLECRY));
+            p.display(BATTLE_CRY_SELECTED);
         }
         for (VirtualView p : players) {
             StringBuilder builder = new StringBuilder();
             for (VirtualView otherPlayer : players){
                 if (!otherPlayer.equals(p)){
                     if (!builder.toString().isEmpty())
-                        builder.append("\n");
-                    builder.append(otherPlayer.getModel().userToString() + " cries out: \"" + battleCries.get(players.indexOf(otherPlayer)) + "\"");
+                        builder.append(ENTER);
+                    builder.append(otherPlayer.getModel().userToString() + CRIES_OUT + battleCries.get(players.indexOf(otherPlayer)) + ENTER);
                 }
             }
             p.display(builder.toString());
@@ -412,7 +443,7 @@ public class GameEngine implements Runnable{
         if (exitGame) {
             LOGGER.log(Level.INFO,"Not enough player in the game. The game ends, points are added to the players according to the kill shot track.");
             for (VirtualView v : players) {
-                v.display("Game Over : less then three players in the game.");
+                v.display(NOT_ENOUGH_PLAYER_GAME_OVER);
             }
         }
         else if (!frenzy) LOGGER.log(Level.INFO,"The last skull has been removed. Points are added to the players according to the kill shot track.");
@@ -556,7 +587,7 @@ public class GameEngine implements Runnable{
     public void showToLoser(int i){
         LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
         int pos = i + 1;
-        players.get(i).showEnd(addLeaderboard(POSITION_MESSAGE + pos + "!"));
+        players.get(i).showEnd(addLeaderboard(POSITION_MESSAGE + pos + EXCLAMATION_POINT));
     }
 
 
@@ -569,9 +600,9 @@ public class GameEngine implements Runnable{
     public String addLeaderboard(String s){
         StringBuilder builder = new StringBuilder();
         builder.append(s);
-        builder.append("\n\nLeaderboard:\n");
+        builder.append(LEADERBOARD);
         for (VirtualView v : players){
-            builder.append(v.getModel().getUsername() + ": " + v.getModel().getPoints() + " points\n");
+            builder.append(v.getModel().getUsername() + COLON + v.getModel().getPoints() + POINTS);
         }
         return builder.toString();
     }
@@ -699,7 +730,7 @@ public class GameEngine implements Runnable{
         }
         for(VirtualView v : justSuspended){
             for(VirtualView p : players){
-                p.display(P + v.getName() + " was disconnected");
+                p.display(P + v.getName() + WAS_DISCONNECTED);
                 synchronized (notifications) {
                     notifications.remove(p);
                 }
@@ -820,8 +851,8 @@ public class GameEngine implements Runnable{
      */
     private void loadParams() {
         Properties prop = ServerMain.getInstance().loadConfig();
-        this.endphaseSimulation = Boolean.parseBoolean(prop.getProperty("endPhaseSimulation", "false"));
-        this.turnDuration = Integer.parseInt(prop.getProperty("turnDuration", "60"));
+        this.endphaseSimulation = Boolean.parseBoolean(prop.getProperty(ENDPHASE_SIMULATION, DEFAULT_ENDPHASE_SIMULATION));
+        this.turnDuration = Integer.parseInt(prop.getProperty(TURN_DURATION, DEFAULT_TURN_DURATION));
     }
 
     public void fakeSetup(){

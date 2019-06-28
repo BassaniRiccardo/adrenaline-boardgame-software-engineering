@@ -4,6 +4,7 @@ import com.google.gson.*;
 import it.polimi.ingsw.model.cards.*;
 
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static it.polimi.ingsw.model.cards.Color.*;
@@ -27,6 +28,8 @@ public class ModelDataReader {
     //private static String miscellaneous = "src/main/resources/miscellaneous.json";
     private static String boardConfFile = "boardConf.json";
     private static String miscellaneous = "miscellaneous.json";
+    private static final String DATA_NOT_FOUND = "Data not found";
+
 
     /**
      * Constructor of a json class
@@ -38,9 +41,9 @@ public class ModelDataReader {
 
     private JsonObject analyzer(String fileName){
         try {
-            JsonElement jsontree = parser.parse(new InputStreamReader(this.getClass().getResourceAsStream("/"+fileName)));
-            //JsonElement jsontree = parser.parse(new FileReader(fileName));
-            return jsontree.getAsJsonObject();
+            JsonElement jsonTree = parser.parse(new InputStreamReader(this.getClass().getResourceAsStream("/"+fileName)));
+            //JsonElement jsonTree = parser.parse(new FileReader(fileName));
+            return jsonTree.getAsJsonObject();
         }
         catch (JsonIOException e) {
             LOGGER.log(Level.SEVERE, "Unable to read from file", e);
@@ -69,73 +72,70 @@ public class ModelDataReader {
         return null;
     }
 
-    public int getIntBC(String key) {
 
-        JsonObject obj=analyzer(boardConfFile);
-        if(obj==null){
-            LOGGER.log(Level.SEVERE, "Data not found");
-            return -1;
-        }
-        return obj.get(key).getAsInt();
+
+    public int getIntBC(String key) {
+        JsonObject obj = analyzer(boardConfFile);
+        return getInt(obj, key);
     }
 
     public int getIntBC(String key, String array, int elemId){
-
-        JsonObject obj=analyzer(boardConfFile,array,elemId);
-        if(obj==null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
-            return -1;
-        }
-        return obj.get(key).getAsInt();
+        JsonObject obj = analyzer(boardConfFile, array, elemId);
+        return getInt(obj, key);
     }
 
     public boolean getBooleanBC(String key, String array, int elemId) {
 
-        JsonObject obj=analyzer(boardConfFile,array,elemId);
-        if(obj==null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
-            return false;
-        }
-        int out=obj.get(key).getAsInt();
-        return (out==1);
-
+        JsonObject obj = analyzer(boardConfFile,array,elemId);
+        return getBoolean(obj, key);
     }
 
     public int getInt(String key) {
-
-        JsonObject obj=analyzer(miscellaneous);
-        if(obj==null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
-            return -1;
-        }
-        return obj.get(key).getAsInt();
+        JsonObject obj = analyzer(miscellaneous);
+        return getInt(obj, key);
     }
 
     public int getInt(String key, String array, int elemId) {
+        JsonObject obj = analyzer(miscellaneous,array,elemId);
+        return getInt(obj, key);
+    }
 
-        JsonObject obj=analyzer(miscellaneous,array,elemId);
-        if(obj==null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
+    public boolean getBoolean(String key, String array, int elemId){
+        JsonObject obj = analyzer(miscellaneous,array,elemId);
+        return getBoolean(obj, key);
+    }
+
+
+    public Color getColorBC(String key, String array, int elemId) {
+        JsonObject obj = analyzer(boardConfFile,array,elemId);
+        return getColor(obj, key);
+    }
+
+    public Color getColorBC(String key) {
+        JsonObject obj = analyzer(boardConfFile);
+        return getColor(obj, key);
+    }
+
+    private int getInt(JsonObject obj, String key){
+        if(obj==null){
+            LOGGER.log(Level.SEVERE, DATA_NOT_FOUND);
             return -1;
         }
         return obj.get(key).getAsInt();
     }
 
-    public boolean getBoolean(String key, String array, int elemId) {
-
-        JsonObject obj=analyzer(miscellaneous,array,elemId);
+    private boolean getBoolean(JsonObject obj, String key){
         if(obj==null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
+            LOGGER.log(Level.SEVERE, DATA_NOT_FOUND);
             return false;
         }
         int out=obj.get(key).getAsInt();
-        return (out==1);
+        return (out == 1);
     }
 
-    public Color getColorBC(String key, String array, int elemId) {
-        JsonObject obj=analyzer(boardConfFile,array,elemId);
+    private Color getColor(JsonObject obj, String key){
         if(obj==null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
+            LOGGER.log(Level.SEVERE, DATA_NOT_FOUND);
             return GREEN;
         }
         String out=obj.get(key).getAsString();
@@ -147,18 +147,4 @@ public class ModelDataReader {
             return Color.YELLOW;
     }
 
-    public Color getColorBC(String key) {
-        JsonObject obj=analyzer(boardConfFile);
-        if(obj==null) {
-            LOGGER.log(Level.SEVERE, "Data not found");
-            return GREEN;
-        }
-        String out=obj.get(key).getAsString();
-        if(out.equals("r")){
-            return Color.RED;
-        } else if (out.equals("b")) {
-            return Color.BLUE;
-        }else
-            return Color.YELLOW;
-    }
 }

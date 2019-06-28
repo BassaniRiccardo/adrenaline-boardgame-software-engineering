@@ -50,6 +50,10 @@ public class ServerMain {
     private static final String WAITING_MESSAGE = "Waiting for more players";
     private static final String CONNECTED_LIST_MESSAGE = "Connected players:";
 
+    private static final String ENTER = "\n";
+    private static final String TAB = "\t";
+
+
     /**
      * Standard private constructor
      */
@@ -324,12 +328,12 @@ public class ServerMain {
             waitingPlayers.removeAll(selectedPlayers);
         } else if (waitingPlayers.size() < MIN_PLAYERS) {
             timer.stop();
-        } else if (waitingPlayers.size() >= MIN_PLAYERS && !timer.isRunning()) {
+        } else if (!timer.isRunning()) {
             timer.start();
         }
 
         String alreadyConnected = getAlreadyConnected();
-        String fullMessage = alreadyConnected + TIME_LEFT_MESSAGE + timer.getTimeLeft() + "\n" + (timer.isRunning()? STARTING_GAME_MESSAGE:WAITING_MESSAGE);
+        String fullMessage = alreadyConnected + TIME_LEFT_MESSAGE + timer.getTimeLeft() + ENTER + (timer.isRunning()? STARTING_GAME_MESSAGE:WAITING_MESSAGE);
         if(!alreadyConnected.isEmpty()&&!oldMessage.equals(fullMessage)) {
             for(VirtualView v : waitingPlayers){
                     v.display(fullMessage);
@@ -350,10 +354,11 @@ public class ServerMain {
         StringBuilder bld = new StringBuilder();
         bld.append(CONNECTED_LIST_MESSAGE);
         for(VirtualView v : waitingPlayers){
-            bld.append("\n\t");
+            bld.append(ENTER);
+            bld.append(TAB);
             bld.append(v.getName());
         }
-        bld.append("\n");
+        bld.append(ENTER);
         return bld.toString();
     }
 

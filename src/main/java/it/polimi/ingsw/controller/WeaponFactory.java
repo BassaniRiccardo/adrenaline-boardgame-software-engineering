@@ -36,6 +36,63 @@ public class WeaponFactory {
     private static final String MODES_TAG = "modes";
     private static final String NAME_TAG = "name";
     private static final String COLOR_TAG = "color";
+    private static final String MAIN_TAG = "MAIN";
+
+    private static final String COST_R = "costR";
+    private static final String COST_B = "costB";
+    private static final String COST_Y = "costY";
+
+    private static final String TARGET = "target";
+    private static final String ONE_VISIBLE = "1visible";
+    private static final String ONE_OTHER_VISIBLE = "1otherVisible";
+    private static final String ONE_OR_TWO_VISIBLE = "1or2visible";
+    private static final String ONE_MAIN_TARGET = "1mainTarget";
+    private static final String ONE_MAIN_TARGET_OR_OTHER_VIISBLE = "1mainTargetOrOtherVisible";
+    private static final String THOR_ONE = "thor1";
+    private static final String THOR_TWO = "thor2";
+    private static final String PLASMA_GUN_ONE = "plasmaGun1";
+    private static final String WHISPER = "whisper";
+    private static final String ALL_SAME_SQUARE = "allSameSquare";
+    private static final String TRACTOR_BEAM_MAIN = "tractorBeamMain";
+    private static final String TRACTOR_BEAM_ALT = "tractorBeamAlt";
+    private static final String VORTEX_CANNON_MAIN = "vortexCannonMain";
+    private static final String VORTEX_CANNON_ONE = "vortexCannon1";
+    private static final String OTHER_ROOM = "otherRoom";
+    private static final String ADJACENT_SQUARE = "adjacentSquare";
+    private static final String NOT_VISIBLE = "notVisible";
+    private static final String NOT_SHOOTER_SQUARE_VISIBLE = "notShooterSquareVisible";
+    private static final String FLAMETHROWER_MAIN = "flamethrowerMain";
+    private static final String FLAMETHROWER_ALT = "flamethrowerAlt";
+    private static final String  GRENADE_LAUNCHER = "grenadeLauncher1";
+    private static final String ROCKET_LAUNCHER_ONE = "rocketLauncher1";
+    private static final String ROCKET_LAUNCHER_TWO = "rocketLauncher2";
+    private static final String RAILGUN_MAIN = "railgunMain";
+    private static final String RAILGUN_ALT = "railgunAlt";
+    private static final String ONE_SAME_SQUARE = "1sameSquare";
+    private static final String CYBERBLADE_ONE = "cyberblade1";
+    private static final String ONE_OTHER_SAME_SQUARE = "1otherSameSquare";
+    private static final String THREE_VISIBLE = "3visible";
+    private static final String ONE_STEP_AWAY = "1stepAway";
+    private static final String POWER_GLOVE_ALT = "powerGloveAlt";
+    private static final String SHOCKWAVE_MAIN = "shockwaveMain";
+    private static final String SHOCKWAVE_ALT = "shockwaveAlt";
+
+    private static final String NONE = "none";
+    private static final String SHOOTER_SQAURE = "shooterSquare";
+    private static final String ADJACENT_TO_TARGET = "adjacentToTarget";
+    private static final String TARGET_SQUARE = "targetSquare";
+    private static final String SLEDGEHAMMER_ALT = "sledgehammerAlt";
+
+    private static final String EFFECT = "effect";
+    private static final String DMG = "dmg";
+    private static final String MARK = "mark";
+    private static final String STANDARD = "standard";
+    private static final String MOVE = "move";
+    private static final String MOVE_DAMAGE = "moveDamage";
+    private static final String DAMAGE_MOVE = "damageMove";
+    private static final String HELLION = "hellion";
+    private static final String POWER_GLOVE = "powerGlove";
+
 
     /**
      * Constructs a weapon factory with a reference to the game board.
@@ -118,9 +175,9 @@ public class WeaponFactory {
 
     private AmmoPack getFullCost(JsonObject weaponTree) {
         try {
-            int r = weaponTree.get("costR").getAsInt();
-            int b = weaponTree.get("costB").getAsInt();
-            int y = weaponTree.get("costY").getAsInt();
+            int r = weaponTree.get(COST_R).getAsInt();
+            int b = weaponTree.get(COST_B).getAsInt();
+            int y = weaponTree.get(COST_Y).getAsInt();
             return new AmmoPack(r, b, y);
         } catch (JsonIOException e) {
             LOGGER.log(Level.SEVERE, "Unable to read cost in weaponTree", e);
@@ -154,12 +211,12 @@ public class WeaponFactory {
 
     private AmmoPack getFireModeCost (JsonObject fireMode) {
         try {
-            if (fireMode.get("name").getAsString().equalsIgnoreCase("MAIN")) {
+            if (fireMode.get(NAME_TAG).getAsString().equalsIgnoreCase(MAIN_TAG)) {
                 return new AmmoPack(0, 0, 0);
             }
-            int r = fireMode.get("costR").getAsInt();
-            int b = fireMode.get("costB").getAsInt();
-            int y = fireMode.get("costY").getAsInt();
+            int r = fireMode.get(COST_R).getAsInt();
+            int b = fireMode.get(COST_B).getAsInt();
+            int y = fireMode.get(COST_Y).getAsInt();
             return new AmmoPack(r, b, y);
         }catch (JsonIOException e) {
             LOGGER.log(Level.SEVERE, "Unable to read firemode cost from jsonTree", e);
@@ -171,13 +228,13 @@ public class WeaponFactory {
 
         String target = "";
         try {
-            target = firemode.get("target").getAsString();
+            target = firemode.get(TARGET).getAsString();
         }catch(JsonIOException e){
             LOGGER.log(Level.SEVERE, "Unable to get target from jsonTree", e);
         }
 
         switch(target) {
-            case "1visible":
+            case ONE_VISIBLE:
                 return p -> board.getVisible(p.getPosition()).stream()
                         .map(Square::getPlayers)
                         .flatMap(List::stream)
@@ -185,7 +242,7 @@ public class WeaponFactory {
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "1otherVisible":
+            case ONE_OTHER_VISIBLE:
                 return p -> (p.getMainTargets().isEmpty() ? new ArrayList<>() : board.getVisible(p.getPosition()).stream()
                         .map(Square::getPlayers)
                         .flatMap(List::stream)
@@ -194,7 +251,7 @@ public class WeaponFactory {
                         .filter(x -> !p.getMainTargets().contains(x))
                         .map(Arrays::asList)
                         .collect(Collectors.toList()));
-            case "1or2visible":
+            case ONE_OR_TWO_VISIBLE:
                 return p -> {
                     List<List<Player>> res = board.getVisible(p.getPosition()).stream()
                             .map(Square::getPlayers)
@@ -206,13 +263,13 @@ public class WeaponFactory {
                     res.addAll(cartesian(res, res));
                     return res;
                 };
-            case "1mainTarget":
+            case ONE_MAIN_TARGET:
                 return p -> (p.getMainTargets().stream()
                         .distinct()
                         .filter(x -> !p.getOptionalTargets().contains(x))
                         .map(Arrays::asList)
                         .collect(Collectors.toList()));
-            case "1mainTargetOrOtherVisible":
+            case ONE_MAIN_TARGET_OR_OTHER_VIISBLE:
                 return p -> {
                     if(p.getMainTargets().isEmpty()){
                         return new ArrayList<>();
@@ -234,7 +291,7 @@ public class WeaponFactory {
                     others.addAll(pastTargets);
                     return others;
                 };
-            case "thor1":
+            case THOR_ONE:
                 return p -> (p.getMainTargets().isEmpty()) ?
                         new ArrayList<>() : board.getVisible(p.getMainTargets().get(0).getPosition()).stream()
                         .map(Square::getPlayers)
@@ -244,7 +301,7 @@ public class WeaponFactory {
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "thor2":
+            case THOR_TWO:
                 return p -> (p.getMainTargets().isEmpty() || p.getOptionalTargets().isEmpty()) ?
                         new ArrayList<>() : board
                         .getVisible(p.getOptionalTargets().get(0).getPosition()).stream()
@@ -255,7 +312,7 @@ public class WeaponFactory {
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "plasmaGun1":
+            case PLASMA_GUN_ONE:
                 return p -> {
                             if (!p.getMainTargets().isEmpty()) {
                                 return Arrays.asList(Arrays.asList(p));
@@ -276,7 +333,7 @@ public class WeaponFactory {
                             }
                             return new ArrayList<>();
                         };
-            case "whisper":
+            case WHISPER:
                 return p -> board.getVisible(p.getPosition()).stream()
                         .map(Square::getPlayers)
                         .flatMap(List::stream)
@@ -292,12 +349,12 @@ public class WeaponFactory {
                         })
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "allSameSquare":
+            case ALL_SAME_SQUARE:
                 return p -> Arrays.asList(p.getPosition().getPlayers().stream()
                         .distinct()
                         .filter(x -> (!x.equals(p)))
                         .collect(Collectors.toList()));
-            case "tractorBeamMain":
+            case TRACTOR_BEAM_MAIN:
                 return p -> {
                     List<Square> l = board.getVisible(p.getPosition());
                     List<Square> temp = new ArrayList<>();
@@ -313,7 +370,7 @@ public class WeaponFactory {
                             .map(Arrays::asList)
                             .collect(Collectors.toList());
                 };
-            case "tractorBeamAlt":
+            case TRACTOR_BEAM_ALT:
                 return p -> board.getReachable(p.getPosition(), 2).stream()
                         .map(Square::getPlayers)
                         .flatMap(List::stream)
@@ -321,7 +378,7 @@ public class WeaponFactory {
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "vortexCannonMain":
+            case VORTEX_CANNON_MAIN:
                 return p -> {
                             List<Square> l = board.getVisible(p.getPosition());
                             List<Square> temp = new ArrayList<>();
@@ -336,7 +393,7 @@ public class WeaponFactory {
                                     .map(Arrays::asList)
                                     .collect(Collectors.toList());
                         };
-            case "vortexCannon1":
+            case VORTEX_CANNON_ONE:
                 return p -> {
                             if (p.getMainTargets().isEmpty()) {
                                 return new ArrayList<>();
@@ -353,7 +410,7 @@ public class WeaponFactory {
                             res.addAll(lp);
                             return res;
                         };
-            case "otherRoom":
+            case OTHER_ROOM:
                 return p -> {
                             List<List<Square>> roomList = board.getVisible(p.getPosition()).stream()
                                     .map(Square::getRoomId)
@@ -381,13 +438,13 @@ public class WeaponFactory {
                             }
                             return res;
                         };
-            case "adjacentSquare":
+            case ADJACENT_SQUARE:
                 return p -> board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> !x.containsPlayer(p))
                         .map(Square::getPlayers)
                         .filter(x -> !x.isEmpty())
                         .collect(Collectors.toList());
-            case "notVisible":
+            case NOT_VISIBLE:
                 return p -> board.getMap().stream()
                         .filter(x -> {
                             try {
@@ -403,7 +460,7 @@ public class WeaponFactory {
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "notShooterSquareVisible":
+            case NOT_SHOOTER_SQUARE_VISIBLE:
                 return p -> board.getVisible(p.getPosition()).stream()
                         .filter(x -> !x.containsPlayer(p))
                         .map(Square::getPlayers)
@@ -411,7 +468,7 @@ public class WeaponFactory {
                         .distinct()
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "flamethrowerMain":
+            case FLAMETHROWER_MAIN:
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             for (Direction d : Direction.values()) {
@@ -449,7 +506,7 @@ public class WeaponFactory {
                             }
                             return targets;
                         };
-            case "flamethrowerAlt":
+            case FLAMETHROWER_ALT:
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             for (Direction d : Direction.values()) {
@@ -472,7 +529,7 @@ public class WeaponFactory {
                             }
                             return targets;
                         };
-            case "grenadeLauncher1":
+            case GRENADE_LAUNCHER:
                 return p -> {
                             List<List<Player>> l = board.getVisible(p.getPosition()).stream()
                                     .filter(x -> !x.containsPlayer(p))
@@ -485,7 +542,7 @@ public class WeaponFactory {
                             }
                             return l;
                         };
-            case "rocketLauncher1":
+            case ROCKET_LAUNCHER_ONE:
                 return p -> {
                             if(!p.getMainTargets().isEmpty()){
                                 return Arrays.asList(Arrays.asList(p));
@@ -502,7 +559,7 @@ public class WeaponFactory {
                             }
                             return new ArrayList<>();
                         };
-            case "rocketLauncher2":
+            case ROCKET_LAUNCHER_TWO:
                 return p -> {
                             if (p.getMainTargets().isEmpty()) {
                                 return new ArrayList<>();
@@ -515,7 +572,7 @@ public class WeaponFactory {
                             }
                             return Arrays.asList(l);
                         };
-            case "railgunMain":
+            case RAILGUN_MAIN:
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             for (Direction d : Direction.values()) {
@@ -536,7 +593,7 @@ public class WeaponFactory {
                             );
                             return targets;
                         };
-            case "railgunAlt":
+            case RAILGUN_ALT:
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             List<List<Player>> close = p.getPosition().getPlayers().stream()
@@ -561,14 +618,14 @@ public class WeaponFactory {
                             }
                             return targets;
                         };
-            case "1sameSquare":
+            case ONE_SAME_SQUARE:
                 return p -> p.getPosition().getPlayers().stream()
                         .distinct()
                         .filter(x -> !x.equals(p))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
 
-            case "cyberblade1":
+            case CYBERBLADE_ONE:
                 return p -> {
                             if(!p.getMainTargets().isEmpty()){
                                 return Arrays.asList(Arrays.asList(p));
@@ -582,14 +639,14 @@ public class WeaponFactory {
                             }
                             return new ArrayList<>();
                         };
-            case "1otherSameSquare":
+            case ONE_OTHER_SAME_SQUARE:
                 return p -> p.getPosition().getPlayers().stream()
                         .distinct()
                         .filter(x -> !x.equals(p))
                         .filter(x -> !p.getMainTargets().contains(x))
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "3visible":
+            case THREE_VISIBLE:
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             List<List<Player>> single = board.getVisible(p.getPosition()).stream()
@@ -604,7 +661,7 @@ public class WeaponFactory {
                             targets.addAll(cartesian(cartesian(single, single), single));
                             return targets;
                         };
-            case "1stepAway":
+            case ONE_STEP_AWAY:
                 return p -> board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> (!x.getPlayers().contains(p)))
                         .map(Square::getPlayers)
@@ -612,7 +669,7 @@ public class WeaponFactory {
                         .distinct()
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
-            case "powerGloveAlt":
+            case POWER_GLOVE_ALT:
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             for (Direction d : Direction.values()) {
@@ -660,7 +717,7 @@ public class WeaponFactory {
                             }
                             return targets;
                         };
-            case "shockwaveMain":
+            case SHOCKWAVE_MAIN:
                 return p -> {
                             List<List<Player>> targets = new ArrayList<>();
                             List<List<List<Player>>> directionalTargets = new ArrayList<>();
@@ -694,7 +751,7 @@ public class WeaponFactory {
                             }
                             return targets;
                         };
-            case "shockwaveAlt":
+            case SHOCKWAVE_ALT:
                 return p -> Arrays.asList(board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> (!x.getPlayers().contains(p)))
                         .map(Square::getPlayers)
@@ -717,9 +774,9 @@ public class WeaponFactory {
         }
 
         switch(destination) {
-            case "none":
+            case NONE:
                 return (p, t) -> new ArrayList<>();
-            case "plasmaGun1":
+            case PLASMA_GUN_ONE:
                 return (p, t) -> {
                             List<Square> l = board.getReachable(p.getPosition(), 2);
                             l.remove(p.getPosition());
@@ -740,7 +797,7 @@ public class WeaponFactory {
                             }
                             return selectable;
                         };
-            case "tractorBeamMain":
+            case TRACTOR_BEAM_MAIN:
                 return (p, t) -> board.getVisible(p.getPosition()).stream()
                         .distinct()
                         .filter(x -> {
@@ -752,9 +809,9 @@ public class WeaponFactory {
                             }
                         })
                         .collect(Collectors.toList());
-            case "shooterSquare":
+            case SHOOTER_SQAURE:
                 return (p, t) -> Arrays.asList(p.getPosition());
-            case "vortexCannonMain":
+            case VORTEX_CANNON_MAIN:
                 return (p, t) -> board.getVisible(p.getPosition()).stream()
                         .filter(x -> {
                             try {
@@ -767,11 +824,11 @@ public class WeaponFactory {
                         .filter(x -> !x.containsPlayer(p))
                         .distinct()
                         .collect(Collectors.toList());
-            case "vortexCannon1":
+            case VORTEX_CANNON_ONE:
                 return (p, t) -> p.getMainTargets().isEmpty() ? new ArrayList<>() : Arrays.asList(p.getMainTargets().get(0).getPosition());
-            case "adjacentToTarget":
+            case ADJACENT_TO_TARGET:
                 return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), 1);
-            case "rocketLauncher1":
+            case ROCKET_LAUNCHER_ONE:
                 return (p, t) -> {
                             List<Square> l = board.getReachable(p.getPosition(), 2);
                             l.remove(p.getPosition());
@@ -793,16 +850,16 @@ public class WeaponFactory {
                             }
                             return res;
                         };
-            case "cyberblade1":
+            case CYBERBLADE_ONE:
                 return (p, t) -> {
                             if (p.getMainTargets().isEmpty()) {
                                 return board.getReachable(p.getPosition(), 1).stream().filter(x -> !x.getPlayers().contains(p)&&!x.getPlayers().isEmpty()).collect(Collectors.toList());
                             }
                             return board.getReachable(p.getPosition(), 1).stream().filter(x -> !x.containsPlayer(p)).collect(Collectors.toList());
                         };
-            case "targetSquare":
+            case TARGET_SQUARE:
                 return (p, t) -> t.isEmpty() ? new ArrayList<>() : Arrays.asList(t.get(0).getPosition());
-            case "powerGloveAlt":
+            case POWER_GLOVE_ALT:
                 return (p, t) -> {
                             for (Player temp : t) {
                                 if (board.getDistance(p.getPosition(), temp.getPosition()) > 1) {
@@ -823,7 +880,7 @@ public class WeaponFactory {
                             }
                             return res;
                         };
-            case "sledgehammerAlt":
+            case SLEDGEHAMMER_ALT:
                 return (p, t) -> {
                             List<Square> res = new ArrayList<>();
                             Square center = p.getPosition();
@@ -846,9 +903,9 @@ public class WeaponFactory {
         int tmpDmg = 0;
         int tmpMark = 0;
         try {
-            effect = firemode.get("effect").getAsString();
-            tmpDmg = firemode.get("dmg").getAsInt();
-            tmpMark = firemode.get("mark").getAsInt();
+            effect = firemode.get(EFFECT).getAsString();
+            tmpDmg = firemode.get(DMG).getAsInt();
+            tmpMark = firemode.get(MARK).getAsInt();
         }catch (JsonIOException e) {
             LOGGER.log(Level.SEVERE, "Unable to read effect from jsonTree", e);
         }
@@ -856,34 +913,34 @@ public class WeaponFactory {
         int mark = tmpMark;
 
         switch (effect) {
-            case "standard":
+            case STANDARD:
                 return createEffect(dmg, mark);
-            case "move":
+            case MOVE:
                 return (shooter, target, destination) -> target.setPosition(destination);
-            case "moveDamage":
+            case MOVE_DAMAGE:
                 return (shooter, target, destination) -> {
                     target.setPosition(destination);
                     target.sufferDamage(dmg, shooter);
                     target.addMarks(mark, shooter);
                 };
-            case "damageMove":
+            case DAMAGE_MOVE:
                 return (shooter, target, destination) -> {
                     target.sufferDamage(dmg, shooter);
                     target.addMarks(mark, shooter);
                     target.setPosition(destination);
                 };
-            case "hellion":
+            case HELLION:
                 return (shooter, target, destination) -> {
                     target.sufferDamage(dmg, shooter);
                     board.getPlayersInside(target.getPosition()).forEach(x -> x.addMarks(mark, shooter));
                 };
-            case "flamethrowerAlt":
+            case FLAMETHROWER_ALT:
                 return (shooter, target, destination) -> {
                     if (board.getReachable(shooter.getPosition(), 1).contains(target.getPosition())) {
                         target.sufferDamage(dmg, shooter);
                     } else target.sufferDamage(1, shooter);
                 };
-            case "powerGlove":
+            case POWER_GLOVE:
                 return (shooter, target, destination) -> {
                     shooter.setPosition(destination);
                     target.sufferDamage(dmg, shooter);

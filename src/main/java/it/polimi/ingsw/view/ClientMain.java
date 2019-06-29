@@ -1,10 +1,8 @@
 package it.polimi.ingsw.view;
 
 import com.google.gson.*;
-import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
-import it.polimi.ingsw.network.server.VirtualView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,10 +80,11 @@ public class ClientMain {
     private Properties loadConfig(String[] args) {
         Properties prop = new Properties();
 
-        if (args.length == 2) {     //test reading from args
+        if (args.length == 3) {     //test reading from args
             prop.put("serverIP", args[0]);
             prop.put("RMIPort", args[1]);
             prop.put("TCPPort", args[1]);
+            prop.put("myIP", args[2]);
         } else {
             try{
                 InputStream input = getClass().getResourceAsStream("/client.properties");
@@ -139,9 +138,9 @@ public class ClientMain {
         }
         if (buff.equals("2")) {
             System.setProperty("java.rmi.server.hostname", prop.getProperty("myIP", "localhost"));
-            connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "1420")));
+            connection = new RMIConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("RMIPort", "3994")));
         } else {
-            connection = new TCPConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("TCPPort", "5000")));
+            connection = new TCPConnection(this, prop.getProperty("serverIP", "localhost"), Integer.parseInt(prop.getProperty("TCPPort", "4198")));
         }
         executor.submit(connection);
     }

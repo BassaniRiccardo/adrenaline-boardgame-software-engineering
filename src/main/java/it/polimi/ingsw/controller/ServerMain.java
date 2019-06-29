@@ -144,9 +144,9 @@ public class ServerMain {
 
         System.setProperty("java.rmi.server.hostname",prop.getProperty("myIP", "localhost"));
 
-        this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", "5000")));
+        this.tcpServer = new TCPServer(Integer.parseInt(prop.getProperty("TCPPort", "4198")));
         this.executor.submit(this.tcpServer);
-        this.rmiServer = new RMIServer(Integer.parseInt(prop.getProperty("RMIPort", "1420")));
+        this.rmiServer = new RMIServer(Integer.parseInt(prop.getProperty("RMIPort", "3994")));
         this.rmiServer.setup();
         LOGGER.log(Level.FINE, "TCPServer and RMIServer running, press q to quit");
 

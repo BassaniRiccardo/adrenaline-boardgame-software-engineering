@@ -20,7 +20,8 @@ import java.util.logging.Logger;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
 
 /**
- * Implementation of RMI connection to server
+ * Class implementing remote functions to be called by the server when needed.
+ * This is one of the two classes creating a connection to the server.
  *
  * @author marcobaga
  */
@@ -33,7 +34,9 @@ public class RMIConnection implements Runnable, RemoteView {
 
 
     /**
-     * Constructor retrieving remote objects
+     * Class constructor. Passes itself as a parameter to a remote method so that the server can alter call
+     * its own remote methods. On a separate thread, the connection is periodically checked by pinging a
+     * remote object created by the server.
      *
      * @param clientMain        reference to the main class
      * @param address           IP to connect to
@@ -46,7 +49,6 @@ public class RMIConnection implements Runnable, RemoteView {
             Registry reg = LocateRegistry.getRegistry(address, port);
             RemoteServer serverStub = (RemoteServer) reg.lookup("RMIServer");
             String pcLookup = serverStub.getPlayerController((RemoteView) UnicastRemoteObject.exportObject(this, 0));
-            //LOGGER.log(Level.INFO, "Name received for RMI PC lookup: " + pcLookup);
             playerStub = (RemoteController) reg.lookup(pcLookup);
 
             ExecutorService executor = Executors.newCachedThreadPool();
@@ -80,6 +82,7 @@ public class RMIConnection implements Runnable, RemoteView {
 
     /**
      * Asks clientMain to carry out a decision
+     *
      * @param msg       message to display
      * @param options   options between which to choose
      * @return          int corresponding to the choice
@@ -112,7 +115,7 @@ public class RMIConnection implements Runnable, RemoteView {
     }
 
     /**
-     * Remote methos to be called by the server to assert the state of the connection
+     * Remote method to be called by the server to assert the state of the connection
      * @throws RemoteException
      */
     public void ping() throws RemoteException{
@@ -133,6 +136,9 @@ public class RMIConnection implements Runnable, RemoteView {
         }
     }
 
+    /**
+     * Closes the connection
+     */
     public void shutdown(){
         try {
             UnicastRemoteObject.unexportObject(this, false);
@@ -141,15 +147,24 @@ public class RMIConnection implements Runnable, RemoteView {
         }
     }
 
+    /**
+     * Asks the ClientMain to show the suspension screen and eventually terminate.
+     *
+     * @throws RemoteException
+     */
     public void showSuspension() throws RemoteException{
         shutdown();
         clientMain.showSuspension();
     }
 
+    /**
+     * Asks the ClientMain to show the end screen and eventually terminate
+     *
+     * @param message           message to display at the end
+     * @throws RemoteException
+     */
     public void showEnd(String message) throws  RemoteException{
         shutdown();
         clientMain.showEnd(message);
     }
-
-
 }

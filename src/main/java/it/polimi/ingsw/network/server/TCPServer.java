@@ -9,7 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Server for TCP connections running on a separate thread and capable of accepting requests in a timely manner
+ * Server for TCP connections running on a separate thread and capable of accepting parallel connection requests.
  *
  * @author marcobaga
  */
@@ -25,7 +25,7 @@ public class TCPServer implements Runnable {
     }
 
     /**
-     * Loop accepting connections
+     * Loop for accepting connections
      */
     public void run(){
         running = true;
@@ -45,18 +45,19 @@ public class TCPServer implements Runnable {
             LOGGER.log(Level.INFO, "TCPServer shutting down");
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "TCPServer initialization failed", ex);
-            //try again?
         }
     }
 
     /**
      * Getters and setters
-     *
      */
 
     public int getPort() {  //only used for testing
         return port;
     }
 
+    /**
+     * Stops the loop for accepting connections.
+     */
     public void shutdown(){ this.running = false;}
 }

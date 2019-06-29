@@ -13,7 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Server implementation for providing an RMI based communication
+ * Server implementation for RMI based communication. This is the class receiving and handling
+ * RMI connection "requests".
  *
  * @author marcobaga
  */
@@ -51,7 +52,7 @@ public class RMIServer implements RemoteServer {
     }
 
     /**
-     * Called by a client, it instantiates a new VirtualView accessible via RMI and returns the string associated in the registry
+     * Called by a client, it instantiates a new VirtualView accessible via RMI and returns the String associated in the registry.
      *
      * @return                  the name bound to the new VirtualView
      */

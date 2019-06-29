@@ -15,7 +15,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Abstract class responsible for the connection between to clients.
+ * Abstract class responsible for the connection to clients. Hides the variety of underlying implementations
+ * and the network connection to the GameEngine. Can handle only one choose request at a time and ignores
+ * all other requests in the meantime. Display commands are asynchronous and carried out at any time.
+ * This class is observed by the Controller (GameEngine) by default and can be registered as an observer
+ * to the Model (Board).
  *
  * @author marcobaga
  */
@@ -57,7 +61,8 @@ public abstract class VirtualView implements Runnable{
     }
 
     /**
-     * Manages login communication with the client
+     * Manages the login procedure with the client. A VirtualView requires a separate thread until the player has
+     * logged in to guarantee parallel login attempts.
      */
     public void run(){
 
@@ -125,9 +130,6 @@ public abstract class VirtualView implements Runnable{
         this.suspended = suspended;
     }
 
-    public void setBusy(boolean busy){this.busy = busy;}
-
-    //only for testing
     public void setName(String name) {
         this.name = name;
     }
@@ -139,7 +141,8 @@ public abstract class VirtualView implements Runnable{
     public abstract void showEnd(String message);
 
     /**
-     * Suspends related player
+     * Suspends the player. This causes the client to shutdown, but the VirtualView is kept alive untile the player
+     * resumes or the game ends.
      */
     public void suspend() {
         showSuspension();
@@ -170,7 +173,7 @@ public abstract class VirtualView implements Runnable{
     abstract public void display(String msg);
 
     /**
-     * Fetches input, but waits for an answer. Only use when connecting to the server.
+     * Fetches input, but waits for an answer. Only for use during login procedures.
      *
      * @param msg       message to display
      * @param max       max length of the answer
@@ -180,7 +183,7 @@ public abstract class VirtualView implements Runnable{
 
 
     /**
-     * Asks a player to choose one among options and waits for an answer
+     * Asks a player to choose one among options and waits for an answer. Only for use during login procedures.
      * @param msg       message to display
      * @param options   options to choose from
      * @return          the player's choice as the index of the list of options

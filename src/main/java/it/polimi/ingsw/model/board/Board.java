@@ -756,15 +756,6 @@ public class Board {
 
 
     /**
-     * Removes VirtualView p from list of observers
-     * @param p     the VirtualView to be removed
-     */
-    public void removeObserver(VirtualView p){
-        observers.remove(p);
-    }
-
-
-    /**
      * Notifies all observers with model update messages
      */
     public void notifyObservers(){

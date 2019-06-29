@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * Remote interface for RMI communication
+ * Remote interface for RMI communication (serverside)
  *
  * @author marcobaga
  */

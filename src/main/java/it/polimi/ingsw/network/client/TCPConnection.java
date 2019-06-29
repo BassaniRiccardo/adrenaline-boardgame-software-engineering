@@ -29,7 +29,8 @@ import java.util.stream.Collectors;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
 
 /**
- * Implementation of Socket connection to server
+ * Implementation of Socket connection to server. It is one of the two alternatives for connecting
+ * to the server.
  *
  * @author marcobaga
  */
@@ -45,7 +46,7 @@ public class TCPConnection implements Runnable {
     private boolean shutdown;
 
     /**
-     * Constructor establishing a TCP connection
+     * Constructor establishing a standard TCP connection
      *
      * @param clientMain        reference to the main class
      * @param address           IP to connect to
@@ -63,16 +64,20 @@ public class TCPConnection implements Runnable {
             LOGGER.log(Level.INFO, "Connected to TCP server");
         }catch (ConnectException ex){
             LOGGER.log(Level.SEVERE, "Cannot connect to server. Closing", ex);
-            System.exit(0);
+            shutdown();
+            clientMain.showDisconnection();
         }catch (IOException ex) {
             LOGGER.log(Level.INFO, "Cannot read or write to connection. Closing");
             shutdown();
             clientMain.showDisconnection();
-            //try again?
         }
     }
 
-
+    /**
+     * Differently from RMIConnection, TCPConnection requires a dedicated thread to listen to the socket.
+     * In the main loop, the connection checks if a message is received (non blocking-call) and handles it,
+     * or waits a little before reiterating.
+     */
     public void run(){
         JsonParser jsonParser = new JsonParser();
         while(Thread.currentThread().isAlive()&&!shutdown){
@@ -99,7 +104,7 @@ public class TCPConnection implements Runnable {
     }
 
     /**
-     * Decodes incoming messages and calls related methods
+     * Decodes incoming messages and calls related clientMain methods
      *
      * @param jMessage      incoming message
      */
@@ -176,6 +181,9 @@ public class TCPConnection implements Runnable {
         return message;
     }
 
+    /**
+     * Closes the connection
+     */
     public void shutdown(){
         shutdown=true;
         try {

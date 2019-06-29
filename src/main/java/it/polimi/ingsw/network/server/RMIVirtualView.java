@@ -87,6 +87,8 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
                         int i = remoteView.choose(type, msg, options.stream().map(x -> ((Object) x).toString()).collect(Collectors.toList()));
                         if(busy&&System.currentTimeMillis()<timestamp) {
                             notifyObservers(String.valueOf(i));
+                        } else {
+                            display("Your answer was too slow! Wait for the next prompt and be quick next time!");
                         }
                         busy=false;
                     } catch (RemoteException ex) {

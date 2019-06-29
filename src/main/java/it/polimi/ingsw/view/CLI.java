@@ -169,6 +169,7 @@ public class CLI implements UI{
     @Override
     public void display(String message, String max) {
         mainRenderer.setCurrentRequest(message + "[max. " + max + " characters]");
+        mainRenderer.setCurrentMessage("");
         render();
     }
 
@@ -190,6 +191,7 @@ public class CLI implements UI{
         }
         bld.append("\nChoose one");
         mainRenderer.setCurrentRequest(bld.toString());
+        mainRenderer.setCurrentMessage("");
         render();
     }
 

@@ -46,6 +46,7 @@ public class Updater {
     public static final String SET_IN_GAME_UPD = "setInGame";
     public static final String REMOVE_AMMO_TILE_UPD = "removeAmmoTile";
     public static final String MODEL_UPD = "model";
+    public static final String RENDER_UPD = "render";
 
     public static final String HEAD_PROP = "head";
     public static final String TYPE_PROP = "type";
@@ -311,6 +312,13 @@ public class Updater {
         JsonObject j = new JsonObject();
         j.addProperty(HEAD_PROP, UPD_HEADER);
         j.addProperty(TYPE_PROP, msg);
+        return j;
+    }
+
+    public static JsonObject getRenderMessage() {
+        JsonObject j = new JsonObject();
+        j.addProperty(HEAD_PROP, UPD_HEADER);
+        j.addProperty(TYPE_PROP, RENDER_UPD);
         return j;
     }
 

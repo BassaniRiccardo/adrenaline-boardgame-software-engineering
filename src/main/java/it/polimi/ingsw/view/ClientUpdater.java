@@ -17,6 +17,9 @@ public class ClientUpdater {
 
         switch (j.get(TYPE_PROP).getAsString()) {
 
+            case (RENDER_UPD):
+                ui.render();
+                break;
             case (RELOAD_UPD):
                 clientModel.getCurrentPlayer().getWeapon(j.get(WEAPON_PROP).getAsString()).setLoaded(j.get(LOADED_PROP).getAsBoolean());
                 break;

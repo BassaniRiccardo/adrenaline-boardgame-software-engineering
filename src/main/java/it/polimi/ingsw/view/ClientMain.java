@@ -186,8 +186,6 @@ public class ClientMain {
 
         LOGGER.log(Level.INFO, "Update received: " + j.get(TYPE_PROP).getAsString());
         clientUpdater.update(j, clientModel, this, ui);
-        ui.render();
-
     }
 
     /**

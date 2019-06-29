@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.board;
 
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.network.server.VirtualView;
@@ -782,6 +783,7 @@ public class Board {
         for(JsonObject update : updates.get(p)) {
             p.update(update);
         }
+        p.update(Updater.getRenderMessage());
         updates.get(p).clear();
     }
 

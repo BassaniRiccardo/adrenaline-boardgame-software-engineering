@@ -56,7 +56,6 @@ public class TCPConnection implements Runnable {
         this.shutdown = false;
         LOGGER.log(Level.INFO, "Starting TCP connection");
         try {
-            System.out.println(address + port);
             socket = new Socket(address, port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream());

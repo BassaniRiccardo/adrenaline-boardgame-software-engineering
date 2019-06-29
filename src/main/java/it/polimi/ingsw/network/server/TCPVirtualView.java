@@ -62,6 +62,8 @@ public class TCPVirtualView extends VirtualView {
                     suspend();
                 } else {
                     LOGGER.log(Level.FINE, "Received a message over TCP connection");
+                    if(!busy) return;
+                    busy = false;
                     if(waiting){
                         answer = message;
                         waiting = false;
@@ -70,11 +72,10 @@ public class TCPVirtualView extends VirtualView {
                     if(timeout){
                         timeout = false;
                         if(System.currentTimeMillis()>timestamp) {
+                            display("Your answer was too slow! Wait for the next prompt and be quick next time!");
                             return;
                         }
                     }
-                    if(!busy) return;
-                    busy = false;
                     notifyObservers(message);
                 }
             } catch (SocketTimeoutException ex) {
@@ -137,18 +138,12 @@ public class TCPVirtualView extends VirtualView {
 
     @Override
     public String getInputNow(String msg, int max){
-        try {
-            synchronized (game.getNotifications()){
-                game.getNotifications().remove(this);
-            }
-        }catch(NullPointerException ex){
-            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
-        }
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "REQ");
         jsonObject.addProperty("text", msg);
         jsonObject.addProperty("length", String.valueOf(max));
         send(jsonObject);
+        busy = true;
         waiting = true;
         return receive();
     }

@@ -68,9 +68,6 @@ public class GameEngine implements Runnable{
     private static final String NO ="No";
     private static final String FRENZY_ACTIVE = "Voting ended: Frenzy active.";
     private static final String FRENZY_NOT_ACTIVE = "Voting ended: Frenzy not active.";
-    private static final String BEFORE_ASKING_BATTLECRY = ". Start thinking about a battle-cry...";
-    private static final String ASK_FOR_BATTLE_CRY = "Choose a battle-cry!";
-    private static final String BATTLE_CRY_SELECTED = "Battle-cry selected, wait for the other players.";
     private static final String CRIES_OUT = " cries out: \n";
 
     private static final String ENTER = "\n";
@@ -91,7 +88,6 @@ public class GameEngine implements Runnable{
     private static final String TURN_DURATION = "turnDuration";
     private static final String DEFAULT_TURN_DURATION = "60";
 
-    private static final int MAX_LENGTH_BATTLECRY = 32;
     private static final int SETUP_TIMEOUT = 10;
     private static final List<Integer> MAP_ID_OPTIONS = new ArrayList<>(Arrays.asList(1,2,3,4));
     private static final List<Integer> EMPTY_MAP_VOTES = Arrays.asList(0,0,0,0);
@@ -183,18 +179,19 @@ public class GameEngine implements Runnable{
 
             LOGGER.log(Level.FINE, "GameEngine running");
 
-            /*
+
             try {
                 setup();
             }catch (NotEnoughPlayersException e) {
                 for (VirtualView p : players) {
                     p.showEnd("There are no enough player to start the game. Try to join another game.");
                 }
+                ServerMain.getInstance().untrackGame(this);
                 return;
             }
-            */
 
-            fakeSetup();
+
+            //fakeSetup();
 
             if (endphaseSimulation) {
                 try {
@@ -208,7 +205,7 @@ public class GameEngine implements Runnable{
             }
 
             else {
-                //battleCry();
+                battleCry();
             }
 
 
@@ -397,7 +394,7 @@ public class GameEngine implements Runnable{
             heroList.remove(selectedName);
             String msg = P + id + " selected " + selectedName + ".";
             LOGGER.log(Level.INFO,msg);
-            p.display(HERO_SELECTED + selectedName + BEFORE_ASKING_BATTLECRY);
+            p.display(HERO_SELECTED + selectedName);
             id++;
         }
 
@@ -411,8 +408,7 @@ public class GameEngine implements Runnable{
     public void battleCry() {
         List<String> battleCries = new ArrayList<>();
         for (VirtualView p : players) {
-            battleCries.add(p.getInputNow(ASK_FOR_BATTLE_CRY, MAX_LENGTH_BATTLECRY));
-            p.display(BATTLE_CRY_SELECTED);
+            battleCries.add(p.getBattlecry());
         }
         for (VirtualView p : players) {
             StringBuilder builder = new StringBuilder();
@@ -424,6 +420,11 @@ public class GameEngine implements Runnable{
                 }
             }
             p.display(builder.toString());
+        }
+        try{
+            Thread.sleep(1000); //give them time to read
+        } catch(InterruptedException e){
+            LOGGER.log(Level.SEVERE, "Skipped waiting time", e);
         }
     }
 

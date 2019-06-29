@@ -38,19 +38,22 @@ public abstract class VirtualView implements Runnable{
     boolean justSuspended;
     private Player model;
     static final Logger LOGGER = Logger.getLogger("serverLogger");
+    private static final int MAX_LENGTH_BATTLECRY = 32;
     boolean busy;
     boolean timeout;
     long timestamp;
+    private String battlecry;
 
     public VirtualView(){
         this.game = null;
-        this.name = null;
+        this.name = "";
         this.suspended = false;
         this.justSuspended = false;
         this.model = null;
         this.busy = false;
         this.timeout = false;
         this.timestamp = 0;
+        this.battlecry = "";
     }
 
     /**
@@ -60,6 +63,7 @@ public abstract class VirtualView implements Runnable{
 
         String playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
         name = getInputNow(playersAlreadyConnected+"\nSelect a name.", 16);
+        battlecry = getInputNow("Now, choose your battlecry!", MAX_LENGTH_BATTLECRY);
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
         while(!ServerMain.getInstance().login(this)){
@@ -77,7 +81,7 @@ public abstract class VirtualView implements Runnable{
             playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
             name=getInputNow("Name already taken. Try another one.\n"+playersAlreadyConnected, 16);
         }
-        display("Name accepted. Waiting for the voting to start...");
+        display("Name accepted. Waiting for the game to start...");
     }
 
     /**
@@ -92,6 +96,8 @@ public abstract class VirtualView implements Runnable{
     public String getName() {
         return name;
     }
+
+    public String getBattlecry(){ return battlecry; }
 
     public GameEngine getGame() { return game;  }
 
@@ -164,7 +170,7 @@ public abstract class VirtualView implements Runnable{
     abstract public void display(String msg);
 
     /**
-     * Fetches input, but waits for an answer
+     * Fetches input, but waits for an answer. Only use when connecting to the server.
      *
      * @param msg       message to display
      * @param max       max length of the answer

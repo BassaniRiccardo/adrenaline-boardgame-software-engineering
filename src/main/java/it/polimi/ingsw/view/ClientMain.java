@@ -67,13 +67,13 @@ public class ClientMain {
     private void initializeLogger() {
         try {
             FileHandler fileHandler = new FileHandler("clientLog.txt");
-            fileHandler.setLevel(Level.ALL);
+            fileHandler.setLevel(Level.SEVERE);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);
         }
-        LOGGER.setLevel(Level.ALL);
+        LOGGER.setLevel(Level.SEVERE);
     }
 
     /**

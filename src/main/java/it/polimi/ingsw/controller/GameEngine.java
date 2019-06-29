@@ -84,6 +84,7 @@ public class GameEngine implements Runnable{
     private static final String POSITION_MESSAGE = "\n\nGAME OVER\n\nYour position: ";
     private static final String LEADERBOARD = "\n\nLeaderboard:\n";
     private static final String POINTS = " points\n";
+    private static final String KILLSHOT_TRACK_ABSENT_EX = "NotAvailableAttributeException thrown while configuring the kill shot track";
 
     private static final String ENDPHASE_SIMULATION = "endPhaseSimulation";
     private static final String DEFAULT_ENDPHASE_SIMULATION = "false";
@@ -91,14 +92,10 @@ public class GameEngine implements Runnable{
     private static final String DEFAULT_TURN_DURATION = "60";
 
     private static final int MAX_LENGTH_BATTLECRY = 32;
-    private static final int SETUP_TIMEOUT = 30;
+    private static final int SETUP_TIMEOUT = 10;
     private static final List<Integer> MAP_ID_OPTIONS = new ArrayList<>(Arrays.asList(1,2,3,4));
     private static final List<Integer> EMPTY_MAP_VOTES = Arrays.asList(0,0,0,0);
     private static final List<Integer> SKULL_NUMBER_OPTIONS = new ArrayList<>(Arrays.asList(5,6,7,8));
-
-
-
-    public static boolean test = false;     //TODO: remove once you have rewritten tests
 
     /**
      * Constructs a GameEngine with a list of Player Controller.
@@ -186,14 +183,18 @@ public class GameEngine implements Runnable{
 
             LOGGER.log(Level.FINE, "GameEngine running");
 
-
+            /*
             try {
                 setup();
             }catch (NotEnoughPlayersException e) {
-                exitGame = true;
+                for (VirtualView p : players) {
+                    p.showEnd("There are no enough player to start the game. Try to join another game.");
+                }
+                return;
             }
+            */
 
-//            fakeSetup();
+            fakeSetup();
 
             if (endphaseSimulation) {
                 try {
@@ -205,7 +206,10 @@ public class GameEngine implements Runnable{
                     LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
                 }
             }
-            //else { battleCry(); }
+
+            else {
+                //battleCry();
+            }
 
 
             ExecutorService executor = Executors.newCachedThreadPool();
@@ -326,7 +330,7 @@ public class GameEngine implements Runnable{
         BoardConfigurer.configureKillShotTrack(averageSkullNumber, board);
         try {
             this.killShotTrack = board.getKillShotTrack();
-        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
+        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, KILLSHOT_TRACK_ABSENT_EX, e);}
 
         for (VirtualView p : players) {
             p.display(SKULL_NUMBER_SELECTED + averageSkullNumber + DOT);
@@ -391,9 +395,9 @@ public class GameEngine implements Runnable{
             LOGGER.log(Level.INFO, "added");
             p.getModel().setUsername(p.getName());
             heroList.remove(selectedName);
-            LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
-            if (!test)
-                p.display(HERO_SELECTED + selectedName + BEFORE_ASKING_BATTLECRY);
+            String msg = P + id + " selected " + selectedName + ".";
+            LOGGER.log(Level.INFO,msg);
+            p.display(HERO_SELECTED + selectedName + BEFORE_ASKING_BATTLECRY);
             id++;
         }
 
@@ -633,7 +637,7 @@ public class GameEngine implements Runnable{
      * @throws NotEnoughPlayersException        if less than the minimum number of players are left.
      * @return the player's answer.
      */
-    private String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
+    String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
         long start = System.currentTimeMillis();
         long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
         LOGGER.log(Level.INFO ,"Waiting for {0} answer", current.getName());
@@ -786,7 +790,7 @@ public class GameEngine implements Runnable{
         try {
             this.killShotTrack = board.getKillShotTrack();
         } catch (NotAvailableAttributeException e) {
-            LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while configuring the kill shot track", e);
+            LOGGER.log(Level.SEVERE, KILLSHOT_TRACK_ABSENT_EX, e);
         }
         p1.addDeath();
         p2.addDeath();
@@ -891,7 +895,7 @@ public class GameEngine implements Runnable{
         BoardConfigurer.configureKillShotTrack(6, board);
         try {
             this.killShotTrack = board.getKillShotTrack();
-        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while configuring the kill shot track", e);}
+        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,KILLSHOT_TRACK_ABSENT_EX, e);}
 
         BoardConfigurer.configureDecks(board);
 
@@ -908,7 +912,8 @@ public class GameEngine implements Runnable{
             board.getPlayers().add(p.getModel());
             p.getModel().setUsername(p.getName());
             heroList.remove(selectedName);
-            LOGGER.log(Level.INFO,P + id + " selected " + selectedName + ".");
+            String msg = P + id + " selected " + selectedName + ".";
+            LOGGER.log(Level.INFO, msg);
             id++;
         }
 

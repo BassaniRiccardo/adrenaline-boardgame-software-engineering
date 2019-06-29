@@ -63,8 +63,6 @@ public class TurnManager {
     private static final String ASK_GRENADE_CONFIRMATION = "Do you confirm your decisions about grenades?";
     private static final String ASK_RELOADING_CONFIRMATION = "Do you confirm your choices in the reloading process?";
 
-
-
     private static final String SELECT_POWERUP_TO_DISCARD = "Which powerUp do you want to discard?";
     private static final String SELECT_POWERUP_TO_CONVERT = "Which powerup do you want to convert?";
     private static final String SELECT_POWERUP_TO_USE = "Which powerup do you want to use?";
@@ -74,9 +72,9 @@ public class TurnManager {
     private static final String ASKING_TARGETS_GRENADES = "Asking hit players if they want to use a tagback grenade.";
     private static final String SHOT_YOU = " shot you.";
     private static final String THE_TURN_OF ="The turn of ";
+    private static final String TURN_OF ="Turn of ";
     private static final String CONTINUES = " continues.\n";
     private static final String YOUR_TURN ="Your turn";
-
 
     private static final String DEMAND_USE_POWERUP = "Do you want to use a powerup?";
     private static final String DEMAND_CONVERT_POWERUP = "Do you want to convert a powerup?";
@@ -132,6 +130,11 @@ public class TurnManager {
     public void runTurn() throws NotEnoughPlayersException, SlowAnswerException {
 
         currentPlayerConnection.display(TURN_START);
+        for (VirtualView p : playerConnections){
+            if (!p.equals(currentPlayerConnection)){
+                p.display(TURN_OF + currentPlayer.userToString());
+            }
+        }
 
         dead.clear();
         updateAndSendModel();
@@ -164,7 +167,6 @@ public class TurnManager {
                 LOGGER.log(Level.FINEST, msg);
             }
 
-            //------>checkpoint
             updateAndNotifyAll();
 
             boolean choice1 = handleUsingPowerUp();
@@ -197,36 +199,7 @@ public class TurnManager {
             throw new SlowAnswerException("Exception propagated from TurnManager");
         }
 
-        //checks who died, rewards killers, make the dead draw a power up and respawn
-        for (Player deadPlayer : board.getActivePlayers()) {
-            if (dead.contains(deadPlayer.getId())) {
-                try {
-                    LOGGER.log(Level.FINE, "The killers are awarded for the death of {0}.", deadPlayer);
-                    for (Player p : board.getPlayers()) {
-                        String msg = p + ": damages: " + p.getDamages().size();
-                        LOGGER.log(Level.FINEST, msg);
-                    }
-                    deadPlayer.rewardKillers();
-                    killShotTrack.registerKill(currentPlayer, deadPlayer, deadPlayer.getDamages().size() > 11);
-
-                    //necessary otherwise a reset would give back the damages to the dead
-                    updateAndNotifyAll();
-                    if (!(killShotTrack.getSkullsLeft()==0 && !frenzy || gameEngine.isLastFrenzyPlayer()))
-                        joinBoard(deadPlayer, 1, true);
-                    if (frenzy) {
-                        deadPlayer.setFlipped(true);
-                        deadPlayer.setPointsToGive(2);
-                    }
-                } catch (WrongTimeException | UnacceptableItemNumberException e) {
-                    LOGGER.log(Level.SEVERE, "Exception thrown while resolving the deaths", e);
-                }
-            }
-        }
-        if (dead.size() > 1) {
-            currentPlayer.addPoints(1);
-            LOGGER.log(Level.FINE, () -> currentPlayer + " gets an extra point for the multiple kill!!!");
-        }
-
+        handleDeaths();
         replaceWeapons();
         replaceAmmoTiles();
 
@@ -248,12 +221,13 @@ public class TurnManager {
      *
      * @param player                the player to addList to the board.
      * @param powerUpToDraw         the number of powerups the player has to draw.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
     public void joinBoard(Player player, int powerUpToDraw, boolean reborn) throws SlowAnswerException, NotEnoughPlayersException {
 
         player.setInGame(true);
 
-        //the user draws two powerups
         for (int i = 0; i < powerUpToDraw; i++) {
             try {
                 player.drawPowerUp();
@@ -265,7 +239,7 @@ public class TurnManager {
         //it could give some problems since not all the attributes are available
         board.notifyObservers();
 
-        //asks the user which powerup he wants to discard
+        //asks the player which powerup he wants to discard
         getVirtualView(player).choose(CHOOSE_POWERUP.toString(), SELECT_POWERUP_TO_DISCARD, player.getPowerUpList());
         int selected = Integer.parseInt(gameEngine.wait(getVirtualView(player)));
         PowerUp discarded = player.getPowerUpList().get(selected-1);
@@ -305,6 +279,8 @@ public class TurnManager {
      *
      * @return      true if an actual action is performed by the user.
      *              false otherwise (if the user decides to use or convert a powerup).
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
     public boolean executeAction() throws SlowAnswerException, NotEnoughPlayersException{
 
@@ -353,7 +329,8 @@ public class TurnManager {
 
     /**
      * Interacts with the user showing him the actual actions he can make.
-     *
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
     public void executeActualAction(Action action) throws SlowAnswerException, NotEnoughPlayersException{
 
@@ -393,6 +370,8 @@ public class TurnManager {
      *
      * @return      true if entering the method the player could use a powerup.
      *              false otherwise.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
     public boolean handleUsingPowerUp() throws SlowAnswerException, NotEnoughPlayersException{
 
@@ -433,6 +412,8 @@ public class TurnManager {
     /**
      * Asks the user which powerup he wants to use and how.
      * Activates the effect of the selected powerup.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
     public void usePowerUp() throws SlowAnswerException, NotEnoughPlayersException {
 
@@ -511,6 +492,8 @@ public class TurnManager {
      *
      * @return      true if entering the method the player could use a powerup.
      *              false otherwise.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
     public boolean convertPowerUp(boolean inActions) throws SlowAnswerException, NotEnoughPlayersException {
 
@@ -564,6 +547,8 @@ public class TurnManager {
 
     /**
      * Handles the process of moving.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
     public void handleMoving(Action action) throws SlowAnswerException, NotEnoughPlayersException{
         try {
@@ -620,8 +605,11 @@ public class TurnManager {
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while handling the moving process", e);}
     }
 
+
     /**
      * Handles the process of collecting.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
 
     public void handleCollecting() throws SlowAnswerException, NotEnoughPlayersException {
@@ -690,6 +678,8 @@ public class TurnManager {
 
     /**
      * Handles the process of shooting.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
     public void handleShooting() throws NotAvailableAttributeException, SlowAnswerException, NotEnoughPlayersException{
 
@@ -779,39 +769,25 @@ public class TurnManager {
         else updateAndNotifyAll();
 
         currentPlayerConnection.display(ASKING_TARGETS_GRENADES);
-
-        //grenade
-        for (Player p : board.getActivePlayers()){
-            boolean askConfirmation = false;
-            if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged())
-                getVirtualView(p).display(currentPlayer.userToString() + SHOT_YOU);
-            boolean handleAgain = true;
-            while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleAgain){
-                handleAgain = handleTagbackGrenade(p);
-                askConfirmation = true;
-            }
-            if (askConfirmation) {
-                while (!askConfirmation(ASK_GRENADE_CONFIRMATION, p)) {
-                    statusSaver.restoreCheckpoint();
-                    board.addToUpdateQueue(Updater.getModel(board, p), getVirtualView(p));
-                    board.notifyObserver(getVirtualView(p));
-                    boolean askAgain = true;
-                    while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && askAgain) {
-                        askAgain = handleTagbackGrenade(p);
-                    }
-                }
-                getVirtualView(p).display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
-                updateAndNotifyAll();
-            }
-
-        }
-
+        timer.pause();
+        askTargetsForGrenade();
+        timer.resume();
         currentPlayerConnection.display(YOUR_TURN + CONTINUES);
 
         updateDead();
 
     }
 
+
+    /**
+     * Handles the process of selecting targets and destinations for a specific firemode, asking the user what he wants
+     * to do and applying the effects of the firemode according to his preferences.
+     *
+     * @param fireMode                          the selected firemode.
+     * @throws NotAvailableAttributeException   if thrown by TargetFinder.find() or Firemode.applyEffects().
+     * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
+     */
     private void applyFireMode(FireMode fireMode) throws NotAvailableAttributeException, SlowAnswerException, NotEnoughPlayersException {
 
         board.setReset(false);
@@ -871,9 +847,11 @@ public class TurnManager {
      * @param max       the maximun number the player can reload in the current game phase (1 or 3), ignoring his actual weapons.
      * @return          true if entering the method the player could use a powerup.
      *                  false otherwise.
+     * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
     public boolean reload(int max) throws SlowAnswerException, NotEnoughPlayersException{
-        
+
         int left = max;
 
         board.setReset(false);
@@ -917,6 +895,8 @@ public class TurnManager {
 
     /**
      * Checks if the user can reload weapons and, while he can, offers him the chance to reload it.
+     * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
     public void reloadMandatory() throws SlowAnswerException, NotEnoughPlayersException {
 
@@ -956,6 +936,8 @@ public class TurnManager {
      * @param targets                   the players who have been damaged by the last firemode.
      * @return                          true if the current player decides to use at least one targeting scope.
      *                                  false otherwise.
+     * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
     public boolean handleTargetingScope(Player currentPlayer, List<Player> targets ) throws SlowAnswerException, NotEnoughPlayersException{
 
@@ -972,7 +954,6 @@ public class TurnManager {
                 return true;
             }
             PowerUp targetingScope = currentPlayer.getPowerUps(PowerUp.PowerUpName.TARGETING_SCOPE).get(selected-1);
-
             List<String> optionsTargets = toUserStringList(Arrays.asList(targets));
             optionsTargets.add(RESET);
             currentPlayerConnection.choose(CHOOSE_PLAYER.toString(), SELECT_TARGETS, optionsTargets);
@@ -998,23 +979,65 @@ public class TurnManager {
 
 
     /**
+     * Checks who between the targets can use a tagback grenade.
+     * Ask the suitable targets for their choices and execute them.
+     *
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     * @throws NotAvailableAttributeException          if thrown by Player.hasUsableTagbackGrenade().
+     */
+    public void askTargetsForGrenade() throws SlowAnswerException, NotEnoughPlayersException, NotAvailableAttributeException {
+
+        for (Player p : board.getActivePlayers()) {
+            boolean askConfirmation = false;
+            if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged())
+                getVirtualView(p).display(currentPlayer.userToString() + SHOT_YOU);
+            boolean handleAgain = true;
+            while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleAgain) {
+                handleAgain = handleTagbackGrenade(p);
+                askConfirmation = true;
+            }/*
+            if (askConfirmation) {
+                while (!askConfirmationGrenade(p) ) {
+                    statusSaver.restoreCheckpoint();
+                    board.addToUpdateQueue(Updater.getModel(board, p), getVirtualView(p));
+                    board.notifyObserver(getVirtualView(p));
+                    boolean askAgain = true;
+                    while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && askAgain) {
+                        askAgain = handleTagbackGrenade(p);
+                    }
+                }
+                getVirtualView(p).display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
+                updateAndNotifyAll();
+            }
+            */
+            getVirtualView(p).display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
+            updateAndNotifyAll();
+
+        }
+    }
+
+
+    /**
      * Handles the game phase in which a damaged player has to decide whether to use a tagback grenade against the shooter.
      *
      * @param p         the damaged player.
      * @return          true if the damaged player decided to use at least one tagback grenade.
      *                  false otherwise.
+     * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
     private boolean handleTagbackGrenade(Player p) throws SlowAnswerException, NotEnoughPlayersException{
 
         VirtualView player = getVirtualView(p);
-        player.choose(CHOOSE_STRING.toString(), DEMAND_USE_TAGBACK_GRENADE, new ArrayList(Arrays.asList(YES, NO)) );
-        int answer = Integer.parseInt(gameEngine.wait(player));
+        player.choose(CHOOSE_STRING.toString(), DEMAND_USE_TAGBACK_GRENADE, new ArrayList(Arrays.asList(NO, YES)), 10);
+        int answer = Integer.parseInt(gameEngine.waitShort(player,10));
         if (answer == 1){
             LOGGER.log(Level.FINE, () -> p + "Decides to use a grenade" );
             List<String> optionsGrenade = toStringList(p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE));
             optionsGrenade.add(RESET);
-            player.choose(CHOOSE_POWERUP.toString(), SELECT_TAGBACK_GRENADE, optionsGrenade);
-            int selected = Integer.parseInt(gameEngine.wait(player));
+            player.choose(CHOOSE_POWERUP.toString(), SELECT_TAGBACK_GRENADE, optionsGrenade, 5);
+            int selected = Integer.parseInt(gameEngine.waitShort(player, 5));
             if (selected == optionsGrenade.size()){
                 return (handleTagbackGrenade(p));
             }
@@ -1030,6 +1053,47 @@ public class TurnManager {
         LOGGER.log(Level.FINE, () -> p + "Decides not to use a grenade" );
 
         return false;
+    }
+
+
+    /**
+     * Checks who died during the turn.
+     * Rewards killers, makes the dead draw a power up and respawn.
+     *
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
+     */
+    public void handleDeaths() throws SlowAnswerException, NotEnoughPlayersException{
+
+        for (Player deadPlayer : board.getActivePlayers()) {
+            if (dead.contains(deadPlayer.getId())) {
+                try {
+                    LOGGER.log(Level.FINE, "The killers are awarded for the death of {0}.", deadPlayer);
+                    for (Player p : board.getPlayers()) {
+                        String msg = p + ": damages: " + p.getDamages().size();
+                        LOGGER.log(Level.FINEST, msg);
+                    }
+                    deadPlayer.rewardKillers();
+                    killShotTrack.registerKill(currentPlayer, deadPlayer, deadPlayer.getDamages().size() > 11);
+
+                    //necessary otherwise a reset would give back the damages to the dead
+                    updateAndNotifyAll();
+                    if (!(killShotTrack.getSkullsLeft()==0 && !frenzy || gameEngine.isLastFrenzyPlayer()))
+                        joinBoard(deadPlayer, 1, true);
+                    if (frenzy) {
+                        deadPlayer.setFlipped(true);
+                        deadPlayer.setPointsToGive(2);
+                    }
+                } catch (WrongTimeException | UnacceptableItemNumberException e) {
+                    LOGGER.log(Level.SEVERE, "Exception thrown while resolving the deaths", e);
+                }
+            }
+        }
+        if (dead.size() > 1) {
+            currentPlayer.addPoints(1);
+            LOGGER.log(Level.FINE, () -> currentPlayer + " gets an extra point for the multiple kill!!!");
+        }
+
     }
 
 
@@ -1125,6 +1189,26 @@ public class TurnManager {
 
         getVirtualView(p).choose(CHOOSE_STRING.toString(), request, new ArrayList(Arrays.asList(YES, NO)));
         int answer = Integer.parseInt(gameEngine.wait(getVirtualView(p)));
+        if (answer == 1){
+            LOGGER.log(Level.FINE, "action confirmed");
+            return true;
+        }
+        return false;
+
+    }
+
+    /**
+     * Asks a specific player whether he wants to confirm his last action.
+     *
+     * @param p                 the player the question is asked.
+     * @return                  true if the player decides to confirm the action.
+     * @throws      NotEnoughPlayersException           if thrown by wait().
+     * @throws      SlowAnswerException                 if thrown by wait().
+     */
+    private boolean askConfirmationGrenade(Player p) throws SlowAnswerException,NotEnoughPlayersException{
+
+        getVirtualView(p).choose(CHOOSE_STRING.toString(), ASK_GRENADE_CONFIRMATION, new ArrayList(Arrays.asList(YES, NO)), 5);
+        int answer = Integer.parseInt(gameEngine.waitShort(getVirtualView(p), 5));
         if (answer == 1){
             LOGGER.log(Level.FINE, "action confirmed");
             return true;
@@ -1262,7 +1346,7 @@ public class TurnManager {
     /**
      * Saves the model and sends it to all the connected players.
      */
-    public void updateAndSendModel(){
+    private void updateAndSendModel(){
         statusSaver.updateCheckpoint();
         for(VirtualView p : playerConnections) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
@@ -1274,7 +1358,7 @@ public class TurnManager {
     /**
      * Saves the model and notify all the observers with the updates they must receive.
      */
-    public void updateAndNotifyAll(){
+    private void updateAndNotifyAll(){
         statusSaver.updateCheckpoint();
         board.notifyObservers();
     }
@@ -1284,7 +1368,7 @@ public class TurnManager {
      * Restores the model to the last saved checkpoint, notifies the current player with the restored models and
      * removes the annulled changes form the other players queues.
      */
-    public void restoreAndNotify(){
+    private void restoreAndNotify(){
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
         statusSaver.restoreCheckpoint();
         board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);

@@ -116,6 +116,7 @@ public class BoardConfigurer {
         return board;
     }
 
+
     /**
      * Adds a specified number of players to the board, and coherently sets the number of players.
      *
@@ -190,6 +191,8 @@ public class BoardConfigurer {
      * Sets the ammoTiles and the weapons on the board, drawing from the respective decks.
      *
      * @param board                 the board the ammo tiles and the weapons must be added to.
+     * @throws UnacceptableItemNumberException      if it is thrown by addAllCards().
+     * @throws NoMoreCardsException                 if it is thrown by addAllCards().
      */
     public static void setAmmoTilesAndWeapons(Board board) throws UnacceptableItemNumberException, NoMoreCardsException {
 
@@ -200,6 +203,7 @@ public class BoardConfigurer {
          }
 
     }
+
 
     /**
      * Configures the killShotTrack, depending on the number of skulls selected.
@@ -213,6 +217,7 @@ public class BoardConfigurer {
 
     }
 
+
     /**
      * Simulates a scenario.
      * Selects the fourth board type.
@@ -221,6 +226,8 @@ public class BoardConfigurer {
      * The starting weapons and ammo tiles are placed on the board.
      *
      * @return      the board of the created scenario.
+     * @throws      UnacceptableItemNumberException         if thrown by setAmmoTilesAndWeapons
+     * @throws      NoMoreCardsException                    if thrown by setAmmoTilesAndWeapons
      */
     public static Board simulateScenario() throws UnacceptableItemNumberException, NoMoreCardsException {
 

@@ -99,9 +99,6 @@ public class TurnManager {
     private static final String COMMA = ", ";
 
 
-
-
-
     /**
      * Constructs a turn manager with a reference to the board, the current player and the list of players.
      *
@@ -161,7 +158,8 @@ public class TurnManager {
             }
 
             for (Player p : board.getPlayers()) {
-                LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
+                String msg = p + ": damages: " + p.getDamages().size();
+                LOGGER.log(Level.FINEST, msg);
             }
 
             //------>checkpoint
@@ -203,7 +201,8 @@ public class TurnManager {
                 try {
                     LOGGER.log(Level.FINE, "The killers are awarded for the death of {0}.", deadPlayer);
                     for (Player p : board.getPlayers()) {
-                        LOGGER.log(Level.FINEST, p + ": damages: " + p.getDamages().size());
+                        String msg = p + ": damages: " + p.getDamages().size();
+                        LOGGER.log(Level.FINEST, msg);
                     }
                     deadPlayer.rewardKillers();
                     killShotTrack.registerKill(currentPlayer, deadPlayer, deadPlayer.getDamages().size() > 11);
@@ -331,7 +330,6 @@ public class TurnManager {
 
         if (selected == availableActions.size() + 1){
             if (canUSePowerUp){
-                //handleUsingPowerUp();
                 usePowerUp();
             }
             else convertPowerUp(true);
@@ -495,8 +493,10 @@ public class TurnManager {
 
             if (targets.contains(currentPlayer))
                 LOGGER.log(Level.FINE, () -> "He moves in " + destination.toString() + ".");
-            else
-                LOGGER.log(Level.FINE, "He moves Player " + targets.get(0).getId() + " in " + destination.toString() + ".\n");
+            else {
+                String msg = "He moves Player " + targets.get(0).getId() + " in " + destination.toString() + ".\n";
+                LOGGER.log(Level.FINE, msg);
+            }
         }catch (NotAvailableAttributeException e) {
             LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while searching for the powerup destinations", e);
         }
@@ -595,7 +595,8 @@ public class TurnManager {
             List<String> optionsDest = toStringList(possibleDestinations);
             optionsDest.add(RESET);
 
-            LOGGER.log(Level.FINE, currentPlayer + " is in " + currentPlayer.getPosition());
+            String msg = currentPlayer + " is in " + currentPlayer.getPosition();
+            LOGGER.log(Level.FINE, msg);
             currentPlayerConnection.choose(CHOOSE_SQUARE.toString(), SELECT_WHERE_TO_MOVE, optionsDest);
             int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
             if (selected == optionsDest.size()){
@@ -605,7 +606,8 @@ public class TurnManager {
             Square dest = possibleDestinations.get(selected - 1);
             currentPlayer.setPosition(dest);
             board.notifyObserver(currentPlayerConnection);
-            LOGGER.log(Level.FINE, currentPlayer + " moves in " + currentPlayer.getPosition() + ".");
+            String ms = currentPlayer + " moves in " + currentPlayer.getPosition() + ".";
+            LOGGER.log(Level.FINE, ms);
             //update current player model
             if (!action.isShoot() && !action.isCollect()) {
                 if (!askConfirmation(ASK_MOVEMENT_CONFIRMATION)) resetAction();
@@ -650,7 +652,6 @@ public class TurnManager {
                     }
                     Weapon discardedWeapon = currentPlayer.getWeaponList().get(selected-1);
                     currentPlayer.discardWeapon(discardedWeapon);
-                    //todo maybe move to model
                     discardedWeapon.setLoaded(false);
                     ((WeaponSquare) currentPlayer.getPosition()).addCard(discardedWeapon);
                     board.notifyObserver(currentPlayerConnection);
@@ -688,10 +689,6 @@ public class TurnManager {
     /**
      * Handles the process of shooting.
      */
-
-    //TODO Must be modified implementing a real method instead of a random generator of damage.
-    // Tagback_grenade and targeting scope must be considered too.
-
     public void handleShooting() throws NotAvailableAttributeException, SlowAnswerException, NotEnoughPlayersException{
 
         currentPlayer.getMainTargets().clear();
@@ -786,15 +783,19 @@ public class TurnManager {
             boolean askConfirmation = false;
             if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged())
                 getVirtualView(p).display(currentPlayer.userToString() + SHOT_YOU);
-            while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleTagbackGrenade(p)){
+            boolean handleAgain = true;
+            while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleAgain){
+                handleAgain = handleTagbackGrenade(p);
                 askConfirmation = true;
             }
             if (askConfirmation) {
                 while (!askConfirmation(ASK_GRENADE_CONFIRMATION, p)) {
                     statusSaver.restoreCheckpoint();
-                    board.addToUpdateQueue(Updater.getModel(board, currentPlayer), getVirtualView(p));
+                    board.addToUpdateQueue(Updater.getModel(board, p), getVirtualView(p));
                     board.notifyObserver(getVirtualView(p));
-                    while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleTagbackGrenade(p)) {
+                    boolean askAgain = true;
+                    while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && askAgain) {
+                        askAgain = handleTagbackGrenade(p);
                     }
                 }
                 getVirtualView(p).display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
@@ -805,17 +806,7 @@ public class TurnManager {
 
         currentPlayerConnection.display(YOUR_TURN + CONTINUES);
 
-
-        //update deaths
-        for (Player p: board.getActivePlayers()) {
-            //p.refreshActionList();
-            if (p.isDead() && !dead.contains(p.getId())) {
-                dead.add(p.getId());
-                LOGGER.log(Level.FINE, () -> currentPlayer + " is dead.");
-                if (p.isOverkilled()) LOGGER.log(Level.FINE, "It is an overkill!!!");
-                if (dead.size() > 1) LOGGER.log(Level.FINE, () -> currentPlayer + "Multiple kill for Player " + currentPlayer.getId() + "!!!");
-            }
-        }
+        updateDead();
 
     }
 
@@ -857,7 +848,8 @@ public class TurnManager {
                 return;
             }
             destination = destinations.get(selected - 1);
-            LOGGER.log(Level.FINE, currentPlayer + " select " + destination + " as destination");
+            String msg = currentPlayer + " select " + destination + " as destination";
+            LOGGER.log(Level.FINE, msg);
 
         }
 
@@ -1091,6 +1083,21 @@ public class TurnManager {
         return damages;
     }
 
+    /**
+     * Updates the list of dead players.
+     */
+    public void updateDead() {
+        for (Player p : board.getActivePlayers()) {
+            if (p.isDead() && !dead.contains(p.getId())) {
+                dead.add(p.getId());
+                LOGGER.log(Level.FINE, () -> currentPlayer + " is dead.");
+                if (p.isOverkilled()) LOGGER.log(Level.FINE, "It is an overkill!!!");
+                if (dead.size() > 1)
+                    LOGGER.log(Level.FINE, () -> currentPlayer + "Multiple kill for Player " + currentPlayer.getId() + "!!!");
+            }
+        }
+    }
+
 
     /**
      * Asks the current player whether he wants to confirm his last action.
@@ -1109,6 +1116,8 @@ public class TurnManager {
      * @param request           a string specifying which action must be confirmed or deleted.
      * @param p                 the player the question is asked.
      * @return                  true if the player decides to confirm the action.
+     * @throws      NotEnoughPlayersException           if thrown by wait().
+     * @throws      SlowAnswerException                 if thrown by wait().
      */
     private boolean askConfirmation(String request, Player p) throws SlowAnswerException,NotEnoughPlayersException{
 
@@ -1122,8 +1131,6 @@ public class TurnManager {
 
     }
 
-//TODO check if the probelms that occurred with the powerup is solved now that setInGame is below restorepowerUps
-
 
     /**
      * Deletes the effects of the last joinBoard() call.
@@ -1132,8 +1139,8 @@ public class TurnManager {
      * @param reborn        true if the player is reborning.
      *                      false if the player is joining the board for the first time.
      *
-     * @throws SlowAnswerException
-     * @throws NotEnoughPlayersException
+     * @throws SlowAnswerException              if thrown by joinBoard().
+     * @throws NotEnoughPlayersException        if thrown by joinBoard().
      */
     private void resetJoinBoard(Player p, boolean reborn) throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> p + RESET_ACTION);
@@ -1156,8 +1163,8 @@ public class TurnManager {
      * Resets all players powerups.
      * If it is called during the ending phase, it restarts the ending phase by calling handleUsingPowerUp().
      *
-     * @throws SlowAnswerException
-     * @throws NotEnoughPlayersException
+     * @throws SlowAnswerException                  if thrown by handleUsingPowerUp().
+     * @throws NotEnoughPlayersException            if thrown by handleUsingPowerUp().
      */
     private void resetPowerUp() throws SlowAnswerException, NotEnoughPlayersException{
         restoreAndNotify();
@@ -1171,8 +1178,8 @@ public class TurnManager {
      * Resets the effects of the last convertPowerUp call.
      * If it is called during the ending phase, it restarts the ending phase by calling handleUsingPowerUp(), convertPowerUp().
      *
-     * @throws SlowAnswerException
-     * @throws NotEnoughPlayersException
+     * @throws SlowAnswerException              if thrown by handleUsingPowerUp() or convertPowerUp().
+     * @throws NotEnoughPlayersException        if thrown by handleUsingPowerUp() or convertPowerUp().
      *
      * @return true if a decision about using or converting powerups was taken.
      */
@@ -1192,8 +1199,8 @@ public class TurnManager {
      * If it is called during the ending phase, it restarts the ending phase by calling handleUsingPowerUp(), convertPowerUp(), reload().
      * Increments the number of action left since the last one was annulled.
      *
-     * @throws SlowAnswerException
-     * @throws NotEnoughPlayersException
+     * @throws SlowAnswerException              if thrown by handleUsingPowerUp(), convertPowerUp(), or reload.
+     * @throws NotEnoughPlayersException        if thrown by handleUsingPowerUp(), convertPowerUp(), or reload.
      */
     private void resetAction() throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
@@ -1293,4 +1300,12 @@ public class TurnManager {
     public VirtualView getVirtualView(Player p){
         return playerConnections.get(board.getPlayers().indexOf(p));
     }
+
+
+    /**
+     * Returns the IDs of the dead players. Only for testing.
+     *
+     * @return the IDs of the dead players.
+     */
+    public List<Integer> getDead() {return dead;}
 }

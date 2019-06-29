@@ -4,7 +4,6 @@ import com.google.gson.*;
 import it.polimi.ingsw.model.cards.*;
 
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static it.polimi.ingsw.model.cards.Color.*;

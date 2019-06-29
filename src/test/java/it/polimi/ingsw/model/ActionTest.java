@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 
 public class ActionTest {
 
+
     /**
      * Tests the confrontation between an Action and itself
      */

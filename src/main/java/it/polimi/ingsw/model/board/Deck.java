@@ -23,6 +23,8 @@ public class Deck {
     private List<Card> drawable;
     private List<Card> discarded;
 
+    private static final int DRAWN_CARD_INDEX = 0;
+
 
     /**
      * Constructs an empty deck.
@@ -79,12 +81,13 @@ public class Deck {
      * Draws a card form the deck.
      *
      * @return          the drawn card.
+     * @throws  NoMoreCardsException    if there are no drawable cards.
      */
     public Card drawCard() throws NoMoreCardsException {
 
         try{
-            Card drawn = drawable.get(0);
-            drawable.remove(0);
+            Card drawn = drawable.get(DRAWN_CARD_INDEX);
+            drawable.remove(DRAWN_CARD_INDEX);
             return drawn;
         }
         catch (IndexOutOfBoundsException e)
@@ -105,6 +108,8 @@ public class Deck {
 
     /**
      * Regenerates the deck, by shuffling the discarded cards and adding them to the drawable cards.
+     *
+     * @throws WrongTimeException if there are still drawable cards.
      */
     public void regenerate() throws WrongTimeException {
 

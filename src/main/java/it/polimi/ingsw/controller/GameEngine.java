@@ -91,6 +91,12 @@ public class GameEngine implements Runnable{
     private static final String DEFAULT_TURN_DURATION = "60";
 
     private static final int MAX_LENGTH_BATTLECRY = 32;
+    private static final int SETUP_TIMEOUT = 30;
+    private static final List<Integer> MAP_ID_OPTIONS = new ArrayList<>(Arrays.asList(1,2,3,4));
+    private static final List<Integer> EMPTY_MAP_VOTES = Arrays.asList(0,0,0,0);
+    private static final List<Integer> SKULL_NUMBER_OPTIONS = new ArrayList<>(Arrays.asList(5,6,7,8));
+
+
 
     public static boolean test = false;     //TODO: remove once you have rewritten tests
 
@@ -142,6 +148,7 @@ public class GameEngine implements Runnable{
 
     public boolean isGameOver() {return gameOver; }
 
+
     /**
      *  Setters
      */
@@ -179,16 +186,16 @@ public class GameEngine implements Runnable{
 
             LOGGER.log(Level.FINE, "GameEngine running");
 
-/*
+
             try {
                 setup();
             }catch (NotEnoughPlayersException e) {
                 exitGame = true;
             }
 
-*/
 
-            fakeSetup();
+
+//            fakeSetup();
 
             if (endphaseSimulation) {
                 try {
@@ -246,6 +253,7 @@ public class GameEngine implements Runnable{
     /**
      * Sets up the game.
      *
+     * @throws NotEnoughPlayersException    if thrown by configureMap(), configureKillShotTrack(), configureFrenzyOption() or configurePlayers().
      */
     public void setup() throws NotEnoughPlayersException{
 
@@ -271,19 +279,19 @@ public class GameEngine implements Runnable{
 
     /**
      * Configures the map asking the players for their preference.
+     *
+     * @throws      NotEnoughPlayersException           if thrown by waitShort().
      */
     private void configureMap() throws NotEnoughPlayersException{
 
-        List<Integer> mapIDs = new ArrayList<>(Arrays.asList(1,2,3,4));
-        List<Integer> votes = new ArrayList<>(Arrays.asList(0,0,0,0));
-
+        List<Integer> votes = new ArrayList<>(EMPTY_MAP_VOTES);
 
         for(VirtualView p : players) {
-            p.choose(CHOOSE_STRING.toString(), MAP_REQUEST, mapIDs, 20);
+            p.choose(CHOOSE_STRING.toString(), MAP_REQUEST, MAP_ID_OPTIONS, SETUP_TIMEOUT);
         }
 
         for(VirtualView p : players) {
-            int vote = Integer.parseInt(waitShort(p, 20));
+            int vote = Integer.parseInt(waitShort(p, SETUP_TIMEOUT));
             votes.set(vote-1, votes.get(vote-1)+1);
         }
         int mapId = votes.indexOf(Collections.max(votes)) + 1;
@@ -302,17 +310,18 @@ public class GameEngine implements Runnable{
 
     /**
      * Configures the kill shot track asking the players for their preference.
+     *
+     * @throws      NotEnoughPlayersException           if thrown by waitShort().
      */
     private void configureKillShotTrack() throws NotEnoughPlayersException{
 
-        List<Integer> skullsOptions = new ArrayList<>(Arrays.asList(5,6,7,8));
         int totalSkullNumber = 0;
 
         for (VirtualView p : players) {
-            p.choose(CHOOSE_STRING.toString(), SKULL_NUMBER_REQUEST, skullsOptions, 20);
+            p.choose(CHOOSE_STRING.toString(), SKULL_NUMBER_REQUEST, SKULL_NUMBER_OPTIONS, SETUP_TIMEOUT);
         }
         for (VirtualView p : players) {
-            int selected = Integer.parseInt(waitShort(p, 20));
+            int selected = Integer.parseInt(waitShort(p, SETUP_TIMEOUT));
             totalSkullNumber = totalSkullNumber + selected + 4;
         }
 
@@ -332,18 +341,20 @@ public class GameEngine implements Runnable{
 
     /**
      * Configures the frenzy option asking the players for their preference.
+     *
+     * @throws      NotEnoughPlayersException           if thrown by waitShort().
      */
-    private void configureFrenzyOption()throws NotEnoughPlayersException{
+    private void configureFrenzyOption() throws NotEnoughPlayersException{
 
         List<String> frenzyOptions = new ArrayList<>();
         int yes = 0;
         int no = 0;
         frenzyOptions.addAll(Arrays.asList(YES, NO));
         for (VirtualView p: players) {
-            p.choose(CHOOSE_STRING.toString(), FRENZY_REQUEST, frenzyOptions, 20);
+            p.choose(CHOOSE_STRING.toString(), FRENZY_REQUEST, frenzyOptions, SETUP_TIMEOUT);
         }
         for(VirtualView p : players){
-            if(Integer.parseInt(waitShort(p, 20))==1) yes++;
+            if(Integer.parseInt(waitShort(p, SETUP_TIMEOUT))==1) yes++;
             else no++;
         }
         if (yes>=no) {
@@ -362,6 +373,8 @@ public class GameEngine implements Runnable{
     /**
      * Adds to the board the players connected to the game.
      * Asks the players which hero they want, providing only the remaining options.
+     *
+     * @throws      NotEnoughPlayersException           if thrown by waitShort().
      */
     private void configurePlayers() throws NotEnoughPlayersException{
 
@@ -369,8 +382,8 @@ public class GameEngine implements Runnable{
         int id = 1;
 
         for(VirtualView p : players) {
-            p.choose(CHOOSE_STRING.toString(), HERO_REQUEST, heroList, 20);
-            int selected = Integer.parseInt(waitShort(p, 20));
+            p.choose(CHOOSE_STRING.toString(), HERO_REQUEST, heroList, SETUP_TIMEOUT);
+            int selected = Integer.parseInt(waitShort(p, SETUP_TIMEOUT));
             LOGGER.log(Level.INFO, "selected {0}", selected);
             LOGGER.log(Level.INFO, "index: {0}", players.indexOf(p));
             LOGGER.log(Level.INFO, "{0}", heroList);
@@ -389,6 +402,11 @@ public class GameEngine implements Runnable{
 
     }
 
+
+    /**
+     * Asks each player to input a battle-cry.
+     * After everybody chose his battle-cry, shows every player the other players battle-cries.
+     */
     public void battleCry() {
         List<String> battleCries = new ArrayList<>();
         for (VirtualView p : players) {
@@ -479,6 +497,8 @@ public class GameEngine implements Runnable{
      * A turn can be a normal turn or a turn of the frenzy phase.
      *
      * @param frenzy                whether the frenzy is active during the turn.
+     * @throws NotEnoughPlayersException        if thrown by TurnManager.runTurn().
+     * @throws SlowAnswerException              if thrown by TurnManager.runTurn().
      */
     public void runTurn (boolean frenzy) throws NotEnoughPlayersException, SlowAnswerException{
         for(VirtualView p : players) {
@@ -607,18 +627,19 @@ public class GameEngine implements Runnable{
         return builder.toString();
     }
 
+
     /**
      * Waits for a player's input. If player takes too long to answer, default answer "1" is returned. Used in the game configuration phase.
      *
-     * @param current       player to wait for
-     * @param timeout       timeout
-     * @throws NotEnoughPlayersException    if less than the minimum number of players are left
-     * @return the player's answer
+     * @param current       the player to wait for.
+     * @param timeout       timeout.
+     * @throws NotEnoughPlayersException        if less than the minimum number of players are left.
+     * @return the player's answer.
      */
     private String waitShort(VirtualView current, int timeout) throws NotEnoughPlayersException{
         long start = System.currentTimeMillis();
         long timeoutMillis = TimeUnit.SECONDS.toMillis(timeout);
-        LOGGER.log(Level.INFO ,"Waiting for {0}'s answer", current.getName());
+        LOGGER.log(Level.INFO ,"Waiting for {0} answer", current.getName());
         while(!hasAnswered(current)){
             checkForSuspension();
             try {
@@ -641,16 +662,17 @@ public class GameEngine implements Runnable{
         }
     }
 
+
     /**
-     * Wait for a player's input for as long as needed (or until the turn timer runs out)
+     * Wait for a player's input for as long as needed (or until the turn timer runs out).
      *
-     * @param current       player to wait for
-     * @throws SlowAnswerException      if the turn timer runs out
-     * @throws NotEnoughPlayersException    if less than the minimum number of players are left
-     * @return the player's answer
+     * @param current                       the player to wait for.
+     * @throws SlowAnswerException          if the turn timer runs out.
+     * @throws NotEnoughPlayersException    if less than the minimum number of players are left.
+     * @return                              the player's answer.
      */
     public String wait(VirtualView current) throws SlowAnswerException, NotEnoughPlayersException{
-        LOGGER.log(Level.INFO ,"Waiting for {0}'s answer", current);
+        LOGGER.log(Level.INFO ,"Waiting for {0} answer", current);
         while(!hasAnswered(current)){
             checkForSuspension();
             try {
@@ -740,13 +762,14 @@ public class GameEngine implements Runnable{
         if (players.stream().filter(x->!x.isSuspended()).count() < MIN_PLAYERS) throw new NotEnoughPlayersException("Not enough players to continue the game. Game over");
     }
 
+
     /**
      * Sets the game in such a way that only a skull is left on the killshot track.
      * Three players are set on the board and they are given some damages.
      * The killshot track, the player points, deaths and status are set in a coherent way.
      * The method is used to allow to reach quickly the end of the game.
      *
-     * @throws NotAvailableAttributeException
+     * @throws NotAvailableAttributeException           if it is thrown by getKillShotTrack().
      */
     public void simulateTillEndphase() throws NotAvailableAttributeException {
 
@@ -760,7 +783,6 @@ public class GameEngine implements Runnable{
         p2.setPosition(board.getMap().get(4));
         p3.setInGame(true);
         p3.setPosition(board.getMap().get(11));
-
 
         //simulates all the previous deaths
         BoardConfigurer.configureKillShotTrack(1, board);
@@ -802,6 +824,7 @@ public class GameEngine implements Runnable{
 
     }
 
+
     /**
      * Checks if a certain player can resume, and if so, adds it to a waiting list
      *
@@ -818,6 +841,7 @@ public class GameEngine implements Runnable{
         }
         return false;
     }
+
 
     /**
      * After every turn, this function is called to allow players who have requested to resume back in the game.
@@ -855,6 +879,10 @@ public class GameEngine implements Runnable{
         this.turnDuration = Integer.parseInt(prop.getProperty(TURN_DURATION, DEFAULT_TURN_DURATION));
     }
 
+
+    /**
+     * A fake set up to allow for quicker testing.
+     */
     public void fakeSetup(){
 
         board = BoardConfigurer.configureMap(4);

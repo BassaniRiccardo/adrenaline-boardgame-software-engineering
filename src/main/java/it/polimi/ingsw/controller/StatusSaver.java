@@ -73,6 +73,7 @@ public class StatusSaver {
         return squareWeapons;
     }
 
+
     /**
      * Constructs a StatusSaver with a reference to the board.
      *
@@ -93,6 +94,7 @@ public class StatusSaver {
         squareWeapons = new ArrayList<>();
 
     }
+
 
     /**
      * Updates the last checkpoint which will be restored by the method restoreCheckpoint().

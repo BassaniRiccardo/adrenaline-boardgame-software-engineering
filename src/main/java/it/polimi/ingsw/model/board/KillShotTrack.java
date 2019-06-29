@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static it.polimi.ingsw.model.board.Board.MAX_SKULL_NUMBER;
+
 /**
  * Represents the kill shot track of the board.
  * Registers the kills memorizing the killer for each kill.
@@ -24,6 +26,13 @@ public class KillShotTrack {
     private List<Player> killers;
     private Board board;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
+    private static final int MAX_POINTS_TO_GIVE_KILLSHOT_TRACK = 8;
+    private static final int POINTS_TO_GIVE_STANDARD_DECREASE = 2;
+    private static final int POINTS_TO_GIVE_LAST_DECREASE = 1;
+    private static final int THRESHOLD_FOR_LAST_DECREASE = 2;
+
+
+
 
 
     /**
@@ -31,11 +40,11 @@ public class KillShotTrack {
      *
      * @param skullsNumber  the number of skulls to addList to the track.
      * @param board         the board the kill shot track is in.
-     * @throws              IllegalArgumentException
+     * @throws              IllegalArgumentException if the number of skulls is higher than 8.
      */
     public KillShotTrack(int skullsNumber, Board board) {
 
-        if (skullsNumber > 8) throw new IllegalArgumentException("The number of skulls can not be higher than 8.");
+        if (skullsNumber > MAX_SKULL_NUMBER) throw new IllegalArgumentException("The number of skulls can not be higher than " + MAX_SKULL_NUMBER + ".");
 
         this.skullsLeft = skullsNumber;
         this.killers = new ArrayList<>();
@@ -87,13 +96,15 @@ public class KillShotTrack {
      *
      * @param killer        the player who killed the opponent.
      * @param dead          the player who had been killed by the opponent.
-     * @param overkill      whether the killer overkilled the opponent
-     * @throws              UnacceptableItemNumberException
+     * @param overkill      whether the killer overkilled the opponent.
+     * @throws              UnacceptableItemNumberException     if thrown by removeSkulls().
+     * @throws              WrongTimeException                  if the player in the "dead" parameter is not dead.
+     * @throws              IllegalArgumentException            if the killer and the dead are the same player.
      */
     public void registerKill(Player killer, Player dead, boolean overkill) throws UnacceptableItemNumberException, WrongTimeException {
 
         if (!dead.isDead())         throw new WrongTimeException("A kill can be registered only when a player dies.");
-        if (killer.equals(dead))    throw new IllegalArgumentException("The killer and the dead can not be the same person,");
+        if (killer.equals(dead))    throw new IllegalArgumentException("The killer and the dead can not be the same player.");
         killers.add(killer);
         boolean ok = false;
         if (overkill){
@@ -104,7 +115,7 @@ public class KillShotTrack {
             dead.updateAwards();
             removeSkulls(1);
             board.addToUpdateQueue(Updater.get(Updater.SKULL_NUMBER_PROP, 1, killer, ok));
-            LOGGER.log(Level.INFO, "Skulls left: " + skullsLeft + ".");
+            LOGGER.log(Level.INFO, "Skulls left: {0}. ", skullsLeft);
         }
         else {
             dead.setDead(false);
@@ -128,15 +139,16 @@ public class KillShotTrack {
         board.sort(playersToReward, killers);
 
         //assigns the points
-        int pointsToGive =8;
+        int pointsToGive = MAX_POINTS_TO_GIVE_KILLSHOT_TRACK;
         for(Player p : playersToReward){
             if (killers.contains(p)){
                 p.addPoints(pointsToGive);
-                LOGGER.log(Level.INFO, p.getId() + " gains " + pointsToGive + " points.");
+                String msg = p.getId() + " gains " + pointsToGive + " points.";
+                LOGGER.log(Level.INFO, msg);
 
             }
-            if (pointsToGive==2) pointsToGive-= 1;
-            else pointsToGive -= 2;
+            if (pointsToGive == THRESHOLD_FOR_LAST_DECREASE) pointsToGive -= POINTS_TO_GIVE_LAST_DECREASE;
+            else pointsToGive -= POINTS_TO_GIVE_STANDARD_DECREASE;
         }
 
     }

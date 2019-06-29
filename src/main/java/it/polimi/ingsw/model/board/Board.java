@@ -1,7 +1,7 @@
 package it.polimi.ingsw.model.board;
 
 import com.google.gson.JsonObject;
-import it.polimi.ingsw.model.Updater;
+import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.network.server.VirtualView;
 
@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static it.polimi.ingsw.controller.ServerMain.MAX_PLAYERS;
+import static it.polimi.ingsw.controller.ServerMain.MIN_PLAYERS;
 import static it.polimi.ingsw.model.cards.Color.*;
 import static java.util.Collections.frequency;
 
@@ -51,6 +53,22 @@ public class Board {
     private boolean reset;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
+    private static final String END_DECK_EXCEPTION_STIRNG = " drawable cards and 0 discards at the beginning of the game";
+    private static final String ADDING_UPDATE = " Adding update ";
+    static final int MIN_MAP_SIZE_MINUS_ROOM_ID = 6;
+    static final int MIN_ROOM_ID = 1;
+    static final int MAX_SKULL_NUMBER =8;
+    private static final int WEAPONS_DECK_STARTING_SIZE = 21;
+    private static final int POWERUP_DECK_STARTING_SIZE = 24;
+    private static final int AMMO_DECK_STARTING_SIZE = 36;
+    private static final int NUMBER_OF_SPAWN_POINTS = 3;
+    static final int MAP_ROWS = 3;
+    static final int MAP_COLUMNS = 4;
+    private static final int MIN_MAP_SIZE = 10;
+    private static final int MAX_MAP_SIZE = 12;
+    private static final int MAX_DISTANCE = 6;
+
+
 
 
 
@@ -172,6 +190,7 @@ public class Board {
      * Getter for killShotTrack.
      *
      * @return      the kill shot track.
+     * @throws      NotAvailableAttributeException      if the killshot track has not been set yet.
      */
     public KillShotTrack getKillShotTrack() throws NotAvailableAttributeException {
         if (killShotTrack == null){
@@ -189,11 +208,34 @@ public class Board {
         return currentPlayer;
     }
 
+    /**
+     * Getter for leftWalls
+     *
+     * @return      the left walls.
+     */
     public boolean[][] getLeftWalls() { return leftWalls; }
 
+    /**
+     * Getter for topWalls.
+     *
+     * @return      the top walls.
+     */
     public boolean[][] getTopWalls() { return topWalls; }
 
+    /**
+     * Getter for reset.
+     *
+     * @return      the value of rest.
+     */
     public boolean isReset() {return reset; }
+
+
+    /**
+     * Getter for id.
+     *
+     * @return      the board id.
+     */
+    public int getId(){return id; }
 
     /**
      * Setter for map.
@@ -201,36 +243,45 @@ public class Board {
      * @param map   the value to assign to map.
      */
     public void setMap(List<Square> map) {
-        if (map.size() < 10 || map.size() > 12){
+        if (map.size() < MIN_MAP_SIZE || map.size() > MAX_MAP_SIZE){
             throw new IllegalArgumentException ("The map must contain between 10 and 12 squares");
         }
         this.map = map;
     }
 
-
-
     /**
      * Setter for leftWalls.
      *
      * @param leftWalls   the value to assign to leftWalls.
-     * @throws          IllegalArgumentException
+     * @throws          IllegalArgumentException        if the matrix of left walls is not of dimension 3x4.
      */
     public void setLeftWalls(boolean[][] leftWalls) {
-        if (leftWalls.length!=3 || leftWalls[0].length !=4 || leftWalls[1].length !=4 || leftWalls[2].length !=4){
-            throw new IllegalArgumentException ("The matrix of left walls must be of dimension 3x4");
+        if (leftWalls.length != MAP_ROWS) {
+            throw new IllegalArgumentException("The matrix of left walls must have" + MAP_ROWS + "rows");
+        }
+        for (int i = 0; i < MAP_ROWS; i++) {
+            if (leftWalls[i].length != MAP_COLUMNS) {
+                throw new IllegalArgumentException("The matrix of left walls must have" + MAP_COLUMNS + "rows");
+            }
         }
         this.leftWalls = leftWalls;
+
     }
 
     /**
      * Setter for topWalls.
      *
      * @param topWalls   the value to assign to topWalls.
-     * @throws          IllegalArgumentException
+     * @throws          IllegalArgumentException        if the matrix of top walls is not of dimension 3x4.
      */
     public void setTopWalls(boolean[][] topWalls) {
-        if (topWalls.length!=3 || topWalls[0].length !=4 || topWalls[1].length !=4 || topWalls[2].length !=4){
-            throw new IllegalArgumentException ("The matrix of top walls must be of dimension 3x4");
+        if (topWalls.length != MAP_ROWS) {
+            throw new IllegalArgumentException("The matrix of top walls must have" + MAP_ROWS + "rows");
+        }
+        for (int i = 0; i < MAP_ROWS; i++) {
+            if (topWalls[i].length != MAP_COLUMNS) {
+                throw new IllegalArgumentException("The matrix of top walls must have" + MAP_COLUMNS + "rows");
+            }
         }
         this.topWalls = topWalls;
     }
@@ -239,39 +290,39 @@ public class Board {
      * Setter for spawnPoints.
      *
      * @param spawnPoints       the value to assign to spawnPoints.
+     * @throws IllegalArgumentException     if the spawn points are not red, blue or yellow, if they are not of distinct colors or if they are not in distinct rooms.
      */
     public void setSpawnPoints(List<WeaponSquare> spawnPoints) {
-        if (spawnPoints.size() != 3){
-            throw new IllegalArgumentException ("There must be three spawn points");
+        if (spawnPoints.size() != NUMBER_OF_SPAWN_POINTS){
+            throw new IllegalArgumentException ("There must be " + NUMBER_OF_SPAWN_POINTS + " spawn points");
         }
-        if (spawnPoints.get(0).getColor() != RED && spawnPoints.get(0).getColor() != BLUE && spawnPoints.get(0).getColor() != YELLOW ||
-            spawnPoints.get(1).getColor() != RED && spawnPoints.get(1).getColor() != BLUE && spawnPoints.get(1).getColor() != YELLOW ||
-            spawnPoints.get(2).getColor() != RED && spawnPoints.get(2).getColor() != BLUE && spawnPoints.get(2).getColor() != YELLOW ){
-             throw new IllegalArgumentException("The spawn points must be red, blue or yellow");
-        }
-        if (spawnPoints.get(0).getColor()==spawnPoints.get(1).getColor() ||
-            spawnPoints.get(0).getColor()==spawnPoints.get(2).getColor() ||
-            spawnPoints.get(1).getColor()==spawnPoints.get(2).getColor()){
-            throw new IllegalArgumentException ("The spawn points must be of distinct colors");
-
-        }
-        if (spawnPoints.get(0).getRoomId()==spawnPoints.get(1).getRoomId() ||
-                spawnPoints.get(0).getRoomId()==spawnPoints.get(2).getRoomId() ||
-                spawnPoints.get(1).getRoomId()==spawnPoints.get(2).getRoomId()){
-            throw new IllegalArgumentException ("The spawn points must be in distinct rooms");
-
+        List<Color> alreadyTakenColors = new ArrayList<>();
+        List<Integer> alreadyTakenRooms = new ArrayList<>();
+        for (WeaponSquare s : spawnPoints){
+            if (s.getColor() != RED && s.getColor() != BLUE && s.getColor() != YELLOW)
+                throw new IllegalArgumentException("The spawn points must be red, blue or yellow");
+            if (alreadyTakenColors.contains(s.getColor()))
+                throw new IllegalArgumentException ("The spawn points must be of distinct colors");
+            else
+                alreadyTakenColors.add(s.getColor());
+            if (alreadyTakenRooms.contains(s.getRoomId()))
+                throw new IllegalArgumentException ("The spawn points must be in distinct rooms");
+            else
+                alreadyTakenRooms.add(s.getRoomId());
         }
         this.spawnPoints = spawnPoints;
     }
+
 
     /**
      * Setter for players.
      *
      * @param players   the value to assign to players.
+     * @throws IllegalArgumentException if the number of players is not between 3 and 5.
      */
     public void setPlayers(List<Player> players) {
 
-        if (players.size() < 3 || players.size() > 5){
+        if (players.size() < MIN_PLAYERS || players.size() > MAX_PLAYERS ){
             throw new IllegalArgumentException ("The number of players must be between 3 and 5");
         }
         this.players = players;
@@ -281,10 +332,11 @@ public class Board {
      * Setter for weaponDeck.
      *
      * @param weaponDeck   the value to assign to weaponDeck.
+     * @throws IllegalArgumentException if the weapon deck does not contain 21 drawable cards and 0 discards.
      */
     public void setWeaponDeck(Deck weaponDeck) {
-        if (weaponDeck.getDrawable().size() != 21 || !weaponDeck.getDiscarded().isEmpty()){
-            throw new IllegalArgumentException ("The weapon deck must contain 21 drawable cards and 0 discards at the beginning of the game");
+        if (weaponDeck.getDrawable().size() != WEAPONS_DECK_STARTING_SIZE || !weaponDeck.getDiscarded().isEmpty()){
+            throw new IllegalArgumentException ("The weapon deck must contain " + WEAPONS_DECK_STARTING_SIZE + END_DECK_EXCEPTION_STIRNG);
         }
         this.weaponDeck = weaponDeck;
     }
@@ -293,10 +345,11 @@ public class Board {
      * Setter for powerUpDeck.
      *
      * @param powerUpDeck   the value to assign to powerUpDeck.
+     * @throws IllegalArgumentException if the power up deck does not contain 24 drawable cards and 0 discards.
      */
     public void setPowerUpDeck(Deck powerUpDeck) {
-        if (powerUpDeck.getDrawable().size() != 24 || !powerUpDeck.getDiscarded().isEmpty()){
-            throw new IllegalArgumentException ("The power up deck must contain 24 drawable cards and 0 discards at the beginning of the game");
+        if (powerUpDeck.getDrawable().size() != POWERUP_DECK_STARTING_SIZE || !powerUpDeck.getDiscarded().isEmpty()){
+            throw new IllegalArgumentException ("The power up deck must contain " + POWERUP_DECK_STARTING_SIZE + END_DECK_EXCEPTION_STIRNG);
         }
         this.powerUpDeck = powerUpDeck;
     }
@@ -305,10 +358,11 @@ public class Board {
      * Setter for ammoDeck.
      *
      * @param ammoDeck   the value to assign to ammoDeck.
+     * @throws IllegalArgumentException if the ammo tile deck does not contain 36 drawable cards and 0 discards.
      */
     public void setAmmoDeck(Deck ammoDeck) {
-        if (ammoDeck.getDrawable().size() != 36 || !ammoDeck.getDiscarded().isEmpty()){
-            throw new IllegalArgumentException ("The ammo tile deck must contain 36 drawable cards and 0 discards at the beginning of the game");
+        if (ammoDeck.getDrawable().size() != AMMO_DECK_STARTING_SIZE  || !ammoDeck.getDiscarded().isEmpty()){
+            throw new IllegalArgumentException ("The ammo tile deck must contain " + AMMO_DECK_STARTING_SIZE + END_DECK_EXCEPTION_STIRNG);
         }
         this.ammoDeck = ammoDeck;
     }
@@ -317,11 +371,11 @@ public class Board {
      * Setter for killShotTrack.
      *
      * @param killShotTrack   the value to assign to killShotTrack.
-     * @throws                IllegalArgumentException
+     * @throws                IllegalArgumentException if the number of skulls on the kill shot track is higher than 8.
      */
     public void setKillShotTrack(KillShotTrack killShotTrack) {
-        if (killShotTrack.getSkullsLeft() > 8){
-            throw new IllegalArgumentException ("The number of skulls on the kill shot track must be between 5 and 8");
+        if (killShotTrack.getSkullsLeft() > MAX_SKULL_NUMBER){
+            throw new IllegalArgumentException ("The number of skulls on the kill shot track must be at maximum " + MAX_SKULL_NUMBER);
         }
         this.killShotTrack = killShotTrack;
     }
@@ -333,7 +387,20 @@ public class Board {
      */
     public void setCurrentPlayer(Player currentPlayer){this.currentPlayer= currentPlayer;}
 
+
+    /**
+     * Setter for reset
+     *
+     * @param reset   the value to assign to reset.
+     */
     public void setReset(boolean reset) {this.reset = reset; }
+
+    /**
+     * Setter for id
+     *
+     * @param id   the value to assign to id.
+     */
+    public void setId(int id) {this.id = id; }
 
     /**
      * Returns the players in the specified square.
@@ -432,11 +499,11 @@ public class Board {
      *
      * @param roomId    the id of the room.
      * @return          the squares in the room.
-     * @throws          IllegalArgumentException
+     * @throws          IllegalArgumentException if no room with the specified ID is present in the current map.
      */
     public List<Square> getSquaresInRoom (int roomId){
 
-        if ( roomId < 1 ||this.getMap().size() - roomId < 6) {
+        if ( roomId < MIN_ROOM_ID || this.getMap().size() - roomId < MIN_MAP_SIZE_MINUS_ROOM_ID) {
             throw new IllegalArgumentException("This map does not contain so many rooms");
         }
         List<Square> inRoom = new ArrayList<>();
@@ -517,7 +584,7 @@ public class Board {
      * @param start         the starting square.
      * @param dest          the destination square.
      * @return              the distance in steps.
-     * @throws              IllegalArgumentException
+     * @throws              IllegalArgumentException    if one of the squares does not belong to the board.
      */
     public int getDistance(Square start, Square dest) {
 
@@ -525,7 +592,7 @@ public class Board {
             throw new IllegalArgumentException("The squares must belong to the board.");
         }
 
-        List<List<Square>> levels = new ArrayList<>(6);
+        List<List<Square>> levels = new ArrayList<>(MAX_DISTANCE);
 
         levels.add(new ArrayList<>());
         levels.get(0).add(start);
@@ -535,13 +602,9 @@ public class Board {
         levels.add(new ArrayList<>());
         levels.add(new ArrayList<>());
 
-        for (int i = 2; i < 6; i++) {
-            Iterator<Square> levelIt = levels.get(i - 1).iterator();
-            while (levelIt.hasNext()) {
-                Square lev = levelIt.next();
-                Iterator<Square> levelAdjIt = getAdjacent(lev).iterator();
-                while (levelAdjIt.hasNext()) {
-                    Square levAdj = levelAdjIt.next();
+        for (int i = 2; i < MAX_DISTANCE; i++) {
+            for (Square lev : levels.get(i - 1)) {
+                for (Square levAdj : getAdjacent(lev)) {
                     boolean alreadyReached = false;
                     int j = i;
                     while (j > 0 && !alreadyReached) {
@@ -556,6 +619,7 @@ public class Board {
                 }
             }
         }
+
         for (List<Square> lev: levels) {
             if (lev.contains(dest)){
                 return levels.indexOf(lev);
@@ -583,6 +647,7 @@ public class Board {
 
     }
 
+
     /**
      * Returns whether two squares are in line moving down from the starting square.
      *
@@ -599,6 +664,7 @@ public class Board {
                 destRow == startRow + 2 && !topWalls[destRow-1][destCol-1] && !topWalls[destRow-1-1][startCol-1]));
 
     }
+
 
     /**
      * Returns whether two squares are in line moving left from the starting square.
@@ -618,6 +684,7 @@ public class Board {
                         && !leftWalls[destRow-1][startCol-2-1] ));
 
     }
+
 
     /**
      * Returns whether two squares are in line moving right from the starting square.
@@ -640,10 +707,10 @@ public class Board {
 
     /**
      * Sorts a list of players depending on the occurrences in a specified list of players.
-     * Used by both Player and KillShotTrack
+     * Used by both Player and KillShotTrack.
      *
-     * @param playersToSort
-     * @param occurrences
+     * @param playersToSort         the list of players to sort.
+     * @param occurrences           the list of occurrences.
      */
     public void sort(List<Player> playersToSort, List<Player> occurrences){
         Collections.sort(playersToSort, (p1,p2) -> {
@@ -658,6 +725,12 @@ public class Board {
         });
     }
 
+
+    /**
+     * Returns the board ammo squares.
+     *
+     * @return  the board ammo squares.
+     */
     public List<AmmoSquare> getAmmoSquares(){
 
         List<AmmoSquare> l = new ArrayList<>();
@@ -669,13 +742,6 @@ public class Board {
         return l;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId(){
-        return id;
-    }
 
     /**
      * Registers VirtualView as an observer
@@ -687,6 +753,7 @@ public class Board {
         updates.put(p, new ArrayList<>());
     }
 
+
     /**
      * Removes VirtualView p from list of observers
      * @param p     the VirtualView to be removed
@@ -694,6 +761,7 @@ public class Board {
     public void removeObserver(VirtualView p){
         observers.remove(p);
     }
+
 
     /**
      * Notifies all observers with model update messages
@@ -703,6 +771,7 @@ public class Board {
             notifyObserver(p);
         }
     }
+
 
     /**
      * Notifies only VirtualView p
@@ -716,18 +785,20 @@ public class Board {
         updates.get(p).clear();
     }
 
+
     /**
      * Adds a single update to all update queues.
      * @param jsonObject    the single update
      */
     public void addToUpdateQueue(JsonObject jsonObject){
 
-        LOGGER.log(Level.FINE, "Adding an update to all queues: {0}", jsonObject.toString());
-        LOGGER.log(Level.FINE, "Adding to all: " + jsonObject.toString());
+        LOGGER.log(Level.FINE, "Adding an update to all queues: {0}", jsonObject);
+        LOGGER.log(Level.FINE, "Adding to all: {0}", jsonObject);
         for(VirtualView v : updates.keySet()){
             updates.get(v).add(jsonObject);
         }
     }
+
 
     /**
      * Adds a single update to a single update queue
@@ -736,9 +807,11 @@ public class Board {
      */
     public void addToUpdateQueue(JsonObject jsonObject, VirtualView v){
         LOGGER.log(Level.FINE, "Adding an update to a single queues");
-        LOGGER.log(Level.FINE, v + " Adding update " + jsonObject.toString());
+        String msg = v + ADDING_UPDATE + jsonObject;
+        LOGGER.log(Level.FINE, msg);
         updates.get(v).add(jsonObject);
     }
+
 
     /**
      * Removes updates to other players in case the current player reverts an action

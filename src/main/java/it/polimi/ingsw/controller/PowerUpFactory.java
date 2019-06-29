@@ -34,6 +34,7 @@ public class PowerUpFactory  {
      */
     public PowerUpFactory(Board board){this.board = board;}
 
+
     /**
      *Creates a PowerUp object according to its name
      *

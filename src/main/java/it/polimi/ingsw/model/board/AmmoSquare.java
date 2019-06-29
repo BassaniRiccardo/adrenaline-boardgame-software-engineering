@@ -25,6 +25,7 @@ public class AmmoSquare extends Square  {
     private AmmoTile ammoTile;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
+
     /**
      * Constructs an AmmoSquare with a reference to the game board, an id, a room id, a row, a column, a color and an ammo tile.
      * Invokes the constructor of Square.
@@ -36,7 +37,7 @@ public class AmmoSquare extends Square  {
      * @param column        the column of the square.
      * @param color         the color of the square.
      * @param ammoTile      the ammo tile in the square.
-     * @throws              IllegalArgumentException
+     * @throws IllegalArgumentException      if parameters does not respect the constrains.
      */
     public AmmoSquare(Board board, int id, int roomId, int row, int column, Color color, AmmoTile ammoTile) {
 
@@ -54,7 +55,6 @@ public class AmmoSquare extends Square  {
      * @param row           the row of the square.
      * @param column        the column of the square.
      * @param color         the color of the square.
-     * @throws              IllegalArgumentException
      */
     public AmmoSquare(Board board, int id, int roomId, int row, int column, Color color) {
 
@@ -79,6 +79,7 @@ public class AmmoSquare extends Square  {
      * Getter for ammoTile.
      *
      * @return      the ammo tile in the square.
+     * @throws      NoMoreCardsException if the square does not contain an ammo tile.
      */
     public AmmoTile getAmmoTile() throws NotAvailableAttributeException {
 
@@ -92,7 +93,7 @@ public class AmmoSquare extends Square  {
      * Removes an ammo tile from the square and returns it to the player who collected it.
      *
      * @return      the collected ammo tile.
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException     if the square does not contain an ammo tile.
      */
     public Card removeCard(Card ammoTile) throws NoMoreCardsException{
 
@@ -107,10 +108,10 @@ public class AmmoSquare extends Square  {
 
 
     /**
-     * Add an ammo tile to the square.
+     * Adds an ammo tile to the square.
      *
-     * @throws NoMoreCardsException
-     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException               if no drawable cards are present in the ammo deck.
+     * @throws UnacceptableItemNumberException    if the square already contains an ammo tile.
      */
     public void addAllCards() throws NoMoreCardsException, UnacceptableItemNumberException {
 
@@ -127,6 +128,7 @@ public class AmmoSquare extends Square  {
         this.ammoTile = (AmmoTile) this.getBoard().getAmmoDeck().drawCard();
 
     }
+
 
     /**
      * Getter for ammoTile.

@@ -6,6 +6,7 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -141,12 +142,16 @@ public class MapBoardRenderer {
         }
 
     //buttons
+        System.out.println(inputButtons);
+        System.out.println(labelButton);
         if (renderInstruction.equals("Square")) {
             column = 0;
             row = 0;
             spawningPoint = 1;
             int buttonIndex = 0;
             for (ClientModel.SimpleSquare s : squares) {
+                System.out.println(s.getId());
+                System.out.println(buttonIndex);
                 if ((mapId == 1 || mapId == 2) && column == 3 && row == 0) {
                     row = 1;
                     column = 0;
@@ -305,6 +310,13 @@ public class MapBoardRenderer {
             iconView.add(new ImageView(iconImage));
             iconView.get(iconView.size() - 1).setFitHeight(80 * scale);
             iconView.get(iconView.size() - 1).setPreserveRatio(true);
+            if(renderInstruction.equals("Player"))
+                if(labelButton.contains(p.getUsername()))
+                    iconView.get(iconView.size() - 1).setOnMouseClicked((MouseEvent e) -> {
+                        inputButtons.get(labelButton.indexOf(p.getUsername())).fire();
+                    });
+                else
+                    iconView.get(iconView.size() - 1).setOpacity(0.4);
         }
 
         for (ClientModel.SimplePlayer p : players){
@@ -390,9 +402,7 @@ public class MapBoardRenderer {
                     weaponListZoom.get(weaponListZoom.size() - 1).add(getImageOfWeaponsInSquare(s).get(i));
                     itemWeaponZoom.get(itemWeaponZoom.size() - 1).add(new MenuItem());
                     if(renderInstruction.equals("Weapon")){
-                        System.out.println("CHECK2");
                         if(labelButton.get(0).equals(s.weapons.get(0).getName())){
-                            System.out.println("CHECK3");
                             weaponContainer.add(new Pane());
                             weaponContainer.get(i).getChildren().addAll(weaponListZoom.get(weaponListZoom.size() - 1).get(i),inputButtons.get(i));
                             inputButtons.get(i).setPrefHeight(300*scale);

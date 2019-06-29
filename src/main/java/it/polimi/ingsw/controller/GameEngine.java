@@ -205,9 +205,7 @@ public class GameEngine implements Runnable{
                     LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
                 }
             }
-            else {
-                battleCry();
-            }
+            //else { battleCry(); }
 
 
             ExecutorService executor = Executors.newCachedThreadPool();

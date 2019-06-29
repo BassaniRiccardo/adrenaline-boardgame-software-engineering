@@ -188,12 +188,14 @@ public class PlayerBoardRenderer {
         List<ClientModel.SimpleWeapon> weapons;
         Image weaponImage;
         Image puBackImage = new Image(getClass().getResourceAsStream("/images/cards/pUBack.png"));
+        List<Pane> puContainer = new ArrayList<>();
         for(ClientModel.SimplePlayer p : players) {
             handContainer.add(new HBox());
             weaponHandView.add(new ArrayList<>());
             loadUnload.add(new ArrayList<>());
             weaponContainer.add(new ArrayList<>());
             weapons = p.getWeapons();
+
             for (ClientModel.SimpleWeapon w : weapons) {
                 String key = w.getName();
                 weaponImage = new Image(getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png"));
@@ -214,6 +216,12 @@ public class PlayerBoardRenderer {
                 weaponContainer.get(players.indexOf(p)).add(new Pane());
                 weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().addAll(weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)),
                         loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)));
+                if(renderInstruction.equals("Weapon") && p==clientModel.getCurrentPlayer() && labelButton.contains(w.getName())){
+                    weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().add(inputButtons.get(labelButton.indexOf(w.getName())));
+                    inputButtons.get(labelButton.indexOf(w.getName())).setPrefWidth(180*scalePB);
+                    inputButtons.get(labelButton.indexOf(w.getName())).setPrefHeight(300*scalePB);
+                    inputButtons.get(labelButton.indexOf(w.getName())).setStyle("-fx-background-color: transparent;");
+                }
                 handContainer.get(players.indexOf(p)).getChildren().add(weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)));
             }
             puBackHandView.add(new ImageView(puBackImage));
@@ -229,12 +237,25 @@ public class PlayerBoardRenderer {
                 List<ImageView> puView = new ArrayList<>();
                 for(String pu : clientModel.getPowerUpInHand()){
                     String color = clientModel.getColorPowerUpInHand().get(clientModel.getPowerUpInHand().indexOf(pu));
-                    System.out.println(color+pu.replace(" ","_"));
                     Image puImage = new Image(getClass().getResourceAsStream("/images/cards/"+color+pu.replace(" ","_")+".png"));
                     puView.add(new ImageView(puImage));
                     puView.get(puView.size()-1).setFitHeight(200*scalePB);
                     puView.get(puView.size()-1).setPreserveRatio(true);
-                    handContainer.get(players.indexOf(p)).getChildren().add(puView.get(puView.size()-1));
+                    puContainer.add(new Pane());
+                    puContainer.get(puContainer.size()-1).getChildren().add(puView.get(puView.size()-1));
+                    if(renderInstruction.equals("PowerUp")){
+                        System.out.println("DENREO1");
+                        String labelPowerUp = clientModel.getColorPowerUpInHand().get(clientModel.getPowerUpInHand().indexOf(pu));
+                        labelPowerUp = labelPowerUp.substring(0, 1).toUpperCase() + labelPowerUp.substring(1);
+                        labelPowerUp = labelPowerUp + " " + pu;
+                        if(labelButton.contains(labelPowerUp)) {
+                            System.out.println("dentro2");
+                        puContainer.get(puContainer.size() - 1).getChildren().add(inputButtons.get(labelButton.indexOf(labelPowerUp)));
+                        inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefWidth(135*scalePB);
+                        inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefHeight(200*scalePB);
+                        inputButtons.get(labelButton.indexOf(labelPowerUp)).setStyle("-fx-background-color: transparent;");
+                    }}
+                    handContainer.get(players.indexOf(p)).getChildren().add(puContainer.get(puContainer.size()-1));
                 }
             }
 

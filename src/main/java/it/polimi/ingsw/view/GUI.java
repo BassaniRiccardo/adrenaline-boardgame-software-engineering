@@ -208,12 +208,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             clientModel=clientMain.getClientModel(); //penso sia utile solo per il test
             mapBoardRenderer.setClientModel(clientModel);
-            System.out.println(mapBoardRenderInstruction);
             mapBoardRenderer.setRenderInstruction(mapBoardRenderInstruction);
 
             Animations animation = new Animations();
 
-            //map
+System.out.println("RENDER");
+         //map
             HBox map = mapBoardRenderer.mapRenderer();
             //skullsKillShotTrack
             int skullNumber=clientModel.getSkullsLeft();
@@ -253,6 +253,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             playerBoardRenderer.setPlayers(players);
             playerBoardRenderer.setClientModel(clientModel);
             playerBoardRenderer.setRenderInstruction(playerBoardRenderInstruction);
+            System.out.println(playerBoardRenderInstruction+"3");
+
 
             //icons
             List<ImageView> icons = mapBoardRenderer.iconsRenderer();
@@ -327,8 +329,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             board.setStyle("-fx-background-color: #000000");
             scene.setRoot(board);
-            mapBoardRenderInstruction ="Normal";
-            playerBoardRenderInstruction ="Normal";
+            /*mapBoardRenderInstruction ="Normal";
+            playerBoardRenderInstruction ="Normal";*/
             //}catch (FileNotFoundException e){
             //    e.printStackTrace();
             //}
@@ -344,7 +346,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         }
 
         Platform.runLater( () -> {
-
+System.out.println("DISPLAY LIST");
             List<String> modifiedList = new ArrayList<>();
             for (String opt : list) {
                 modifiedList.add(removeEscapeCode(type, opt));
@@ -358,11 +360,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             List<String> labelButton = new ArrayList<>();
             List<Button> inputButtons = new ArrayList<>();
             boolean interactiveInput;
-            System.out.println(type);
-            if(type.equals(CHOOSE_SQUARE.toString())||type.equals(CHOOSE_WEAPON.toString()))  //!type.equals("string")
-                interactiveInput = true;
-            else
-                interactiveInput = false;
+            System.out.println(type+"1");
+            interactiveInput =  type.equals(CHOOSE_SQUARE.toString()) ||  type.equals(CHOOSE_WEAPON.toString()) ||
+            type.equals(CHOOSE_PLAYER.toString()) || type.equals(CHOOSE_POWERUP.toString());  //CHOOSE_STRING is the instruction for a render without interactive inputs
 
             HBox optionList = new HBox();
             optionList.setAlignment(Pos.CENTER);
@@ -371,17 +371,27 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             for (String item : modifiedList) {
                 Button b = new Button();
-                if(item.equals("reset"))  //reset button is always needed in the message panel
-                    interactiveInput = false;
-                if(interactiveInput) {
-                    b.setText(" ");
-                    inputButtons.add(b);
-                    labelButton.add(item);
-
-                }else {
+                if(interactiveInput && item.equals("Reset")){   //reset button is always needed in the message panel
                     b.setText(item);
-                    inputButtons.add(b);
-                    optionList.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
+                    optionList.getChildren().add(b);
+                    b.setOnAction(e -> {
+                        System.out.println("OPT " + (list.size()) + ": you clicked me!");
+                        dataSaver.message = message;
+                        dataSaver.answer = Integer.toString(list.size());
+                        dataSaver.update = true;
+                    });
+                    break;
+                }else{
+                    if(interactiveInput) {
+                        b.setText(" ");
+                        inputButtons.add(b);
+                        labelButton.add(item);
+
+                    }else {
+                        b.setText(item);
+                        inputButtons.add(b);
+                        optionList.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
+                    }
                 }
                 b.setOnAction(e -> {
                     System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
@@ -389,6 +399,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     dataSaver.answer = Integer.toString(inputButtons.indexOf(b) + 1);
                     dataSaver.update = true;
                 });
+
+
             }
             opt.getChildren().add(optionList);
             //mapBoardRenderer.setRenderInstruction("Square");
@@ -411,16 +423,17 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 optionList.getChildren().addAll(buttons);
                 opt.getChildren().add(optionList);
             }*/
+           System.out.println(mapBoardRenderInstruction+"boh");
             if(type.equals(CHOOSE_SQUARE.toString()))
                 mapBoardRenderInstruction ="Square";
             else if(type.equals(CHOOSE_WEAPON.toString())){
-                if(clientModel.getCurrentPlayer().getWeapons().size()>0) {  //verifies if the weapons are in the player hand or on the board
+                if( ! clientModel.getCurrentPlayer().getWeapons().isEmpty()) {  //verifies if the weapons are in the player hand or on the board
                     if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName())){
                         playerBoardRenderInstruction = "Weapon";
                     }else{  System.out.println("CHECK1");
                         mapBoardRenderInstruction ="Weapon";}
                 }
-                else{  System.out.println("CHECK1");
+                else{
                     mapBoardRenderInstruction ="Weapon";}
             }else if(type.equals(CHOOSE_POWERUP.toString()))
                 playerBoardRenderInstruction="PowerUp";
@@ -431,7 +444,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 mapBoardRenderInstruction = "Normal";
                 playerBoardRenderInstruction = "Normal";
             }
-
+            System.out.println(mapBoardRenderInstruction+"2");
             mapBoardRenderer.setInputButtons(inputButtons);
             mapBoardRenderer.setLabelButton(labelButton);
             playerBoardRenderer.setInputButtons(inputButtons);
@@ -631,7 +644,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         }
         dataSaver.update=false;
 
-        display("Wait for your turn...");
+      //  display("Wait for your turn...");
 
         return dataSaver.answer;
 
@@ -670,7 +683,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         dataSaver.update=false;
 
-        display("Wait for your turn...");
+        //display("Wait for your turn...");
 
         return dataSaver.answer;
     }

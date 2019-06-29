@@ -22,6 +22,10 @@ public class PowerUpFactory  {
 
     private Board board;
     private static ModelDataReader j = new ModelDataReader();
+    private static final String TARGETING_SCOPE_DMG = "targetingScopeDmg";
+    private static final String NEWTON_MAX_DISTANCE = "newtonMaxDistance";
+    private static final String TAGBACK_GRENADE_MARKS = "tagbackGrenadeMarks";
+
 
     /**
      * Constructs a PowerUpFactory with a reference to the game board
@@ -29,6 +33,7 @@ public class PowerUpFactory  {
      * @param board         the board of the game
      */
     public PowerUpFactory(Board board){this.board = board;}
+
 
     /**
      *Creates a PowerUp object according to its name
@@ -45,7 +50,7 @@ public class PowerUpFactory  {
 
         switch (powerUpName) {
             case TARGETING_SCOPE:
-                effect = (shooter, target, destination)-> target.sufferDamage(j.getInt("targetingScopeDmg"), shooter);
+                effect = (shooter, target, destination)-> target.sufferDamage(j.getInt(TARGETING_SCOPE_DMG), shooter);
                 targetFinder = p -> board.getPlayers().stream()
                         .filter(Player::isJustDamaged)
                         .distinct()
@@ -70,7 +75,7 @@ public class PowerUpFactory  {
                     res.add(center);
                     for (Direction d : Direction.values()) {
                         res.addAll(board.getSquaresInLine(center, d).stream()
-                                .filter(x->board.getDistance(center, x)< j.getInt("newtonMaxDistance"))
+                                .filter(x->board.getDistance(center, x)< j.getInt(NEWTON_MAX_DISTANCE))
                                 .collect(Collectors.toList()));
                     }
                     return res;
@@ -78,7 +83,7 @@ public class PowerUpFactory  {
                 break;
 
             case TAGBACK_GRENADE:
-                effect = (shooter, target, destination)-> target.addMarks(j.getInt("tagbackGrenadeMarks"), shooter);
+                effect = (shooter, target, destination)-> target.addMarks(j.getInt(TAGBACK_GRENADE_MARKS), shooter);
                 targetFinder = p -> p.isJustDamaged()? new ArrayList<>():Arrays.asList(Arrays.asList(board.getCurrentPlayer()));
                 destinationFinder = (p, t) -> new ArrayList<>();
                 break;

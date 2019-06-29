@@ -75,6 +75,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private String mapBoardRenderInstruction; //andrà cancellato credo
     private String playerBoardRenderInstruction;
     private boolean renderAlreadyLaunched;
+    private boolean setColor = true;
 
 
     public ClientMain getClientMain() {
@@ -500,11 +501,26 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Platform.runLater( () -> {
 
             String mes = removeEscapeCode("display", message);
-            if      (mes.contains("Banshee"))       this.color = Color.BLUE;
-            else if (mes.contains("Sprog"))         this.color = Color.GREEN;
-            else if (mes.contains("Violet"))        this.color = Color.PURPLE;
-            else if (mes.contains("Dozer"))         this.color = Color.GREY;
-            else if (mes.contains("D_struct_or"))   this.color = Color.YELLOW;
+            if      (mes.contains("Banshee") && setColor) {
+                this.color = Color.BLUE;
+                setColor = false;
+            }
+            else if (mes.contains("Sprog") && setColor) {
+                this.color = Color.GREEN;
+                setColor = false;
+            }
+            else if (mes.contains("Violet") && setColor){
+                this.color = Color.PURPLE;
+                setColor = false;
+            }
+            else if (mes.contains("Dozer") && setColor){
+                this.color = Color.GREY;
+                setColor = false;
+            }
+            else if (mes.contains("D_struct_or") && setColor){
+                this.color = Color.YELLOW;
+                setColor = false;
+            }
 
             Label label = new Label(mes);
             VBox msg = new VBox();

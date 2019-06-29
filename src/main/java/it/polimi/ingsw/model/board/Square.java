@@ -7,6 +7,8 @@ import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 
 import java.util.*;
 
+import static it.polimi.ingsw.model.board.Board.*;
+
 /**
  * Represents an abstract square, that can be instantiated as a WeaponSquare (a square containing weapons)
  * or as an AmmoSquare (a square containing ammo tiles).
@@ -26,6 +28,12 @@ public abstract class Square {
     private final int column;
     private final Color color;
     private List<Player> players;
+    private static final int MIN_SQUARE_ID = 0;
+    private static final int MAX_SQUARE_ID = 11;
+    private static final int MAX_ROOM_ID = 6;
+    private static final int MIN_SQUARE_ROW_INDEX = 1;
+    private static final int MIN_SQUARE_COLUMN_INDEX = 1;
+
 
     /**
      * Constructor for the abstract class Square.
@@ -37,12 +45,11 @@ public abstract class Square {
      * @param row           the square row.
      * @param column        the square column.
      * @param color         the square color.
-     *
-     * @throws IllegalFormatCodePointException
+     * @throws IllegalArgumentException      if parameters does not respect the constrains.
      */
     public Square(Board board, int id, int roomId, int row, int column, Color color) {
 
-        if(id<0 || id>11 || roomId<1 || roomId>6 || row<1 || row>4 || column<1 || column>4){
+        if(id < MIN_SQUARE_ID || id > MAX_SQUARE_ID || roomId < MIN_ROOM_ID || roomId > MAX_ROOM_ID || row < MIN_SQUARE_ROW_INDEX || row > MAP_ROWS || column < MIN_SQUARE_COLUMN_INDEX || column > MAP_COLUMNS){
             throw new IllegalArgumentException("Bad parameters for the constructor of Square");
         }
 
@@ -145,7 +152,7 @@ public abstract class Square {
      * Removes a player from the player list of the square.
      *
      * @param p     the player to remove.
-     * @throws      IllegalArgumentException
+     * @throws IllegalArgumentException         if the square does not contain the player.
      */
     public void removePlayer(Player p) {
 
@@ -159,17 +166,18 @@ public abstract class Square {
      *
      * @param card      the removed card.
      * @return          the removed card.
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException             if the square does not contain any card.
      */
     public abstract Card removeCard(Card card) throws NoMoreCardsException;
+
 
     /**
      * Adds cards from the deck to the square.
      * It is called at the beginning of the game and it adds a ammo tile to the ammo squares and
      * three weapons to the weapon squares.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException  if the square already contains all the cards it can contain.
+     * @throws NoMoreCardsException             if no drawable cards are present in the deck the cards must be drawn from.
      */
     public abstract void addAllCards() throws UnacceptableItemNumberException, NoMoreCardsException;
 
@@ -210,6 +218,7 @@ public abstract class Square {
         return s.getId() == getId() && s.getBoard().equals(board);
     }
 
+
     /**
      * Returns the hashCode of the square.
      *
@@ -221,6 +230,7 @@ public abstract class Square {
         result = id + board.hashCode();
         return result;
     }
+
 
     /**
      * Returns a string representing the square.

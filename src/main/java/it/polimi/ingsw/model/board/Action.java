@@ -15,6 +15,13 @@ public final class Action {
     private boolean collect;
     private boolean shoot;
     private boolean reload;
+    private static final String MOVE_UP_TO = "Move up to ";
+    private static final String SQUARES = " squares.";
+    private static final String COLLECT_TAG = "Collect.";
+    private static final String RELOAD_TAG = "Reload.";
+    private static final String SHOOT_TAG = "Shoot.";
+
+
 
 
     /**
@@ -87,7 +94,7 @@ public final class Action {
 
         int result = 0;
 
-        result += 117 * steps;
+        result += 3 * steps;
         if (collect) result += 249;
         if (shoot) result += 134;
         if (reload) result += 795;
@@ -109,19 +116,19 @@ public final class Action {
 
         if (steps > 0){
             if (!builder.toString().isEmpty())  builder.append(" ");
-            builder.append("Move up to " + steps + " squares.");
+            builder.append(MOVE_UP_TO + steps + SQUARES);
         }
         if (collect){
             if (!builder.toString().isEmpty())  builder.append(" ");
-            builder.append("Collect.");
+            builder.append(COLLECT_TAG);
         }
         if (reload){
             if (!builder.toString().isEmpty())  builder.append(" ");
-            builder.append("Reload.");
+            builder.append(RELOAD_TAG);
         }
         if (shoot){
             if (!builder.toString().isEmpty())  builder.append(" ");
-            builder.append("Shoot.");
+            builder.append(SHOOT_TAG);
         }
 
         return builder.toString();

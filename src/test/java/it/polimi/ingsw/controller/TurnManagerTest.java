@@ -1,10 +1,10 @@
 package it.polimi.ingsw.controller;
 
 import com.google.gson.JsonObject;
+import it.polimi.ingsw.model.board.AmmoSquare;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.Square;
-import it.polimi.ingsw.model.cards.AmmoTile;
 import it.polimi.ingsw.model.exceptions.*;
 import it.polimi.ingsw.network.server.TCPVirtualView;
 import it.polimi.ingsw.network.server.VirtualView;
@@ -15,10 +15,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static it.polimi.ingsw.controller.GameEngine.test;
 import static it.polimi.ingsw.controller.TurnManager.toStringList;
 import static it.polimi.ingsw.controller.TurnManager.toUserStringList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Test the methods of TurnManager which can be tested without simulating a game.
@@ -35,7 +34,7 @@ public class TurnManagerTest {
      * @throws NoMoreCardsException
      */
     @Test
-    public void replaceWeapons() throws NoMoreCardsException {
+    public void replaceWeapons() throws NoMoreCardsException, NotEnoughPlayersException {
 
         class dummyVirtualView extends VirtualView {
 
@@ -100,7 +99,7 @@ public class TurnManagerTest {
 
         gameEngine.fakeSetup();
 
-        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
+        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false, new Timer(60));
 
         assertEquals(3, gameEngine.getBoard().getSpawnPoints().get(0).getWeapons().size());
 
@@ -112,17 +111,15 @@ public class TurnManagerTest {
 
     }
 
-
     /**
-     * Shows that a specific ammoSquare contains an ammotile, therefore no exception is thrown.
+     * Tests the method replaceAmmoTiles.
      *
      * @throws NoMoreCardsException
      * @throws NotAvailableAttributeException
      */
-    @Test
-    public void beforeReplaceAmmoTilesNoException() throws NoMoreCardsException, NotAvailableAttributeException {
+    @Test()
+    public void ReplaceAmmoTiles() throws NoMoreCardsException, NotAvailableAttributeException {
 
-        test = true;
         List<VirtualView> connections = new ArrayList<>();
         connections.add(new TCPVirtualView(null));
         connections.add(new TCPVirtualView(null));
@@ -132,65 +129,13 @@ public class TurnManagerTest {
         GameEngine gameEngine = new GameEngine(connections);
         StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
         gameEngine.fakeSetup();
-        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
-        AmmoTile ammoTile;
-        ammoTile = gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile();
-
-    }
-
-
-    /**
-     * Shows that the ammotile has been removed from a specific square, therefore an exception is thrown.
-     *
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
-     */
-    @Test(expected = NotAvailableAttributeException.class)
-    public void beforeReplaceAmmoTilesException() throws NoMoreCardsException, NotAvailableAttributeException {
-
-        test = true;
-        List<VirtualView> connections = new ArrayList<>();
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        GameEngine gameEngine = new GameEngine(connections);
-        StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
-        gameEngine.fakeSetup();
-        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
-        AmmoTile ammoTile;
-        gameEngine.getBoard().getAmmoSquares().get(0).removeCard(gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile());
-        ammoTile = gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile();
-
-    }
-
-    /**
-     * Tests the method replaceAmmoTiles(), by showing that the square from which an ammo tile has been removed
-     * contains an ammotile after the method is called (no exception thrown).
-     *
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
-     */
-    @Test
-    public void afterReplaceAmmoTilesNoException() throws NoMoreCardsException, NotAvailableAttributeException {
-
-        test = true;
-        List<VirtualView> connections = new ArrayList<>();
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        GameEngine gameEngine = new GameEngine(connections);
-        StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
-        gameEngine.fakeSetup();
-        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false);
-        AmmoTile ammoTile;
-        gameEngine.getBoard().getAmmoSquares().get(0).removeCard(gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile());
+        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false, new Timer(60));
+        AmmoSquare as = gameEngine.getBoard().getAmmoSquares().get(0);
+        assertTrue(as.hasAmmoTile());
+        as.removeCard(as.getAmmoTile());
+        assertFalse(as.hasAmmoTile());
         turnManager.replaceAmmoTiles();
-        ammoTile = gameEngine.getBoard().getAmmoSquares().get(0).getAmmoTile();
-
+        assertTrue(as.hasAmmoTile());
     }
 
 
@@ -238,5 +183,44 @@ public class TurnManagerTest {
 
     }
 
+
+    @Test
+    public void updateDeadTest() throws UnacceptableItemNumberException, NoMoreCardsException{
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        connections.add(new TCPVirtualView(null));
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.fakeSetup();
+        Board b = gameEngine.getBoard();
+        StatusSaver statusSaver = new StatusSaver(b);
+        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false, new Timer(60));
+        for (int i=0; i<connections.size(); i++) {
+            gameEngine.getPlayers().get(i).setPlayer(b.getPlayers().get(i));
+        }
+
+        //nobody is dead
+        assertTrue(turnManager.getDead().isEmpty());
+        b.getPlayers().get(0).setInGame(true);
+        b.getPlayers().get(0).setDead(true);
+        turnManager.updateDead();
+
+        //the first player is dead and updateDead has been called
+        assertEquals(Collections.singletonList(1), turnManager.getDead());
+        b.getPlayers().get(1).setInGame(true);
+        b.getPlayers().get(1).setDead(true);
+
+        //the second player is dead but updateDead has not been called
+        assertEquals(Collections.singletonList(1), turnManager.getDead());
+        turnManager.updateDead();
+
+        //update dead has been called
+        assertEquals(Arrays.asList(1,2), turnManager.getDead());
+
+
+    }
 
 }

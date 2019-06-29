@@ -28,6 +28,11 @@ public class BoardConfigurer {
     private static ModelDataReader j = new ModelDataReader();
     private static final String BOARDS = "boards";
     private static final String AMMO_TILES = "ammoTiles";
+    private static final String AMMO_SQUARE = "aS";
+    private static final String WEAPON_SQUARE = "wS";
+    private static final String ID = "Id";
+
+
 
     /**
      * Constructs a board configurer.
@@ -61,10 +66,6 @@ public class BoardConfigurer {
 
         Board board = new Board();
 
-        //board.setId(type);
-
-        //switch (type) {
-
         board.setId(b);
         List<Square> map = new ArrayList<>();
         List<WeaponSquare> spawnPoints = new ArrayList<>();
@@ -76,36 +77,36 @@ public class BoardConfigurer {
 
         for (int i = 1; i <= rowsNumber; i++) {
             for (int k = 1; k <= columnNumber; k++) {
-                topWall[i-1][k-1] = j.getBooleanBC("wallT"+i+k,BOARDS,b);
-                leftWall[i-1][k-1] = j.getBooleanBC("wallL"+i+k,BOARDS,b);
+                topWall[i-1][k-1] = j.getBooleanBC("wallT" + i + k, BOARDS, b);
+                leftWall[i-1][k-1] = j.getBooleanBC("wallL" + i + k, BOARDS, b);
             }
         }
 
-        int ammoSquareNumber = j.getIntBC("aSNumber",BOARDS,b);
-        int weaponSquareNumber = j.getIntBC("wSNumber",BOARDS,b);
+        int ammoSquareNumber = j.getIntBC("aSNumber", BOARDS, b);
+        int weaponSquareNumber = j.getIntBC("wSNumber", BOARDS, b);
 
         int w=1;
         int a=1;
         for (int i = 0; i < weaponSquareNumber+ammoSquareNumber; i++){
-            if((j.getIntBC("wS"+w+"Id",BOARDS,b))==i){
-                map.add(new WeaponSquare(board, j.getIntBC("wS"+w+"Id",BOARDS,b),
-                        j.getIntBC("wS"+w+"RoomId",BOARDS,b),
-                        j.getIntBC("wS"+w+"Row",BOARDS,b),
-                        j.getIntBC("wS"+w+"Column",BOARDS,b),
-                        j.getColorBC("wS"+w+"Color",BOARDS,b)));
+            if((j.getIntBC(WEAPON_SQUARE + w + ID, BOARDS, b)) == i){
+                map.add(new WeaponSquare(board, j.getIntBC(WEAPON_SQUARE + w + ID, BOARDS, b),
+                        j.getIntBC(WEAPON_SQUARE + w + "RoomId", BOARDS,b),
+                        j.getIntBC(WEAPON_SQUARE + w + "Row", BOARDS,b),
+                        j.getIntBC(WEAPON_SQUARE + w + "Column", BOARDS,b),
+                        j.getColorBC(WEAPON_SQUARE + w + "Color", BOARDS, b)));
                 w++;
             }else{
-                map.add(new AmmoSquare(board, j.getIntBC("aS"+a+"Id",BOARDS,b),
-                        j.getIntBC("aS"+a+"RoomId",BOARDS,b),
-                        j.getIntBC("aS"+a+"Row",BOARDS,b),
-                        j.getIntBC("aS"+a+"Column",BOARDS,b),
-                        j.getColorBC("aS"+a+"Color",BOARDS,b)));
+                map.add(new AmmoSquare(board, j.getIntBC(AMMO_SQUARE + a + ID, BOARDS, b),
+                        j.getIntBC(AMMO_SQUARE + a + "RoomId", BOARDS, b),
+                        j.getIntBC(AMMO_SQUARE + a + "Row", BOARDS, b),
+                        j.getIntBC(AMMO_SQUARE + a + "Column", BOARDS, b),
+                        j.getColorBC(AMMO_SQUARE + a + "Color", BOARDS, b)));
                 a++;
             }
         }
 
         for(int i=1;i<=weaponSquareNumber;i++)
-            spawnPoints.add((WeaponSquare) map.get(j.getIntBC("wS"+i+"Id",BOARDS,b)));
+            spawnPoints.add((WeaponSquare) map.get(j.getIntBC(WEAPON_SQUARE + i + ID, BOARDS, b)));
 
         board.setMap(map);
         board.setSpawnPoints(spawnPoints);
@@ -114,6 +115,7 @@ public class BoardConfigurer {
 
         return board;
     }
+
 
     /**
      * Adds a specified number of players to the board, and coherently sets the number of players.
@@ -156,12 +158,12 @@ public class BoardConfigurer {
         //configures the ammo deck
         Deck ammoDeck = new Deck();
         int ammoTilesTypesNumber = j.getIntBC("ammoTilesTypesNumber");
-        for(int i=0; i<ammoTilesTypesNumber;i++){
-            for(int k = 0; k< j.getIntBC("quantity",AMMO_TILES,i); k++){
-                    ammoDeck.addCard((new AmmoTile((j.getBooleanBC("pU",AMMO_TILES,i)),
-                        new AmmoPack(j.getIntBC("r",AMMO_TILES,i),
-                                j.getIntBC("b",AMMO_TILES,i),
-                                j.getIntBC("y",AMMO_TILES,i)))));
+        for(int i=0; i < ammoTilesTypesNumber; i++){
+            for(int k = 0; k < j.getIntBC("quantity", AMMO_TILES, i); k++){
+                    ammoDeck.addCard((new AmmoTile((j.getBooleanBC("pU", AMMO_TILES, i)),
+                        new AmmoPack(j.getIntBC("r", AMMO_TILES, i),
+                                j.getIntBC("b", AMMO_TILES, i),
+                                j.getIntBC("y", AMMO_TILES, i)))));
             }
         }
         ammoDeck.shuffleDeck();
@@ -189,6 +191,8 @@ public class BoardConfigurer {
      * Sets the ammoTiles and the weapons on the board, drawing from the respective decks.
      *
      * @param board                 the board the ammo tiles and the weapons must be added to.
+     * @throws UnacceptableItemNumberException      if it is thrown by addAllCards().
+     * @throws NoMoreCardsException                 if it is thrown by addAllCards().
      */
     public static void setAmmoTilesAndWeapons(Board board) throws UnacceptableItemNumberException, NoMoreCardsException {
 
@@ -199,6 +203,7 @@ public class BoardConfigurer {
          }
 
     }
+
 
     /**
      * Configures the killShotTrack, depending on the number of skulls selected.
@@ -212,6 +217,7 @@ public class BoardConfigurer {
 
     }
 
+
     /**
      * Simulates a scenario.
      * Selects the fourth board type.
@@ -220,6 +226,8 @@ public class BoardConfigurer {
      * The starting weapons and ammo tiles are placed on the board.
      *
      * @return      the board of the created scenario.
+     * @throws      UnacceptableItemNumberException         if thrown by setAmmoTilesAndWeapons
+     * @throws      NoMoreCardsException                    if thrown by setAmmoTilesAndWeapons
      */
     public static Board simulateScenario() throws UnacceptableItemNumberException, NoMoreCardsException {
 

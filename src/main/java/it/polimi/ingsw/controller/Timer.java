@@ -5,16 +5,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * Simple synchronous timer used for turn length management
  */
+
 public class Timer {
     private boolean over;
     private long start;
     private long duration;
+    private long pausedAt;
     private boolean running;
 
     public Timer(int duration){
         this.duration = TimeUnit.NANOSECONDS.convert(duration, TimeUnit.SECONDS);
         this.over = false;
         this.start = 0;
+        this.pausedAt = 0;
         this.running = false;
     }
 
@@ -47,6 +50,22 @@ public class Timer {
     public boolean isOver(){
         update();
         return over&&running;
+    }
+
+    public void pause(){
+        update();
+        if(running) {
+            pausedAt = System.nanoTime();
+            running = false;
+        }
+    }
+
+    public void resume(){
+        if(!running) {
+            start += System.nanoTime() - pausedAt;
+            running = true;
+            update();
+        }
     }
 
     public long getTimeLeft(){

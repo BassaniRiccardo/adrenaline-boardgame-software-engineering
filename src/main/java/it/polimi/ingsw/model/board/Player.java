@@ -27,7 +27,7 @@ import static it.polimi.ingsw.model.cards.Color.*;
  * There are from 3 up to 5 instances of Player.
  * The id attribute is unique.
  *
- * @authors davidealde, BassaniRiccardo
+ * @author davidealde, BassaniRiccardo
  */
 
 //TODO

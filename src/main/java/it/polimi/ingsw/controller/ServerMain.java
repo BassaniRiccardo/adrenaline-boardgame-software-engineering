@@ -50,6 +50,10 @@ public class ServerMain {
     private static final String WAITING_MESSAGE = "Waiting for more players";
     private static final String CONNECTED_LIST_MESSAGE = "Connected players:";
 
+    private static final String ENTER = "\n";
+    private static final String TAB = "\t";
+
+
     /**
      * Standard private constructor
      */
@@ -64,6 +68,7 @@ public class ServerMain {
         oldMessage = "";
     }
 
+
     /**
      * Returns an instance of the class, which is a Singleton
      *
@@ -76,6 +81,7 @@ public class ServerMain {
         return instance;
     }
 
+
     /**
      * Getter for currentGames. Only for testing.
      *
@@ -85,6 +91,7 @@ public class ServerMain {
         return currentGames;
     }
 
+
     /**
      * Getter for waitingPlayers. Only for testing.
      *
@@ -93,6 +100,7 @@ public class ServerMain {
     public List<VirtualView> getWaitingPlayers() {
         return waitingPlayers;
     }
+
 
     /**
      * Main method instantiating TCP (on a different thread) and RMI servers. It runs a main loop checking for user input
@@ -122,6 +130,7 @@ public class ServerMain {
         System.exit(0);
     }
 
+
     /**
      * Initializes logger, a reader of System.in, RMI and TCP servers
      */
@@ -149,6 +158,7 @@ public class ServerMain {
         this.running = true;
     }
 
+
     /**
      * Removes a game from tracked ones.
      *
@@ -158,6 +168,7 @@ public class ServerMain {
         currentGames.remove(engine);
         players.removeAll(engine.getPlayers());
     }
+
 
     /**
      * Adds a player to the waiting list
@@ -169,6 +180,7 @@ public class ServerMain {
         players.add(p);
         LOGGER.log(Level.FINE, "Player added: " + p.getName());
     }
+
 
     /**
      * Checks if a player can be added to the waiting list and, if it can, adds it.
@@ -188,6 +200,7 @@ public class ServerMain {
         return true;
     }
 
+
     /**
      * Checks if the player chose a name belonging to a suspended player and can therefore resume
      *
@@ -202,6 +215,7 @@ public class ServerMain {
         }
         return false;
     }
+
 
     /**
      * Resumes a player's game, given that he canResume()
@@ -218,6 +232,7 @@ public class ServerMain {
         return false;
     }
 
+
     /**
      * Removes players who were suspended while still waiting for a game
      *
@@ -232,6 +247,7 @@ public class ServerMain {
         }
     }
 
+
     /**
      * Getter for the list of players
      *
@@ -240,6 +256,7 @@ public class ServerMain {
     public synchronized List<VirtualView> getPlayers() {
         return players;
     }
+
 
     /**
      * Initializes the logger so that it writes to a txt file
@@ -258,6 +275,7 @@ public class ServerMain {
         LOGGER.setLevel(Level.ALL);
     }
 
+
     /**
      * Loads config from file if possible
      *
@@ -273,6 +291,7 @@ public class ServerMain {
         }
         return prop;
     }
+
 
     /**
      * Handles input from keyboard (currently the only way to shutdown the server)
@@ -297,6 +316,7 @@ public class ServerMain {
         }
     }
 
+
     /**
      * Refreshes connections: forwards TCP messages and checks for activity or client disconnection
      */
@@ -307,6 +327,7 @@ public class ServerMain {
             }
         }
     }
+
 
     /**
      * Start a game if certain conditions are satisfied
@@ -324,12 +345,12 @@ public class ServerMain {
             waitingPlayers.removeAll(selectedPlayers);
         } else if (waitingPlayers.size() < MIN_PLAYERS) {
             timer.stop();
-        } else if (waitingPlayers.size() >= MIN_PLAYERS && !timer.isRunning()) {
+        } else if (!timer.isRunning()) {
             timer.start();
         }
 
         String alreadyConnected = getAlreadyConnected();
-        String fullMessage = alreadyConnected + TIME_LEFT_MESSAGE + timer.getTimeLeft() + "\n" + (timer.isRunning()? STARTING_GAME_MESSAGE:WAITING_MESSAGE);
+        String fullMessage = alreadyConnected + TIME_LEFT_MESSAGE + timer.getTimeLeft() + ENTER + (timer.isRunning()? STARTING_GAME_MESSAGE:WAITING_MESSAGE);
         if(!alreadyConnected.isEmpty()&&!oldMessage.equals(fullMessage)) {
             for(VirtualView v : waitingPlayers){
                     v.display(fullMessage);
@@ -337,6 +358,7 @@ public class ServerMain {
         }
         oldMessage = fullMessage;
     }
+
 
     /**
      * Returns a list of waiting players formatted as a String
@@ -350,10 +372,11 @@ public class ServerMain {
         StringBuilder bld = new StringBuilder();
         bld.append(CONNECTED_LIST_MESSAGE);
         for(VirtualView v : waitingPlayers){
-            bld.append("\n\t");
+            bld.append(ENTER);
+            bld.append(TAB);
             bld.append(v.getName());
         }
-        bld.append("\n");
+        bld.append(ENTER);
         return bld.toString();
     }
 

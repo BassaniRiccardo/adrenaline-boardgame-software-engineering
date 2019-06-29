@@ -38,6 +38,7 @@ public class CLI implements UI{
         this.answer = "";
         this.mainRenderer = new MainRenderer(clientMain);
         this.in = new BufferedReader(new InputStreamReader(System.in));
+        splashScreen();
     }
 
     /**
@@ -107,7 +108,8 @@ public class CLI implements UI{
         }
         receiving = false;
         mainRenderer.setCurrentRequest("");
-        mainRenderer.setCurrentMessage("");
+        mainRenderer.setCurrentMessage("Input received. Please stand by.");
+        render();
         return answer;
     }
 
@@ -142,7 +144,8 @@ public class CLI implements UI{
         }
         receiving = false;
         mainRenderer.setCurrentRequest("");
-        mainRenderer.setCurrentMessage("");
+        mainRenderer.setCurrentMessage("Input received. Please Stand by.");
+        render();
         return answer;
     }
 
@@ -238,9 +241,9 @@ public class CLI implements UI{
      */
     private void displayWarning(){
         System.out.print("\033[H\033[2J");
-        System.out.println("\n Wait for your turn or press q to quit");
+        System.out.println("\n Wait some more or press q to quit");
         try {
-            TimeUnit.MILLISECONDS.sleep(1000);
+            TimeUnit.MILLISECONDS.sleep(1500);
         }catch(InterruptedException ex){
             LOGGER.log(Level.INFO,"Skipped waiting time.");
             Thread.currentThread().interrupt();
@@ -260,11 +263,16 @@ public class CLI implements UI{
                 " _/    _/  _/    _/  _/    _/  _/        _/    _/_/  _/    _/  _/          _/    _/    _/_/  _/         \n" +
                 "_/    _/  _/_/_/    _/    _/  _/_/_/_/  _/      _/  _/    _/  _/_/_/_/  _/_/_/  _/      _/  _/_/_/_/    \n" +
                 "\na game by Philip Neduk, now loading");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            LOGGER.log(Level.INFO, "Skipped waiting time.", ex);
+        }
     }
 
     public void displayDisconnection(){
         System.out.print("\033[H\033[2J");
-        System.out.print("You cannot reach the server. You can try starting another client and log in with the same username to resume. Press any button to close the game");
+        System.out.println("You cannot reach the server. You can try starting another client and log in with the same username to resume. Press Enter to close the game");
         try {
             in.readLine();
         }catch(IOException ex){
@@ -274,7 +282,7 @@ public class CLI implements UI{
 
     public void displaySuspension(){
         System.out.print("\033[H\033[2J");
-        System.out.print("You were suspended from the server because you were not able to finish your turn in time. Press any button to close the game.");
+        System.out.println("You were suspended from the server because you were not able to finish your turn in time. Press Enter to close the game.");
         try {
             in.readLine();
         }catch(IOException ex){

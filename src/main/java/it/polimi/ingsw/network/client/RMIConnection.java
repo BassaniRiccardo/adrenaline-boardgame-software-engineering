@@ -55,7 +55,7 @@ public class RMIConnection implements Runnable, RemoteView {
                     try {
                         playerStub.ping();
                     }catch(RemoteException ex){
-                        LOGGER.log(Level.SEVERE, "Unable to ping RMI server", ex);
+                        LOGGER.log(Level.INFO, "Unable to ping RMI server", ex);
                         shutdown();
                         clientMain.showDisconnection();
                     }
@@ -137,7 +137,7 @@ public class RMIConnection implements Runnable, RemoteView {
         try {
             UnicastRemoteObject.unexportObject(this, false);
         }catch(NoSuchObjectException ex){
-            LOGGER.log(Level.SEVERE, "issue while closing connection", ex);
+            LOGGER.log(Level.INFO, "issue while closing connection", ex);
         }
     }
 

@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.logging.*;
 
 
+import static it.polimi.ingsw.model.cards.Color.*;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
@@ -94,9 +95,13 @@ public class TurnManager {
     private static final String SELECT_WEAPON_TO_RELOAD_MANDATORY = "You have to reload one of these weapons to shoot. Which one do you choose?";
     private static final String SELECT_TARGETING_SCOPE = "Which targeting scope do you want to use?";
     private static final String SELECT_TAGBACK_GRENADE = "Which tagback grenade do you want to use?";
+    private static final String OPTIONAL_CONVERSION = "Do you want to convert a powerup to gain an ammo to make the payment?";
+    private static final String MANDATORY_CONVERSION = "You must convert one of this powerups to pay. Choose one.";
 
     private static final String COMMA = ", ";
 
+    private static final int GRENADE_SHORT_TIMER = 5;
+    private static final int GRENADE_LONG_TIMER = 10;
 
     /**
      * Constructs a turn manager with a reference to the board, the current player and the list of players.
@@ -170,10 +175,9 @@ public class TurnManager {
             updateAndNotifyAll();
 
             boolean choice1 = handleUsingPowerUp();
-            boolean choice2 = convertPowerUp(false);
             boolean choice3 = reload(3);
 
-            if (choice1 || choice2 || choice3) {
+            if (choice1 || choice3) {
                 while (!askConfirmation(ASK_ENDPHASE_CONFIRMATION)) {
                     LOGGER.log(Level.FINE, "{0} resets the action", currentPlayer);
                     statusSaver.restoreCheckpoint();
@@ -182,7 +186,6 @@ public class TurnManager {
                     board.notifyObserver(currentPlayerConnection);
                     board.setReset(false);
                     handleUsingPowerUp();
-                    convertPowerUp(false);
                     reload(3);
                 }
             }
@@ -300,22 +303,13 @@ public class TurnManager {
         List<String> options = toStringList(availableActions);
 
         if (canUSePowerUp){ options.add(USE_POWERUP); }
-        if (!currentPlayer.getPowerUpList().isEmpty()){ options.add(CONVERT_POWERUP); }
 
         currentPlayerConnection.choose(CHOOSE_STRING.toString(), CHOOSE_ACTION, options);
 
         int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
 
         if (selected == availableActions.size() + 1){
-            if (canUSePowerUp){
                 usePowerUp();
-            }
-            else convertPowerUp(true);
-            return false;
-        }
-
-        else if (selected == availableActions.size() + 2){
-            convertPowerUp(true);
             return false;
         }
 
@@ -488,64 +482,6 @@ public class TurnManager {
 
 
     /**
-     * Checks if the user has a powerup and, while he has one, offers him the chance to convert it to gain an ammo.
-     *
-     * @return      true if entering the method the player could use a powerup.
-     *              false otherwise.
-     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
-     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
-     */
-    public boolean convertPowerUp(boolean inActions) throws SlowAnswerException, NotEnoughPlayersException {
-
-        board.setReset(false);
-
-
-        int answer = 1;
-        if (currentPlayer.getPowerUpList().isEmpty()){
-            return false;
-        }
-
-        while (!currentPlayer.getPowerUpList().isEmpty() && answer == 1 && !board.isReset()) {
-
-            if (!inActions) {
-
-                List<String> options = new ArrayList<>(Arrays.asList(YES, NO));
-
-                currentPlayerConnection.choose(CHOOSE_STRING.toString(), DEMAND_CONVERT_POWERUP, options);
-                answer = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
-            }
-
-            if (!inActions && answer == 2){
-                LOGGER.log(Level.FINE, () -> currentPlayer + " decides not to convert a powerup.");
-            }
-
-            if (inActions || answer == 1) {
-
-                LOGGER.log(Level.FINE, () -> currentPlayer + " decides to convert a powerup.");
-
-                List<String> optionsConvert = toStringList(currentPlayer.getPowerUpList());
-                optionsConvert.add(RESET);
-
-                currentPlayerConnection.choose(CHOOSE_POWERUP.toString(), SELECT_POWERUP_TO_CONVERT, optionsConvert);
-                int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
-                if (selected==optionsConvert.size()) {
-                    return resetConvert();
-                }
-                PowerUp powerUpToConvert = currentPlayer.getPowerUpList().get(selected - 1);
-                currentPlayer.useAsAmmo(powerUpToConvert);
-                board.notifyObserver(currentPlayerConnection);
-
-                LOGGER.log(Level.FINE, () -> currentPlayer + " converts a  " + powerUpToConvert.toString() + " into an ammo.");
-                inActions = false;
-            }
-
-        }
-        return true;
-
-    }
-
-
-    /**
      * Handles the process of moving.
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
@@ -628,6 +564,7 @@ public class TurnManager {
                     return;
                 }
                 Weapon collectedWeapon = (collectible.get(selected-1));
+                handlePayment(collectedWeapon.getReducedCost());
                 currentPlayer.collect(collectedWeapon);
                 board.notifyObserver(currentPlayerConnection);
                 LOGGER.log(Level.FINE, () -> currentPlayer + " collects  " + collectedWeapon + ".");
@@ -834,6 +771,7 @@ public class TurnManager {
         if (fireMode.getName() == MAIN || fireMode.getName() == SECONDARY) currentPlayer.addMainTargets(targets);
         else if (fireMode.getName() == OPTION1 || fireMode.getName() == OPTION2) currentPlayer.addOptionalTargets(targets);
         try {
+            handlePayment(fireMode.getCost());
             fireMode.applyEffects(targets, destination);
             board.notifyObserver(currentPlayerConnection);
         } catch (IllegalArgumentException e){LOGGER.log(Level.SEVERE, "Error in shooting: " + fireMode);}
@@ -875,11 +813,12 @@ public class TurnManager {
             else {
                 Weapon weaponToReload = currentPlayer.getReloadableWeapons().get(selected - 1);
                 try {
+                    handlePayment(weaponToReload.getFullCost());
                     weaponToReload.reload();
                     board.notifyObserver(currentPlayerConnection);
                     left--;
                     LOGGER.log(Level.FINE, () -> currentPlayer + " reloads " + weaponToReload + ".");
-                } catch (NotAvailableAttributeException | WrongTimeException e) {
+                } catch ( WrongTimeException e) {
                     LOGGER.log(Level.SEVERE,"Exception thrown while reloading", e);
                 }
             }
@@ -920,10 +859,11 @@ public class TurnManager {
         }
         Weapon weaponToReload = reloadable.get(selected - 1);
         try {
+            handlePayment(weaponToReload.getFullCost());
             weaponToReload.reload();
             board.notifyObserver(currentPlayerConnection);
             LOGGER.log(Level.FINE, () -> currentPlayer + " reloads " + weaponToReload + ".");
-        } catch (NotAvailableAttributeException | WrongTimeException e) { LOGGER.log(Level.SEVERE,"Exception thrown while reloading", e); }
+        } catch ( WrongTimeException e) { LOGGER.log(Level.SEVERE,"Exception thrown while reloading", e); }
         if (!askConfirmation(ASK_RELOADING_CONFIRMATION)) resetAction();
         else updateAndNotifyAll();
     }
@@ -967,6 +907,7 @@ public class TurnManager {
             try {
                 targetingScope.applyEffects(new ArrayList<>(Arrays.asList(target)), board.getMap().get(0));
                 currentPlayer.discardPowerUp(targetingScope);
+                handlePayment(targetingScope.getCost());
                 board.notifyObserver(currentPlayerConnection);
             } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while using the targeting scope", e);}
 
@@ -982,35 +923,18 @@ public class TurnManager {
      * Checks who between the targets can use a tagback grenade.
      * Ask the suitable targets for their choices and execute them.
      *
-     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws NotAvailableAttributeException          if thrown by Player.hasUsableTagbackGrenade().
      */
-    public void askTargetsForGrenade() throws SlowAnswerException, NotEnoughPlayersException, NotAvailableAttributeException {
+    public void askTargetsForGrenade() throws NotEnoughPlayersException, NotAvailableAttributeException {
 
         for (Player p : board.getActivePlayers()) {
-            boolean askConfirmation = false;
             if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged())
                 getVirtualView(p).display(currentPlayer.userToString() + SHOT_YOU);
             boolean handleAgain = true;
             while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleAgain) {
                 handleAgain = handleTagbackGrenade(p);
-                askConfirmation = true;
-            }/*
-            if (askConfirmation) {
-                while (!askConfirmationGrenade(p) ) {
-                    statusSaver.restoreCheckpoint();
-                    board.addToUpdateQueue(Updater.getModel(board, p), getVirtualView(p));
-                    board.notifyObserver(getVirtualView(p));
-                    boolean askAgain = true;
-                    while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && askAgain) {
-                        askAgain = handleTagbackGrenade(p);
-                    }
-                }
-                getVirtualView(p).display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
-                updateAndNotifyAll();
             }
-            */
             getVirtualView(p).display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
             updateAndNotifyAll();
 
@@ -1024,20 +948,19 @@ public class TurnManager {
      * @param p         the damaged player.
      * @return          true if the damaged player decided to use at least one tagback grenade.
      *                  false otherwise.
-     * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
      * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
-    private boolean handleTagbackGrenade(Player p) throws SlowAnswerException, NotEnoughPlayersException{
+    private boolean handleTagbackGrenade(Player p) throws NotEnoughPlayersException{
 
         VirtualView player = getVirtualView(p);
-        player.choose(CHOOSE_STRING.toString(), DEMAND_USE_TAGBACK_GRENADE, new ArrayList(Arrays.asList(NO, YES)), 10);
-        int answer = Integer.parseInt(gameEngine.waitShort(player,10));
-        if (answer == 1){
+        player.choose(CHOOSE_STRING.toString(), DEMAND_USE_TAGBACK_GRENADE, new ArrayList(Arrays.asList(NO, YES)), GRENADE_LONG_TIMER);
+        int answer = Integer.parseInt(gameEngine.waitShort(player,GRENADE_LONG_TIMER));
+        if (answer == 2){
             LOGGER.log(Level.FINE, () -> p + "Decides to use a grenade" );
             List<String> optionsGrenade = toStringList(p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE));
             optionsGrenade.add(RESET);
-            player.choose(CHOOSE_POWERUP.toString(), SELECT_TAGBACK_GRENADE, optionsGrenade, 5);
-            int selected = Integer.parseInt(gameEngine.waitShort(player, 5));
+            player.choose(CHOOSE_POWERUP.toString(), SELECT_TAGBACK_GRENADE, optionsGrenade, GRENADE_SHORT_TIMER);
+            int selected = Integer.parseInt(gameEngine.waitShort(player, GRENADE_SHORT_TIMER));
             if (selected == optionsGrenade.size()){
                 return (handleTagbackGrenade(p));
             }
@@ -1149,6 +1072,7 @@ public class TurnManager {
         return damages;
     }
 
+
     /**
      * Updates the list of dead players.
      */
@@ -1189,26 +1113,6 @@ public class TurnManager {
 
         getVirtualView(p).choose(CHOOSE_STRING.toString(), request, new ArrayList(Arrays.asList(YES, NO)));
         int answer = Integer.parseInt(gameEngine.wait(getVirtualView(p)));
-        if (answer == 1){
-            LOGGER.log(Level.FINE, "action confirmed");
-            return true;
-        }
-        return false;
-
-    }
-
-    /**
-     * Asks a specific player whether he wants to confirm his last action.
-     *
-     * @param p                 the player the question is asked.
-     * @return                  true if the player decides to confirm the action.
-     * @throws      NotEnoughPlayersException           if thrown by wait().
-     * @throws      SlowAnswerException                 if thrown by wait().
-     */
-    private boolean askConfirmationGrenade(Player p) throws SlowAnswerException,NotEnoughPlayersException{
-
-        getVirtualView(p).choose(CHOOSE_STRING.toString(), ASK_GRENADE_CONFIRMATION, new ArrayList(Arrays.asList(YES, NO)), 5);
-        int answer = Integer.parseInt(gameEngine.waitShort(getVirtualView(p), 5));
         if (answer == 1){
             LOGGER.log(Level.FINE, "action confirmed");
             return true;
@@ -1261,26 +1165,6 @@ public class TurnManager {
 
 
     /**
-     * Resets the effects of the last convertPowerUp call.
-     * If it is called during the ending phase, it restarts the ending phase by calling handleUsingPowerUp(), convertPowerUp().
-     *
-     * @throws SlowAnswerException              if thrown by handleUsingPowerUp() or convertPowerUp().
-     * @throws NotEnoughPlayersException        if thrown by handleUsingPowerUp() or convertPowerUp().
-     *
-     * @return true if a decision about using or converting powerups was taken.
-     */
-    private boolean resetConvert() throws SlowAnswerException, NotEnoughPlayersException{
-        restoreAndNotify();
-        if (actionsLeft  == 0){
-            boolean use1 = handleUsingPowerUp();
-            boolean use2 = convertPowerUp(false);
-            return (use1 || use2);
-        }
-        return true;
-    }
-
-
-    /**
      * Resets the effects of the last action.
      * If it is called during the ending phase, it restarts the ending phase by calling handleUsingPowerUp(), convertPowerUp(), reload().
      * Increments the number of action left since the last one was annulled.
@@ -1298,7 +1182,6 @@ public class TurnManager {
         if (actionsLeft == 0)
         {
             handleUsingPowerUp();
-            convertPowerUp(false);
             reload(3);
         }
         else actionsLeft++;
@@ -1394,4 +1277,99 @@ public class TurnManager {
      * @return the IDs of the dead players.
      */
     public List<Integer> getDead() {return dead;}
+
+
+    /**
+     * Handles the payment, asking the player if he wants to convert some powerups instead of using his ammo.
+     * The player is forced to convert powerups when they are necessary to pay.
+     *
+     * @param originalCost      the ammo to pay
+     * @throws SlowAnswerException
+     * @throws NotEnoughPlayersException
+     */
+    public void handlePayment(AmmoPack originalCost) throws SlowAnswerException, NotEnoughPlayersException {
+
+        System.out.println("entering handle payment");
+        System.out.println("original cost: " + originalCost);
+
+        AmmoPack cost = new AmmoPack(originalCost.getRedAmmo(), originalCost.getBlueAmmo(), originalCost.getYellowAmmo());
+
+        if (cost.isEmpty())
+            return;
+
+        AmmoPack toPay = cost.getNeededAmmo(currentPlayer.getAmmoPack());
+        System.out.println("needs to be converted: " + toPay);
+
+        while (toPay.getRedAmmo() > 0) {
+            System.out.println("must convert red");
+            mandatoryConversion(RED);
+            toPay.subAmmo(RED);
+            cost.subAmmo(RED);
+        }
+        while (toPay.getBlueAmmo() > 0) {
+            System.out.println("must convert blue");
+            mandatoryConversion(BLUE);
+            toPay.subAmmo(BLUE);
+            cost.subAmmo(BLUE);
+        }
+        while (toPay.getYellowAmmo() > 0) {
+            System.out.println("must convert yellow");
+            mandatoryConversion(YELLOW);
+            toPay.subAmmo(YELLOW);
+            cost.subAmmo(YELLOW);
+        }
+
+        boolean askAgain = true;
+        while (!cost.isEmpty() && askAgain) {
+            System.out.println("wants to convert: " + cost);
+            System.out.println("wants to convert: ");
+            List<PowerUp> optionsPowerUps = new ArrayList<>();
+            if (cost.getRedAmmo() > 0)
+                optionsPowerUps.addAll(currentPlayer.getPowerUps(RED));
+            if (cost.getBlueAmmo() > 0)
+                optionsPowerUps.addAll(currentPlayer.getPowerUps(BLUE));
+            if (cost.getYellowAmmo() > 0)
+                optionsPowerUps.addAll(currentPlayer.getPowerUps(YELLOW));
+            if (!optionsPowerUps.isEmpty()) {
+                List<String> options = toStringList(optionsPowerUps);
+                options.add(NONE);
+                currentPlayerConnection.choose(CHOOSE_POWERUP.toString(), OPTIONAL_CONVERSION, options);
+                int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+                if (selected == options.size()) {
+                    askAgain = false;
+                } else {
+                    PowerUp selectedPowerup = optionsPowerUps.get(selected - 1);
+                    currentPlayer.discardPowerUp(selectedPowerup);
+                    cost.subAmmo(selectedPowerup.getColor());
+                }
+            }
+            else
+                askAgain = false;
+        }
+
+        System.out.println("cost at the end: " + cost);
+        currentPlayer.useAmmo(cost);
+        System.out.println("Remaining ammo " + currentPlayer.getAmmoPack());
+        board.notifyObserver(currentPlayerConnection);
+
+        System.out.println("exiting handle payment");
+
+    }
+
+
+    /**
+     * Ask a player to choose which powerup to convert when a convertion is necessary in order to pay.
+     *
+     * @param color         the color of the powerup that must be converted in order to obtain an ammo
+     * @throws SlowAnswerException
+     * @throws NotEnoughPlayersException
+     */
+    public void mandatoryConversion(Color color) throws SlowAnswerException, NotEnoughPlayersException{
+        System.out.println("entering mandatory conversion");
+        currentPlayerConnection.choose(CHOOSE_POWERUP.toString(), MANDATORY_CONVERSION, currentPlayer.getPowerUps(color));
+        int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
+        PowerUp selectedPowerup = currentPlayer.getPowerUps(color).get(selected-1);
+        currentPlayer.discardPowerUp(selectedPowerup);
+        System.out.println("exiting mandatory conversion");
+    }
 }

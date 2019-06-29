@@ -297,7 +297,7 @@ public class Updater {
             LOGGER.log(Level.FINE, "The player is not on the board, is in game remains false");
         }
 
-        return new ClientModel().new SimplePlayer(p.getId(), p.getstringColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths(), p.getPointsToGive(), p.getStatus().toString());
+        return new ClientModel().new SimplePlayer(p.getId(), p.getColor(), p.getPowerUpList().size(), damages, marks, weapons, position, p.getUsername(), p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getYellowAmmo(), isInGame, p.isFlipped(), p.getPoints(), p.getDeaths(), p.getPointsToGive(), p.getStatus().toString());
 
     }
 

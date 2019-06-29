@@ -397,8 +397,6 @@ public class Player {
         position.removeCard(collectedCard);
 
         if (this.board.getSpawnPoints().contains(position)){
-            this.getAmmoPack().subAmmoPack(((Weapon)collectedCard).getReducedCost());
-            board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this, ((Weapon)collectedCard).getReducedCost()));
             addWeapon((Weapon) collectedCard);
             ((Weapon)collectedCard).setLoaded(true);
             ((Weapon)collectedCard).setHolder(this);
@@ -523,6 +521,19 @@ public class Player {
 
 
     /**
+     * Returns true if the player can pay an amount of ammo, considering his ammo and the powerups he can convert.
+     *
+     * @param ammoPack        the price to pay.
+     */
+    public boolean canPay(AmmoPack ammoPack){
+
+        return (this.ammoPack.getRedAmmo() + getPowerUps(RED).size() >= ammoPack.getRedAmmo()&&
+                this.ammoPack.getBlueAmmo() + getPowerUps(BLUE).size() >= ammoPack.getBlueAmmo()&&
+                this.ammoPack.getYellowAmmo() + getPowerUps(YELLOW).size() >= ammoPack.getYellowAmmo());
+    }
+
+
+    /**
      * Removes ammo from the player ammo pack.
      *
      * @param usedAmmo        the used ammo.
@@ -554,14 +565,6 @@ public class Player {
         addAmmoPack(ap);
     }
 
-    public String getColor(){
-        if (name==HeroName.BANSHEE) return "blue";
-        if (name==HeroName.D_STRUCT_OR) return "yellow";
-        if (name==HeroName.DOZER) return "grey";
-        if (name==HeroName.VIOLET) return "purple";
-        if (name==HeroName.SPROG) return "green";
-        else return "white";
-    }
 
     /**
      * Returns the weapons that the player can reload, considering his ammo and the weapon status.
@@ -571,12 +574,13 @@ public class Player {
     public List<Weapon> getReloadableWeapons(){
         List<Weapon> reloadable = new ArrayList<>();
         for (Weapon w: weaponList){
-            if (!w.isLoaded() && this.hasEnoughAmmo(w.getFullCost())){
+            if (!w.isLoaded() && this.canPay(w.getFullCost())){
                 reloadable.add(w);
             }
         }
         return reloadable;
     }
+
 
     /**
      * Returns loaded weapons
@@ -593,6 +597,7 @@ public class Player {
         return loaded;
     }
 
+
     /**
      * Returns the weapons that the player can use.
      *
@@ -608,15 +613,42 @@ public class Player {
         return available;
     }
 
+
+    /**
+     * Return all the player powerUps of a specific type.
+     *
+     * @param name      the type of powerup
+     * @return           the player powerUps of the specific type.
+     */
     public List<PowerUp> getPowerUps(PowerUp.PowerUpName name){
         List<PowerUp> powerUps
                 = new ArrayList<>();
         for (PowerUp p : powerUpList){
-            if (p.getName()== name){
+            // the cost is needed only in the case of the targeting scope. It is doubled since the targeting scope which is being used cannot be converted.
+            AmmoPack doubledCost = new AmmoPack(p.getCost().getRedAmmo(), p.getCost().getBlueAmmo(), p.getCost().getYellowAmmo());
+            doubledCost.addAmmoPack(p.getCost());
+            if (p.getName()== name && this.canPay(doubledCost)){
                 powerUps.add(p);
             }
         }
         return powerUps;
+    }
+
+
+    /**
+     * Returns all the player powerups of a specific color.
+     *
+     * @param color     the desired color.
+     * @return          the player powerups of the specified color.
+     */
+    public List<PowerUp> getPowerUps(Color color){
+        List<PowerUp> coloredPowerUps = new ArrayList<>();
+        for (PowerUp p : powerUpList){
+            if (p.getColor().equals(color)){
+                coloredPowerUps.add(p);
+            }
+        }
+        return coloredPowerUps;
     }
 
 
@@ -940,18 +972,24 @@ public class Player {
 
         List<Weapon> collectible = new ArrayList<>();
         for (Weapon w : weaponSquare.getWeapons()){
-            if (hasEnoughAmmo(w.getReducedCost())) collectible.add(w);
+            if (canPay(w.getReducedCost())) collectible.add(w);
         }
         return collectible;
 
     }
 
-    public String getstringColor(){
-        if (name==HeroName.D_STRUCT_OR) return "yellow";
+
+    /**
+     * Returns the player color, depending on his hero.
+     *
+     * @return      the player color.
+     */
+    public String getColor(){
         if (name==HeroName.BANSHEE) return "blue";
+        if (name==HeroName.D_STRUCT_OR) return "yellow";
         if (name==HeroName.DOZER) return "grey";
-        if (name==HeroName.SPROG) return "green";
         if (name==HeroName.VIOLET) return "purple";
+        if (name==HeroName.SPROG) return "green";
         else return "wrong hero name: no color";
     }
 

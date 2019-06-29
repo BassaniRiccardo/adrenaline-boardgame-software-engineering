@@ -3,6 +3,7 @@ package it.polimi.ingsw.model;
 import it.polimi.ingsw.model.cards.AmmoPack;
 import org.junit.Test;
 
+import static it.polimi.ingsw.model.cards.Color.*;
 import static org.junit.Assert.*;
 /**
  * Tests all methods of the class AmmoPack.
@@ -118,6 +119,73 @@ public class AmmoPackTest {
         assertEquals(3, ammoPack1.getYellowAmmo());
 
     }
+
+
+    /**
+     * Tests subAmmo().
+     */
+    @Test()
+    public void subAmmo() {
+
+        AmmoPack ammoPack = new AmmoPack(1,2,3);
+
+        ammoPack.subAmmo(RED);
+        assertEquals (0, ammoPack.getRedAmmo());
+        assertEquals (2, ammoPack.getBlueAmmo());
+        assertEquals (3, ammoPack.getYellowAmmo());
+
+
+        ammoPack.subAmmo(BLUE);
+        assertEquals (0, ammoPack.getRedAmmo());
+        assertEquals (1, ammoPack.getBlueAmmo());
+        assertEquals (3, ammoPack.getYellowAmmo());
+
+        ammoPack.subAmmo(YELLOW);
+        assertEquals (0, ammoPack.getRedAmmo());
+        assertEquals (1, ammoPack.getBlueAmmo());
+        assertEquals (2, ammoPack.getYellowAmmo());
+    }
+
+
+    /**
+     * Tests isEmpty().
+     */
+    @Test()
+    public void isEmpty() {
+
+        AmmoPack ammoPack1 = new AmmoPack(1,2,3);
+        AmmoPack ammoPack2 = new AmmoPack(0,0,0);
+
+        assertFalse (ammoPack1.isEmpty());
+        assertTrue (ammoPack2.isEmpty());
+
+    }
+
+
+    /**
+     * Tests getNeededAmmo().
+     */
+    @Test()
+    public void getNeededAmmo() {
+
+        AmmoPack available = new AmmoPack(1,2,3);
+        AmmoPack toPay1 = new AmmoPack(3,0,2);
+        AmmoPack toPay2 = new AmmoPack(0,0,0);
+        AmmoPack toPay3 = new AmmoPack(3,3,3);
+
+        assertEquals (2, toPay1.getNeededAmmo(available).getRedAmmo());
+        assertEquals (0, toPay1.getNeededAmmo(available).getBlueAmmo());
+        assertEquals (0, toPay1.getNeededAmmo(available).getYellowAmmo());
+
+        assertEquals (0, toPay2.getNeededAmmo(available).getRedAmmo());
+        assertEquals (0, toPay2.getNeededAmmo(available).getBlueAmmo());
+        assertEquals (0, toPay2.getNeededAmmo(available).getYellowAmmo());
+
+        assertEquals (3, toPay3.getNeededAmmo(toPay2).getRedAmmo());
+        assertEquals (3, toPay3.getNeededAmmo(toPay2).getBlueAmmo());
+        assertEquals (3, toPay3.getNeededAmmo(toPay2).getYellowAmmo());
+    }
+
 
 
 }

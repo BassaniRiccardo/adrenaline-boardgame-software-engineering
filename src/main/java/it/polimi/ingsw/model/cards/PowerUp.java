@@ -8,6 +8,8 @@ import it.polimi.ingsw.view.ClientModel;
 
 import java.util.List;
 
+import static it.polimi.ingsw.model.cards.Color.*;
+
 /**
  * Class modeling a power up card.
  *
@@ -150,5 +152,17 @@ public class PowerUp implements Targeted, Card {
     @Override
     public String toString(){
         return  ClientModel.getEscapeCode(getColor().toStringLowerCase()) + name.toString() + RESET;
-            }
+    }
+
+    public AmmoPack getCost(){
+        if (name == PowerUpName.TARGETING_SCOPE){
+            if (color == RED)
+                return new AmmoPack(1, 0, 0);
+            else if (color == BLUE)
+                return new AmmoPack(0, 1, 0);
+            else if (color == YELLOW)
+                return new AmmoPack(0, 0, 1);
+        }
+        return new AmmoPack(0,0,0);
+    }
 }

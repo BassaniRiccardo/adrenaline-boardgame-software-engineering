@@ -1,5 +1,9 @@
 package it.polimi.ingsw.model.cards;
 
+import java.util.List;
+
+import static it.polimi.ingsw.model.cards.Color.*;
+
 /**
  * Represents a package of ammo of the three colors.
  * Contains as attributes the number of the 3 kinds of ammo.
@@ -75,6 +79,48 @@ public class AmmoPack {
         this.yellowAmmo -= aP.yellowAmmo;
 
     }
+
+
+    /**
+     * Returns the ammo pack needed to pay this ammo pack when a specified ammo pack is available.
+     *
+     * @param available     the available ammo pack.
+     * @return              the needed ammo pack.
+     */
+    public AmmoPack getNeededAmmo(AmmoPack available){
+        int neededRed = Math.max(0, this.getRedAmmo() - available.getRedAmmo());
+        int neededBlue = Math.max(0, this.getBlueAmmo() - available.getBlueAmmo());
+        int neededYellow = Math.max(0, this.getYellowAmmo() - available.getYellowAmmo());
+        return new AmmoPack(neededRed, neededBlue, neededYellow);
+    }
+
+
+    /**
+     * Returns whether the ammo pack does not contain ammo.
+     *
+     * @return  true if the ammo pack has 0 red ammo, 0 blue ammo and 0 yellow ammo.
+     *          false otherwise
+     */
+    public boolean isEmpty(){
+        return (redAmmo==0 && blueAmmo == 0 && yellowAmmo == 0);
+    }
+
+
+    /**
+     * Subtract form an ammo pack an ammo of the specified color.
+     *
+     * @param color     the color of the ammo to subtract.
+     */
+    public void subAmmo(Color color){
+        if (color.equals(RED))
+            this.subAmmoPack(new AmmoPack(1,0,0));
+        if (color.equals(BLUE))
+            this.subAmmoPack(new AmmoPack(0,1,0));
+        if (color.equals(YELLOW))
+            this.subAmmoPack(new AmmoPack(0,0,1));
+    }
+
+
 
     @Override
     public String toString() {

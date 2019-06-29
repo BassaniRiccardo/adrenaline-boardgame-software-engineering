@@ -138,7 +138,7 @@ public class Weapon implements Card {
 
         List<FireMode> available = new ArrayList<>();
         for (FireMode f : fireModeList) {
-            if (f.isAvailable() && (holder.hasEnoughAmmo(f.getCost()))) {
+            if (f.isAvailable() && (holder.canPay(f.getCost()))) {
                 available.add(f);
             }
         }
@@ -164,14 +164,10 @@ public class Weapon implements Card {
     /**
      *Reloads the current weapon.
      */
-    public void reload() throws NotAvailableAttributeException, WrongTimeException {
+    public void reload() throws WrongTimeException {
 
         if (loaded){ throw new WrongTimeException("A weapon can be reloaded only if unloaded.");}
         this.setLoaded(true);
-        this.getHolder().getAmmoPack().subAmmoPack(this.fullCost);
-        board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this.holder, this.fullCost));
-
-
     }
 
 

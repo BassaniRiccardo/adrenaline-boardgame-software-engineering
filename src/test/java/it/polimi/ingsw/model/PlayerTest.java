@@ -14,6 +14,7 @@ import org.junit.Before;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -308,6 +309,41 @@ public class PlayerTest {
 
         //p2 is a target, the newton is usable
         assertTrue(p1.hasUsableTeleporterOrNewton());
+
+    }
+
+
+    /**
+     *  Tests the method getPowerUpsColor().
+     */
+    @Test
+    public void getPowerUpsColor() {
+
+        Board b = BoardConfigurer.configureMap(4);
+        PowerUpFactory powerUpFactory = new PowerUpFactory(b);
+        Player p1 = new Player(1, Player.HeroName.SPROG, b);
+        b.getPlayers().add(p1);
+        p1.setInGame(true);
+
+        //the player has no powerups
+        assertTrue(p1.getPowerUps(BLUE).isEmpty());
+        PowerUp bluePowerUpToAdd  =powerUpFactory.createPowerUp(PowerUp.PowerUpName.NEWTON, BLUE);
+        bluePowerUpToAdd.setHolder(p1);
+        p1.getPowerUpList().add(bluePowerUpToAdd);
+
+        //the player has a blue powerup but no red or yellow powerups
+        assertEquals(Collections.singletonList(bluePowerUpToAdd), p1.getPowerUps(BLUE));
+        assertTrue(p1.getPowerUps(RED).isEmpty());
+        assertTrue(p1.getPowerUps(YELLOW).isEmpty());
+
+        PowerUp redPowerUpToAdd1  =powerUpFactory.createPowerUp(PowerUp.PowerUpName.NEWTON, RED);
+        bluePowerUpToAdd.setHolder(p1);
+        p1.getPowerUpList().add(redPowerUpToAdd1);
+        PowerUp redPowerUpToAdd2  =powerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, RED);
+        bluePowerUpToAdd.setHolder(p1);
+        p1.getPowerUpList().add(redPowerUpToAdd2);
+        assertEquals(Arrays.asList(redPowerUpToAdd1, redPowerUpToAdd2), p1.getPowerUps(RED));
+
 
     }
 

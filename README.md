@@ -24,7 +24,7 @@
 [![GREEN](https://placehold.it/15/44bb44/44bb44)](#)RED
 -->
 
-###Setup:
+**Setup:**
 - The server uses port 3994 for RMI and 4198 for TCP.
 - Server parameters must be set in resources/server.properties (IP and ports).
 - Client parameters can be either set in resources/client.properties or you can use

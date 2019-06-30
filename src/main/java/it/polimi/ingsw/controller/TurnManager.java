@@ -15,19 +15,16 @@ import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
 /**
- * Manages a turn, displaying the main events on the console.
+ * Manages a turn, handling the exchange of messages with the user.
  * Every time the user has to take a decision, he is given the possibility to reset his action.
  * The extent of the resets varies depending on the game phase.
  * The user is asked for a confirmation after every action and after he is given the possibility to actually see the effects of his actions.
- * The only exception is the collecting of an ammotile: since a powerup could be drawn after this (and being it a random event)
- * the user must confirm his action before collecting the ammotile.
+ * The exception are:
+ * - the collecting of an ammotile: since a powerup could be drawn after this (and being it a random event). The user must confirm his action before collecting the ammotile.
+ * - the use of a tagback grenade, to avoid that the interruption of the shooter's turn becomes too long. The hit player cannot change is mind about the use of grenades.
  *
  * @author BassaniRiccardo
  */
-
-// TODO:
-//      - Finish testing.
-//      - discuss confirmations
 
 
 public class TurnManager {
@@ -61,15 +58,12 @@ public class TurnManager {
     private static final String ASK_MOVEMENT_CONFIRMATION = "Do you confirm the movement?";
     private static final String ASK_COLLECTING_CONFIRMATION = "Do you confirm the collecting?";
     private static final String ASK_SHOOTING_CONFIRMATION = "Do you confirm the shooting action?";
-    private static final String ASK_GRENADE_CONFIRMATION = "Do you confirm your decisions about grenades?";
     private static final String ASK_RELOADING_CONFIRMATION = "Do you confirm your choices in the reloading process?";
 
     private static final String SELECT_POWERUP_TO_DISCARD = "Which powerUp do you want to discard?";
-    private static final String SELECT_POWERUP_TO_CONVERT = "Which powerup do you want to convert?";
     private static final String SELECT_POWERUP_TO_USE = "Which powerup do you want to use?";
 
     private static final String USE_POWERUP = "Use Powerup";
-    private static final String CONVERT_POWERUP = "Convert Powerup";
     private static final String ASKING_TARGETS_GRENADES = "Asking hit players if they want to use a tagback grenade.";
     private static final String SHOT_YOU = " shot you.";
     private static final String THE_TURN_OF ="The turn of ";
@@ -78,7 +72,6 @@ public class TurnManager {
     private static final String YOUR_TURN ="Your turn";
 
     private static final String DEMAND_USE_POWERUP = "Do you want to use a powerup?";
-    private static final String DEMAND_CONVERT_POWERUP = "Do you want to convert a powerup?";
     private static final String DEMAND_USE_TARGETING_SCOPE = "Do you want to use a targeting scope?";
     private static final String DEMAND_USE_TAGBACK_GRENADE = "Do you want to use a tagback grenade?";
 
@@ -1289,31 +1282,24 @@ public class TurnManager {
      */
     public void handlePayment(AmmoPack originalCost) throws SlowAnswerException, NotEnoughPlayersException {
 
-        System.out.println("entering handle payment");
-        System.out.println("original cost: " + originalCost);
-
         AmmoPack cost = new AmmoPack(originalCost.getRedAmmo(), originalCost.getBlueAmmo(), originalCost.getYellowAmmo());
 
         if (cost.isEmpty())
             return;
 
         AmmoPack toPay = cost.getNeededAmmo(currentPlayer.getAmmoPack());
-        System.out.println("needs to be converted: " + toPay);
 
         while (toPay.getRedAmmo() > 0) {
-            System.out.println("must convert red");
             mandatoryConversion(RED);
             toPay.subAmmo(RED);
             cost.subAmmo(RED);
         }
         while (toPay.getBlueAmmo() > 0) {
-            System.out.println("must convert blue");
             mandatoryConversion(BLUE);
             toPay.subAmmo(BLUE);
             cost.subAmmo(BLUE);
         }
         while (toPay.getYellowAmmo() > 0) {
-            System.out.println("must convert yellow");
             mandatoryConversion(YELLOW);
             toPay.subAmmo(YELLOW);
             cost.subAmmo(YELLOW);
@@ -1321,8 +1307,6 @@ public class TurnManager {
 
         boolean askAgain = true;
         while (!cost.isEmpty() && askAgain) {
-            System.out.println("wants to convert: " + cost);
-            System.out.println("wants to convert: ");
             List<PowerUp> optionsPowerUps = new ArrayList<>();
             if (cost.getRedAmmo() > 0)
                 optionsPowerUps.addAll(currentPlayer.getPowerUps(RED));
@@ -1347,12 +1331,8 @@ public class TurnManager {
                 askAgain = false;
         }
 
-        System.out.println("cost at the end: " + cost);
         currentPlayer.useAmmo(cost);
-        System.out.println("Remaining ammo " + currentPlayer.getAmmoPack());
         board.notifyObserver(currentPlayerConnection);
-
-        System.out.println("exiting handle payment");
 
     }
 
@@ -1365,11 +1345,9 @@ public class TurnManager {
      * @throws NotEnoughPlayersException
      */
     public void mandatoryConversion(Color color) throws SlowAnswerException, NotEnoughPlayersException{
-        System.out.println("entering mandatory conversion");
         currentPlayerConnection.choose(CHOOSE_POWERUP.toString(), MANDATORY_CONVERSION, currentPlayer.getPowerUps(color));
         int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         PowerUp selectedPowerup = currentPlayer.getPowerUps(color).get(selected-1);
         currentPlayer.discardPowerUp(selectedPowerup);
-        System.out.println("exiting mandatory conversion");
     }
 }

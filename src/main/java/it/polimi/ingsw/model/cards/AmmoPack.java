@@ -1,7 +1,5 @@
 package it.polimi.ingsw.model.cards;
 
-import java.util.List;
-
 import static it.polimi.ingsw.model.cards.Color.*;
 
 /**
@@ -19,7 +17,8 @@ public class AmmoPack {
     private int redAmmo;
     private int blueAmmo;
     private int yellowAmmo;
-    public static final int MAX_AMMO = 3;
+    public static final int MAX_AMMO_AMOUNT = 3;
+    private static final int MIN_AMMO_AMOUNT = 0;
 
     /**
      * Constructor.
@@ -32,7 +31,7 @@ public class AmmoPack {
      */
     public AmmoPack(int r, int b, int y) {
 
-        if (r<0 || r>3 || b<0 || b>3 || y<0 || y>3 ){
+        if (r < MIN_AMMO_AMOUNT || r > MAX_AMMO_AMOUNT || b < MIN_AMMO_AMOUNT || b > MAX_AMMO_AMOUNT || y < MIN_AMMO_AMOUNT || y > MAX_AMMO_AMOUNT ){
             throw new IllegalArgumentException("An ammo pack must contain between 0 and 3 ammo for each color.");
         }
         this.redAmmo = r;
@@ -42,12 +41,24 @@ public class AmmoPack {
 
 
     /**
-     * Getters
+     * Getter for redAmmo
+     *
+     * @return the number of red ammo.
      */
     public int getRedAmmo() { return redAmmo; }
 
+    /**
+     * Getter for blueAmmo
+     *
+     * @return the number of blue ammo.
+     */
     public int getBlueAmmo() { return blueAmmo; }
 
+    /**
+     * Getter for yellowAmmo
+     *
+     * @return the number of yellow ammo.
+     */
     public int getYellowAmmo() { return yellowAmmo; }
 
 
@@ -57,9 +68,9 @@ public class AmmoPack {
      * @param aP        the added ammo pack.
      */
     public void addAmmoPack(AmmoPack aP){
-        this.redAmmo = Math.min(MAX_AMMO, this.redAmmo + aP.getRedAmmo() ) ;
-        this.blueAmmo = Math.min(MAX_AMMO, this.blueAmmo + aP.getBlueAmmo() ) ;
-        this.yellowAmmo = Math.min(MAX_AMMO, this.yellowAmmo + aP.getYellowAmmo() ) ;
+        this.redAmmo = Math.min(MAX_AMMO_AMOUNT, this.redAmmo + aP.getRedAmmo() ) ;
+        this.blueAmmo = Math.min(MAX_AMMO_AMOUNT, this.blueAmmo + aP.getBlueAmmo() ) ;
+        this.yellowAmmo = Math.min(MAX_AMMO_AMOUNT, this.yellowAmmo + aP.getYellowAmmo() ) ;
     }
 
 
@@ -67,7 +78,7 @@ public class AmmoPack {
      * Subtracts the amount of ammo of an ammo pack.
      *
      * @param aP        AmmoPack subtracted.
-     * @throws          IllegalArgumentException
+     * @throws          IllegalArgumentException if it is impossible to subtract the ammo.
      */
     public void subAmmoPack(AmmoPack aP) {
 
@@ -121,7 +132,11 @@ public class AmmoPack {
     }
 
 
-
+    /**
+     * Returns a string representing the ammo pack.
+     *
+     * @return      the description of the ammopack.
+     */
     @Override
     public String toString() {
         return "r" + redAmmo + " b" + blueAmmo + " y" + yellowAmmo;

@@ -9,6 +9,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
  *
  * @author  davidealde
  */
+
 public class AmmoTile implements Card{
 
     private final boolean powerUp;
@@ -29,21 +30,42 @@ public class AmmoTile implements Card{
 
 
     /**
-     * Getters
+     * Getter for powerUp.
+     *
+     * @return whether the ammo tile allows to draw a powerup.
      */
-
     public boolean hasPowerUp() {
         return powerUp;
     }
 
+    /**
+     * Getter for ammoPack.
+     *
+     * @return the ammo pack on the tile.
+     */
     public AmmoPack getAmmoPack() {
         return ammoPack;
     }
 
+    /**
+     * Getter for holder.
+     *
+     * @return nothing. This method should not be called. If it happens it throws an exception since an ammo tile does not have an holder.
+     */
     public Player getHolder() throws NotAvailableAttributeException { throw new NotAvailableAttributeException("An ammo tile does not have an holder"); }
 
+    /**
+     * Getter for holder.
+     *
+     * @return nothing. This method should not be called. If it happens it throws an exception since an ammo tile does not have an color.
+     */
     public Color getColor() throws NotAvailableAttributeException { throw new NotAvailableAttributeException("An ammo tile does not have a color"); }
 
+    /**
+     * Setter for holder.
+     *
+     * @parameter the tile holder. This method should not be called. If it happens it throws an exception since an ammo tile does not have an holder.
+     */
     public void setHolder(Player holder) throws NotAvailableAttributeException { throw new NotAvailableAttributeException("An ammo tile does not have an holder"); }
 
 }

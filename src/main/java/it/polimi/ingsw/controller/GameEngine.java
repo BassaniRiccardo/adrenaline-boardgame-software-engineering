@@ -179,6 +179,7 @@ public class GameEngine implements Runnable{
 
             LOGGER.log(Level.FINE, "GameEngine running");
 
+            /*
 
             try {
                 setup();
@@ -189,9 +190,9 @@ public class GameEngine implements Runnable{
                 ServerMain.getInstance().untrackGame(this);
                 return;
             }
+*/
 
-
-            //fakeSetup();
+            fakeSetup();
 
             if (endphaseSimulation) {
                 try {
@@ -205,7 +206,7 @@ public class GameEngine implements Runnable{
             }
 
             else {
-                battleCry();
+                //battleCry();
             }
 
 

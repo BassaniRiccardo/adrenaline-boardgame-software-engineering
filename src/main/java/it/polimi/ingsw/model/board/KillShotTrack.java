@@ -32,9 +32,6 @@ public class KillShotTrack {
     private static final int THRESHOLD_FOR_LAST_DECREASE = 2;
 
 
-
-
-
     /**
      * Constructs a kill shot track with the number of skulls to addList to the track and a reference to the board.
      *

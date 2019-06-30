@@ -271,6 +271,14 @@ public class Updater {
         return jsonObject;
     }
 
+
+    /**
+     * Creates a SimplePlayer, hence a simplified version of a specified player to be saved on the client.
+     *
+     * @param p             the Player to take date form.
+     * @param board         the player board.
+     * @return              the created SimplePlayer.
+     */
     public static ClientModel.SimplePlayer createSimplePlayer(Player p, Board board){
 
         //create a new simplePlayer
@@ -302,7 +310,6 @@ public class Updater {
     }
 
 
-
     /**
      * Helper method creating the common structure of most update messages.
      * @param msg   type of the update message
@@ -314,6 +321,7 @@ public class Updater {
         j.addProperty(TYPE_PROP, msg);
         return j;
     }
+
 
     public static JsonObject getRenderMessage() {
         JsonObject j = new JsonObject();

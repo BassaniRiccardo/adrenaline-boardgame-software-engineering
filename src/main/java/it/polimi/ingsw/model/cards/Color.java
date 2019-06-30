@@ -10,6 +10,11 @@ public enum Color {
 
     RED, YELLOW, BLUE, GREY, PURPLE, GREEN;
 
+    /**
+     * Returns a string representing a color.
+     *
+     * @return      the description of the color.
+     */
     @Override
     public String toString(){
 
@@ -17,6 +22,11 @@ public enum Color {
 
     }
 
+    /**
+     * Returns a lowercase string representing a color.
+     *
+     * @return      the lowercase description of the color.
+     */
     public String toStringLowerCase(){
 
         return  this.name().toLowerCase();

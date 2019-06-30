@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static it.polimi.ingsw.model.cards.AmmoPack.MAX_AMMO;
+import static it.polimi.ingsw.model.cards.AmmoPack.MAX_AMMO_AMOUNT;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 import static java.util.Collections.*;
 import static it.polimi.ingsw.model.cards.Color.*;
@@ -27,12 +27,9 @@ import static it.polimi.ingsw.model.cards.Color.*;
  * There are from 3 up to 5 instances of Player.
  * The id attribute is unique.
  *
- * @author davidealde, BassaniRiccardo
+ * @author BassaniRiccardo, davidealde
  */
 
-//TODO
-// Look at the comments at line 246, 287/
-// "die" message should include whether the player is or is not dead, since it is sent every time an action in reset.
 
 public class Player {
 
@@ -81,8 +78,15 @@ public class Player {
 
     private boolean inGame;
     private static ModelDataReader j = new ModelDataReader();
-    private final String RESET = "\u001b[0m";
+    private static final String RESET = "\u001b[0m";
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
+    private static final String SHOOT = "shoot";
+    private static final String STATUS_TAG = "status";
+    private static final String STEPS = "steps";
+    private static final String COLLECT = "collect";
+    private static final String RELOAD = "reload";
+    private static final String NUMBER_OF_ACTIONS = "numberOfActions";
+
 
 
     /**
@@ -128,43 +132,8 @@ public class Player {
 
     }
 
-    //TODO: to remove if a fake player is not created
-    public Player(Player toCopy) {
 
-        this.id = toCopy.getId();
-        this.name = toCopy.getName();
-        this.board = toCopy.getBoard();
-        this.status = toCopy.getStatus();
-        this.points = toCopy.getPoints();
-        this.dead = toCopy.isDead();
-        this.flipped = toCopy.isFlipped();
-
-        this.damages = toCopy.getDamages();
-        this.marks = toCopy.getMarks();
-
-        this.position = null;
-        this.previousPosition = null;
-
-        this.weaponList = toCopy.getWeaponList();
-        this.powerUpList = toCopy.getPowerUpList();
-        this.ammoPack = toCopy.getAmmoPack();
-
-        this.actionList = toCopy.getActionList();
-        this.mainTargets= toCopy.getMainTargets();
-        this.optionalTargets= toCopy.getOptionalTargets();
-
-        this. pointsToGive = toCopy.getPointsToGive();
-        this.pointsToGive= toCopy.getPointsToGive();
-        this.justDamaged=toCopy.isJustDamaged();
-        this.overkilled = toCopy.isOverkilled();
-
-        this.inGame = toCopy.isInGame();
-
-    }
-
-
-
-    /**
+    /*
      * Getters
      */
 
@@ -207,8 +176,8 @@ public class Player {
     public Square getPreviousPosition() {
 
         if (previousPosition == null) return position;
-            //throw new NotAvailableAttributeException("The player was not on the board.");
-        return previousPosition;}
+        return previousPosition;
+    }
 
     public List<Player> getMainTargets(){return mainTargets;}
 
@@ -222,11 +191,10 @@ public class Player {
 
     public String getUsername() { return username; }
 
-    /**
-     * Setters
-     *
-     */
 
+    /*
+     * Setters
+     */
 
     public void setPosition(Square square) {
         setVirtualPosition(square);
@@ -234,7 +202,7 @@ public class Player {
     }
 
     /**
-     * Virtual position used for calculating shooting squares. Needs to be manually reset
+     * Virtual position used for calculating shooting squares. Needs to be manually RESET
      * @param square    virtual movement destination
      */
     public void setVirtualPosition(Square square){
@@ -359,6 +327,7 @@ public class Player {
      * Adds a weapon to the player weapons list.
      *
      * @param addedWeapon           weapon added.
+     * @throws UnacceptableItemNumberException if the player already holds the maximum number of weapons.
      */
     public void addWeapon(Weapon addedWeapon) throws UnacceptableItemNumberException {
 
@@ -378,9 +347,9 @@ public class Player {
      */
     public void addAmmoPack(AmmoPack ammoPack) {
 
-        int red = Math.min(MAX_AMMO - this.ammoPack.getRedAmmo(), ammoPack.getRedAmmo());
-        int blue = Math.min(MAX_AMMO - this.ammoPack.getBlueAmmo(), ammoPack.getBlueAmmo());
-        int yellow = Math.min(MAX_AMMO - this.ammoPack.getYellowAmmo(), ammoPack.getYellowAmmo());
+        int red = Math.min(MAX_AMMO_AMOUNT - this.ammoPack.getRedAmmo(), ammoPack.getRedAmmo());
+        int blue = Math.min(MAX_AMMO_AMOUNT - this.ammoPack.getBlueAmmo(), ammoPack.getBlueAmmo());
+        int yellow = Math.min(MAX_AMMO_AMOUNT - this.ammoPack.getYellowAmmo(), ammoPack.getYellowAmmo());
         AmmoPack ap = new AmmoPack(red, blue, yellow);
 
         this.ammoPack.addAmmoPack(ap);
@@ -390,9 +359,11 @@ public class Player {
 
     /**
      * Collects a card.
-     *
+     * @throws NoMoreCardsException if no cards are present in the player position.
+     * @throws UnacceptableItemNumberException if the player tries to collect a card when he already holds the maximum number allowed for its type.
+     * @throws WrongTimeException if thrown by drawPowerUp().
      */
-    public boolean collect(Card collectedCard) throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
+    public boolean collect(Card collectedCard)  throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
         position.removeCard(collectedCard);
 
@@ -415,6 +386,9 @@ public class Player {
     /**
      * Draws a random power up from the deck of power ups and adds it to the player power ups list.
      * If there are no drawable cards left in the deck, the deck is regenerated.
+     * @throws NoMoreCardsException if no cards are present in the powerup deck tp be drawn.
+     * @throws UnacceptableItemNumberException if the player tries to draw a powerup when he already holds the maximum number allowed.
+     * @throws WrongTimeException if thrown by regenerate().
      */
     public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
@@ -440,11 +414,6 @@ public class Player {
     public void discardWeapon(Card removedWeapon) {
         if (!weaponList.contains(removedWeapon)) throw new IllegalArgumentException("The player does not own this weapon");
         weaponList.remove(removedWeapon);
-        /*
-        try {
-            removedWeapon.setHolder(null);
-        } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "This type of card cannot have an holder");}
-        */
         board.addToUpdateQueue(Updater.get(Updater.DISCARD_WEAPON_UPD, this, (Weapon)removedWeapon));
     }
 
@@ -468,7 +437,7 @@ public class Player {
      *
      * @return  true if the player owns a teleporter or a newton which can be used against an enemy.
      *          false otherwise.
-     * @throws  NotAvailableAttributeException
+     * @throws  NotAvailableAttributeException      if thrown by PowerUp.findTargets().
      */
     public boolean hasUsableTeleporterOrNewton() throws NotAvailableAttributeException {
         for (PowerUp p : getPowerUpList()) {
@@ -478,13 +447,12 @@ public class Player {
     }
 
     /**
-     * Returns whether the player owns a tagback grenade which can be used against an enemy.
+     * Returns whether the player owns a tagback grenade.
      *
-     * @return  true if the player owns a tagback grenade which can be used against an enemy.
+     * @return  true if the player owns a tagback grenade.
      *          false otherwise.
-     * @throws  NotAvailableAttributeException
      */
-    public boolean hasUsableTagbackGrenade() throws NotAvailableAttributeException {
+    public boolean hasUsableTagbackGrenade() {
         for (PowerUp p : getPowerUpList()) {
             if (p.getName() == PowerUp.PowerUpName.TAGBACK_GRENADE) return true;
         }
@@ -497,26 +465,13 @@ public class Player {
      *
      * @return  true if the player owns a targeting scope which can be used against an enemy.
      *          false otherwise.
-     * @throws  NotAvailableAttributeException
+     * @throws  NotAvailableAttributeException if thrown by PowerUp.findTargets().
      */
     public boolean hasUsableTargetingScope() throws NotAvailableAttributeException {
         for (PowerUp p : getPowerUpList()) {
             if (p.getName() == PowerUp.PowerUpName.TARGETING_SCOPE && !(p.findTargets().isEmpty())) return true;
         }
         return false;
-    }
-
-
-    /**
-     * Returns true if the player has enough ammo to spend.
-     *
-     * @param ammoPack        the price to spend.
-     */
-    public boolean hasEnoughAmmo(AmmoPack ammoPack){
-
-        return (this.ammoPack.getRedAmmo()>=ammoPack.getRedAmmo()&&
-                this.ammoPack.getBlueAmmo()>=ammoPack.getBlueAmmo()&&
-                this.ammoPack.getYellowAmmo()>=ammoPack.getYellowAmmo());
     }
 
 
@@ -537,32 +492,10 @@ public class Player {
      * Removes ammo from the player ammo pack.
      *
      * @param usedAmmo        the used ammo.
-     * @throws      IllegalArgumentException
      */
     public void useAmmo(AmmoPack usedAmmo) {
         this.ammoPack.subAmmoPack(usedAmmo);
         board.addToUpdateQueue(Updater.get(Updater.USE_AMMO_UPD, this, usedAmmo));
-    }
-
-
-    /**
-     * Discards a power up to gain an ammo of the same color of the power up.
-     *
-     * @param p                     the discarded power up.
-     * @throws      IllegalArgumentException
-     */
-    public void useAsAmmo(PowerUp p) {
-
-        this.discardPowerUp(p);
-        AmmoPack ap;
-        if (p.getColor() == RED) {
-            ap= new AmmoPack(1, 0, 0);
-        } else if ((p.getColor() == YELLOW)) {
-            ap=new AmmoPack(0, 0, 1);
-        } else {
-            ap= new AmmoPack(0, 1, 0);
-        }
-        addAmmoPack(ap);
     }
 
 
@@ -656,20 +589,25 @@ public class Player {
      * Adds a player to the main targets.
      *
      * @param target         player added to the main targets.
+     * @throws IllegalArgumentException if the target list contains the player himself.
      */
     public void addMainTarget(Player target) {
         if (this==target) throw new IllegalArgumentException("The player can not be in the list of his own targets.");
-        this.mainTargets.add(target); }
+        this.mainTargets.add(target);
+    }
 
 
     /**
      * Adds a list of players to the main targets.
      *
      * @param targets         players added to the main targets.
+     * @throws IllegalArgumentException if the target list contains the player himself.
      */
     public void addMainTargets(List<Player> targets) {
         if (targets.contains(this)) throw new IllegalArgumentException("The player can not be in the list of his own targets.");
-        this.mainTargets.addAll(targets); }
+        this.mainTargets.addAll(targets);
+    }
+
 
     /**
      * Adds a list of players to the optional targets.
@@ -677,7 +615,8 @@ public class Player {
      * @param target         player added to the optional targets.
      */
     public void addOptionalTarget(Player target) {
-        this.optionalTargets.add(target); }
+        this.optionalTargets.add(target);
+    }
 
 
     /**
@@ -686,15 +625,18 @@ public class Player {
      * @param targets         players added to the optional targets.
      */
     public void addOptionalTargets(List<Player> targets) {
-        this.optionalTargets.addAll(targets); }
+        this.optionalTargets.addAll(targets);
+    }
+
 
     /**
      * Updates the points the player will give to his killers the next time he will die.
      * It also set the player damages to zero.
      * Called after the death of the player.
+     *
+     * @throws WrongTimeException if the player is not dead.
      */
     public void updateAwards() throws WrongTimeException{
-
         if (!this.isDead()) throw new WrongTimeException("The points given for a death are updated only after a player dies.");
         this.addDeath();
         if (pointsToGive!=1){
@@ -711,6 +653,8 @@ public class Player {
      * Gives point to the killers based on the number of damages every player did
      * and on the number of the player previous death.
      * Called when the player dies.
+     *
+     * @throws WrongTimeException if the player is not dead.
      */
     public void rewardKillers() throws WrongTimeException{
 
@@ -739,7 +683,8 @@ public class Player {
                 p.addPoints(pointsToGive);
                 int totalGivenPoints = pointsToGive;
                 if (damages.get(0) == p) totalGivenPoints++;
-                LOGGER.log(Level.FINE, p + " gains " + totalGivenPoints + " points.");
+                String msg = p + " gains " + totalGivenPoints + " points.";
+                LOGGER.log(Level.FINE, msg);
             }
             if (pointsToGive != 1) {
                 if (pointsToGive == 2) pointsToGive -= 1;
@@ -754,7 +699,7 @@ public class Player {
      * Increases player points.
      *
      * @param points          points earned.
-     * @throws      IllegalArgumentException
+     * @throws      IllegalArgumentException if the amount of points added is negative.
      */
     public void addPoints(int points) {
 
@@ -773,43 +718,43 @@ public class Player {
 
         if (status == Status.BASIC) {
 
-            for(int i = 1; i<= j.getInt("numberOfActions","status",0); i++)
-                actionList.add(new Action(j.getInt("steps"+i,"status",0),
-                        j.getBoolean("collect"+i,"status",0),
-                        j.getBoolean("shoot"+i,"status",0),
-                        j.getBoolean("reload"+i,"status",0)));
+            for(int i = 1; i<= j.getInt(NUMBER_OF_ACTIONS, STATUS_TAG,0); i++)
+                actionList.add(new Action(j.getInt(STEPS + i, STATUS_TAG,0),
+                        j.getBoolean(COLLECT + i, STATUS_TAG,0),
+                        j.getBoolean(SHOOT + i, STATUS_TAG,0),
+                        j.getBoolean(RELOAD + i, STATUS_TAG,0)));
 
         } else if (status == Status.ADRENALINE_1) {
 
-            for(int i = 1; i<= j.getInt("numberOfActions","status",1); i++)
-                actionList.add(new Action(j.getInt("steps"+i,"status",1),
-                        j.getBoolean("collect"+i,"status",1),
-                        j.getBoolean("shoot"+i,"status",1),
-                        j.getBoolean("reload"+i,"status",1)));
+            for(int i = 1; i<= j.getInt(NUMBER_OF_ACTIONS, STATUS_TAG,1); i++)
+                actionList.add(new Action(j.getInt(STEPS + i, STATUS_TAG,1),
+                        j.getBoolean(COLLECT + i, STATUS_TAG,1),
+                        j.getBoolean(SHOOT + i, STATUS_TAG,1),
+                        j.getBoolean(RELOAD + i, STATUS_TAG,1)));
 
         } else if (status == Status.ADRENALINE_2) {
 
-            for(int i = 1; i<= j.getInt("numberOfActions","status",2); i++)
-                actionList.add(new Action(j.getInt("steps"+i,"status",2),
-                        j.getBoolean("collect"+i,"status",2),
-                        j.getBoolean("shoot"+i,"status",2),
-                        j.getBoolean("reload"+i,"status",2)));
+            for(int i = 1; i<= j.getInt(NUMBER_OF_ACTIONS, STATUS_TAG,2); i++)
+                actionList.add(new Action(j.getInt(STEPS + i , STATUS_TAG,2),
+                        j.getBoolean(COLLECT + i , STATUS_TAG,2),
+                        j.getBoolean(SHOOT + i , STATUS_TAG,2),
+                        j.getBoolean(RELOAD + i , STATUS_TAG,2)));
 
         } else if (status == Status.FRENZY_1) {
 
-            for(int i = 1; i<= j.getInt("numberOfActions","status",3); i++)
-                actionList.add(new Action(j.getInt("steps"+i,"status",3),
-                        j.getBoolean("collect"+i,"status",3),
-                        j.getBoolean("shoot"+i,"status",3),
-                        j.getBoolean("reload"+i,"status",3)));
+            for(int i = 1; i<= j.getInt(NUMBER_OF_ACTIONS, STATUS_TAG,3); i++)
+                actionList.add(new Action(j.getInt(STEPS + i , STATUS_TAG,3),
+                        j.getBoolean(COLLECT + i, STATUS_TAG,3),
+                        j.getBoolean(SHOOT + i, STATUS_TAG,3),
+                        j.getBoolean(RELOAD + i, STATUS_TAG,3)));
 
         } else if (status == Status.FRENZY_2) {
 
-            for(int i = 1; i<= j.getInt("numberOfActions","status",4); i++)
-                actionList.add(new Action(j.getInt("steps"+i,"status",4),
-                        j.getBoolean("collect"+i,"status",4),
-                        j.getBoolean("shoot"+i,"status",4),
-                        j.getBoolean("reload"+i,"status",4)));
+            for(int i = 1; i<= j.getInt(NUMBER_OF_ACTIONS, STATUS_TAG,4); i++)
+                actionList.add(new Action(j.getInt(STEPS + i, STATUS_TAG,4),
+                        j.getBoolean(COLLECT + i, STATUS_TAG,4),
+                        j.getBoolean(RELOAD + i, STATUS_TAG,4),
+                        j.getBoolean(RELOAD + i, STATUS_TAG,4)));
 
         }
 
@@ -822,10 +767,8 @@ public class Player {
      * @param steps         the maximum number of steps the player can takes before shooting.
      * @return              true if the player can shoot someone.
      *                      false otherwise.
+     * @throws NotAvailableAttributeException if thrown by Weapon.listAvailableFiremodes or by DestinationFinder.find().
      */
-
-    //TODO the model should not be modified, it is better to create a fake player and work on it.
-
     public List<Square> getShootingSquares(int steps, List<Weapon> weaponToConsider) throws NotAvailableAttributeException{
 
         List<Square> starting = new ArrayList<>();
@@ -853,13 +796,6 @@ public class Player {
                         if (true) break;
                     }
                 }
-                //if only option1 is available??
-                //if (!w.listAvailableFireModes().isEmpty()) found = true;
-                //for (FireMode f : w.getFireModeList()){
-                  //  if (!(f.getTargetFinder().find(this).isEmpty())) {
-                    //    found = true;
-                    //}
-                //}
             }
             if (found && !starting.contains(s1)) starting.add(s1);
         }
@@ -872,7 +808,8 @@ public class Player {
      * Returns a list of the available action, considering that an action that includes collecting, shooting or reloading
      * can not always be executed.
      *
-     * @return
+     * @return a list of the available action.
+     * @throws NotAvailableAttributeException if thrown by removeShootingAction().
      */
     public List<Action> getAvailableActions() throws NotAvailableAttributeException{
 
@@ -890,8 +827,9 @@ public class Player {
      *
      * @param availableActions          the list of action before the possible removal.
      * @return                          the list of action after the possible removal.
+     * @throws NotAvailableAttributeException if thrown by getShootingSquares().
      */
-    public List<Action> removeShootingAction(List<Action> availableActions) throws NotAvailableAttributeException{
+    public List<Action> removeShootingAction(List<Action> availableActions)  throws NotAvailableAttributeException{
 
         if (status == Status.BASIC || status == Status.ADRENALINE_1){
             if(getShootingSquares(0, getLoadedWeapons()).isEmpty()){

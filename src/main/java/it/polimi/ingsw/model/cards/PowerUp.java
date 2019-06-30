@@ -43,7 +43,7 @@ public class PowerUp implements Targeted, Card {
     private TargetFinder targetFinder;
     private DestinationFinder destinationFinder;
     private Board board;
-    private final String RESET = "\u001b[0m";
+    private static final String RESET = "\u001b[0m";
 
 
     /**
@@ -149,11 +149,23 @@ public class PowerUp implements Targeted, Card {
         return !(findTargets().isEmpty())&&!(name==PowerUpName.TARGETING_SCOPE&&holder.getAmmoPack().equals(new AmmoPack(0,0,0)));
     }
 
+
+    /**
+     * Returns a string representing the powerup.
+     *
+     * @return      the description of the powerup.
+     */
     @Override
     public String toString(){
         return  ClientModel.getEscapeCode(getColor().toStringLowerCase()) + name.toString() + RESET;
     }
 
+
+    /**
+     * Returns the cost of the powerup, in ammo.
+     *
+     * @return the cost of the powerup.
+     */
     public AmmoPack getCost(){
         if (name == PowerUpName.TARGETING_SCOPE){
             if (color == RED)

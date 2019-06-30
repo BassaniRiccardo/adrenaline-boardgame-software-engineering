@@ -56,7 +56,7 @@ public class Board {
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String END_DECK_EXCEPTION_STIRNG = " drawable cards and 0 discards at the beginning of the game";
     private static final String ADDING_UPDATE = " Adding update ";
-    static final int MIN_MAP_SIZE_MINUS_ROOM_ID = 6;
+    private static final int MIN_MAP_SIZE_MINUS_ROOM_ID = 6;
     static final int MIN_ROOM_ID = 1;
     static final int MAX_SKULL_NUMBER =8;
     private static final int WEAPONS_DECK_STARTING_SIZE = 21;
@@ -372,7 +372,7 @@ public class Board {
      * Setter for killShotTrack.
      *
      * @param killShotTrack   the value to assign to killShotTrack.
-     * @throws                IllegalArgumentException if the number of skulls on the kill shot track is higher than 8.
+     * @throws IllegalArgumentException if the number of skulls on the kill shot track is higher than 8.
      */
     public void setKillShotTrack(KillShotTrack killShotTrack) {
         if (killShotTrack.getSkullsLeft() > MAX_SKULL_NUMBER){

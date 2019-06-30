@@ -3,7 +3,7 @@ package it.polimi.ingsw.controller;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Simple synchronous timer used for turn length management
+ * Simple synchronous timer used for turn length management.
  */
 
 public class Timer {

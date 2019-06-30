@@ -9,22 +9,18 @@ import java.util.logging.Logger;
 import static it.polimi.ingsw.model.cards.Color.*;
 
 /**
- * Offers thr methods to read from a .json file the characteristics of a weapon and the keywords that map the weapon
+ * Offers methods to read from a Json file the characteristics of a weapon and the keywords that map the weapon
  * into the algorithms that describes the mechanism of the weapon
  * the files is weapons.json
  *
  * @author  davidealde
  */
 
-//TODO remove targetnumbers from json file (they are not needed anymore)
-//TODO test the new methods
-//TODO check all the project for values that can be written in a json file
 
 public class ModelDataReader {
+
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static JsonParser parser = new JsonParser();
-    //private static String boardConfFile = "src/main/resources/boardConf.json";
-    //private static String miscellaneous = "src/main/resources/miscellaneous.json";
     private static String boardConfFile = "boardConf.json";
     private static String miscellaneous = "miscellaneous.json";
     private static final String DATA_NOT_FOUND = "Data not found";
@@ -33,21 +29,17 @@ public class ModelDataReader {
     /**
      * Constructor of a json class
      */
-    public ModelDataReader() {//all attributes are static
+    public ModelDataReader() {
+        //The constructor is empty since all the attributes are static
     }
-
-//------methods for BoardConfigurer and other classes (not WeaponFactory)------------------------------------------------------------------------------------------------------
 
     private JsonObject analyzer(String fileName){
         try {
             JsonElement jsonTree = parser.parse(new InputStreamReader(this.getClass().getResourceAsStream("/"+fileName)));
-            //JsonElement jsonTree = parser.parse(new FileReader(fileName));
             return jsonTree.getAsJsonObject();
         }
         catch (JsonIOException e) {
             LOGGER.log(Level.SEVERE, "Unable to read from file", e);
-        //} catch (FileNotFoundException e) {
-        //    LOGGER.log(Level.SEVERE, "File not found", e);
         }
         return null;
     }
@@ -55,7 +47,6 @@ public class ModelDataReader {
     private JsonObject analyzer(String fileName, String array, int elemId){
         try {
             JsonElement jsontree = parser.parse(new InputStreamReader(this.getClass().getResourceAsStream("/"+fileName)));
-            //JsonElement jsontree = parser.parse(new FileReader(fileName));
             JsonObject je = jsontree.getAsJsonObject();
             JsonArray ja = je.getAsJsonArray(array);
             for (Object o : ja) {
@@ -65,8 +56,6 @@ public class ModelDataReader {
                 }}}
         catch (JsonIOException e) {
             LOGGER.log(Level.SEVERE, "Unable to read from file", e);
-        //} catch (FileNotFoundException e) {
-        //    LOGGER.log(Level.SEVERE, "File not found", e);
         }
         return null;
     }

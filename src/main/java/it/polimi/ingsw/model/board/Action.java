@@ -41,20 +41,29 @@ public final class Action {
 
 
     /**
-     * Getters
+     * Getter for steps
      */
     public int getSteps() {
         return steps;
     }
 
+    /**
+     * Getter for collect
+     */
     public boolean isCollect() {
         return collect;
     }
 
+    /**
+     * Getter for shoot
+     */
     public boolean isShoot() {
         return shoot;
     }
 
+    /**
+     * Getter for reload
+     */
     public boolean isReload() {
         return reload;
     }

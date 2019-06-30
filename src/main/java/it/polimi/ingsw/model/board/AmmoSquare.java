@@ -79,7 +79,7 @@ public class AmmoSquare extends Square  {
      * Getter for ammoTile.
      *
      * @return      the ammo tile in the square.
-     * @throws      NoMoreCardsException if the square does not contain an ammo tile.
+     * @throws      NotAvailableAttributeException if the square does not contain an ammo tile.
      */
     public AmmoTile getAmmoTile() throws NotAvailableAttributeException {
 

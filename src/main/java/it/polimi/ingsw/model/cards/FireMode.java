@@ -81,7 +81,8 @@ public class FireMode implements Targeted {
             throw new IllegalArgumentException("A target is necessary for the effects to be applied.");
         }
         LOGGER.log(Level.INFO, ()->name + "Weapon used: " + weapon);
-        LOGGER.log(Level.INFO,  name + "Holder: " + weapon.getHolder());
+        String msg = name + "Holder: " + weapon.getHolder();
+        LOGGER.log(Level.INFO, msg);
         LOGGER.log(Level.INFO, ()->name + "Targets: " + targets);
         LOGGER.log(Level.INFO, ()->name + "Destination: " + destination);
         for(Player p : new ArrayList<>(targets)){
@@ -96,7 +97,8 @@ public class FireMode implements Targeted {
      */
     public List<List<Player>> findTargets() throws NotAvailableAttributeException{
         List<List<Player>> res = targetFinder.find(weapon.getHolder());
-        LOGGER.log(Level.INFO, name + " " + weapon + "Targets found: " + res);
+        String msg = name + " " + weapon + "Targets found: " + res;
+        LOGGER.log(Level.INFO, msg);
         return res;
 
     }
@@ -128,7 +130,11 @@ public class FireMode implements Targeted {
         return false;
     }
 
-
+    /**
+     * Returns a string representing the firemode.
+     *
+     * @return      the description of the firemode.
+     */
     @Override
     public String toString() {
         return this.weapon + ": " + this.getName();

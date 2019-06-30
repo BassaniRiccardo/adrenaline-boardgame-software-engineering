@@ -535,45 +535,6 @@ public class PlayerTest {
 
 
     /**
-     * Tests useAsAmmo()
-     */
-    @Test
-    public void useAsAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
-
-        Board b = BoardConfigurer.simulateScenario();
-
-        //instantiates the player
-        Player player = new Player(1, Player.HeroName.VIOLET, b);
-        player.getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
-
-        //draws a powerUp
-        player.drawPowerUp();
-
-        //save the powerUp
-        PowerUp powerUp;
-        powerUp = player.getPowerUpList().get(0);
-        Color color;
-        color = powerUp.getColor();
-
-        //calls useAsAmmo
-        player.useAsAmmo(powerUp);
-
-        //checks that powerUpList is empty
-        assertTrue(player.getPowerUpList().isEmpty());
-
-        //checks that myAmmoPack contains only the ammo of the right color
-        if (color == RED) {
-            assertTrue(player.getAmmoPack().getRedAmmo() == 1 && player.getAmmoPack().getYellowAmmo() == 0 && player.getAmmoPack().getBlueAmmo() == 0);
-        } else if (color == YELLOW) {
-            assertTrue(player.getAmmoPack().getRedAmmo() == 0 && player.getAmmoPack().getYellowAmmo() == 1 && player.getAmmoPack().getBlueAmmo() == 0);
-        } else {
-            assertTrue(player.getAmmoPack().getRedAmmo() == 0 && player.getAmmoPack().getYellowAmmo() == 0 && player.getAmmoPack().getBlueAmmo() == 1);
-        }
-
-    }
-
-
-    /**
      * Tests addAmmoPack()
      */
     @Test

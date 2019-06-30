@@ -4,6 +4,8 @@ import it.polimi.ingsw.model.Updater;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.KillShotTrack;
 import it.polimi.ingsw.model.board.Player;
+import it.polimi.ingsw.model.board.WeaponSquare;
+import it.polimi.ingsw.model.cards.AmmoPack;
 import it.polimi.ingsw.model.exceptions.*;
 import it.polimi.ingsw.network.server.VirtualView;
 
@@ -22,8 +24,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
 /**
  * Class responsible of running a game.
- * The interaction with the user is simulated by the method receive() of VirtualView.
- * Must be updated implementing the connection with the client.
  *
  * @author BassaniRiccardo
  */
@@ -32,6 +32,7 @@ public class GameEngine implements Runnable{
 
     private List<VirtualView> players;
     private VirtualView currentPlayer;
+    int frenzyActivator;
     private Board board;
     private KillShotTrack killShotTrack;
     private Timer timer;
@@ -98,10 +99,11 @@ public class GameEngine implements Runnable{
      *
      * @param players           the players in the game.
      */
-    public GameEngine(List<VirtualView> players){
+    GameEngine(List<VirtualView> players){
 
         this.players = players;
         this.currentPlayer = null;
+        this.frenzyActivator = 0;
         this.board = null;
         this.killShotTrack = null;
         this.statusSaver = null;
@@ -133,13 +135,15 @@ public class GameEngine implements Runnable{
         return currentPlayer;
     }
 
+    public int getFrenzyActivator() {return frenzyActivator;}
+
     public Board getBoard() {
         return board;
     }
 
-    public boolean isLastFrenzyPlayer() {return lastFrenzyPlayer; }
+    boolean isLastFrenzyPlayer() {return lastFrenzyPlayer; }
 
-    public boolean isGameOver() {return gameOver; }
+    boolean isGameOver() {return gameOver; }
 
 
     /**
@@ -150,7 +154,7 @@ public class GameEngine implements Runnable{
         LOGGER.log(Level.FINEST, "Set players to a new list sized {0}", players.size());
     }
 
-    public void setCurrentPlayer(VirtualView currentPlayer) {
+    void setCurrentPlayer(VirtualView currentPlayer) {
         this.currentPlayer = currentPlayer;
         this.board.setCurrentPlayer(currentPlayer.getModel());
         LOGGER.log(Level.FINE, "CurrentPlayer set to " + currentPlayer.getName());
@@ -180,7 +184,6 @@ public class GameEngine implements Runnable{
             LOGGER.log(Level.FINE, "GameEngine running");
 
             /*
-
             try {
                 setup();
             }catch (NotEnoughPlayersException e) {
@@ -190,7 +193,7 @@ public class GameEngine implements Runnable{
                 ServerMain.getInstance().untrackGame(this);
                 return;
             }
-*/
+            */
 
             fakeSetup();
 
@@ -200,17 +203,15 @@ public class GameEngine implements Runnable{
                         board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
                     }
                     simulateTillEndphase();
-                } catch (NotAvailableAttributeException e) {
+                } catch (NotAvailableAttributeException | UnacceptableItemNumberException | NoMoreCardsException | WrongTimeException e) {
                     LOGGER.log(Level.SEVERE, "Exception thrown while simulating the game", e);
                 }
             }
 
             else {
-                //battleCry();
+                battleCry();
             }
 
-
-            ExecutorService executor = Executors.newCachedThreadPool();
             while (!gameOver) {
                 LOGGER.log(Level.FINE, "Running turn");
                 allowPlayersToResume();
@@ -229,7 +230,7 @@ public class GameEngine implements Runnable{
                 if (killShotTrack.getSkullsLeft() == 0) {
                     LOGGER.log(Level.FINE, "There are no skulls left, managing the end of the game");
                     try {
-                        manageGameEnd(executor);
+                        manageGameEnd();
                     } catch (NotEnoughPlayersException e) {
                         exitGame = true;
                         break;
@@ -238,6 +239,7 @@ public class GameEngine implements Runnable{
                     }
                 }
                 changePlayer();
+
             }
             resolve();
 
@@ -436,7 +438,7 @@ public class GameEngine implements Runnable{
      *
      * @return      the next player.
      */
-    public VirtualView getNextPlayer(){   //must be robust for an empty list of player
+    VirtualView getNextPlayer(){   //must be robust for an empty list of player
 
         int ind = players.indexOf(currentPlayer);
         ind++;
@@ -460,7 +462,7 @@ public class GameEngine implements Runnable{
     /**
      * Called at the end of the game, assigns the points for the kill shot track and decides the winner.
      */
-    public void resolve(){
+    private void resolve(){
 
         if (exitGame) {
             LOGGER.log(Level.INFO,"Not enough player in the game. The game ends, points are added to the players according to the kill shot track.");
@@ -504,7 +506,7 @@ public class GameEngine implements Runnable{
      * @throws NotEnoughPlayersException        if thrown by TurnManager.runTurn().
      * @throws SlowAnswerException              if thrown by TurnManager.runTurn().
      */
-    public void runTurn (boolean frenzy) throws NotEnoughPlayersException, SlowAnswerException{
+    private void runTurn (boolean frenzy) throws NotEnoughPlayersException, SlowAnswerException{
         for(VirtualView p : players) {
             board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
         }
@@ -520,7 +522,7 @@ public class GameEngine implements Runnable{
     /**
      * Updates the current player and checks if there are enough players to continue the game.
      */
-    public void changePlayer(){
+    void changePlayer(){
 
         setCurrentPlayer(getNextPlayer());
         long playerCount = players.stream().filter(x->!x.isSuspended()).count();
@@ -533,30 +535,31 @@ public class GameEngine implements Runnable{
 
     /**
      * Manages the end of the game, depending on whether the frenzy mode is active.
-     *
-     * @param executor      the executor which execute the  thread of TurnManager.
      */
-    public void manageGameEnd(ExecutorService executor) throws NotEnoughPlayersException, SlowAnswerException{
+    private void manageGameEnd() throws NotEnoughPlayersException, SlowAnswerException{
 
         if (!frenzy) {
             gameOver = true;
         }
         else {
+            frenzyActivator = currentPlayer.getModel().getId();
+            changePlayer();
             for (Player p : board.getPlayers()){
-                if (board.getPlayers().indexOf(p) == board.getPlayers().size()-1)
-                    lastFrenzyPlayer = true;
                 if (p.getDamages().isEmpty()){
                     p.setFlipped(true);
                     p.setPointsToGive(2);
-                    int frenzyActivator = currentPlayer.getModel().getId();
-                    if (p.getId() > frenzyActivator){
-                        p.setStatus(Player.Status.FRENZY_1);
-                    }
-                    else p.setStatus(Player.Status.FRENZY_2);
                 }
+                if (p.getId() > frenzyActivator){
+                    p.setStatus(Player.Status.FRENZY_1);
+                }
+                else p.setStatus(Player.Status.FRENZY_2);
             }
+            for (VirtualView v : players)
+                v.display("FRENZY STARTED!!!");
             LOGGER.log(Level.INFO,"\nNo more skulls left:\n\nFrenzy mode!!!!!!\n");
             for (int i=0; i<players.size(); i++){
+                if (i == players.size()-1)
+                    lastFrenzyPlayer = true;
                 runTurn(true);
                 changePlayer();
             }
@@ -569,12 +572,18 @@ public class GameEngine implements Runnable{
     /**
      * Decides the winner.
      */
-    public void gameOver(){
+    private void gameOver(){
 
         LOGGER.log(Level.INFO, "\nGame over.\n");
         int maxScore = players.get(0).getModel().getPoints();
         List<VirtualView> winners = new ArrayList<>();
         boolean existsKill = false;
+        List<VirtualView> suspended = new ArrayList<>();
+        for (VirtualView p : players){
+            if (p.isSuspended())
+                suspended.add(p);
+        }
+        players.removeAll(suspended);
         for (VirtualView p : players){
             if (p.getModel().getPoints() == maxScore) {
                 winners.add(p);
@@ -608,7 +617,7 @@ public class GameEngine implements Runnable{
      *
      * @param i     the index of the player the message must be sent to.
      */
-    public void showToLoser(int i){
+    private void showToLoser(int i){
         LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
         int pos = i + 1;
         players.get(i).showEnd(addLeaderboard(POSITION_MESSAGE + pos + EXCLAMATION_POINT));
@@ -621,7 +630,7 @@ public class GameEngine implements Runnable{
      * @param s     the string to modify
      * @return      the modified string
      */
-    public String addLeaderboard(String s){
+    String addLeaderboard(String s){
         StringBuilder builder = new StringBuilder();
         builder.append(s);
         builder.append(LEADERBOARD);
@@ -676,7 +685,7 @@ public class GameEngine implements Runnable{
      * @throws NotEnoughPlayersException    if less than the minimum number of players are left.
      * @return                              the player's answer.
      */
-    public String wait(VirtualView current) throws SlowAnswerException, NotEnoughPlayersException{
+    String wait(VirtualView current) throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.INFO ,"Waiting for {0} answer", current);
         while(!hasAnswered(current)){
             checkForSuspension();
@@ -775,18 +784,27 @@ public class GameEngine implements Runnable{
      *
      * @throws NotAvailableAttributeException           if it is thrown by getKillShotTrack().
      */
-    public void simulateTillEndphase() throws NotAvailableAttributeException {
+    void simulateTillEndphase() throws NotAvailableAttributeException, NoMoreCardsException, WrongTimeException, UnacceptableItemNumberException {
 
         Player p1 = board.getPlayers().get(0);
         Player p2 = board.getPlayers().get(1);
         Player p3 = board.getPlayers().get(2);
 
-        p1.setInGame(true);
-        p1.setPosition(board.getMap().get(2));
-        p2.setInGame(true);
-        p2.setPosition(board.getMap().get(4));
-        p3.setInGame(true);
-        p3.setPosition(board.getMap().get(11));
+        List<Player> simulationPlayers = new ArrayList<>(Arrays.asList(p1, p2, p3));
+
+        for (Player p : simulationPlayers) {
+            p.setInGame(true);
+            p.addAmmoPack(new AmmoPack(2,2,2));
+            p.setPosition(board.getSpawnPoints().get(simulationPlayers.indexOf(p) % 3));
+            for (int i = 0; i < 3; i++) {
+                p.collect(((WeaponSquare)p.getPosition()).getWeapons().get(i));
+                ((WeaponSquare)p.getPosition()).addCard();
+            }
+
+            p.drawPowerUp();
+            p.drawPowerUp();
+            p.drawPowerUp();
+        }
 
         //simulates all the previous deaths
         BoardConfigurer.configureKillShotTrack(1, board);
@@ -811,6 +829,7 @@ public class GameEngine implements Runnable{
         //assigns damages and update status
         for (int i = 0; i < 2; i++)
             p1.getDamages().add(p2);
+            p1.addMarks(1, p2);
         p1.setStatus(Player.Status.BASIC);
 
         for (int i = 0; i < 4; i++)
@@ -818,12 +837,15 @@ public class GameEngine implements Runnable{
         for (int i = 0; i < 6; i++)
             p2.getDamages().add(p3);
         p2.setStatus(Player.Status.ADRENALINE_2);
+        p2.addMarks(1, p1);
+        p2.addMarks(1, p3);
 
         for (int i = 0; i < 4; i++){
             p3.getDamages().add(p2);
         }
         p3.getDamages().add(p1);
         p3.getDamages().add(p2);
+        p3.addMarks(2, p1);
         p3.setStatus(Player.Status.ADRENALINE_1);
 
     }
@@ -835,7 +857,7 @@ public class GameEngine implements Runnable{
      * @param p     player trying to resume
      * @return      true if resuming is possible, else false
      */
-    public synchronized boolean tryResuming(VirtualView p){
+    synchronized boolean tryResuming(VirtualView p){
         for (VirtualView v : players){
             if (statusSaver!=null&&v.isSuspended()&&!resuming.stream().map(VirtualView::getName).collect(Collectors.toList()).contains(p)){
                 resuming.add(p);
@@ -887,7 +909,7 @@ public class GameEngine implements Runnable{
     /**
      * A fake set up to allow for quicker testing.
      */
-    public void fakeSetup(){
+    void fakeSetup(){
 
         board = BoardConfigurer.configureMap(4);
 

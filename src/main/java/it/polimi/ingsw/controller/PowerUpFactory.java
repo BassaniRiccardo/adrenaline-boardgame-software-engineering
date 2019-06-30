@@ -50,7 +50,7 @@ public class PowerUpFactory  {
 
         switch (powerUpName) {
             case TARGETING_SCOPE:
-                effect = (shooter, target, destination)-> target.sufferDamage(j.getInt(TARGETING_SCOPE_DMG), shooter);
+                effect = (shooter, target, destination)-> target.sufferDamageNoMarksExtra(j.getInt(TARGETING_SCOPE_DMG), shooter);
                 targetFinder = p -> board.getPlayers().stream()
                         .filter(Player::isJustDamaged)
                         .distinct()

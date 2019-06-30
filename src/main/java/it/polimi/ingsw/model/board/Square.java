@@ -94,7 +94,7 @@ public abstract class Square {
      *
      * @return      the column of square.
      */
-    public int getColumn() {
+    int getColumn() {
         return column;
     }
 

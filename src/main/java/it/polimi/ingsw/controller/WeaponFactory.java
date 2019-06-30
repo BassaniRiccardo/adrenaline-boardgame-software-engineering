@@ -964,7 +964,10 @@ public class WeaponFactory {
         if(damage!=0){
             return (shooter, target, destination) -> target.sufferDamage(damage, shooter);
         }
-        return (shooter, target, destination) -> target.sufferDamage(damage, shooter);
+        return (shooter, target, destination) -> {
+            target.sufferDamage(damage, shooter);
+            target.addMarks(marks, shooter);
+        };
     }
 
     private List<List<Player>> cartesian (List<List<Player>> a, List<List<Player>> b){

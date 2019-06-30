@@ -41,11 +41,11 @@ public class StatusSaver {
      * Getters
      */
 
-    public List<Square> getPlayersPositions() {
+    List<Square> getPlayersPositions() {
         return playersPositions;
     }
 
-    public List<List<Player>> getPlayersDamages() {
+    List<List<Player>> getPlayersDamages() {
         return playersDamages;
     }
 
@@ -53,23 +53,23 @@ public class StatusSaver {
         return playersMarks;
     }
 
-    public List<List<PowerUp>> getPlayersPowerups() {
+    List<List<PowerUp>> getPlayersPowerups() {
         return playersPowerups;
     }
 
-    public List<AmmoPack> getPlayersAmmoPacks() {
+    List<AmmoPack> getPlayersAmmoPacks() {
         return playersAmmoPacks;
     }
 
-    public List<Weapon> getCurrentPlayerWeapons() {
+    List<Weapon> getCurrentPlayerWeapons() {
         return currentPlayerWeapons;
     }
 
-    public List<Boolean> getCurrentPlayerLoadedWeapons() {
+    List<Boolean> getCurrentPlayerLoadedWeapons() {
         return currentPlayerLoadedWeapons;
     }
 
-    public List<List<Weapon>> getSquareWeapons() {
+    List<List<Weapon>> getSquareWeapons() {
         return squareWeapons;
     }
 
@@ -79,7 +79,7 @@ public class StatusSaver {
      *
      * @param board         the board of which status needs to be saved and restored.
      */
-    public StatusSaver(Board board) {
+    StatusSaver(Board board) {
 
         this.board = board;
         playersPositions = new ArrayList<>();
@@ -99,7 +99,7 @@ public class StatusSaver {
     /**
      * Updates the last checkpoint which will be restored by the method restoreCheckpoint().
      */
-    public void updateCheckpoint(){
+    void updateCheckpoint(){
 
         LOGGER.log(Level.FINE, () -> "playersPowerups saved: " + playersPowerups);
         try {
@@ -142,7 +142,7 @@ public class StatusSaver {
     /**
      * Updates the lists of power ups which will be restored by the method restorePowerUps().
      */
-    public void updatePowerups(){
+    void updatePowerups(){
         LOGGER.log(Level.FINE, () -> "playersPowerups: " + playersPowerups);
         playersPowerups.clear();
         for (Player p : board.getActivePlayers()) {
@@ -157,7 +157,7 @@ public class StatusSaver {
     /**
      * Restores the last checkpoint saved by the method updateCheckpoint().
      */
-    public void restoreCheckpoint(){
+    void restoreCheckpoint(){
 
         board.setReset(true);
         int i;
@@ -192,7 +192,7 @@ public class StatusSaver {
     /**
      * Restores the lists of power ups saved by the method updateCheckpoint().
      */
-    public void restorePowerUps(){
+    void restorePowerUps(){
 
         board.setReset(true);
         for (Player p : board.getActivePlayers()) {

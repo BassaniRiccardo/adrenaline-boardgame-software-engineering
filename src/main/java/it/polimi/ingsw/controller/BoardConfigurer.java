@@ -194,7 +194,7 @@ public class BoardConfigurer {
      * @throws UnacceptableItemNumberException      if it is thrown by addAllCards().
      * @throws NoMoreCardsException                 if it is thrown by addAllCards().
      */
-    public static void setAmmoTilesAndWeapons(Board board) throws UnacceptableItemNumberException, NoMoreCardsException {
+    static void setAmmoTilesAndWeapons(Board board) throws UnacceptableItemNumberException, NoMoreCardsException {
 
         Iterator<Square> squareIt = board.getMap().iterator();
         while (squareIt.hasNext()){
@@ -211,7 +211,7 @@ public class BoardConfigurer {
      * @param skullNumber          the number of skulls to add to the track.
      * @param board                the board the kill shot track must be added to.
      */
-    public static void configureKillShotTrack(int skullNumber, Board board){
+    static void configureKillShotTrack(int skullNumber, Board board){
 
         board.setKillShotTrack(new KillShotTrack(skullNumber, board));
 

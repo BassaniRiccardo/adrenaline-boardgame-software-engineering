@@ -62,17 +62,17 @@ public class ModelDataReader {
 
 
 
-    public int getIntBC(String key) {
+    int getIntBC(String key) {
         JsonObject obj = analyzer(boardConfFile);
         return getInt(obj, key);
     }
 
-    public int getIntBC(String key, String array, int elemId){
+    int getIntBC(String key, String array, int elemId){
         JsonObject obj = analyzer(boardConfFile, array, elemId);
         return getInt(obj, key);
     }
 
-    public boolean getBooleanBC(String key, String array, int elemId) {
+    boolean getBooleanBC(String key, String array, int elemId) {
 
         JsonObject obj = analyzer(boardConfFile,array,elemId);
         return getBoolean(obj, key);
@@ -94,12 +94,12 @@ public class ModelDataReader {
     }
 
 
-    public Color getColorBC(String key, String array, int elemId) {
+    Color getColorBC(String key, String array, int elemId) {
         JsonObject obj = analyzer(boardConfFile,array,elemId);
         return getColor(obj, key);
     }
 
-    public Color getColorBC(String key) {
+    Color getColorBC(String key) {
         JsonObject obj = analyzer(boardConfFile);
         return getColor(obj, key);
     }

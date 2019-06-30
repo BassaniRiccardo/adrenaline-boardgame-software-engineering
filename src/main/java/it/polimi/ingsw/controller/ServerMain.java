@@ -87,7 +87,7 @@ public class ServerMain {
      *
      * @return the list of current games.
      */
-    public List<GameEngine> getCurrentGames() {
+    List<GameEngine> getCurrentGames() {
         return currentGames;
     }
 
@@ -97,7 +97,7 @@ public class ServerMain {
      *
      * @return the list of waiting players.
      */
-    public List<VirtualView> getWaitingPlayers() {
+    List<VirtualView> getWaitingPlayers() {
         return waitingPlayers;
     }
 
@@ -164,7 +164,7 @@ public class ServerMain {
      *
      * @param engine        the game to be removed
      */
-    public void untrackGame(GameEngine engine){
+    void untrackGame(GameEngine engine){
         currentGames.remove(engine);
         players.removeAll(engine.getPlayers());
     }
@@ -175,7 +175,7 @@ public class ServerMain {
      *
      * @param p             the player to be added
      */
-    public void addPlayer(VirtualView p){
+    void addPlayer(VirtualView p){
         waitingPlayers.add(p);
         players.add(p);
         LOGGER.log(Level.FINE, "Player added: " + p.getName());
@@ -237,7 +237,7 @@ public class ServerMain {
      * Removes players who were suspended while still waiting for a game
      *
      */
-    public synchronized void removeSuspendedPlayers(){
+    synchronized void removeSuspendedPlayers(){
         for (VirtualView p : new ArrayList<>(waitingPlayers)){
             if(p.isSuspended()){
                 players.remove(p);
@@ -261,7 +261,7 @@ public class ServerMain {
     /**
      * Initializes the logger so that it writes to a txt file
      */
-    public void initializeLogger(){
+    void initializeLogger(){
         try {
             ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.ALL);
@@ -281,7 +281,7 @@ public class ServerMain {
      *
      * @return              the loaded properties or empty properties if failed
      */
-    public Properties loadConfig(){
+    Properties loadConfig(){
         Properties prop = new Properties();
         try (InputStream input = new FileInputStream("server.properties")) {
             prop.load(input);

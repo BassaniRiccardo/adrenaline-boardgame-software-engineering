@@ -265,7 +265,7 @@ public class GameEngineTest {
      * @throws NoMoreCardsException
      */
     @Test
-    public void simulateTillEndPhase() throws UnacceptableItemNumberException, NotAvailableAttributeException, NoMoreCardsException{
+    public void simulateTillEndPhase() throws UnacceptableItemNumberException, WrongTimeException, NotAvailableAttributeException, NoMoreCardsException{
 
         Board b = BoardConfigurer.simulateScenario();
 

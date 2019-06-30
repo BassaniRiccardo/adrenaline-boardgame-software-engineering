@@ -64,7 +64,7 @@ public class AmmoTile implements Card{
     /**
      * Setter for holder.
      *
-     * @parameter the tile holder. This method should not be called. If it happens it throws an exception since an ammo tile does not have an holder.
+     * @param holder the tile holder. This method should not be called. If it happens it throws an exception since an ammo tile does not have an holder.
      */
     public void setHolder(Player holder) throws NotAvailableAttributeException { throw new NotAvailableAttributeException("An ammo tile does not have an holder"); }
 

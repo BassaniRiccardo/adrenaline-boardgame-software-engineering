@@ -27,7 +27,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
  */
 
 
-public class TurnManager {
+    class TurnManager {
 
     private Board board;
     private StatusSaver statusSaver;
@@ -93,8 +93,8 @@ public class TurnManager {
 
     private static final String COMMA = ", ";
 
-    private static final int GRENADE_SHORT_TIMER = 5;
-    private static final int GRENADE_LONG_TIMER = 10;
+    private static final int GRENADE_SHORT_TIMER = 10;
+    private static final int GRENADE_LONG_TIMER = 15;
 
     /**
      * Constructs a turn manager with a reference to the board, the current player and the list of players.
@@ -102,7 +102,8 @@ public class TurnManager {
      * @param board                         the board of the game.
      * @param currentPlayerConnection       the current player PlayerController.
      */
-    public TurnManager(GameEngine gameEngine, Board board, VirtualView currentPlayerConnection, List<VirtualView> playerConnections, StatusSaver statusSaver,  boolean frenzy, Timer timer){
+    TurnManager(GameEngine gameEngine, Board board, VirtualView currentPlayerConnection, List<VirtualView> playerConnections, StatusSaver statusSaver,  boolean frenzy, Timer timer){
+
         this.gameEngine = gameEngine;
         this.board = board;
         this.statusSaver = statusSaver;
@@ -125,12 +126,12 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    public void runTurn() throws NotEnoughPlayersException, SlowAnswerException {
+    void runTurn() throws NotEnoughPlayersException, SlowAnswerException {
 
-        currentPlayerConnection.display(TURN_START);
+        currentPlayerConnection.display(TURN_START + (frenzy ? " FRENZY IS ACTIVE!" : ""));
         for (VirtualView p : playerConnections){
             if (!p.equals(currentPlayerConnection)){
-                p.display(TURN_OF + currentPlayer.userToString());
+                p.display(TURN_OF + currentPlayer.userToString() + (frenzy ? ". FRENZY IS ACTIVE!" : ""));
             }
         }
 
@@ -142,14 +143,10 @@ public class TurnManager {
                 joinBoard(currentPlayer, 2, false);
             }
 
-            for (Player p : board.getActivePlayers()) {
-                p.refreshActionList();
-            }
-
+            currentPlayer.refreshActionList();
             actionsLeft = 2;
             if (currentPlayer.getStatus() == Player.Status.FRENZY_2) actionsLeft--;
             while (actionsLeft > 0) {
-                currentPlayer.refreshActionList();
                 LOGGER.log(Level.FINE, "Actions left: {0} ", actionsLeft);
                 if (executeAction()) {                  //confirm or go back------>checkpoint
                     actionsLeft--;
@@ -220,7 +217,7 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    public void joinBoard(Player player, int powerUpToDraw, boolean reborn) throws SlowAnswerException, NotEnoughPlayersException {
+    private void joinBoard(Player player, int powerUpToDraw, boolean reborn) throws SlowAnswerException, NotEnoughPlayersException {
 
         player.setInGame(true);
 
@@ -249,14 +246,19 @@ public class TurnManager {
         Color birthColor = discarded.getColor();
         player.discardPowerUp(discarded);
 
-        board.notifyObserver(getVirtualView(player));
-
         //place the player on the board
         for (WeaponSquare s : board.getSpawnPoints()) {
             if (s.getColor() == birthColor) player.setPosition(s);
         }
 
-        player.refreshActionList();
+        if (frenzy){
+            if (player.getId() > gameEngine.getFrenzyActivator()){
+                player.setStatus(Player.Status.FRENZY_1);
+            }
+            else player.setStatus(Player.Status.FRENZY_2);
+        }
+        else
+            player.setStatus(Player.Status.BASIC);
 
         board.notifyObserver(getVirtualView(player));
 
@@ -278,7 +280,7 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    public boolean executeAction() throws SlowAnswerException, NotEnoughPlayersException{
+    private boolean executeAction() throws SlowAnswerException, NotEnoughPlayersException{
 
         board.setReset(false);
 
@@ -319,7 +321,7 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    public void executeActualAction(Action action) throws SlowAnswerException, NotEnoughPlayersException{
+    private void executeActualAction(Action action) throws SlowAnswerException, NotEnoughPlayersException{
 
         LOGGER.log(Level.FINE, () -> currentPlayer  + " chooses the action: " + action);
 
@@ -360,7 +362,7 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    public boolean handleUsingPowerUp() throws SlowAnswerException, NotEnoughPlayersException{
+    private boolean handleUsingPowerUp() throws SlowAnswerException, NotEnoughPlayersException{
 
         board.setReset(false);
 
@@ -402,7 +404,7 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    public void usePowerUp() throws SlowAnswerException, NotEnoughPlayersException {
+    private void usePowerUp() throws SlowAnswerException, NotEnoughPlayersException {
 
         board.setReset(false);
 
@@ -479,7 +481,7 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    public void handleMoving(Action action) throws SlowAnswerException, NotEnoughPlayersException{
+    private void handleMoving(Action action) throws SlowAnswerException, NotEnoughPlayersException{
         try {
 
             board.setReset(false);
@@ -541,7 +543,7 @@ public class TurnManager {
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
 
-    public void handleCollecting() throws SlowAnswerException, NotEnoughPlayersException {
+    private void handleCollecting() throws SlowAnswerException, NotEnoughPlayersException {
         try {
 
             board.setReset(false);
@@ -611,7 +613,7 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    public void handleShooting() throws NotAvailableAttributeException, SlowAnswerException, NotEnoughPlayersException{
+    private void handleShooting() throws NotAvailableAttributeException, SlowAnswerException, NotEnoughPlayersException{
 
         currentPlayer.getMainTargets().clear();
         currentPlayer.getOptionalTargets().clear();
@@ -701,6 +703,12 @@ public class TurnManager {
         currentPlayerConnection.display(ASKING_TARGETS_GRENADES);
         timer.pause();
         askTargetsForGrenade();
+        for (VirtualView v : playerConnections){
+            if (!v.equals(currentPlayerConnection))
+                v.display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
+            v.getModel().setJustDamaged(false);
+        }
+        updateAndNotifyAll();
         timer.resume();
         currentPlayerConnection.display(YOUR_TURN + CONTINUES);
 
@@ -781,7 +789,7 @@ public class TurnManager {
      * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
      * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
-    public boolean reload(int max) throws SlowAnswerException, NotEnoughPlayersException{
+    private boolean reload(int max) throws SlowAnswerException, NotEnoughPlayersException{
 
         int left = max;
 
@@ -830,7 +838,7 @@ public class TurnManager {
      * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
      * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
-    public void reloadMandatory() throws SlowAnswerException, NotEnoughPlayersException {
+    private void reloadMandatory() throws SlowAnswerException, NotEnoughPlayersException {
 
         board.setReset(false);
 
@@ -872,7 +880,7 @@ public class TurnManager {
      * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
      * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
-    public boolean handleTargetingScope(Player currentPlayer, List<Player> targets ) throws SlowAnswerException, NotEnoughPlayersException{
+    private boolean handleTargetingScope(Player currentPlayer, List<Player> targets ) throws SlowAnswerException, NotEnoughPlayersException{
 
         board.setReset(false);
         currentPlayerConnection.choose(CHOOSE_STRING.toString(), DEMAND_USE_TARGETING_SCOPE, new ArrayList<>(Arrays.asList(YES, NO)));
@@ -919,18 +927,19 @@ public class TurnManager {
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws NotAvailableAttributeException          if thrown by Player.hasUsableTagbackGrenade().
      */
-    public void askTargetsForGrenade() throws NotEnoughPlayersException, NotAvailableAttributeException {
+    private void askTargetsForGrenade() throws NotEnoughPlayersException, NotAvailableAttributeException {
 
         for (Player p : board.getActivePlayers()) {
-            if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged())
+            System.out.println("asking to " + p);
+            if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged()) {
                 getVirtualView(p).display(currentPlayer.userToString() + SHOT_YOU);
-            boolean handleAgain = true;
-            while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleAgain) {
-                handleAgain = handleTagbackGrenade(p);
+                boolean handleAgain = true;
+                while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleAgain) {
+                    System.out.println("effectively asking to " + p);
+                    handleAgain = handleTagbackGrenade(p);
+                }
             }
-            getVirtualView(p).display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
-            updateAndNotifyAll();
-
+            System.out.println("finished asking to " + p);
         }
     }
 
@@ -945,18 +954,16 @@ public class TurnManager {
      */
     private boolean handleTagbackGrenade(Player p) throws NotEnoughPlayersException{
 
+        System.out.println("entering handleTagbackGrenade");
         VirtualView player = getVirtualView(p);
         player.choose(CHOOSE_STRING.toString(), DEMAND_USE_TAGBACK_GRENADE, new ArrayList(Arrays.asList(NO, YES)), GRENADE_LONG_TIMER);
         int answer = Integer.parseInt(gameEngine.waitShort(player,GRENADE_LONG_TIMER));
         if (answer == 2){
+            System.out.println("chooses yes");
             LOGGER.log(Level.FINE, () -> p + "Decides to use a grenade" );
             List<String> optionsGrenade = toStringList(p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE));
-            optionsGrenade.add(RESET);
             player.choose(CHOOSE_POWERUP.toString(), SELECT_TAGBACK_GRENADE, optionsGrenade, GRENADE_SHORT_TIMER);
             int selected = Integer.parseInt(gameEngine.waitShort(player, GRENADE_SHORT_TIMER));
-            if (selected == optionsGrenade.size()){
-                return (handleTagbackGrenade(p));
-            }
             PowerUp tagbackGrenade = p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE).get(selected-1);
 
             try {
@@ -964,10 +971,12 @@ public class TurnManager {
                 p.discardPowerUp(tagbackGrenade);
                 board.notifyObserver(player);
             } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while using the tagback grenade", e);}
+            System.out.println("exiting handleTagbackGrenade");
             return true;
         }
-        LOGGER.log(Level.FINE, () -> p + "Decides not to use a grenade" );
-
+        System.out.println("chooses no");
+        LOGGER.log(Level.FINE, () -> p + "Decides not to use a grenade");
+        System.out.println("exiting handleTagbackGrenade");
         return false;
     }
 
@@ -979,7 +988,7 @@ public class TurnManager {
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
-    public void handleDeaths() throws SlowAnswerException, NotEnoughPlayersException{
+    private void handleDeaths() throws SlowAnswerException, NotEnoughPlayersException{
 
         for (Player deadPlayer : board.getActivePlayers()) {
             if (dead.contains(deadPlayer.getId())) {
@@ -1017,7 +1026,7 @@ public class TurnManager {
      * Replaces all the weapons collected during the turn.
      * If the weapon deck is empty, the collected weapons are not replaced.
      */
-    public void replaceWeapons() {
+    void replaceWeapons() {
 
         for (WeaponSquare s : board.getSpawnPoints()) {
             if (!board.getWeaponDeck().getDrawable().isEmpty()) {
@@ -1039,7 +1048,7 @@ public class TurnManager {
     /**
      * Replaces all the ammo tiles collected during the turn.
      */
-    public void replaceAmmoTiles(){
+    void replaceAmmoTiles(){
 
         for (Square s : board.getMap()){
             if (!board.getSpawnPoints().contains(s) && !((AmmoSquare)s).hasAmmoTile()){
@@ -1069,7 +1078,7 @@ public class TurnManager {
     /**
      * Updates the list of dead players.
      */
-    public void updateDead() {
+    void updateDead() {
         for (Player p : board.getActivePlayers()) {
             if (p.isDead() && !dead.contains(p.getId())) {
                 dead.add(p.getId());
@@ -1087,6 +1096,8 @@ public class TurnManager {
      *
      * @param request           a string specifying which action must be confirmed or deleted.
      * @return                  true if the current player decides to confirm the action.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
     private boolean askConfirmation(String request) throws SlowAnswerException, NotEnoughPlayersException{
         return askConfirmation(request, currentPlayer);
@@ -1099,8 +1110,8 @@ public class TurnManager {
      * @param request           a string specifying which action must be confirmed or deleted.
      * @param p                 the player the question is asked.
      * @return                  true if the player decides to confirm the action.
-     * @throws      NotEnoughPlayersException           if thrown by wait().
-     * @throws      SlowAnswerException                 if thrown by wait().
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
     private boolean askConfirmation(String request, Player p) throws SlowAnswerException,NotEnoughPlayersException{
 
@@ -1122,8 +1133,8 @@ public class TurnManager {
      * @param reborn        true if the player is reborning.
      *                      false if the player is joining the board for the first time.
      *
-     * @throws SlowAnswerException              if thrown by joinBoard().
-     * @throws NotEnoughPlayersException        if thrown by joinBoard().
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
     private void resetJoinBoard(Player p, boolean reborn) throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> p + RESET_ACTION);
@@ -1146,8 +1157,8 @@ public class TurnManager {
      * Resets all players powerups.
      * If it is called during the ending phase, it restarts the ending phase by calling handleUsingPowerUp().
      *
-     * @throws SlowAnswerException                  if thrown by handleUsingPowerUp().
-     * @throws NotEnoughPlayersException            if thrown by handleUsingPowerUp().
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
     private void resetPowerUp() throws SlowAnswerException, NotEnoughPlayersException{
         restoreAndNotify();
@@ -1162,8 +1173,8 @@ public class TurnManager {
      * If it is called during the ending phase, it restarts the ending phase by calling handleUsingPowerUp(), convertPowerUp(), reload().
      * Increments the number of action left since the last one was annulled.
      *
-     * @throws SlowAnswerException              if thrown by handleUsingPowerUp(), convertPowerUp(), or reload.
-     * @throws NotEnoughPlayersException        if thrown by handleUsingPowerUp(), convertPowerUp(), or reload.
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
     private void resetAction() throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
@@ -1189,7 +1200,7 @@ public class TurnManager {
      * @param options       the generic list to transform.
      * @return              the String list.
      */
-    public static List<String> toStringList(List options){
+    static List<String> toStringList(List options){
         List<String> encoded = new ArrayList<>();
         for (Object p : options ){
             encoded.add(p.toString());
@@ -1204,7 +1215,7 @@ public class TurnManager {
      * @param playerGroups  the list of players to transform.
      * @return              the String list.
      */
-    public static List<String> toUserStringList(List<List<Player>> playerGroups){
+    static List<String> toUserStringList(List<List<Player>> playerGroups){
         List<String> encoded = new ArrayList<>();
         for (List<Player> p : playerGroups ) {
             StringBuilder builder = new StringBuilder();
@@ -1259,7 +1270,7 @@ public class TurnManager {
      * @param p     the player whose connection must be returned.
      * @return      the connection of the specified player.
      */
-    public VirtualView getVirtualView(Player p){
+    private VirtualView getVirtualView(Player p){
         return playerConnections.get(board.getPlayers().indexOf(p));
     }
 
@@ -1269,7 +1280,7 @@ public class TurnManager {
      *
      * @return the IDs of the dead players.
      */
-    public List<Integer> getDead() {return dead;}
+    List<Integer> getDead() {return dead;}
 
 
     /**
@@ -1277,10 +1288,10 @@ public class TurnManager {
      * The player is forced to convert powerups when they are necessary to pay.
      *
      * @param originalCost      the ammo to pay
-     * @throws SlowAnswerException
-     * @throws NotEnoughPlayersException
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
-    public void handlePayment(AmmoPack originalCost) throws SlowAnswerException, NotEnoughPlayersException {
+    private void handlePayment(AmmoPack originalCost) throws SlowAnswerException, NotEnoughPlayersException {
 
         AmmoPack cost = new AmmoPack(originalCost.getRedAmmo(), originalCost.getBlueAmmo(), originalCost.getYellowAmmo());
 
@@ -1341,10 +1352,10 @@ public class TurnManager {
      * Ask a player to choose which powerup to convert when a convertion is necessary in order to pay.
      *
      * @param color         the color of the powerup that must be converted in order to obtain an ammo
-     * @throws SlowAnswerException
-     * @throws NotEnoughPlayersException
+     * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
+     * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
-    public void mandatoryConversion(Color color) throws SlowAnswerException, NotEnoughPlayersException{
+    private void mandatoryConversion(Color color) throws SlowAnswerException, NotEnoughPlayersException{
         currentPlayerConnection.choose(CHOOSE_POWERUP.toString(), MANDATORY_CONVERSION, currentPlayer.getPowerUps(color));
         int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         PowerUp selectedPowerup = currentPlayer.getPowerUps(color).get(selected-1);

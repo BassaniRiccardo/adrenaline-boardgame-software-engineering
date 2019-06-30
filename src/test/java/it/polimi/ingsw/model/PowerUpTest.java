@@ -25,7 +25,7 @@ public class PowerUpTest {
      */
     @Test
     public void isAvailable() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         PowerUp p = (PowerUp) b.getPowerUpDeck().drawCard();
         while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
             p = (PowerUp) b.getPowerUpDeck().drawCard();
@@ -42,7 +42,7 @@ public class PowerUpTest {
      */
     @Test
     public void isAvailable2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         PowerUp p = (PowerUp) b.getPowerUpDeck().drawCard();
         while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
             p = (PowerUp) b.getPowerUpDeck().drawCard();
@@ -58,7 +58,7 @@ public class PowerUpTest {
      */
     @Test
     public void isAvailable3() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         PowerUp p = (PowerUp) b.getPowerUpDeck().drawCard();
         while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
             p = (PowerUp) b.getPowerUpDeck().drawCard();
@@ -74,7 +74,7 @@ public class PowerUpTest {
      */
     @Test
     public void applyEffects() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         PowerUp p = (PowerUp) b.getPowerUpDeck().drawCard();
         while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
             p = (PowerUp) b.getPowerUpDeck().drawCard();
@@ -82,8 +82,10 @@ public class PowerUpTest {
         p.setHolder(b.getPlayers().get(0));
         b.getPlayers().get(0).getPowerUpList().add(p);
         p = b.getPlayers().get(0).getPowerUpList().get(0);
+        int oldDamages = b.getPlayers().get(1).getDamages().size();
         p.applyEffects(Arrays.asList(b.getPlayers().get(1)), p.getHolder().getPosition());
-        assertTrue(b.getPlayers().get(1).isJustDamaged());
+        int newDamages = b.getPlayers().get(1).getDamages().size();
+        assertEquals(newDamages, oldDamages + 1);
     }
 
     /**
@@ -91,7 +93,7 @@ public class PowerUpTest {
      */
     @Test
     public void findTargets() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         PowerUp p = (PowerUp) b.getPowerUpDeck().drawCard();
         while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
             p = (PowerUp) b.getPowerUpDeck().drawCard();
@@ -110,7 +112,7 @@ public class PowerUpTest {
      */
     @Test
     public void findTargets2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         PowerUp p = (PowerUp) b.getPowerUpDeck().drawCard();
         while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
             p = (PowerUp) b.getPowerUpDeck().drawCard();
@@ -126,7 +128,7 @@ public class PowerUpTest {
      */
     @Test
     public void findDestinations() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         PowerUp p = (PowerUp) b.getPowerUpDeck().drawCard();
         while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){
             p = (PowerUp) b.getPowerUpDeck().drawCard();

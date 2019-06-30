@@ -152,7 +152,7 @@ public class Board {
     }
 
     /**
-     * Getter for playerNumber.
+     * Returns the number of players on the board.
      *
      * @return      the number of players on the board.
      */

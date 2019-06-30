@@ -205,7 +205,7 @@ public class Player {
      * Virtual position used for calculating shooting squares. Needs to be manually RESET
      * @param square    virtual movement destination
      */
-    public void setVirtualPosition(Square square){
+    private void setVirtualPosition(Square square){
         if (!this.board.getMap().contains(square)) throw new IllegalArgumentException("The player must be located in a square that belongs to the board.");
         if (this.position!=null){
             this.position.removePlayer(this);
@@ -260,8 +260,9 @@ public class Player {
         board.addToUpdateQueue(Updater.get(Updater.ADD_DEATH_UPD, this, pointsToGive));
     }
 
+
     /**
-     * Adds damages to the player.
+     * Adds damages to the player in such a situation that the damage must be incremented by possible marks.
      * Every damage is a reference to the shooter.
      *
      * @param amount         the amount of damage to addList.
@@ -273,11 +274,42 @@ public class Player {
         if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
 
         justDamaged = true;
-
         amount += frequency(getMarks(),shooter);
         marks.removeAll(singleton(shooter));
+
+        addDamages(amount, shooter);
+    }
+
+
+    /**
+     * Adds damages to the player in such a situation that the damage must not be incremented by possible marks.
+     * Every damage is a reference to the shooter.
+     *
+     * @param amount         the amount of damage to addList.
+     * @param shooter        the player who shot.
+     */
+    public void sufferDamageNoMarksExtra(int amount, Player shooter) {
+
+        if (amount < 0) throw new IllegalArgumentException("Not valid amount of damage");
+        if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
+        addDamages(amount, shooter);
+
+    }
+
+
+    /**
+     * Adds damages to the player.
+     * Every damage is a reference to the shooter.
+     *
+     * @param amount         the amount of damage to addList.
+     * @param shooter        the player who shot.
+     */
+    public void addDamages(int amount, Player shooter){
+
+        boolean addMarkToShooter = false;
         for (int i = 0; i < amount; i++) {
             if (damages.size() < 12){
+                addMarkToShooter = true;
                 damages.add(shooter);
             }
         }
@@ -286,7 +318,7 @@ public class Player {
         }
         if (damages.size() == 12){
             overkilled = true;
-            if (frequency(shooter.getMarks(), this) <= 3){
+            if (frequency(shooter.getMarks(), this) <= 3 && addMarkToShooter){
                 shooter.getMarks().add(this);
             }
         }
@@ -300,7 +332,6 @@ public class Player {
         }
         board.addToUpdateQueue(Updater.get(Updater.DAMAGE_UPD, this, damages));
     }
-
 
     /**
      * Adds marks to the player marks.
@@ -753,7 +784,7 @@ public class Player {
             for(int i = 1; i<= j.getInt(NUMBER_OF_ACTIONS, STATUS_TAG,4); i++)
                 actionList.add(new Action(j.getInt(STEPS + i, STATUS_TAG,4),
                         j.getBoolean(COLLECT + i, STATUS_TAG,4),
-                        j.getBoolean(RELOAD + i, STATUS_TAG,4),
+                        j.getBoolean(SHOOT + i, STATUS_TAG,4),
                         j.getBoolean(RELOAD + i, STATUS_TAG,4)));
 
         }

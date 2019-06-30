@@ -26,7 +26,7 @@ public class Timer {
         reset();
     }
 
-    public void stop(){
+    void stop(){
         running = false;
         reset();
     }
@@ -42,17 +42,17 @@ public class Timer {
         } else {  over = false; }
     }
 
-    public boolean isRunning(){
+    boolean isRunning(){
         update();
         return running;
     }
 
-    public boolean isOver(){
+    boolean isOver(){
         update();
         return over&&running;
     }
 
-    public void pause(){
+    void pause(){
         update();
         if(running) {
             pausedAt = System.nanoTime();
@@ -60,7 +60,7 @@ public class Timer {
         }
     }
 
-    public void resume(){
+    void resume(){
         if(!running) {
             start += System.nanoTime() - pausedAt;
             running = true;
@@ -68,7 +68,7 @@ public class Timer {
         }
     }
 
-    public long getTimeLeft(){
+    long getTimeLeft(){
         return TimeUnit.SECONDS.convert(start + duration - System.nanoTime(), TimeUnit.NANOSECONDS);
     }
 }

@@ -39,7 +39,7 @@ public class MapRenderer {
     }
 
     /**
-     * Creates a bidimensional String array representng the map graphically. Relies on constructing SquareRenderers
+     * Creates a bidimensional String array representing the map graphically. Relies on constructing SquareRenderers
      * and merging their output with the background.
      *
      * @param model     reference to the model

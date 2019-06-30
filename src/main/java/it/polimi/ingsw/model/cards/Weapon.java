@@ -18,12 +18,20 @@ import java.util.logging.Logger;
 
 public class Weapon implements Card {
 
+    /**
+     * An enumeration for the powerups names.
+     */
     public enum WeaponName{
 
         LOCK_RIFLE, MACHINE_GUN, THOR, PLASMA_GUN, WHISPER, ELECTROSCYTHE, TRACTOR_BEAM,
         VORTEX_CANNON, FURNACE,HEATSEEKER, HELLION, FLAMETHROWER, GRENADE_LAUNCHER, ROCKET_LAUNCHER,
         RAILGUN, CYBERBLADE, ZX2, SHOTGUN, POWER_GLOVE, SHOCKWAVE, SLEDGEHAMMER;
 
+        /**
+         * Returns a string representing the weapon name.
+         *
+         * @return a string representing the weapon name.
+         */
         @Override
         public String toString(){
             String name = (this.name().substring(0,1) + this.name().toLowerCase().substring(1)).replace('_', ' ');
@@ -78,7 +86,7 @@ public class Weapon implements Card {
     }
 
 
-    /**
+    /*
      * Getters
      */
 
@@ -112,7 +120,7 @@ public class Weapon implements Card {
     }
 
 
-    /**
+    /*
      * Setters
      */
 
@@ -145,6 +153,7 @@ public class Weapon implements Card {
         return available;
 
     }
+
 
     /**
      *Checks if this weapon can fire (is loaded and valid targets)

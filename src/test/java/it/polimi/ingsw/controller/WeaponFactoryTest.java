@@ -360,8 +360,28 @@ public class WeaponFactoryTest {
         //MAIN DESTINATIONS
         assertTrue(whisper.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(dozer))).isEmpty());
 
-        shooter.discardWeapon(whisper);
+    }
+
+    /**
+     * Tests the whisper in a game scenario, checking that targets and destinations are correct.
+     *
+     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException
+     * @throws NotAvailableAttributeException
+     */
+    @Test
+    public void whisper2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
+
+        Board b = BoardConfigurer.simulateScenario();
+        Player shooter = b.getPlayers().get(0);
+        Player banshee = b.getPlayers().get(1);
+        Player dozer = b.getPlayers().get(2);
+        Player violet = b.getPlayers().get(3);
+        Player sprog = b.getPlayers().get(4);
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon whisper = weaponFactory.createWeapon(Weapon.WeaponName.WHISPER);
         dozer.addWeapon(whisper);
+
         //MAIN TARGETS
         assertEquals("[[Player 5 : anonymous(Sprog)]]",whisper.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS

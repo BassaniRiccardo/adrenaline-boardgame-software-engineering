@@ -124,7 +124,7 @@ public class GameEngine implements Runnable{
     }
 
 
-    /**
+    /*
      *  Getters
      */
     public synchronized  List<VirtualView> getPlayers() {
@@ -146,7 +146,7 @@ public class GameEngine implements Runnable{
     boolean isGameOver() {return gameOver; }
 
 
-    /**
+    /*
      *  Setters
      */
     public synchronized void setPlayers(List<VirtualView> players) {
@@ -161,7 +161,7 @@ public class GameEngine implements Runnable{
     }
 
 
-    /**
+    /*
      * Only for testing
      */
     public void setBoard(Board board) {
@@ -183,21 +183,8 @@ public class GameEngine implements Runnable{
 
             LOGGER.log(Level.FINE, "GameEngine running");
 
-            /*
-            try {
-                setup();
-            }catch (NotEnoughPlayersException e) {
-                for (VirtualView p : players) {
-                    p.showEnd("There are no enough player to start the game. Try to join another game.");
-                }
-                ServerMain.getInstance().untrackGame(this);
-                return;
-            }
-            */
-
-            fakeSetup();
-
             if (endphaseSimulation) {
+                fakeSetup();
                 try {
                     for (VirtualView p : players) {
                         board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
@@ -209,6 +196,15 @@ public class GameEngine implements Runnable{
             }
 
             else {
+                try {
+                    setup();
+                }catch (NotEnoughPlayersException e) {
+                    for (VirtualView p : players) {
+                        p.showEnd("There are no enough player to start the game. Try to join another game.");
+                    }
+                    ServerMain.getInstance().untrackGame(this);
+                    return;
+                }
                 battleCry();
             }
 
@@ -827,9 +823,10 @@ public class GameEngine implements Runnable{
         p3.setPointsToGive(4);
 
         //assigns damages and update status
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             p1.getDamages().add(p2);
             p1.addMarks(1, p2);
+        }
         p1.setStatus(Player.Status.BASIC);
 
         for (int i = 0; i < 4; i++)

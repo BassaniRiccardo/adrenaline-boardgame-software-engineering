@@ -37,7 +37,7 @@ public class StatusSaver {
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
 
-    /**
+    /*
      * Getters
      */
 

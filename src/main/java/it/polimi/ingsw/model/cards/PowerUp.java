@@ -18,10 +18,18 @@ import static it.polimi.ingsw.model.cards.Color.*;
 
 public class PowerUp implements Targeted, Card {
 
+    /**
+     * An enumeration for the powerups names.
+     */
     public enum PowerUpName{
 
         TARGETING_SCOPE, NEWTON, TAGBACK_GRENADE, TELEPORTER;
 
+        /**
+         * Returns a string representing the powerup name.
+         *
+         * @return a string representing the powerup name.
+         */
         @Override
         public String toString(){
             String name = (this.name().substring(0,1) + this.name().toLowerCase().substring(1)).replace('_', ' ');

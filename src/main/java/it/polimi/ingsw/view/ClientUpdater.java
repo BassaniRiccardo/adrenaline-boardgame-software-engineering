@@ -19,10 +19,11 @@ public class ClientUpdater {
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private static final String DISCARD_MSG = " discarded a ";
     private static final String PICKUP_MSG = " picked up a ";
-    private static final String MOVED_MSG = " moved to square ";
+    private static final String MOVED_MSG = " is now in square ";
     private static final String KILLED_MSG = " was killed!";
     private static final String DAMAGED_MSG = " took damage!";
     private static final String MARK_MSG = " was marked!";
+    private static final String DMG_INCREMENTED_MSG = " took more damage because of the marks he had!";
 
     /**
      * Applies updates to the ClientModel.
@@ -101,6 +102,10 @@ public class ClientUpdater {
             case (MARK_UPD):
                 clientModel.mark(j.get(PLAYER_PROP).getAsInt(), j.getAsJsonArray(PLAYER_LIST_PROP));
                 ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + MARK_MSG);
+                break;
+            case (REMOVE_MARKS):
+                clientModel.mark(j.get(PLAYER_PROP).getAsInt(), j.getAsJsonArray(PLAYER_LIST_PROP));
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + DMG_INCREMENTED_MSG);
                 break;
             case (REMOVE_WEAPON_UPD):
                 (clientModel.getSquare(j.get(SQUARE_PROP).getAsInt())).removeWeapon(j.get(WEAPON_PROP).getAsString());

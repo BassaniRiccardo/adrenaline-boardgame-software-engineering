@@ -21,10 +21,18 @@ import java.util.logging.Logger;
 
 public abstract class VirtualView implements Runnable{
 
+    /**
+     * An enumeration for the option types.
+     */
     public enum ChooseOptionsType{
 
         CHOOSE_WEAPON, CHOOSE_POWERUP, CHOOSE_SQUARE, CHOOSE_PLAYER, CHOOSE_STRING;
 
+        /**
+         * Returns a string representing the option type.
+         *
+         * @return a string representing the option type.
+         */
         @Override
         public String toString() {
             return super.toString().toLowerCase().substring("CHOOSE_".length());

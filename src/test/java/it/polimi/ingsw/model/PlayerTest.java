@@ -450,28 +450,28 @@ public class PlayerTest {
      * Tests discardWeapon()
      */
     @Test
-    public void discardWeapon()  throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void discardWeapon()  throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
 
         //simulates a scenario
         Board b = BoardConfigurer.simulateScenario();
-        WeaponFactory weaponFactory = new WeaponFactory(b);
 
         //instantiates the player
         Player player = b.getPlayers().get(3);
+        player.setPosition(b.getSpawnPoints().get(0));
 
-        //instantiates 2 weapons
-        Weapon weapon1 = weaponFactory.createWeapon(Weapon.WeaponName.THOR);
-        Weapon weapon2 = weaponFactory.createWeapon(Weapon.WeaponName.SHOTGUN);
+        //select 2 weapons
+        Weapon weapon1 = b.getSpawnPoints().get(0).getWeapons().get(0);
+        Weapon weapon2 = b.getSpawnPoints().get(0).getWeapons().get(1);
 
         //adds weapons
-        player.addWeapon(weapon1);
-        player.addWeapon(weapon2);
+        player.collect(weapon1);
+        player.collect(weapon2);
 
         //discards weapon2
         player.discardWeapon(weapon2);
 
         //checks that weaponslist contains only weapon1
-        assertTrue(player.getWeaponList().contains(weapon1) && player.getWeaponList().size() == 1);
+        assertEquals(Collections.singletonList(weapon1), player.getWeaponList());
     }
 
 

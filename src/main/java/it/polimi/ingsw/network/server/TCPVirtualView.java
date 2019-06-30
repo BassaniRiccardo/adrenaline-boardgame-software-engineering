@@ -25,6 +25,11 @@ public class TCPVirtualView extends VirtualView {
     private boolean waiting;
     private String answer;
 
+    /**
+     * Constructor for TCPVirtualView.
+     *
+     * @param socket the socket of the virtual view.
+     */
     public TCPVirtualView(Socket socket){
         super();
         this.socket = socket;

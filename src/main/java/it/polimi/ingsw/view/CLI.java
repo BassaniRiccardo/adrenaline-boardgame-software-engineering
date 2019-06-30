@@ -44,9 +44,6 @@ public class CLI implements UI{
     private static final int WARNING_SLEEP = 1500;
     private static final int SPLASHSCREEN_SLEEP = 1000;
 
-
-
-
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private String answer;          //contains the last user input

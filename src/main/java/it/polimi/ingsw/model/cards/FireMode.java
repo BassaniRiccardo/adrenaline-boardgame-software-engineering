@@ -49,7 +49,7 @@ public class FireMode implements Targeted {
 
     }
 
-    /**
+    /*
      * Getters
      */
 
@@ -64,7 +64,7 @@ public class FireMode implements Targeted {
 
     public Weapon getWeapon() { return weapon; }
 
-    /**
+    /*
      * Setters.
      */
     public void setWeapon(Weapon weapon){ this.weapon = weapon; }

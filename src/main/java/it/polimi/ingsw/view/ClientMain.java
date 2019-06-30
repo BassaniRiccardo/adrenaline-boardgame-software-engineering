@@ -201,7 +201,7 @@ public class ClientMain {
         clientUpdater.update(j, clientModel, this, ui);
     }
 
-    /**
+    /*
      * Getters and setters
      */
 

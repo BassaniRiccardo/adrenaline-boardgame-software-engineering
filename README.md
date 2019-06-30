@@ -26,7 +26,12 @@
 
 **Setup:**
 - The server uses port 3994 for RMI and 4198 for TCP.
-- Server parameters must be set in resources/server.properties (IP and ports).
-- Client parameters can be either set in resources/client.properties or you can use
+- Client parameters can be set at launch:
 
-    java -jar client.jar [serverIP] [serverPort] [clientIP] 
+    java -jar client.jar [serverIP] [serverPort] [clientIP]
+     
+- If no args are provided, the client will try to read a client.properties file in the same folder as the jar.
+- If this file is not available, default parameters will be loaded from those contained in resources/client.properties before building the jar.
+
+- Server properties (IPs and ports) must be set in a server.property file, which can be either in the same folder as the jar file, or in /resources before building the jar.
+The server will first check for properties in the same folder.

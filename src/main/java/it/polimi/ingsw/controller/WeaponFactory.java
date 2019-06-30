@@ -631,10 +631,8 @@ public class WeaponFactory {
                                 return Arrays.asList(Arrays.asList(p));
                             }
                             for (Square s : board.getReachable(p.getPosition(), 1)) {
-                                if (!s.containsPlayer(p)) {
-                                    if (!s.getPlayers().isEmpty()) {
-                                        return Arrays.asList(Arrays.asList(p));
-                                    }
+                                if (!s.containsPlayer(p)&&!s.getPlayers().isEmpty()) {
+                                    return Arrays.asList(Arrays.asList(p));
                                 }
                             }
                             return new ArrayList<>();

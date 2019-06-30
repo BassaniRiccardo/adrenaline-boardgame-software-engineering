@@ -1,0 +1,9 @@
+------------------------
+Electroscythe [(blue)]
+------------------------
+
+Basic mode:
+	Deal 1 damage to every other player on your square.
+
+Secondary mode 1 - Reaper Mode:
+	Deal 2 damage to every other player on your square. [blue, red]

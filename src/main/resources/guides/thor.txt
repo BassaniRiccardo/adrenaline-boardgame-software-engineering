@@ -1,5 +1,5 @@
 ---------------------
-T.H.O.R. [(blue) red]
+T.H.O.R. [(blue), red]
 ---------------------
 
 Basic effect:

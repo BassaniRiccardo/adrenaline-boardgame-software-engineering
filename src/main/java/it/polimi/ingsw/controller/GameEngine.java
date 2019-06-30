@@ -125,7 +125,7 @@ public class GameEngine implements Runnable{
     /**
      *  Getters
      */
-    public List<VirtualView> getPlayers() {
+    public synchronized  List<VirtualView> getPlayers() {
         return players;
     }
 
@@ -425,6 +425,7 @@ public class GameEngine implements Runnable{
         try{
             Thread.sleep(1000); //give them time to read
         } catch(InterruptedException e){
+            Thread.currentThread().interrupt();
             LOGGER.log(Level.SEVERE, "Skipped waiting time", e);
         }
     }

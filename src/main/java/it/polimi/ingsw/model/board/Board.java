@@ -786,9 +786,11 @@ public class Board {
     public void addToUpdateQueue(JsonObject jsonObject){
 
         LOGGER.log(Level.FINE, "Adding an update to all queues: {0}", jsonObject);
-        LOGGER.log(Level.FINE, "Adding to all: {0}", jsonObject);
-        for(VirtualView v : updates.keySet()){
-            updates.get(v).add(jsonObject);
+        //for(VirtualView v : updates.keySet()){
+        //    updates.get(v).add(jsonObject);
+        //}
+        for(Map.Entry<VirtualView, List<JsonObject>> entry : updates.entrySet()){
+            entry.getValue().add(jsonObject);
         }
     }
 
@@ -811,12 +813,18 @@ public class Board {
      * @param v     the current player
      */
     public void revertUpdates(VirtualView v){
-        for(VirtualView other : updates.keySet()){
-            if(!other.equals(v)){
-                updates.get(other).clear();
-                LOGGER.log(Level.FINE, "Removed all updates outgoing to {0}", other.getName());
+        for(Map.Entry<VirtualView, List<JsonObject>> entry : updates.entrySet()){
+            if(!entry.getKey().equals(v)){
+                entry.getValue().clear();
+                LOGGER.log(Level.FINE, "Removed all updates outgoing to {0}", entry.getKey().getName());
             }
         }
+        //for(VirtualView other : updates.keySet()){
+        //    if(!other.equals(v)){
+        //        updates.get(other).clear();
+        //        LOGGER.log(Level.FINE, "Removed all updates outgoing to {0}", other.getName());
+        //    }
+        //}
     }
 
 }

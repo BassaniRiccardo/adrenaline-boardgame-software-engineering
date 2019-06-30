@@ -1,4 +1,4 @@
-package it.polimi.ingsw.view.CLIRenderer;
+package it.polimi.ingsw.view.clirenderer;
 
 import it.polimi.ingsw.view.ClientMain;
 import it.polimi.ingsw.view.ClientModel;
@@ -7,20 +7,20 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Logger;
 
 /**
- * Main class used for rendering. It assembles the products of other rendering classes and manages what appears on the console.
+ * Main class used for rendering. It assembles the products of other rendering classes and manages what appears
+ * on the console.
  */
 public class MainRenderer {
 
-    private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private static final int BOX_WIDTH = 55;
     private static final int MESSAGE_HEIGHT = 10;
     private static final int REQUEST_HEIGHT = 3;
     private static final int MESSAGE_MEMORY = 3;
     private static final int PADDING = 1;
     static final String RESET = "\u001b[0m";
+    public static final String CLEAR_CONSOLE = "\033[H\033[2J";
 
     private String currentRequest;
     private String currentMessage;
@@ -71,13 +71,6 @@ public class MainRenderer {
                             stringToBox(currentMessage + currentRequest, REQUEST_HEIGHT, BOX_WIDTH, false),
                             true);
         }
-        //System.out.println("SUMMARY: \ngetMessages " + getMessages().length + " " + getMessages()[0].length
-        //                    +"\nmap " + mapRenderer.getMap(model).length+ " " + mapRenderer.getMap(model)[0].length
-        //                    +"\nweapon " + WeaponRenderer.get(model).length+ " " + WeaponRenderer.get(model)[0].length
-        //                    +"\nplayers " + PlayersRenderer.get(model).length+ " " + PlayersRenderer.get(model)[0].length
-        //                    +"\nhand " + HandRenderer.get(model).length+ " " + HandRenderer.get(model)[0].length
-        //                    +"\nrequest " + stringToBox(currentRequest, REQUEST_HEIGHT, BOX_WIDTH, false).length+ " "+stringToBox(currentRequest, REQUEST_HEIGHT, BOX_WIDTH, false)[0].length
-        //);
         drawModel(render);
     }
 
@@ -85,18 +78,16 @@ public class MainRenderer {
      * Shows quit warning
      */
     public static void showQuitScreen(){
-        System.out.print("\033[H\033[2J");
+        System.out.print(CLEAR_CONSOLE);
         System.out.println("Are you sure you want to quit? (Y/N)");
     }
 
     /**
      * Shows the info o a certain weapon or powerup
-     * @param weaponName    object looked up
      */
     public static void showInfoScreen(String weaponName){
-        System.out.print("\033[H\033[2J");
+        System.out.print(CLEAR_CONSOLE);
         try {
-            //new InputStreamReader(this.getClass().getResourceAsStream("/"+weaponName+".txt"));
             Scanner input = new Scanner(new InputStreamReader(MainRenderer.class.getResourceAsStream("/placeholder.txt")));
             while (input.hasNextLine()) {
                 System.out.println(input.nextLine());
@@ -137,7 +128,8 @@ public class MainRenderer {
     private String[][] getMessages() {
         StringBuilder bld = new StringBuilder();
         for(String message : messages){
-            bld.append(message + "\n");
+            bld.append(message);
+            bld.append("\n");
         }
         if(!messages.isEmpty()) {
             bld.deleteCharAt(bld.lastIndexOf("\n"));
@@ -155,7 +147,7 @@ public class MainRenderer {
      * @param fixedHeight   if true, it trims the first lines of the message to fit in the array
      * @return          string array
      */
-    public static String[][] stringToBox(String message, int height, int width, boolean fixedHeight){
+    private static String[][] stringToBox(String message, int height, int width, boolean fixedHeight){
 
         //counts how many rows are necessary
         int rows = 3;
@@ -213,6 +205,7 @@ public class MainRenderer {
 
     /**
      * Adds a frame to a String array
+     *
      * @param base      content to be framed
      * @return  String array
      */
@@ -254,7 +247,7 @@ public class MainRenderer {
      * @param separate  if true, the two arrays are separated by a line
      * @return  resulting String array
      */
-    public static String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
+    private static String[][] join(boolean vertical, String[][] box1, String[][] box2, boolean separate){
 
         if(box1.length==0){
             return box2;
@@ -356,10 +349,11 @@ public class MainRenderer {
 
     /**
      * Manages actual printing to console
+     *
      * @param render    String array to print
      */
-    public static void drawModel(String[][] render){
-        System.out.print("\033[H\033[2J");
+    private static void drawModel(String[][] render){
+        System.out.print(CLEAR_CONSOLE);
         System.out.flush();
         for(int i=0; i<render.length; i++){
             for(int j = 0; j<render[i].length; j++){

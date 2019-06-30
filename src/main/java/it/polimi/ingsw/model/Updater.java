@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.board.*;
 import it.polimi.ingsw.model.cards.AmmoPack;
+import it.polimi.ingsw.model.cards.AmmoTile;
 import it.polimi.ingsw.model.cards.PowerUp;
 import it.polimi.ingsw.model.cards.Weapon;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
@@ -207,8 +208,8 @@ public class Updater {
         //simpleSquares
         List<ClientModel.SimpleSquare> simpleSquares = new ArrayList<>();
         for (Square s : board.getMap()){
-            if (board.getSpawnPoints().contains(s))     simpleSquares.add(ClientModel.toSimpleSquare((WeaponSquare)s));
-            else  simpleSquares.add(ClientModel.toSimpleSquare((AmmoSquare) s));
+            if (board.getSpawnPoints().contains(s))     simpleSquares.add(toSimpleSquare((WeaponSquare)s));
+            else  simpleSquares.add(toSimpleSquare((AmmoSquare) s));
         }
         cm.setSquares(simpleSquares);
 
@@ -245,7 +246,6 @@ public class Updater {
         //decks size
         cm.setPowerUpCardsLeft(board.getPowerUpDeck().getDrawable().size());
         cm.setWeaponCardsLeft(board.getWeaponDeck().getDrawable().size());
-        cm.setAmmoTilesLeft(board.getAmmoDeck().getDrawable().size());
         cm.setMapID(board.getId());
         cm.setLeftWalls(board.getLeftWalls());
         cm.setTopWalls(board.getTopWalls());
@@ -292,13 +292,13 @@ public class Updater {
         }
         List<ClientModel.SimpleWeapon> weapons = new ArrayList<>();
         for (Weapon weapon : p.getWeaponList()){
-            weapons.add(ClientModel.toSimpleWeapon(weapon));
+            weapons.add(toSimpleWeapon(weapon));
         }
         ClientModel.SimpleSquare position = null;
         boolean isInGame = false;
         try {
-            if (board.getSpawnPoints().contains(p.getPosition())) position = ClientModel.toSimpleSquare((WeaponSquare)p.getPosition());
-            else position = ClientModel.toSimpleSquare((AmmoSquare)p.getPosition());
+            if (board.getSpawnPoints().contains(p.getPosition())) position = toSimpleSquare((WeaponSquare)p.getPosition());
+            else position = toSimpleSquare((AmmoSquare)p.getPosition());
             isInGame = true;
 
         } catch (NotAvailableAttributeException e) {
@@ -330,4 +330,33 @@ public class Updater {
         return j;
     }
 
+    public static ClientModel.SimpleWeapon toSimpleWeapon(Weapon weapon){
+        return new ClientModel().new SimpleWeapon(weapon.toString(), weapon.isLoaded());
+    }
+
+    public static ClientModel.SimpleSquare toSimpleSquare(WeaponSquare square){
+        List<ClientModel.SimpleWeapon> weapons = new ArrayList<>();
+        for (Weapon weapon : square.getWeapons()){
+            weapons.add(toSimpleWeapon(weapon));
+        }
+        return new ClientModel().new SimpleSquare(square.getId(), true, weapons, 0, 0, 0, false);
+    }
+
+    public static ClientModel.SimpleSquare toSimpleSquare(AmmoSquare square){
+        int redAmmo =0;
+        int blueAmmo =0;
+        int yellowAmmo =0;
+        boolean powerUp = false;
+        try {
+            AmmoTile ammoTile = square.getAmmoTile();
+            redAmmo = ammoTile.getAmmoPack().getRedAmmo();
+            blueAmmo = ammoTile.getAmmoPack().getBlueAmmo();
+            yellowAmmo = ammoTile.getAmmoPack().getYellowAmmo();
+            powerUp = ammoTile.hasPowerUp();
+
+        } catch (NotAvailableAttributeException e){
+            LOGGER.log(Level.FINE, "No ammotile on the square: 0,0,0, false is displayed.");
+        }
+        return new ClientModel().new SimpleSquare(square.getId(), false, new ArrayList<>(), redAmmo, blueAmmo, yellowAmmo, powerUp);
+    }
 }

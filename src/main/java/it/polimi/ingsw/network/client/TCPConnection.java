@@ -1,12 +1,9 @@
 package it.polimi.ingsw.network.client;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.view.ClientMain;
-import it.polimi.ingsw.view.ClientModel;
-import it.polimi.ingsw.view.UI;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,16 +12,13 @@ import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
 
@@ -40,7 +34,7 @@ public class TCPConnection implements Runnable {
     private BufferedReader in;
     private PrintWriter out;
     private ClientMain clientMain;
-    static final Logger LOGGER = Logger.getLogger("clientLogger");
+    private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private ExecutorService executor = Executors.newCachedThreadPool();
     private static final int SOTIMEOUT = 100;
     private boolean shutdown;
@@ -149,7 +143,7 @@ public class TCPConnection implements Runnable {
      *
      * @param message       message to send
      */
-    public void send(String message){
+    private void send(String message){
         out.println(message);
         out.flush();
         LOGGER.log(Level.FINE, "Message sent to TCP server: {0}", message);
@@ -184,11 +178,11 @@ public class TCPConnection implements Runnable {
     /**
      * Closes the connection
      */
-    public void shutdown(){
+    private void shutdown(){
         shutdown=true;
         try {
             socket.close();
-        }catch (IOException ex){
+        }catch (Exception ex){
             LOGGER.log(Level.SEVERE, "Error while closing connection", ex);
         }
     }

@@ -1,0 +1,9 @@
+-------------------------
+Whisper [(blue), blue, yellow]
+-------------------------
+
+Basic effect:
+	Deal 3 damage and 1 mark to 1 target you can see. Your target must be at least 2 moves away from you.
+
+Notes:
+	For exampe, in the 2-by-2 room, you cannot shoot a target on an adjacent square, but you can shoot a target on the diagonal. If you are beside a door, you can't shoot a target on the other side of the door, but you can shoot a target on a differet square of that room.

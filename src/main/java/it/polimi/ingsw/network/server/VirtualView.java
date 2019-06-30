@@ -1,16 +1,11 @@
 package it.polimi.ingsw.network.server;
+
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.controller.GameEngine;
 import it.polimi.ingsw.controller.ServerMain;
 import it.polimi.ingsw.model.board.Player;
-import it.polimi.ingsw.model.exceptions.SlowAnswerException;
-import it.polimi.ingsw.view.ClientModel;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,7 +87,7 @@ public abstract class VirtualView implements Runnable{
     /**
      * Checks for connection with client and forwards messages
      */
-    abstract public void refresh();
+    public abstract void refresh();
 
     /**
      * Getters and Setters
@@ -161,16 +156,16 @@ public abstract class VirtualView implements Runnable{
      * @param msg       message to be displayed
      * @param options   list of options to choose from
      */
-    abstract public void choose(String type, String msg, List<?> options);
+    public abstract void choose(String type, String msg, List<?> options);
 
-    abstract public void choose(String type, String msg, List<?> options, int timeoutSec);
+    public abstract void choose(String type, String msg, List<?> options, int timeoutSec);
 
     /**
      * Displays a message to the player
      *
      * @param msg       message to display
      */
-    abstract public void display(String msg);
+    public abstract void display(String msg);
 
     /**
      * Fetches input, but waits for an answer. Only for use during login procedures.
@@ -179,7 +174,7 @@ public abstract class VirtualView implements Runnable{
      * @param max       max length of the answer
      * @return          the answer
      */
-    abstract public String getInputNow(String msg, int max);
+    public abstract String getInputNow(String msg, int max);
 
 
     /**
@@ -188,14 +183,14 @@ public abstract class VirtualView implements Runnable{
      * @param options   options to choose from
      * @return          the player's choice as the index of the list of options
      */
-    abstract public int chooseNow(String type, String msg, List<?> options);
+    public abstract int chooseNow(String type, String msg, List<?> options);
 
     /**
      * Sends a request for an update to the client
      *
      * @param jsonObject    encoded update
      */
-    abstract public void update(JsonObject jsonObject);
+    public abstract void update(JsonObject jsonObject);
 
     public void notifyObservers(String ans){
         if(game!=null) {

@@ -3,16 +3,35 @@ package it.polimi.ingsw.view;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static it.polimi.ingsw.model.Updater.*;
 
+/**
+ * Class applying update messages received from the server to the ClientModel. It can also add messages to the history
+ * and task the ui with rendering.
+ *
+ * @author marcobaga
+ */
 public class ClientUpdater {
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
+    private static final String DISCARD_MSG = " discarded a ";
+    private static final String PICKUP_MSG = " picked up a ";
+    private static final String MOVED_MSG = " moved to square ";
+    private static final String KILLED_MSG = " was killed!";
+    private static final String DAMAGED_MSG = " took damage!";
+    private static final String MARK_MSG = " was marked!";
 
+    /**
+     * Applies updates to the ClientModel.
+     *
+     * @param   j update message
+     * @param   clientModel reference to the model to update
+     * @param   clientMain reference to main class, used for replacing the model in particular cases
+     * @param   ui reference to user interface, used for rendering
+     */
     public void update(JsonObject j, ClientModel clientModel, ClientMain clientMain, UI ui) {
 
         switch (j.get(TYPE_PROP).getAsString()) {
@@ -43,15 +62,15 @@ public class ClientUpdater {
                     clientModel.getPowerUpInHand().remove(j.get(POWER_UP_NAME_PROP).getAsString());
                     clientModel.getColorPowerUpInHand().remove(j.get(POWER_UP_COLOR_PROP).getAsString());
                 }
-                ui.addHistory(clientModel.getCurrentPlayer().getUsername() + " discarded a " + j.get(POWER_UP_NAME_PROP).getAsString());
+                ui.addHistory(clientModel.getCurrentPlayer().getUsername() + DISCARD_MSG + j.get(POWER_UP_NAME_PROP).getAsString());
                 break;
             case (PICKUP_WEAPON_UPD):
                 clientModel.getCurrentPlayer().pickUpWeapon(j.get(WEAPON_PROP).getAsString());
-                ui.addHistory(clientModel.getCurrentPlayer().getUsername() + " picked up a " + j.get(WEAPON_PROP).getAsString());
+                ui.addHistory(clientModel.getCurrentPlayer().getUsername() + PICKUP_MSG + j.get(WEAPON_PROP).getAsString());
                 break;
             case (DISCARD_WEAPON_UPD):
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).discardWeapon(j.get(WEAPON_PROP).getAsString());
-                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " discarded a " + j.get(WEAPON_PROP).getAsString());
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + DISCARD_MSG + j.get(WEAPON_PROP).getAsString());
                 break;
             case (ADD_WEAPON_UPD):
                 ClientModel.SimpleWeapon w = new ClientModel().new SimpleWeapon(j.get(WEAPON_PROP).getAsString(), true);
@@ -65,7 +84,7 @@ public class ClientUpdater {
                 break;
             case (MOVE_UPD):
                 clientModel.moveTo(j.get(PLAYER_PROP).getAsInt(), j.get(SQUARE_PROP).getAsInt());
-                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " moved to square " + j.get(SQUARE_PROP).getAsInt());
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + MOVED_MSG + j.get(SQUARE_PROP).getAsInt());
                 break;
             case (STATUS_UPD):
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setStatus(j.get(STATUS_PROP).getAsString(), j.get(BOOLEAN_PROP).getAsBoolean());
@@ -73,15 +92,15 @@ public class ClientUpdater {
             case (ADD_DEATH_UPD):
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).addDeath();
                 clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).setNextDeathAwards(j.get(POINTS_PROP).getAsInt());
-                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was killed!");
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + KILLED_MSG);
                 break;
             case (DAMAGE_UPD):
                 clientModel.damage(j.get(PLAYER_PROP).getAsInt(), j.getAsJsonArray(PLAYER_LIST_PROP));
-                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " took damage!");
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + DAMAGED_MSG);
                 break;
             case (MARK_UPD):
                 clientModel.mark(j.get(PLAYER_PROP).getAsInt(), j.getAsJsonArray(PLAYER_LIST_PROP));
-                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + " was marked!");
+                ui.addHistory(clientModel.getPlayer(j.get(PLAYER_PROP).getAsInt()).getUsername() + MARK_MSG);
                 break;
             case (REMOVE_WEAPON_UPD):
                 (clientModel.getSquare(j.get(SQUARE_PROP).getAsInt())).removeWeapon(j.get(WEAPON_PROP).getAsString());
@@ -96,52 +115,9 @@ public class ClientUpdater {
                 clientModel.getSquare(j.get(SQUARE_PROP).getAsInt()).setPowerup(false);
                 break;
             case (MODEL_UPD):
-                try {
                     JsonObject mod = new JsonParser().parse(j.get(MODEL_PROP).getAsString()).getAsJsonObject();
                     clientMain.setClientModel(new Gson().fromJson(mod, ClientModel.class));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
                 break;
-
-                /*
-            case ("revert"):
-                JsonArray players = j.get("players").getAsJsonArray();
-                for(int i = 0; i<players.size(); i++){
-                     clientModel.damage(players.get(i).getAsInt(), j.getAsJsonArray("damage").get(i).getAsJsonArray());
-                     clientModel.getPlayer(i+1).
-                }
-                JsonArray powerup = j.get("powerup").getAsJsonArray();
-                clientModel.getPowerUpInHand().clear();
-                for(JsonElement e : powerup){
-                    clientModel.getPowerUpInHand().add(e.getAsString());
-                }
-                clientModel.getCurrentPlayer().setAmmo(j.get("blueammo").getAsInt(), j.get("redammo").getAsInt(), j.get("yellowammo").getAsInt());
-
-                JsonArray weapons = j.getAsJsonArray("weapons");
-                JsonArray loadedWeapons = j.getAsJsonArray("loadedweapons");
-                clientModel.getCurrentPlayer().getWeapons().clear();
-                for(JsonElement e : weapons){
-                    clientModel.getCurrentPlayer().getWeapons().add(clientModel.new SimpleWeapon(e.toString(), false));
-                }
-                for(JsonElement e : loadedWeapons) {
-                    clientModel.getCurrentPlayer().getWeapon(e.getAsString()).setLoaded(true);
-                }
-                JsonArray squares = j.getAsJsonArray("squares");
-                JsonArray weaponInSquare = j.getAsJsonArray("weaponsinsquare");
-                for(JsonElement e : squares) {
-                    List<ClientModel.SimpleWeapon> list = clientModel.getSquare(e.getAsInt()).getWeapons();
-                    list.clear();
-                    for(JsonElement f : weaponInSquare) {
-                        list.add(clientModel.new SimpleWeapon(f.getAsString(), false));
-                    }
-                }
-                //ui.onUpdate();
-                //wait a little
-                //redraw model
-                ui.render();
-                break;
-                */
             default:
                 LOGGER.log(Level.SEVERE, "Malformed update header: " + j.get(TYPE_PROP).getAsString());
                 break;

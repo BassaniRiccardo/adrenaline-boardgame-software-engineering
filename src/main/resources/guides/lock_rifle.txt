@@ -1,8 +1,8 @@
 ------------------------
-Lock Rifle [(blue) blue]
+Lock Rifle [(blue), blue]
 ------------------------
 
-Base effect:
+Basic effect:
 	Deal 2 damage and 1 mark to 1 target you can see.
 
 Optional effect 1 - Second Lock:

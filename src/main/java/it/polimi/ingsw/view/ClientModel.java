@@ -1,24 +1,17 @@
 package it.polimi.ingsw.view;
 
-//TODO: reduce size and complexity to the minimum
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import it.polimi.ingsw.model.board.AmmoSquare;
-import it.polimi.ingsw.model.board.WeaponSquare;
-import it.polimi.ingsw.model.cards.AmmoTile;
-import it.polimi.ingsw.model.cards.Weapon;
-import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * Class managing the client's model
+ * Class representing the state of the game. This model is sensibly reduced compared to that of the server.
+ * All methods are getters and setters and no game logic is contained in this model. Only information necessary
+ * to display the state of the game is contained. This model can be modified with incremental updates, but, for
+ * the sake of consistency, is replaced with a copy of the server model at the beginning of each turn.
  *
- * @author  marcobaga
+ * @author  marcobaga, BassaniRiccardo
  */
 public class ClientModel {
 
@@ -27,7 +20,6 @@ public class ClientModel {
 
     private int weaponCardsLeft;
     private int powerUpCardsLeft;
-    private int ammoTilesLeft;
 
     private int mapID;
     private boolean[][] leftWalls;
@@ -41,15 +33,22 @@ public class ClientModel {
     private List<String> colorPowerUpInHand;
     private int playerID;
 
-    private static final Logger LOGGER = Logger.getLogger("clientLogger");
-
-    public ClientModel(){}
+    public ClientModel(){
+        //attributes in this class need to be initialized one at a time
+    }
 
     /**
-     * A simplified version of Square, containing only the things the user should see.
+     * A simplified version of Square, containing what the user should see.
      */
     public class SimpleSquare {
 
+        int id;
+        boolean spawnPoint;
+        List<SimpleWeapon> weapons;
+        int blueAmmo;
+        int redAmmo;
+        int yellowAmmo;
+        boolean powerup;
 
         public SimpleSquare(int id, boolean spawnPoint, List<SimpleWeapon> weapons, int redAmmo, int blueAmmo, int yellowAmmo, boolean powerup) {
             this.id = id;
@@ -61,57 +60,34 @@ public class ClientModel {
             this.powerup = powerup;
         }
 
-        int id;
-        boolean spawnPoint;
-        List<SimpleWeapon> weapons;
-        int blueAmmo;
-        int redAmmo;
-        int yellowAmmo;
-        boolean powerup;
-
-        public int getBlueAmmo() {
-            return blueAmmo;
-        }
-        public void setBlueAmmo(int blueAmmo) {
-            this.blueAmmo = blueAmmo;
-        }
-        public int getRedAmmo() {
-            return redAmmo;
-        }
-        public void setRedAmmo(int redAmmo) {
-            this.redAmmo = redAmmo;
-        }
-        public int getYellowAmmo() {
-            return yellowAmmo;
-        }
-        public void setYellowAmmo(int yellowAmmo) {
-            this.yellowAmmo = yellowAmmo;
-        }
-        public boolean isPowerup() {
-            return powerup;
-        }
-        public void setPowerup(boolean powerup) {this.powerup = powerup;}
-        public void SetId(int id) { this.id = id;  }
+        public int getBlueAmmo() { return blueAmmo; }
+        void setBlueAmmo(int blueAmmo) { this.blueAmmo = blueAmmo; }
+        public int getRedAmmo() { return redAmmo; }
+        void setRedAmmo(int redAmmo) { this.redAmmo = redAmmo; }
+        public int getYellowAmmo() { return yellowAmmo; }
+        void setYellowAmmo(int yellowAmmo) { this.yellowAmmo = yellowAmmo; }
+        public boolean isPowerup() { return powerup; }
+        public void setPowerup(boolean powerup) { this.powerup = powerup; }
         public int getId(){return id;}
-        public boolean isSpawnPoint() {return spawnPoint;}
+        boolean isSpawnPoint() {return spawnPoint;}
         public List<SimpleWeapon> getWeapons() {       return weapons;    }
         public void setWeapons(List<SimpleWeapon> weapons) {   this.weapons = weapons; }
 
-        public void removeWeapon(String name){
+        void removeWeapon(String name){
             for(SimpleWeapon w : weapons){
-                if(w.getName()==name){
+                if(w.getName().equals(name)){
                     weapons.remove(w);
                     return;
                 }
             }
         }
-
     }
 
     /**
-     * A simplified version of Player, containing only the other players information that the user should see.
+     * A simplified version of Player, containing only information about other players that the user should see.
      */
     public class SimplePlayer{
+
         private int id;
         private String color;
         private int cardNumber;
@@ -150,19 +126,33 @@ public class ClientModel {
             this.status = status;
         }
 
-        public void setStatus(String status, boolean flipped){
+        void setStatus(String status, boolean flipped){
             this.flipped = flipped;
             this.status = status;
         }
-        public int getNextDeathAwards(){ return nextDeathAwards;}
-        public void setNextDeathAwards(int nextDeathAwards){ this.nextDeathAwards = nextDeathAwards;}
-        public String getStatus(){ return this.status;}
+        public int getNextDeathAwards(){
+            return nextDeathAwards;
+        }
 
-        public boolean isInGame() { return inGame; }
+        void setNextDeathAwards(int nextDeathAwards){
+            this.nextDeathAwards = nextDeathAwards;
+        }
 
-        public boolean isFlipped() { return flipped; }
+        public String getStatus(){
+            return this.status;
+        }
 
-        public void setInGame(boolean inGame){this.inGame = inGame;}
+        public boolean isFlipped() {
+            return this.flipped;
+        }
+
+        boolean getInGame(){
+            return this.inGame;
+        }
+
+        void setInGame(boolean inGame){
+            this.inGame = inGame;
+        }
 
         public int getId() {
             return id;
@@ -184,7 +174,7 @@ public class ClientModel {
             return cardNumber;
         }
 
-        public void setCardNumber(int cardNumber) {
+        void setCardNumber(int cardNumber) {
             this.cardNumber = cardNumber;
         }
 
@@ -192,16 +182,8 @@ public class ClientModel {
             return damage;
         }
 
-        public void setDamage(List<Integer> damage) {
-            this.damage = damage;
-        }
-
         public List<Integer> getMarksID() {
             return marks;
-        }
-
-        public void setMarks(List<Integer> marks) {
-            this.marks = marks;
         }
 
         public List<SimpleWeapon> getWeapons() {
@@ -224,28 +206,30 @@ public class ClientModel {
             return username;
         }
 
-        public void setUsername(String username) {
-            this.username = username;
+        public int getPoints() {
+            return points;
         }
 
-        public int getPoints() {return points; }
+        public void setPoints(int points) {
+            this.points = points;
+        }
 
-        public void setPoints(int points) {this.points = points;}
+        public int getDeaths() {
+            return deaths;
+        }
 
-        public int getDeaths() {return deaths;}
-
-        public void setDeaths(int deaths) {this.deaths = deaths;}
-
-        public void addDeath(){this.deaths++;}
+        void addDeath() {
+            this.deaths++;
+        }
 
         /**
          * Complex getters and setters
          */
-        public List<SimplePlayer> toSimplePlayerList(List<Integer> IDs, List<SimplePlayer> players){
+        List<SimplePlayer> toSimplePlayerList(List<Integer> ids, List<SimplePlayer> players){
 
-            List<SimplePlayer> toReturn = new ArrayList();
+            List<SimplePlayer> toReturn = new ArrayList<>();
 
-            for (Integer i: IDs){
+            for (Integer i: ids){
                 for(SimplePlayer p : players)
                     if(p.getId()==i)
                         toReturn.add(p);
@@ -253,11 +237,11 @@ public class ClientModel {
             return toReturn;
         }
 
-        public List<SimplePlayer> getDamage(List<SimplePlayer> players){ return toSimplePlayerList (damage, players); }
+        List<SimplePlayer> getDamage(List<SimplePlayer> players){ return toSimplePlayerList (damage, players); }
 
-        public List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
+        List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
 
-        public void pickUpWeapon(String name){
+        void pickUpWeapon(String name){
 
             for(SimpleWeapon w : this.position.getWeapons()){
                 if(w.getName().equals(name)){
@@ -268,7 +252,7 @@ public class ClientModel {
             }
         }
 
-        public void discardWeapon(String name){
+        void discardWeapon(String name){
             for(SimpleWeapon w : this.position.getWeapons()){
                 if(w.getName().equals(name)){
                     this.position.getWeapons().add(w);
@@ -278,25 +262,19 @@ public class ClientModel {
             }
         }
 
-        public void addAmmo(int r, int b, int y){
+        void addAmmo(int r, int b, int y){
             redAmmo=redAmmo+r;
             blueAmmo=blueAmmo+b;
             yellowAmmo=yellowAmmo+y;
         }
 
-        public void subAmmo(int r, int b, int y){
+        void subAmmo(int r, int b, int y){
             redAmmo=redAmmo-r;
             blueAmmo=blueAmmo-b;
             yellowAmmo=yellowAmmo-y;
         }
 
-        public void setAmmo(int r, int b, int y){
-            redAmmo=r;
-            blueAmmo=b;
-            yellowAmmo=y;
-        }
-
-        public SimpleWeapon getWeapon(String name){
+        SimpleWeapon getWeapon(String name){
             for(SimpleWeapon s : weapons){
                 if(s.getName().equals(name)){
                     return s;
@@ -320,7 +298,7 @@ public class ClientModel {
 
 
     /**
-     * A simplified version of Weapon, containing only the things the user should see.
+     * A simplified version of Weapon, containing only what the user should see.
      */
     public class SimpleWeapon{
         String name;
@@ -343,12 +321,15 @@ public class ClientModel {
             return this.loaded;
         }
 
-        public void setLoaded(boolean loaded) {
+        void setLoaded(boolean loaded) {
             this.loaded = loaded;
         }
     }
 
 
+    /**
+     * Getters and setters related to the whole model
+     */
     public List<SimpleSquare> getSquares() {
         return squares;
     }
@@ -379,14 +360,6 @@ public class ClientModel {
 
     public void setPowerUpCardsLeft(int powerUpCardsLeft) {
         this.powerUpCardsLeft = powerUpCardsLeft;
-    }
-
-    public int getAmmoTilesLeft() {
-        return ammoTilesLeft;
-    }
-
-    public void setAmmoTilesLeft(int ammoTilesLeft) {
-        this.ammoTilesLeft = ammoTilesLeft;
     }
 
     public int getMapID() {
@@ -445,11 +418,13 @@ public class ClientModel {
 
     public void setTopWalls(boolean[][] topWalls) { this.topWalls = topWalls;}
 
-    public void removeSkulls(int n){
-        //do something with killshottrack
+    void removeSkulls(int n){
+        if(n<skullsLeft) {
+            skullsLeft = skullsLeft - n;
+        }
     }
 
-    public void moveTo(int player, int square) {
+    void moveTo(int player, int square) {
         SimplePlayer p = getPlayer(player);
         SimpleSquare s = getSquare(square);
         p.setPosition(s);
@@ -477,8 +452,11 @@ public class ClientModel {
                 return s;
             }
         }
-        return players.get(0);
-        //watch out
+        if(!players.isEmpty()) {
+            return players.get(0);
+        } else {
+            return new SimplePlayer(0, "blue", 0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), getSquare(0), "default", 0, 0, 0, false, false, 0, 0, 0, "BASIC");
+        }
     }
 
     public SimpleSquare getSquare(int id){
@@ -487,39 +465,19 @@ public class ClientModel {
                 return s;
             }
         }
-        return squares.get(0);
-    }
-
-    public static SimpleWeapon toSimpleWeapon(Weapon weapon){
-        return new ClientModel().new SimpleWeapon(weapon.toString(), weapon.isLoaded());
-    }
-
-    public static SimpleSquare toSimpleSquare(WeaponSquare square){
-        List<SimpleWeapon> weapons = new ArrayList<>();
-        for (Weapon weapon : square.getWeapons()){
-            weapons.add(toSimpleWeapon(weapon));
+        if(!squares.isEmpty()) {
+            return squares.get(0);
+        } else {
+            return new SimpleSquare(0, false, new ArrayList<>(), 0, 0, 0, false);
         }
-        return new ClientModel().new SimpleSquare(square.getId(), true, weapons, 0, 0, 0, false);
     }
 
-    public static SimpleSquare toSimpleSquare(AmmoSquare square){
-        int redAmmo =0;
-        int blueAmmo =0;
-        int yellowAmmo =0;
-        boolean powerUp = false;
-        try {
-            AmmoTile ammoTile = square.getAmmoTile();
-            redAmmo = ammoTile.getAmmoPack().getRedAmmo();
-            blueAmmo = ammoTile.getAmmoPack().getBlueAmmo();
-            yellowAmmo = ammoTile.getAmmoPack().getYellowAmmo();
-            powerUp = ammoTile.hasPowerUp();
-
-        } catch (NotAvailableAttributeException e){
-            LOGGER.log(Level.FINE, "No ammotile on the square: 0,0,0, false is displayed.");
-        }
-        return new ClientModel().new SimpleSquare(square.getId(), false, new ArrayList<>(), redAmmo, blueAmmo, yellowAmmo, powerUp);
-    }
-
+    /**
+     * Static method returning ASCII escape codes
+     *
+     * @param color     required color
+     * @return          ASCII escape code as a String
+     */
     public static String getEscapeCode(String color){
         if(color==null){
             return "\u001b[35m";
@@ -532,7 +490,7 @@ public class ClientModel {
             case "blue": return "\u001b[34m";
             case "purple": return "\u001b[35m";
             case "cyan": return "\u001b[36m";
-            case "grey": return "\u001b[37m";           //actually white
+            case "grey": return "\u001b[37m";
             case "reset": return "\u001b[0m";
             default: return "";
         }

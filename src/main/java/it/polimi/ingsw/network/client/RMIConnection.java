@@ -73,12 +73,15 @@ public class RMIConnection implements Runnable, RemoteView {
             LOGGER.log(Level.SEVERE, "Could not find stubs in registry", ex);
         }catch(RemoteException ex){
             LOGGER.log(Level.SEVERE, "RMI server disconnected, shutting down", ex);
-            System.exit(0);
+            shutdown();
+            clientMain.showDisconnection();
         }
 
     }
 
-    public void run(){}
+    public void run(){
+        //empty method as we do not need to periodically check for incoming messages
+    }
 
     /**
      * Asks clientMain to carry out a decision
@@ -139,7 +142,7 @@ public class RMIConnection implements Runnable, RemoteView {
     /**
      * Closes the connection
      */
-    public void shutdown(){
+    private void shutdown(){
         try {
             UnicastRemoteObject.unexportObject(this, false);
         }catch(NoSuchObjectException ex){

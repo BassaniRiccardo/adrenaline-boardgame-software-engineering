@@ -1,20 +1,30 @@
-package it.polimi.ingsw.view.CLIRenderer;
+package it.polimi.ingsw.view.clirenderer;
 
 import it.polimi.ingsw.view.ClientModel;
 
 import java.util.List;
-import static it.polimi.ingsw.view.CLIRenderer.MainRenderer.RESET;
+import static it.polimi.ingsw.view.clirenderer.MainRenderer.RESET;
 
 /**
- * Class creating a bidimensional String array containing data about other players
+ * Class creating a bidimensional String array containing information about other players
  */
 public class PlayersRenderer {
 
     private static final int PLAYERS_WIDTH = 55;
     private static final int LINES_PER_PLAYER = 7;
+    private static final int PADDING = 3;
+    private static final int SECOND_COLUMN = 24;
 
+    private PlayersRenderer(){}
+
+    /**
+     * Creates a bidimensional String array containing all data about other players
+     * @param clientModel       reference to the model
+     * @return                  graphical representation of other players
+     */
     public static String[][] get(ClientModel clientModel){
 
+        //preparing strings to print
         List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
         int playerNum = players.size();
         String[] names = new String[playerNum];
@@ -56,15 +66,15 @@ public class PlayersRenderer {
                 ammo[i][count] = String.valueOf("Ammo: ".charAt(count));
             }
             for(int j=0; j<p.getBlueAmmo(); j++){
-                ammo[i][count] = clientModel.getEscapeCode("blue") + "|"+RESET;
+                ammo[i][count] = ClientModel.getEscapeCode("blue") + "|"+RESET;
                 count++;
             }
             for(int j=0; j<p.getRedAmmo(); j++){
-                ammo[i][count] = clientModel.getEscapeCode("red") + "|"+RESET;
+                ammo[i][count] = ClientModel.getEscapeCode("red") + "|"+RESET;
                 count++;
             }
             for(int j=0; j<p.getYellowAmmo(); j++){
-                ammo[i][count] = clientModel.getEscapeCode("yellow") + "|"+RESET;
+                ammo[i][count] = ClientModel.getEscapeCode("yellow") + "|"+RESET;
                 count++;
             }
             deaths[i] = "Deaths: " + p.getDeaths() + " (next death awards " + p.getNextDeathAwards() + " points)";
@@ -79,69 +89,65 @@ public class PlayersRenderer {
             }
         }
 
+        //printing strings
         int row =0;
         for(int i=0; i<playerNum && row*LINES_PER_PLAYER<playersHeight; i++){
 
             if(i+1 != clientModel.getPlayerID()) {
 
-                for (int j = 0; j < names[i].length()&&j+3<PLAYERS_WIDTH; j++) {
-                    box[row * LINES_PER_PLAYER + 1][j + 3] = ClientModel.getEscapeCode(clientModel.getPlayer(i+1).getColor()) + (names[i].charAt(j)) + "\u001b[0m";
+                for (int j = 0; j < names[i].length()&&j+PADDING<PLAYERS_WIDTH; j++) {
+                    box[row * LINES_PER_PLAYER + 1][j + PADDING] = ClientModel.getEscapeCode(clientModel.getPlayer(i+1).getColor()) + (names[i].charAt(j)) + RESET;
                 }
-
-                for (int j = 0; j < "Damage: ".length()&&j+3<PLAYERS_WIDTH; j++) {
-                    box[row * LINES_PER_PLAYER + 2][j + 3] = String.valueOf("Damage: ".charAt(j));
+                for (int j = 0; j < "Damage: ".length()&&j+PADDING<PLAYERS_WIDTH; j++) {
+                    box[row * LINES_PER_PLAYER + 2][j + PADDING] = String.valueOf("Damage: ".charAt(j));
                 }
 
                 int k = 0;
-
                 for (int color : clientModel.getPlayer(i+1).getDamageID()) {
-                    if(k+9>PLAYERS_WIDTH){
+                    if(k+PADDING+"Damage: ".length()>PLAYERS_WIDTH){
                         break;
                     }
-                    box[row * LINES_PER_PLAYER + 2][k + 9] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "●" + "\u001b[0m";
+                    box[row * LINES_PER_PLAYER + 2][k + PADDING+"Damage: ".length()] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "●" + RESET;
                     k++;
                 }
 
                 for (int j = 0; j < "Marks: ".length(); j++) {
-                    if(k+23>PLAYERS_WIDTH){
+                    if(j+SECOND_COLUMN>PLAYERS_WIDTH){
                         break;
                     }
-                    box[row * LINES_PER_PLAYER + 2][j + 23] = String.valueOf("Marks: ".charAt(j));
+                    box[row * LINES_PER_PLAYER + 2][j + SECOND_COLUMN] = String.valueOf("Marks: ".charAt(j));
                 }
                 k = 0;
 
                 for (int color : clientModel.getPlayer(i+1).getMarksID()) {
-                    if(k+29>PLAYERS_WIDTH){
+                    if(k+SECOND_COLUMN+"Marks: ".length()>PLAYERS_WIDTH){
                         break;
                     }
-                    box[row * LINES_PER_PLAYER + 2][k + 29] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "◎" + "\u001b[0m";
+                    box[row * LINES_PER_PLAYER + 2][k + SECOND_COLUMN + "Marks: ".length()] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "◎" + RESET;
                     k++;
                 }
 
-                for(int j = 0; j<ammo[i].length&&j+3<PLAYERS_WIDTH; j++){
-                    box[row * LINES_PER_PLAYER + 3][j+3] = ammo[i][j];
+                for(int j = 0; j<ammo[i].length&&j+PADDING<PLAYERS_WIDTH; j++){
+                    box[row * LINES_PER_PLAYER + 3][j+PADDING] = ammo[i][j];
                 }
 
-                for (int j = 0; j < weapons[i].length()&&j+3<PLAYERS_WIDTH; j++) {
-                    box[row * LINES_PER_PLAYER + 4][j + 3] = String.valueOf(weapons[i].charAt(j));
+                for (int j = 0; j < weapons[i].length()&&j+PADDING<PLAYERS_WIDTH; j++) {
+                    box[row * LINES_PER_PLAYER + 4][j + PADDING] = String.valueOf(weapons[i].charAt(j));
                 }
 
                 String hand = "Cards in hand: " + clientModel.getPlayer(i+1).getCardNumber();
-                for(int j = 0; j < hand.length()&&j+3<PLAYERS_WIDTH; j++){
-                    box[row * LINES_PER_PLAYER + 5][j + 3] = String.valueOf(hand.charAt(j));
+                for(int j = 0; j < hand.length()&&j+PADDING<PLAYERS_WIDTH; j++){
+                    box[row * LINES_PER_PLAYER + 5][j + PADDING] = String.valueOf(hand.charAt(j));
                 }
 
-                for(int j=0; j<deaths[i].length()&&j+3<PLAYERS_WIDTH; j++){
-                    box[row * LINES_PER_PLAYER + 6][j + 3] = String.valueOf(deaths[i].charAt(j));
+                for(int j=0; j<deaths[i].length()&&j+PADDING<PLAYERS_WIDTH; j++){
+                    box[row * LINES_PER_PLAYER + 6][j + PADDING] = String.valueOf(deaths[i].charAt(j));
                 }
             } else{
                 row--;
             }
             row++;
         }
-
-
         return box;
     }
-
 }

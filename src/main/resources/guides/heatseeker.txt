@@ -1,0 +1,9 @@
+------------------------
+Heatseeker [(red), red, yellow]
+------------------------
+
+Basic effect:
+	Choose 1 target you cannot see and deal 3 damage to it.
+
+Notes:
+	Yes, you can only hit targets you cannot see.

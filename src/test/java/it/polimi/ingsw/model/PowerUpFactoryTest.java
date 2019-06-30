@@ -9,8 +9,6 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-//TODO try and catch exceptions when the return value is null
-
 public class PowerUpFactoryTest {
 
     /**

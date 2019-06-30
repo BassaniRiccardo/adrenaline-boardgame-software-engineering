@@ -2,64 +2,78 @@ package it.polimi.ingsw.view;
 
 import java.util.List;
 
-//TODO: localize language
-
 /**
- * Interface for user interface and managing client's input/output
+ * Interface for graphical representation and client input management
  *
  * @author  marcobaga
  */
 public interface UI extends Runnable {
 
     /**
-     * Displays a message to the user
+     * Displays a message to the user.
      *
-     * @param message message to be displayed
+     * @param message   message to display
      */
     void display(String message);
 
     /**
-     * Displays a request to the user
+     * Displays a request to the user with a character limit for his input.
      *
-     * @param message message to be displayed
+     * @param message   message to display
      */
     void display(String message, String max);
 
     /**
-     * Displays a message and a list of options to the user
+     * Displays a message and a list of options to the user.
      *
-     * @param message message to be displayed
-     * @param options options to be displayed
+     * @param message   message to display
+     * @param options   options to display
      */
     void display(String type, String message, List<String> options);
 
 
     /**
-     * Returns the user's input
+     * Returns the user's input. Is usually called after display(String message).
      *
-     * @return the string typed or chosen by the user
+     * @return      the string typed or chosen by the user
      */
-    //String get();
-
     String get(String max);
 
+    /**
+     * Returns the user's choice among a list.
+     *
+     * @param list  options to choose from
+     * @return      a String containing the number of the option chosen
+     */
     String get(List<String> list);
 
+    /**
+     * Redraws the interface.
+     */
     void render();
 
+    /**
+     * Displays a message signaling disconnection from the server.
+     */
     void displayDisconnection();
 
+    /**
+     * Displays a message signaling that the user was suspended by the server.
+     */
     void displaySuspension();
 
+    /**
+     * Displays a message describing the results of the game.
+     *
+     * @param message   information abount the result of the game
+     */
     void displayEnd(String message);
 
+    /**
+     * Adds a message representing a change in the game state to the list of past events, that can be displayed
+     * by the UI.
+     *
+     * @param message   description of a change in the game state
+     */
     void addHistory(String message);
 }
-
-
-
-/*
-La UI è una sorgente di eventi a cui qualcuno si è registrato ("se succede qualcosa, avvisami e spiegamelo, io lo gestisco"
-Un evento è una classe/scatola
-I listener ascoltano particolarei eventi.
- */

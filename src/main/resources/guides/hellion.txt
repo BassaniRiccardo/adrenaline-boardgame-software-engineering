@@ -1,0 +1,9 @@
+------------------------
+Hellion [(red), yellow]
+------------------------
+
+Basic mode:
+	Deal 1 damage to 1 target you can see at least 1 move away. Then give 1 mark to that target and everyone else on that square.
+
+Secondary mode 1 - Nano Tracer:
+	Deal 1 damage to 1 target you can see at least 1 move away. Then give 2 marks to that target and everyone else on that square. [red]

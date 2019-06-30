@@ -4,6 +4,7 @@ import com.google.gson.*;
 import it.polimi.ingsw.network.client.RMIConnection;
 import it.polimi.ingsw.network.client.TCPConnection;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -22,12 +23,18 @@ import static it.polimi.ingsw.model.Updater.*;
 import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.CHOOSE_STRING;
 
 /**
-/**
- * Main client class, containing most of the client's logic and structures
+ * Main client class, containing most of the client's logic and structures. It handles requests and messages
+ * coming from the server and received by TCPConnection or RMIConnection by updating the ClientModel (through
+ * ClientUpdater) or by selecting what the UI should show. It can query the UI for user input.
  *
  * @author  marcobaga
  */
 public class ClientMain {
+
+    private static final String CHOOSE_UI_MSG = "Client started. Which interface do you want to use (GUI/CLI)?";
+    private static final String INVALID_CHOICE_MSG = "Invalid choice. Try again.";
+    private static final String CHOOSE_CONNECTION_MSG = "Which type of connection do you want to use?\n(if unsure, choose 1)";
+    private static final String SELECTED_MSG = " selected.";
 
     private UI ui;
     private Runnable connection;
@@ -40,7 +47,7 @@ public class ClientMain {
     /**
      * Constructor
      */
-    public ClientMain() {
+    private ClientMain() {
         executor = Executors.newCachedThreadPool();
         clientModel = null;
         clientUpdater = new ClientUpdater();
@@ -50,17 +57,17 @@ public class ClientMain {
     /**
      * Main method, instantiates the class and initiates setup
      *
-     * @param args arguments
+     * @param args  command line arguments
      */
     public static void main(String[] args) {
         ClientMain clientMain = new ClientMain();
         clientMain.initializeLogger();
         clientMain.setup(args);
-        //LOGGER.log(Level.INFO, "Setup finished");
+        LOGGER.log(Level.INFO, "Setup finished");
     }
 
     /**
-     * Initializes a logger for all the classes used by the client.
+     * Initializes a logger for all the classes instantiated in the client.
      */
     private void initializeLogger() {
         try {
@@ -69,7 +76,7 @@ public class ClientMain {
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);
+            LOGGER.log(Level.SEVERE, "Exception thrown while creating logger", ex);
         }
         LOGGER.setLevel(Level.SEVERE);
     }
@@ -86,6 +93,12 @@ public class ClientMain {
             prop.put("TCPPort", args[1]);
             prop.put("myIP", args[2]);
         } else {
+            try (InputStream input = new FileInputStream("client.properties")) {
+                prop.load(input);
+                return prop;
+            } catch (IOException ex) {
+                //LOGGER.log(Level.SEVERE, "Cannot load client config from file", ex);
+            }
             try{
                 InputStream input = getClass().getResourceAsStream("/client.properties");
                 prop.load(input);
@@ -97,22 +110,21 @@ public class ClientMain {
     }
 
     /**
-     * Method that initializes ui and connection as chosen by the user. Both are executed in a different thread.
+     * Initializes UI and connection as chosen by the user.
      *
-     * @param args the server's ip and port
+     * @param args  the server's ip and port
      */
     private void setup(String[] args) {
 
         Properties prop = loadConfig(args);
 
         Scanner in = new Scanner(System.in);
-        System.out.println("Client started. Which interface do you want to use (GUI/CLI)?");
+        System.out.println(CHOOSE_UI_MSG);
         String buff = in.nextLine();
-        while (!(buff.equals("GUI") || buff.equals("CLI"))) {
-            System.out.println("Invalid choice. Try again.");
+        while (!(buff.equalsIgnoreCase("GUI") || buff.equalsIgnoreCase("CLI"))) {
+            System.out.println(INVALID_CHOICE_MSG);
             buff = in.nextLine();
         }
-        String selectedInterface;
         if(buff.equals("GUI")){
             new Thread() {
                 @Override
@@ -122,18 +134,16 @@ public class ClientMain {
             }.start();
             ui = GUI.waitGUI();
             ((GUI)ui).setClientMain(this);
-            selectedInterface = "GUI selected.";
         }else{
             ui = new CLI(this);
-            selectedInterface = "CLI selected.";
         }
         executor.submit(ui);
-        ui.display(selectedInterface);
+        ui.display(buff.toUpperCase() + SELECTED_MSG);
 
-        ui.display(CHOOSE_STRING.toString(), "Which type of connection do you want to use?\n(if unsure, choose 1)", new ArrayList<>(Arrays.asList("Socket", "RMI")));
+        ui.display(CHOOSE_STRING.toString(), CHOOSE_CONNECTION_MSG, new ArrayList<>(Arrays.asList("Socket", "RMI")));
         buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         while (!(buff.equals("1") || buff.equals("2"))) {
-            ui.display("Invalid choice. Try again.");
+            ui.display(INVALID_CHOICE_MSG);
             buff = ui.get(new ArrayList<>(Arrays.asList("Socket", "RMI")));
         }
         if (buff.equals("2")) {
@@ -146,8 +156,10 @@ public class ClientMain {
     }
 
     /**
-     * Prompts the UI to choose from a list of options
-     * @param msg       message to be displayed
+     * Prompts the UI to choose from a list of options through two separate calls to UI functions.
+     * The first call displays the request, while the second returns the user's input.
+     *
+     * @param msg       message to display
      * @param options   options available
      * @return          int corresponding to the option chosen
      */
@@ -158,7 +170,8 @@ public class ClientMain {
     }
 
     /**
-     * Calls UI display method
+     * Displays a message to the user
+     *
      * @param msg   message to display
      */
     public void display(String msg) {
@@ -166,7 +179,8 @@ public class ClientMain {
     }
 
     /**
-     * Prompts the UI for a string
+     * Retrieves a String from the user by calling two UI methods: the first one displays the request
+     * while the second one retrieves the input.
      *
      * @param msg   message to display
      * @param max   maximum length accepted
@@ -178,11 +192,11 @@ public class ClientMain {
     }
 
     /**
-     * Applies changes to the ClientModel according to the update message received and displays them
+     * Passes an update message to the ClientUpdater which will apply and possibly display it
+     *
      * @param j     serialized update
      */
     public void update(JsonObject j) {
-
         LOGGER.log(Level.INFO, "Update received: " + j.get(TYPE_PROP).getAsString());
         clientUpdater.update(j, clientModel, this, ui);
     }
@@ -195,10 +209,14 @@ public class ClientMain {
         return clientModel;
     }
 
-    public void setClientModel(ClientModel clientModel) {
+    void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
     }
 
+    /**
+     * Closes the game when the player gets suspended. Execution on a parallel thread is needed to return without
+     * delays.
+     */
     public void showSuspension(){
         gameOver = true;
         executor.submit(() ->{
@@ -207,6 +225,9 @@ public class ClientMain {
         });
     }
 
+    /**
+     * Closes the game when connection with the server is lost.
+     */
     public void showDisconnection(){
         if(!gameOver) {
             ui.displayDisconnection();
@@ -214,6 +235,11 @@ public class ClientMain {
         }
     }
 
+    /**
+     * Closes the game when it is over.
+     *
+     * @param message   information about the game's result
+     */
     public void showEnd(String message){
         gameOver = true;
         executor.submit(() ->{

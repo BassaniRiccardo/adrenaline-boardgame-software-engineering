@@ -1,9 +1,15 @@
 ------------------------
-Laser Gun [(blue) yellow]
+Plasma Gun [(blue), yellow]
 ------------------------
 
-Base effect:
-	Deal 2 damage and 1 mark to 1 target you can see.
+Basic effect:
+	Deal 2 damage to 1 target you can see.
 
-Optional effect 1 - Second Lock:
-	Deal 1 mark to a different target you can see. [red]
+Optional effect 1 - Phase Glide:
+	Move 1 or 2 squares. This effect can be used either before or after the basic effect.
+
+Optional effect 2 - Charged Shot:
+	Deal 1 additional damage to your target. [blue]
+
+Notes:
+	The two moves have no ammo cost. You don't have to ba able to see your target whan you play the card. For example, you can move 2 squares and shoot a target you now see. You cannot use 1 move before shooting and 1 move after.

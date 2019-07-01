@@ -47,7 +47,7 @@ public class ClientMain {
     /**
      * Constructor
      */
-    private ClientMain() {
+    public ClientMain() {
         executor = Executors.newCachedThreadPool();
         clientModel = null;
         clientUpdater = new ClientUpdater();

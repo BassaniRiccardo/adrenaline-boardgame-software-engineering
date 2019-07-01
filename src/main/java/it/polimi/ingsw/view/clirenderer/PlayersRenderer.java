@@ -10,7 +10,7 @@ import static it.polimi.ingsw.view.clirenderer.MainRenderer.RESET;
  */
 public class PlayersRenderer {
 
-    private static final int PLAYERS_WIDTH = 55;
+    private static final int PLAYERS_WIDTH = 65;
     private static final int LINES_PER_PLAYER = 7;
     private static final int PADDING = 3;
     private static final int SECOND_COLUMN = 24;
@@ -148,6 +148,6 @@ public class PlayersRenderer {
             }
             row++;
         }
-        return box;
+        return MainRenderer.trimBox(box, PADDING, PLAYERS_WIDTH);
     }
 }

@@ -9,8 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <name>AM43</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
+    <url>https://github.com/BassaniRiccardo/ing-sw-2019-alde-bagatella-bassani</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -74,19 +73,6 @@
                     <version>2.22.1</version>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.2</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
-                </plugin>
-                <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
-                <plugin>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.7.1</version>
                 </plugin>
@@ -124,8 +110,92 @@
                         </execution>
                     </executions>
                 </plugin>
-
             </plugins>
         </pluginManagement>
+        <plugins>
+            <!--jar management-->
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>client-jar-execution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>it.polimi.ingsw.view.ClientMain</mainClass>
+                                </transformer>
+                            </transformers>
+                            <finalName>client</finalName>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>it/polimi/ingsw/controller/**</exclude>
+                                        <exclude>it/polimi/ingsw/network/server/RMIServer.class</exclude>
+                                        <exclude>it/polimi/ingsw/network/server/RMIVirtualView.class</exclude>
+                                        <exclude>it/polimi/ingsw/network/server/TCPServer.class</exclude>
+                                        <exclude>it/polimi/ingsw/network/server/TCPVirtualView.class</exclude>
+                                        <exclude>it/polimi/ingsw/network/server/VirtualView.class</exclude>
+                                        <exclude>manifests/**</exclude>
+                                        <exclude>server.properties</exclude>
+                                        <exclude>*.json</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>server-jar-execution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>it.polimi.ingsw.controller.ServerMain</mainClass>
+                                </transformer>
+                            </transformers>
+                            <finalName>server</finalName>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.openjfx:javafx-controls</exclude>
+                                    <exclude>org.openjfx:javafx-base</exclude>
+                                    <exclude>org.openjfx:javafx-graphics</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>images/**</exclude>
+                                        <exclude>guides/**</exclude>
+                                        <exclude>it/polimi/ingsw/view/clirenderer/**</exclude>
+                                        <exclude>it/polimi/ingsw/view/Animations.class</exclude>
+                                        <exclude>it/polimi/ingsw/view/CLI.class</exclude>
+                                        <exclude>it/polimi/ingsw/view/ClientMain.class</exclude>
+                                        <exclude>it/polimi/ingsw/view/ClientUpdater.class</exclude>
+                                        <exclude>it/polimi/ingsw/view/GUI.class</exclude>
+                                        <exclude>it/polimi/ingsw/view/MapBoardRenderer.class</exclude>
+                                        <exclude>it/polimi/ingsw/view/PlayerBoardRenderer.class</exclude>
+                                        <exclude>it/polimi/ingsw/view/UI.class</exclude>
+                                        <exclude>it/polimi/ingsw/network/client/RMIConnection.class</exclude>
+                                        <exclude>it/polimi/ingsw/network/client/TCPConnection.class</exclude>
+                                        <exclude>manifests/**</exclude>
+                                        <exclude>client.properties</exclude>
+                                        <exclude>*.map</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

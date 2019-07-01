@@ -89,9 +89,7 @@ public abstract class VirtualView implements Runnable{
      */
     public abstract void refresh();
 
-    /**
-     * Getters and Setters
-     */
+    //Getters and Setters
 
     public String getName() {
         return name;

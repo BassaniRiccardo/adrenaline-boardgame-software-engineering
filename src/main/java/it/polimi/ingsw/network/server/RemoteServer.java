@@ -6,7 +6,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * Remote interface for RMIServer implementation (serverside)
+ * Remote interface for RMIServer implementation (serverside). Refer to RMIServer for the description of methods.
  *
  * @author marcobaga
  */

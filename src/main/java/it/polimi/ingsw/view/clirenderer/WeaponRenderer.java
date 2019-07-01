@@ -14,7 +14,7 @@ public class WeaponRenderer {
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private static final int WEAPON_HEIGHT = 8;
-    private static final int WEAPON_LENGTH = 55;
+    private static final int WEAPON_LENGTH = 65;
     private static final int PADDING = 3;
     private static final int SECOND_COLUMN = 14;
 

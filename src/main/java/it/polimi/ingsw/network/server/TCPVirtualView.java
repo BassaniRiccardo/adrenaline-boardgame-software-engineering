@@ -85,6 +85,13 @@ public class TCPVirtualView extends VirtualView {
         }
     }
 
+    /**
+     * Class sending a message to the client asking him to choose among a list of options.
+     *
+     * @param type      type of the request
+     * @param msg       message to be displayed
+     * @param options   list of options to choose from
+     */
     @Override
     public void choose(String type, String msg, List<?> options){
         if(busy){
@@ -112,6 +119,15 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
 
+    /**
+     * Class sending a message to the client asking him to choose among a list of options.
+     * Saves a timestamp so that when the answer is received, it can be discarded if late.
+     *
+     * @param type      type of the request
+     * @param msg       message to display
+     * @param options   list of options to choose from
+     * @param timeoutSec    maximum time given to the client to provide an answer
+     */
     @Override
     public void choose(String type, String msg, List<?> options, int timeoutSec){
         choose(type, msg, options);
@@ -119,6 +135,15 @@ public class TCPVirtualView extends VirtualView {
         timestamp = timeoutSec*1000 + System.currentTimeMillis();
     }
 
+    /**
+     * Queries the client to choose from a list of options. Only to be called before this VirtualView is
+     * referenced by a GameEngine.
+     *
+     * @param type      the request's type
+     * @param msg       message to display
+     * @param options   options to choose from
+     * @return          the client's answer
+     */
     @Override
     public int chooseNow(String type, String msg, List<?> options){
         choose(type, msg, options);
@@ -126,6 +151,11 @@ public class TCPVirtualView extends VirtualView {
         return Integer.parseInt(receive());
     }
 
+    /**
+     * Sends a message for the client to display
+     *
+     * @param msg       message to display
+     */
     @Override
     public void display(String msg){
         JsonObject jsonObject = new JsonObject();
@@ -134,6 +164,13 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
 
+    /**
+     * Queries the client for input. Only to be called before this VirtualView is referred by a GameEngine.
+     *
+     * @param msg       message to display
+     * @param max       max length of the answer
+     * @return          client's answer
+     */
     @Override
     public String getInputNow(String msg, int max){
         JsonObject jsonObject = new JsonObject();
@@ -175,11 +212,19 @@ public class TCPVirtualView extends VirtualView {
         LOGGER.log(Level.FINE, "Sending a message over TCP connection");
     }
 
+    /**
+     * Commands the client to update its model or to render his UI.
+     *
+     * @param jsonObject    encoded update
+     */
     @Override
     public void update (JsonObject jsonObject){
         send(jsonObject);
     }
 
+    /**
+     * Closes the connection to the client and the separate thread.
+     */
     @Override
     public void shutdown(){
         try {
@@ -189,6 +234,9 @@ public class TCPVirtualView extends VirtualView {
         }
     }
 
+    /**
+     * Commands the client to show the suspension message and eventually shutdown.
+     */
     @Override
     public void showSuspension(){
         JsonObject jsonObject = new JsonObject();
@@ -196,6 +244,11 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
 
+    /**
+     * Commands the client to show an ending mesage and eventually shutdown.
+     *
+     * @param message       the message to display
+     */
     @Override
     public void showEnd(String message){
         JsonObject jsonObject = new JsonObject();

@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 /**
- * Remote interface for RMI communication (clientside)
+ * Remote interface for RMI communication (clientside). Refer to RMIConnection for the description of methods.
  *
  * @author marcobaga
  */

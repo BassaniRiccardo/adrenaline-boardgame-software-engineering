@@ -32,8 +32,9 @@ public class MapRenderer {
     private static final int SQUARE_WIDTH = 14;
     private static final int FIRST_JUMP = 2;
     private static final int SECOND_JUMP = 7;
+    private static final int LEFT_PADDING = 5;
 
-    MapRenderer(){
+    public MapRenderer(){
         this.firstCall = true;
         this.backup = new String[MAP_HEIGHT][MAP_WIDTH];
     }
@@ -115,7 +116,19 @@ public class MapRenderer {
             placeSquareOnMap(map, squares[n], n, mapID);
         }
 
-        return map;
+        //adding padding
+        String[][] paddedMap = new String[MAP_HEIGHT][MAP_WIDTH+LEFT_PADDING];
+        for(int i=0; i<paddedMap.length; i++){
+            for(int j=0; j<paddedMap[i].length; j++){
+                if(j<LEFT_PADDING){
+                    paddedMap[i][j] = " ";
+                } else {
+                    paddedMap[i][j] = map[i][j-LEFT_PADDING];
+                }
+            }
+        }
+
+        return paddedMap;
     }
 
     /**

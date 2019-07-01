@@ -322,7 +322,11 @@ public class Updater {
         return j;
     }
 
-
+    /**
+     * Builds a message asking the client to render the board state
+     *
+     * @return      render message
+     */
     public static JsonObject getRenderMessage() {
         JsonObject j = new JsonObject();
         j.addProperty(HEAD_PROP, UPD_HEADER);
@@ -330,11 +334,23 @@ public class Updater {
         return j;
     }
 
-    public static ClientModel.SimpleWeapon toSimpleWeapon(Weapon weapon){
+    /**
+     * Converts a Weapon in a SimpleWeapon
+     *
+     * @param weapon    full model to convert
+     * @return          reduced model
+     */
+    private static ClientModel.SimpleWeapon toSimpleWeapon(Weapon weapon){
         return new ClientModel().new SimpleWeapon(weapon.toString(), weapon.isLoaded());
     }
 
-    public static ClientModel.SimpleSquare toSimpleSquare(WeaponSquare square){
+    /**
+     * Converts a Square in a SimpleSquare
+     *
+     * @param square    full model to convert
+     * @return          reduced model
+     */
+    private static ClientModel.SimpleSquare toSimpleSquare(WeaponSquare square){
         List<ClientModel.SimpleWeapon> weapons = new ArrayList<>();
         for (Weapon weapon : square.getWeapons()){
             weapons.add(toSimpleWeapon(weapon));
@@ -342,7 +358,14 @@ public class Updater {
         return new ClientModel().new SimpleSquare(square.getId(), true, weapons, 0, 0, 0, false);
     }
 
-    public static ClientModel.SimpleSquare toSimpleSquare(AmmoSquare square){
+
+    /**
+     * Converts a Square in a SimpleSquare
+     *
+     * @param square    full model to convert
+     * @return          reduced model
+     */
+    private static ClientModel.SimpleSquare toSimpleSquare(AmmoSquare square){
         int redAmmo =0;
         int blueAmmo =0;
         int yellowAmmo =0;
@@ -353,7 +376,6 @@ public class Updater {
             blueAmmo = ammoTile.getAmmoPack().getBlueAmmo();
             yellowAmmo = ammoTile.getAmmoPack().getYellowAmmo();
             powerUp = ammoTile.hasPowerUp();
-
         } catch (NotAvailableAttributeException e){
             LOGGER.log(Level.FINE, "No ammotile on the square: 0,0,0, false is displayed.");
         }

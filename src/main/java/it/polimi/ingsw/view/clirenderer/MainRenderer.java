@@ -363,4 +363,31 @@ public class MainRenderer {
         }
         System.out.flush();
     }
+
+    /**
+     * Takes a bidimensional string array and removed empty columns on the right.
+     *
+     * @param box       array to resize
+     * @param padding   white space to be mantained
+     * @param width     width of the box
+     * @return          resized box
+     */
+    static String[][] trimBox(String[][] box, int padding, int width){
+        int jmax = 0;
+        for(int i=0; i<box.length; i++){
+            for(int j=0; j<box[i].length; j++){
+                if(!box[i][j].equals(" ")&&j>jmax){
+                    jmax = j;
+                }
+            }
+        }
+        jmax = Math.min(jmax+padding, width);
+        String[][] trimmedBox = new String [box.length][jmax];
+        for(int i=0; i<trimmedBox.length; i++){
+            for(int j=0; j<trimmedBox[i].length; j++){
+                trimmedBox[i][j] = box[i][j];
+            }
+        }
+        return trimmedBox;
+    }
 }

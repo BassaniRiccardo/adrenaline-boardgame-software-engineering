@@ -13,6 +13,11 @@ public class Timer {
     private long pausedAt;
     private boolean running;
 
+    /**
+     * Standard constructor
+     *
+     * @param duration      duration of the timer
+     */
     public Timer(int duration){
         this.duration = TimeUnit.NANOSECONDS.convert(duration, TimeUnit.SECONDS);
         this.over = false;
@@ -21,37 +26,62 @@ public class Timer {
         this.running = false;
     }
 
+    /**
+     * Starts the timer
+     */
     public void start(){
         running = true;
         reset();
     }
 
+    /**
+     * Stops the timer
+     */
     void stop(){
         running = false;
         reset();
     }
 
+    /**
+     * Registers the time at which the timer started or stopped
+     */
     public void reset(){
         over = false;
         start = System.nanoTime();
     }
 
+    /**
+     * Checks how long has passed since the start
+     */
     private void update(){
         if(running&&System.nanoTime()-start>duration){
             over = true;
         } else {  over = false; }
     }
 
+    /**
+     * Checks if the timer is still running or not
+     *
+     * @return      true is the timer is running, else false
+     */
     boolean isRunning(){
         update();
         return running;
     }
 
+    /**
+     * Checks if the timer ran out
+     *
+     * @return      true if the timer is over, else false
+     */
     boolean isOver(){
         update();
         return over&&running;
     }
 
+    /**
+     * Pauses the timer
+     */
     void pause(){
         update();
         if(running) {
@@ -60,6 +90,9 @@ public class Timer {
         }
     }
 
+    /**
+     * Resumes the timer
+     */
     void resume(){
         if(!running) {
             start += System.nanoTime() - pausedAt;
@@ -68,6 +101,11 @@ public class Timer {
         }
     }
 
+    /**
+     * Returns how long is left until the timer is over
+     *
+     * @return      the amount of time lefts
+     */
     long getTimeLeft(){
         return TimeUnit.SECONDS.convert(start + duration - System.nanoTime(), TimeUnit.NANOSECONDS);
     }

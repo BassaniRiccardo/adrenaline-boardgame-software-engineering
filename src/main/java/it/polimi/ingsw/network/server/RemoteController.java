@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * Remote interface for RMI communication (serverside)
+ * Remote interface for RMI communication (serverside). Refer to RMIVirtualView for the description of methods.
  *
  * @author marcobaga
  */

@@ -10,7 +10,7 @@ import static it.polimi.ingsw.view.clirenderer.MainRenderer.RESET;
 public class HandRenderer {
 
     private static final int HAND_HEIGHT = 9;
-    private static final int HAND_WIDTH = 55;
+    private static final int HAND_WIDTH = 65;
     private static final int PADDING = 3;
     private static final int SECOND_COLUMN = 30;
 
@@ -140,6 +140,6 @@ public class HandRenderer {
             box[7][i+PADDING] = String.valueOf(points.charAt(i));
         }
 
-        return box;
+        return MainRenderer.trimBox(box, PADDING, HAND_WIDTH);
     }
 }

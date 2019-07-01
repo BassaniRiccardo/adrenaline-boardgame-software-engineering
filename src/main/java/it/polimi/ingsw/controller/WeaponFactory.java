@@ -21,7 +21,10 @@ import static it.polimi.ingsw.model.cards.Color.*;
 import static it.polimi.ingsw.model.cards.FireMode.FireModeName.*;
 
 /**
- * Factory class that creates Weapons loading attributes from a Json file.
+ * Factory class that creates Weapons loading attributes from a Json file. Each weapon has a number of different firemodes,
+ * and each firemode has a TargetFinder (function finding lists of possible targets), a DestinationFinder (function selecting
+ * possible destination for the target or the shooter) and an Effect (function applying the firemode effects to the game state).
+ * This classes retrieves these three functions and other simple parameters.
  *
  * @author  marcobaga
  */
@@ -63,7 +66,7 @@ public class WeaponFactory {
     private static final String NOT_SHOOTER_SQUARE_VISIBLE = "notShooterSquareVisible";
     private static final String FLAMETHROWER_MAIN = "flamethrowerMain";
     private static final String FLAMETHROWER_ALT = "flamethrowerAlt";
-    private static final String  GRENADE_LAUNCHER = "grenadeLauncher1";
+    private static final String GRENADE_LAUNCHER = "grenadeLauncher1";
     private static final String ROCKET_LAUNCHER_ONE = "rocketLauncher1";
     private static final String ROCKET_LAUNCHER_TWO = "rocketLauncher2";
     private static final String RAILGUN_MAIN = "railgunMain";
@@ -144,6 +147,11 @@ public class WeaponFactory {
         return weapon;
     }
 
+    /**
+     * Retrieves a jsonObject with information about the weapon from a file.
+     * @param weaponName    weapon to describe
+     * @return              information about the weapon
+     */
     private JsonObject getWeaponTree(Weapon.WeaponName weaponName){
         JsonParser parser = new JsonParser();
         JsonObject weaponTree = new JsonObject();
@@ -157,6 +165,12 @@ public class WeaponFactory {
         return weaponTree;
     }
 
+    /**
+     * Parses the weaponTree to get information about the color
+     *
+     * @param weaponTree    jsonObject to parse
+     * @return              the color of the weapon
+     */
     public Color getColor(JsonObject weaponTree) {
         String color = "";
         try {
@@ -173,6 +187,12 @@ public class WeaponFactory {
         return PURPLE;
     }
 
+    /**
+     * Parses the weaponTree to get information about the full cost
+     *
+     * @param weaponTree    jsonObject to parse
+     * @return              the full cost of the weapon
+     */
     private AmmoPack getFullCost(JsonObject weaponTree) {
         try {
             int r = weaponTree.get(COST_R).getAsInt();
@@ -185,6 +205,13 @@ public class WeaponFactory {
         return new AmmoPack(0,0,0);
     }
 
+    /**
+     * Computes the reduced cost of a weapon from its fullcost and its color.
+     *
+     * @param ammoPack      full cost
+     * @param color         color of the weapon
+     * @return              the reduced cost of the weapon
+     */
     private AmmoPack getReducedCost(AmmoPack ammoPack, Color color) {
         AmmoPack reduced = new AmmoPack(ammoPack.getRedAmmo(), ammoPack.getBlueAmmo(), ammoPack.getYellowAmmo());
         if (color == RED ) {
@@ -199,6 +226,12 @@ public class WeaponFactory {
         return reduced;
     }
 
+    /**
+     * Converts a String representing a FireModeName to the correct object
+     *
+     * @param name    string to convert
+     * @return        proper FireModeName
+     */
     private FireMode.FireModeName getFireModeName (String name){
         for(FireMode.FireModeName fn : FireMode.FireModeName.values()){
             if(fn.toString().equalsIgnoreCase(name)){
@@ -209,6 +242,12 @@ public class WeaponFactory {
         return MAIN;
     }
 
+    /**
+     * Parses a jsonObject with information about the firemode to retrieve its cost
+     *
+     * @param fireMode  information about the firemode
+     * @return          the cost of the firemode
+     */
     private AmmoPack getFireModeCost (JsonObject fireMode) {
         try {
             if (fireMode.get(NAME_TAG).getAsString().equalsIgnoreCase(MAIN_TAG)) {
@@ -224,6 +263,13 @@ public class WeaponFactory {
         return new AmmoPack(0,0,0);
     }
 
+    /**
+     * Returns a lambda implementing the TargetFinder. Each possible lambda is associated with a string that can also be found
+     * in the file weapons.json.
+     *
+     * @param firemode  information about the firemode
+     * @return          targetFinder logic
+     */
     private TargetFinder getTargetFinder(JsonObject firemode) {
 
         String target = "";
@@ -638,7 +684,7 @@ public class WeaponFactory {
                             return new ArrayList<>();
                         };
             case ONE_OTHER_SAME_SQUARE:
-                return p -> p.getPosition().getPlayers().stream()
+                return p -> p.getMainTargets().isEmpty()? new ArrayList<>():p.getPosition().getPlayers().stream()
                         .distinct()
                         .filter(x -> !x.equals(p))
                         .filter(x -> !p.getMainTargets().contains(x))
@@ -763,6 +809,13 @@ public class WeaponFactory {
         }
     }
 
+    /**
+     * Returns a lambda implementing the DestinationFinder. Each possible lambda is associated with a string that can also be found
+     * in the file weapons.json.
+     *
+     * @param firemode  information about the firemode
+     * @return          destinationFinder logic
+     */
     private DestinationFinder getDestinationFinder(JsonObject firemode) {
         String destination = "";
         try {
@@ -896,6 +949,13 @@ public class WeaponFactory {
         }
     }
 
+    /**
+     * Returns a lambda implementing the effect. Each possible lambda is associated with a string that can also be found
+     * in the file weapons.json.
+     *
+     * @param firemode  information about the firemode
+     * @return          effect logic
+     */
     private Effect getEffect(JsonObject firemode) {
         String effect = "";
         int tmpDmg = 0;
@@ -950,6 +1010,13 @@ public class WeaponFactory {
         }
     }
 
+    /**
+     * Creates a lambda implementing the most common effect (dealing damage and marks.
+     *
+     * @param damage    damage dealt
+     * @param marks     marks dealt
+     * @return          effect
+     */
     private Effect createEffect(int damage, int marks){
 
         if(damage<0 || marks<0){
@@ -965,11 +1032,17 @@ public class WeaponFactory {
             return (shooter, target, destination) -> target.sufferDamage(damage, shooter);
         }
         return (shooter, target, destination) -> {
-            target.sufferDamage(damage, shooter);
             target.addMarks(marks, shooter);
         };
     }
 
+    /**
+     * Takes two sets of possible target groups and computes the cartesian product of those two sets
+     *
+     * @param a     first group
+     * @param b     second group
+     * @return      cartesian product of the two groups
+     */
     private List<List<Player>> cartesian (List<List<Player>> a, List<List<Player>> b){
         List<List<Player>> atemp = a.stream()
                 .filter(x->!x.isEmpty())

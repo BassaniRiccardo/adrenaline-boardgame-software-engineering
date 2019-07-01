@@ -154,7 +154,15 @@ public class PowerUp implements Targeted, Card {
      * @return      true if and only if  this power up cna be used
      */
     public boolean isAvailable() throws NotAvailableAttributeException{
-        return !(findTargets().isEmpty())&&!(name==PowerUpName.TARGETING_SCOPE&&holder.getAmmoPack().equals(new AmmoPack(0,0,0)));
+
+        if (! holder.canPay(this.getCost()))
+            return false;
+        for (List<Player> targets : this.findTargets()){
+            if (!(targets.isEmpty())){
+                return true;
+            }
+        }
+        return false;
     }
 
 

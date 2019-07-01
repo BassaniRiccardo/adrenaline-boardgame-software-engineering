@@ -9,10 +9,7 @@ import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.model.exceptions.WrongTimeException;
 import it.polimi.ingsw.view.ClientModel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Iterator;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,6 +94,7 @@ public class Player {
     private static final String COLLECT = "collect";
     private static final String RELOAD = "reload";
     private static final String NUMBER_OF_ACTIONS = "numberOfActions";
+    private static final String NO_SELF_SHOOTING = "A player can not shoot himself";
 
 
 
@@ -165,8 +163,6 @@ public class Player {
     public List<Player> getMarks() {return marks;}
 
     public List<Player> getDamages() {return damages;}
-
-    public Player getFirstBlood() { return damages.get(0);}
 
     public boolean isFlipped(){return flipped;}
 
@@ -282,7 +278,7 @@ public class Player {
     public void sufferDamage(int amount, Player shooter) {
 
         if (amount < 0) throw new IllegalArgumentException("Not valid amount of damage");
-        if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
+        if (shooter == this) throw new IllegalArgumentException(NO_SELF_SHOOTING);
 
         justDamaged = true;
         amount += frequency(getMarks(),shooter);
@@ -303,7 +299,7 @@ public class Player {
     public void sufferDamageNoMarksExtra(int amount, Player shooter) {
 
         if (amount < 0) throw new IllegalArgumentException("Not valid amount of damage");
-        if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
+        if (shooter == this) throw new IllegalArgumentException(NO_SELF_SHOOTING);
         addDamages(amount, shooter);
 
     }
@@ -316,7 +312,7 @@ public class Player {
      * @param amount         the amount of damage to addList.
      * @param shooter        the player who shot.
      */
-    public void addDamages(int amount, Player shooter){
+    private void addDamages(int amount, Player shooter){
 
         boolean addMarkToShooter = false;
         for (int i = 0; i < amount; i++) {
@@ -355,7 +351,7 @@ public class Player {
     public void addMarks(int amount, Player shooter){
 
         if (amount < 0) throw new IllegalArgumentException("Not valid number of marks");
-        if (shooter == this) throw new IllegalArgumentException("A player can not shoot himself");
+        if (shooter == this) throw new IllegalArgumentException(NO_SELF_SHOOTING);
 
         for (int i = 0; i< amount; i++){
             if (frequency(marks, shooter) < j.getInt("maximumMarks")){
@@ -453,28 +449,30 @@ public class Player {
     /**
      * Removes a weapon from the player weapons list.
      *
-     * @param removedWeapon         the removed weapon.
+     * @param  rw         the removed weapon.
      * @throws UnacceptableItemNumberException  if thrown by addCard().
      */
-    public void discardWeapon(Card removedWeapon) throws UnacceptableItemNumberException{
+    public void discardWeapon(Card rw) throws UnacceptableItemNumberException{
+        Weapon removedWeapon = (Weapon)rw;
         if (!weaponList.contains(removedWeapon)) throw new IllegalArgumentException("The player does not own this weapon");
         weaponList.remove(removedWeapon);
-        ((WeaponSquare)position).addCard((Weapon)removedWeapon);
-        board.addToUpdateQueue(Updater.get(Updater.DISCARD_WEAPON_UPD, this, (Weapon)removedWeapon));
+        ((WeaponSquare)position).addCard(removedWeapon);
+        board.addToUpdateQueue(Updater.get(Updater.DISCARD_WEAPON_UPD, this, removedWeapon));
     }
 
 
     /**
      * Removes a power up from the player power up list.
      *
-     * @param removedPowerUp        the removed power up.
+     * @param rp        the removed power up.
      */
-    public void discardPowerUp(Card removedPowerUp) {
+    public void discardPowerUp(Card rp) {
 
+        PowerUp removedPowerUp = (PowerUp)rp;
         if (!powerUpList.contains(removedPowerUp)) throw  new IllegalArgumentException("The player does not own this powerup.");
         powerUpList.remove(removedPowerUp);
         board.getPowerUpDeck().addDiscardedCard(removedPowerUp);
-        board.addToUpdateQueue(Updater.get(Updater.DISCARD_POWER_UP_UPD, this, (PowerUp)removedPowerUp));
+        board.addToUpdateQueue(Updater.get(Updater.DISCARD_POWER_UP_UPD, this, removedPowerUp));
     }
 
 
@@ -711,8 +709,7 @@ public class Player {
         }
 
         //asks the board for the players
-        List<Player> playersToReward = new ArrayList<>();
-        playersToReward.addAll(this.board.getPlayers());
+        List<Player> playersToReward = new ArrayList<>(this.board.getPlayers());
 
         //properly orders the playersToReward
         board.sort(playersToReward, damages);
@@ -722,9 +719,7 @@ public class Player {
         if (pointsToGive == 2 || pointsToGive == 1)   nextPointsToGive = 1;
         else   nextPointsToGive = pointsToGive - 2;
 
-        Iterator<Player> playerToRewardIt = playersToReward.iterator();
-        while (playerToRewardIt.hasNext()) {
-            Player p = playerToRewardIt.next();
+        for (Player p : playersToReward){
             if (damages.contains(p)){
                 p.addPoints(pointsToGive);
                 int totalGivenPoints = pointsToGive;
@@ -820,12 +815,17 @@ public class Player {
         List<Square> starting = new ArrayList<>();
         List<Square> start = board.getReachable(position, steps);
         Square square = this.position;
+
+        //for every square
         for (Square s1: start){
             boolean found = false;
             boolean option1 = false;
             FireMode preMove = null;
             this.setVirtualPosition(s1);
             for (Weapon w: weaponToConsider){
+
+                // if the player can shoot from thhe square with MAIN or SECONDARY firemode, set found to true.
+                // The square will be added to the list.
                 for (FireMode f : w.listAvailableFireModes()){
                     if (f.getName()==MAIN || f.getName() == SECONDARY)  found = true;
                     if (f.getName()==OPTION1){
@@ -833,13 +833,14 @@ public class Player {
                         preMove = f;
                     }
                 }
+                // If only OPT1 is usable, check if it will unlock further squares.
                 if (!found && option1) {
-                    for (Square dest : preMove.getDestinationFinder().find(this, new ArrayList<>(Arrays.asList(this)))) {
+                    for (Square dest : preMove.getDestinationFinder().find(this, new ArrayList<>(Collections.singletonList(this)))) {
                         this.setVirtualPosition(dest);
                         for (FireMode f : w.listAvailableFireModes()) {
-                            if (f.getName() == MAIN || f.getName() == SECONDARY) found = true;
+                            if (f.getName() == MAIN) found = true;
                         }
-                        if (true) break;
+                        if (found) break;
                     }
                 }
             }
@@ -859,8 +860,7 @@ public class Player {
      */
     public List<Action> getAvailableActions() throws NotAvailableAttributeException{
 
-        List<Action> availableActions = new ArrayList<>();
-        availableActions.addAll(getActionList());
+        List<Action> availableActions = new ArrayList<>(getActionList());
         removeShootingAction(availableActions);
         removeCollectingAction(availableActions);
         return availableActions;
@@ -916,8 +916,7 @@ public class Player {
      */
     public List<Action> removeCollectingAction(List<Action> availableActions){
 
-        List<Square> possibleDest = new ArrayList<>();
-        possibleDest.addAll(board.getMap());
+        List<Square> possibleDest = new ArrayList<>(board.getMap());
         for (Square s: board.getMap()){
 
             if (s.isEmpty()){
@@ -950,7 +949,7 @@ public class Player {
      * Returns the list of weapons the player can collect from the specified weapon square.
      *
      * @param weaponSquare         the square the player wants to collect a weapon from.
-     * @return
+     * @return the list of weapons the player can collect from the specified weapon square
      */
     public List<Weapon> getCollectibleWeapons(WeaponSquare weaponSquare){
 

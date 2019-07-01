@@ -32,7 +32,7 @@ public class GameEngine implements Runnable{
 
     private List<VirtualView> players;
     private VirtualView currentPlayer;
-    int frenzyActivator;
+    private int frenzyActivator;
     private Board board;
     private KillShotTrack killShotTrack;
     private Timer timer;
@@ -145,6 +145,7 @@ public class GameEngine implements Runnable{
 
     boolean isGameOver() {return gameOver; }
 
+    boolean isFrenzy() {return frenzy;}
 
     /*
      *  Setters
@@ -168,6 +169,7 @@ public class GameEngine implements Runnable{
         this.board = board;
     }
 
+    public void setTimer(Timer timer) {this.timer = timer;}
 
     /**
      * Runs a game.
@@ -205,7 +207,6 @@ public class GameEngine implements Runnable{
                     ServerMain.getInstance().untrackGame(this);
                     return;
                 }
-                battleCry();
             }
 
             while (!gameOver) {
@@ -251,7 +252,7 @@ public class GameEngine implements Runnable{
      *
      * @throws NotEnoughPlayersException    if thrown by configureMap(), configureKillShotTrack(), configureFrenzyOption() or configurePlayers().
      */
-    public void setup() throws NotEnoughPlayersException{
+    void setup() throws NotEnoughPlayersException{
 
         LOGGER.log(Level.FINE,"All the players are connected.");
         configureMap();
@@ -268,6 +269,8 @@ public class GameEngine implements Runnable{
 
         configurePlayers();
 
+        battleCry();
+
         setCurrentPlayer(players.get(0));
         statusSaver = new StatusSaver(board);
     }
@@ -278,7 +281,7 @@ public class GameEngine implements Runnable{
      *
      * @throws      NotEnoughPlayersException           if thrown by waitShort().
      */
-    private void configureMap() throws NotEnoughPlayersException{
+    void configureMap() throws NotEnoughPlayersException{
 
         List<Integer> votes = new ArrayList<>(EMPTY_MAP_VOTES);
 
@@ -310,7 +313,7 @@ public class GameEngine implements Runnable{
      *
      * @throws      NotEnoughPlayersException           if thrown by waitShort().
      */
-    private void configureKillShotTrack() throws NotEnoughPlayersException{
+    void configureKillShotTrack() throws NotEnoughPlayersException{
 
         int totalSkullNumber = 0;
 
@@ -341,7 +344,7 @@ public class GameEngine implements Runnable{
      *
      * @throws      NotEnoughPlayersException           if thrown by waitShort().
      */
-    private void configureFrenzyOption() throws NotEnoughPlayersException{
+    void configureFrenzyOption() throws NotEnoughPlayersException{
 
         List<String> frenzyOptions = new ArrayList<>();
         int yes = 0;
@@ -373,7 +376,7 @@ public class GameEngine implements Runnable{
      *
      * @throws      NotEnoughPlayersException           if thrown by waitShort().
      */
-    private void configurePlayers() throws NotEnoughPlayersException{
+    void configurePlayers() throws NotEnoughPlayersException{
 
         List<Player.HeroName> heroList = new ArrayList<>(Arrays.asList(D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG));
         int id = 1;
@@ -532,7 +535,7 @@ public class GameEngine implements Runnable{
     /**
      * Manages the end of the game, depending on whether the frenzy mode is active.
      */
-    private void manageGameEnd() throws NotEnoughPlayersException, SlowAnswerException{
+    void manageGameEnd() throws NotEnoughPlayersException, SlowAnswerException{
 
         if (!frenzy) {
             gameOver = true;
@@ -709,7 +712,7 @@ public class GameEngine implements Runnable{
      * @param p         player to check
      * @return          true if player has answered, else false
      */
-    private boolean hasAnswered(VirtualView p){
+    boolean hasAnswered(VirtualView p){
         synchronized (notifications) {
             return notifications.containsKey(p);
         }

@@ -102,17 +102,18 @@ public class WeaponSquare extends Square {
     /**
      * Removes a weapon from the square
      *
-     * @param weapon        the weapon to remove.
+     * @param w        the weapon to remove.
      * @throws NoMoreCardsException     if the square does not contain weapons.
      * @throws IllegalArgumentException if the weapon does not belong to the square.
      */
-    public Card removeCard(Card weapon) throws NoMoreCardsException {
+    public Card removeCard(Card w) throws NoMoreCardsException {
 
+        Weapon weapon = (Weapon)w;
         if (weapons.isEmpty()) throw new NoMoreCardsException("Impossible to remove the card: the square does not contain weapons.");
         if (!weapons.contains(weapon)) throw new IllegalArgumentException("Impossible to remove the weapon since it is not in the square.");
         this.weapons.remove(weapon);
 
-        board.addToUpdateQueue(Updater.get(Updater.REMOVE_WEAPON_UPD, this, (Weapon)weapon));
+        board.addToUpdateQueue(Updater.get(Updater.REMOVE_WEAPON_UPD, this, weapon));
 
         return weapon;
     }

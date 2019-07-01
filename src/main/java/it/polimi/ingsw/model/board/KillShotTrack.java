@@ -74,7 +74,7 @@ public class KillShotTrack {
      * Removes a specified number of skulls from the track.
      *
      * @param quantity  the number of skulls to remove.
-     * @throws UnacceptableItemNumberException
+     * @throws UnacceptableItemNumberException if removing the skulls would lead to have a negative number of skulls.
      */
     public void removeSkulls(int quantity) throws UnacceptableItemNumberException{
 

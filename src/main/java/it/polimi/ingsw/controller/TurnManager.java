@@ -217,7 +217,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    private void joinBoard(Player player, int powerUpToDraw, boolean reborn) throws SlowAnswerException, NotEnoughPlayersException {
+    void joinBoard(Player player, int powerUpToDraw, boolean reborn) throws SlowAnswerException, NotEnoughPlayersException {
 
         player.setInGame(true);
 
@@ -304,7 +304,9 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
 
         if (selected == availableActions.size() + 1){
+            try{
                 usePowerUp();
+            } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while using a powerup", e);}
             return false;
         }
 
@@ -321,11 +323,12 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    private void executeActualAction(Action action) throws SlowAnswerException, NotEnoughPlayersException{
+    void executeActualAction(Action action) throws SlowAnswerException, NotEnoughPlayersException{
 
         LOGGER.log(Level.FINE, () -> currentPlayer  + " chooses the action: " + action);
 
         if (action.getSteps() > 0) {
+            System.out.println("moving");
             handleMoving(action);
         }
         if (board.isReset()) return;
@@ -336,6 +339,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         if (action.isReload()) {
             try {
                 if (currentPlayer.getShootingSquares(0, currentPlayer.getLoadedWeapons()).isEmpty()) {
+                    System.out.println("reloading");
                     reloadMandatory();
                 }
                 else {
@@ -347,6 +351,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         if (board.isReset()) return;
         if (action.isShoot()) {
             try {
+                System.out.println("shooting");
                 handleShooting();
             } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while shooting", e);}
         }
@@ -386,8 +391,11 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
                 LOGGER.log(Level.FINE, () -> currentPlayer  + " decides not to use a powerup." );
             }
             if (answer == 1) {
-                usePowerUp();
-            }
+                try {
+                    usePowerUp();
+                } catch (NotAvailableAttributeException e){ LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while using a powerup", e);}
+
+        }
             try {
                 possible = currentPlayer.hasUsableTeleporterOrNewton();
             } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, EX_CAN_USE_POWERUP, e);}
@@ -404,7 +412,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    private void usePowerUp() throws SlowAnswerException, NotEnoughPlayersException {
+    void usePowerUp() throws SlowAnswerException, NotEnoughPlayersException, NotAvailableAttributeException {
 
         board.setReset(false);
 
@@ -415,7 +423,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         List<PowerUp> usablePowerUps = new ArrayList<>(currentPlayer.getPowerUpList());
         List<PowerUp> toRemove = new ArrayList<>();
         for (PowerUp p: usablePowerUps){
-            if (p.getName() == PowerUp.PowerUpName.TARGETING_SCOPE || p.getName() == PowerUp.PowerUpName.TAGBACK_GRENADE) {
+            if (p.getName() == PowerUp.PowerUpName.TARGETING_SCOPE || p.getName() == PowerUp.PowerUpName.TAGBACK_GRENADE || !p.isAvailable()) {
                 toRemove.add(p);
             }
         }
@@ -481,7 +489,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
-    private void handleMoving(Action action) throws SlowAnswerException, NotEnoughPlayersException{
+    void handleMoving(Action action) throws SlowAnswerException, NotEnoughPlayersException{
         try {
 
             board.setReset(false);
@@ -543,7 +551,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      */
 
-    private void handleCollecting() throws SlowAnswerException, NotEnoughPlayersException {
+    void handleCollecting() throws SlowAnswerException, NotEnoughPlayersException {
         try {
 
             board.setReset(false);
@@ -788,7 +796,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      * @throws SlowAnswerException              if the user do not complete the turn before the timer expires.
      * @throws NotEnoughPlayersException        if the number of connected players falls below three during the turn.
      */
-    private boolean reload(int max) throws SlowAnswerException, NotEnoughPlayersException{
+    boolean reload(int max) throws SlowAnswerException, NotEnoughPlayersException{
 
         int left = max;
 

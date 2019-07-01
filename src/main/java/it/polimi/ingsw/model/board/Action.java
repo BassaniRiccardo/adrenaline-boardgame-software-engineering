@@ -125,7 +125,9 @@ public final class Action {
 
         if (steps > 0){
             if (!builder.toString().isEmpty())  builder.append(" ");
-            builder.append(MOVE_UP_TO + steps + SQUARES);
+            builder.append(MOVE_UP_TO);
+            builder.append(steps);
+            builder.append(SQUARES);
         }
         if (collect){
             if (!builder.toString().isEmpty())  builder.append(" ");

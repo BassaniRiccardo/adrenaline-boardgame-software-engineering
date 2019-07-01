@@ -7,6 +7,7 @@ import it.polimi.ingsw.model.cards.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,7 @@ public class PowerUpFactory  {
                         .collect(Collectors.toList());
                 destinationFinder = (p, t) -> {
                     if(t.isEmpty()){
-                        return Arrays.asList(p.getPosition());
+                        return Collections.singletonList(p.getPosition());
                     }
                     List<Square> res = new ArrayList<>();
                     Square center = t.get(0).getPosition();
@@ -84,19 +85,19 @@ public class PowerUpFactory  {
 
             case TAGBACK_GRENADE:
                 effect = (shooter, target, destination)-> target.addMarks(j.getInt(TAGBACK_GRENADE_MARKS), shooter);
-                targetFinder = p -> p.isJustDamaged()? new ArrayList<>():Arrays.asList(Arrays.asList(board.getCurrentPlayer()));
+                targetFinder = p -> p.isJustDamaged()? new ArrayList<>():Collections.singletonList(Collections.singletonList(board.getCurrentPlayer()));
                 destinationFinder = (p, t) -> new ArrayList<>();
                 break;
 
             case TELEPORTER:
                 effect = (shooter, target, destination)-> target.setPosition(destination);
-                targetFinder = p -> Arrays.asList(Arrays.asList(p));
+                targetFinder = p -> Collections.singletonList(Collections.singletonList(p));
                 destinationFinder = (p, t) -> board.getMap();
                 break;
 
             default:
                 effect = (shooter, target, destination)-> shooter.setPosition(destination);
-                targetFinder = p -> Arrays.asList(Arrays.asList(p));
+                targetFinder = p -> Collections.singletonList(Collections.singletonList(p));
                 destinationFinder = (p, t) -> board.getMap();
                 break;
         }

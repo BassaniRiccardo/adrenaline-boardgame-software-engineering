@@ -142,7 +142,7 @@ public abstract class Square {
      *
      * @param p     the player to addList.
      */
-    public void addPlayer(Player p) {
+    void addPlayer(Player p) {
         this.players.add(p);
     }
 

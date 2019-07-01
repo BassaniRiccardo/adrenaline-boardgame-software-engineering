@@ -429,9 +429,7 @@ public class Board {
         int sr;
         sc = s.getColumn();
         sr = s.getRow();
-        Iterator<Square> squareIt = map.iterator();
-        while (squareIt.hasNext()){
-            Square s1 = squareIt.next();
+        for (Square s1 : map){
             c = s1.getColumn();
             r = s1.getRow();
             if     (r == sr - 1 && c == sc && !topWalls[sr-1][sc-1]    ||            //top
@@ -457,9 +455,7 @@ public class Board {
     public List<Square> getReachable (Square s, int steps) {
 
         List<Square> reachable = new ArrayList<>();
-        Iterator<Square> squareIt = map.iterator();
-        while (squareIt.hasNext()){
-            Square s1 = squareIt.next();
+        for (Square s1 : map){
             if (getDistance(s,s1) <= steps) {
                 reachable.add(s1);
             }
@@ -508,9 +504,7 @@ public class Board {
             throw new IllegalArgumentException("This map does not contain so many rooms");
         }
         List<Square> inRoom = new ArrayList<>();
-        Iterator<Square> squareIt = map.iterator();
-        while (squareIt.hasNext()) {
-            Square s1 = squareIt.next();
+        for (Square s1 : map){
             if (s1.getRoomId() == roomId) {
                 inRoom.add(s1);
             }
@@ -533,9 +527,7 @@ public class Board {
         ArrayList<Square> squaresInLine = new ArrayList<>();
         int sr = s.getRow();
         int sc = s.getColumn();
-        Iterator<Square> squareIt = map.iterator();
-        while (squareIt.hasNext()) {
-            Square s1 = squareIt.next();
+        for (Square s1 : map){
             int r = s1.getRow();
             int c = s1.getColumn();
             if ( (direction==Direction.UP   && inLineTop  (sr, sc, r, c))    ||

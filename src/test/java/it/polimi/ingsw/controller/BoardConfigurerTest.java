@@ -1,4 +1,4 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.controller.BoardConfigurer;
 import it.polimi.ingsw.model.board.AmmoSquare;

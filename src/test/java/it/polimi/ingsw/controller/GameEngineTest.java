@@ -15,12 +15,17 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Test the methods of GameEngine which can be tested without simulating a game.
+ * Test the methods of GameEngine, simulating the players answers.
+ * The players always select the first option.
  *
  * @author BassaniRiccardo
  */
 public class GameEngineTest {
 
+
+    /**
+     * A subclass of VirtualView simulating players answers.
+     */
     class DummyVirtualView extends VirtualView{
         @Override
         public void refresh() {        }
@@ -32,7 +37,7 @@ public class GameEngineTest {
         public void showSuspension() {        }
 
         @Override
-        public void showEnd(String message) {        }
+        public void showEnd(String message) {      }
 
         @Override
         public void choose(String type, String msg, List<?> options) {
@@ -45,7 +50,7 @@ public class GameEngineTest {
         }
 
         @Override
-        public void display(String msg) {        }
+        public void display(String msg) { }
 
         @Override
         public String getInputNow(String msg, int max) {
@@ -63,32 +68,10 @@ public class GameEngineTest {
 
 
     /**
-     * Tests the method GameEngine.setup(), by displaying the operations performed on the console.
-     * Consequently tests the methods used by setup().
-     */
-    @Test
-    public void setup() {
-        List<VirtualView> connections = new ArrayList<>();
-        connections.add(new DummyVirtualView());
-        connections.add(new DummyVirtualView());
-        connections.add(new DummyVirtualView());
-        connections.add(new DummyVirtualView());
-        connections.add(new DummyVirtualView());
-
-        GameEngine gameEngine = new GameEngine(connections);
-        try {
-            gameEngine.setup();
-        }catch(NotEnoughPlayersException e){
-            //
-        }
-
-    }
-
-
-    /**
-     * Tests the method GameEngine.resolveWinner(), by displaying the operation performed on the console.
+     * Tests the method resolveWinner().
      * An arbitrary number of points is assigned to the players.
      * Tests the method in the event that a single player is the winner.
+     * Checks that the player connections are ordinated according to the leaderboard.
      */
     @Test
     public void resolveWinner() {
@@ -107,33 +90,50 @@ public class GameEngineTest {
             //
         }
 
-        connections.get(0).getModel().setPoints(31);
-        connections.get(1).getModel().setPoints(11);
-        connections.get(2).getModel().setPoints(34);
-        connections.get(3).getModel().setPoints(31);
-        connections.get(4).getModel().setPoints(17);
+        VirtualView distructor = connections.get(0);
+        VirtualView banshee = connections.get(1);
+        VirtualView dozer = connections.get(2);
+        VirtualView violet = connections.get(3);
+        VirtualView sprog = connections.get(4);
 
+        distructor.getModel().setPoints(31);
+        banshee.getModel().setPoints(11);
+        dozer.getModel().setPoints(34);
+        violet.getModel().setPoints(31);
+        sprog.getModel().setPoints(17);
+
+        Board b = gameEngine.getBoard();
+        List<Player> killers = new ArrayList<>();
         try {
-            gameEngine.getBoard().getKillShotTrack().getKillers().add(connections.get(0).getModel());
-            gameEngine.getBoard().getKillShotTrack().getKillers().add(connections.get(0).getModel());
-            gameEngine.getBoard().getKillShotTrack().getKillers().add(connections.get(1).getModel());
-            gameEngine.getBoard().getKillShotTrack().getKillers().add(connections.get(2).getModel());
-            gameEngine.getBoard().getKillShotTrack().getKillers().add(connections.get(3).getModel());
-            gameEngine.getBoard().getKillShotTrack().getKillers().add(connections.get(0).getModel());
+            killers = b.getKillShotTrack().getKillers();
         } catch (NotAvailableAttributeException e){e.printStackTrace();}
 
+        killers.add(distructor.getModel());
+        killers.add(distructor.getModel());
+        killers.add(banshee.getModel());
+        killers.add(dozer.getModel());
+        killers.add(violet.getModel());
+        killers.add(distructor.getModel());
+
+        //Checks that the player connections are ordinated according to the ID.
+        assertEquals(Arrays.asList(distructor, banshee, dozer, violet, sprog), gameEngine.getPlayers());
+
+        System.out.println("\n\nTest for resolve in the case of a win. The end message is displayed to console\n\n");
         gameEngine.resolve();
 
-    }
+        //Checks that the player connections are ordinated according to the leaderboard.
+        assertEquals(Arrays.asList(distructor, dozer, violet, banshee, sprog), gameEngine.getPlayers());
 
+    }
 
     /**
      * Tests the method GameEngine.resolveWinner(), by displaying the operation performed on the console.
      * An arbitrary number of points is assigned to the players.
-     * Tests the method in the event of a draw.
+     * Tests the method in the case that the second and the third players have the same amount of points.
+     * Checks that the player connections are ordinated according to the leaderboard.
      */
     @Test
-    public void resolveDraw() {
+    public void resolveBrokenTie() {
 
         List<VirtualView> connections = new ArrayList<>();
         connections.add(new DummyVirtualView());
@@ -149,18 +149,228 @@ public class GameEngineTest {
             //
         }
 
-        connections.get(0).getModel().setPoints(34);
-        connections.get(1).getModel().setPoints(11);
-        connections.get(2).getModel().setPoints(34);
-        connections.get(3).getModel().setPoints(31);
-        connections.get(4).getModel().setPoints(17);
+        VirtualView distructor = connections.get(0);
+        VirtualView banshee = connections.get(1);
+        VirtualView dozer = connections.get(2);
+        VirtualView violet = connections.get(3);
+        VirtualView sprog = connections.get(4);
+
+        distructor.getModel().setPoints(34);
+        banshee.getModel().setPoints(11);
+        dozer.getModel().setPoints(34);
+        violet.getModel().setPoints(31);
+        sprog.getModel().setPoints(17);
 
         try {
-            gameEngine.getBoard().getKillShotTrack().getKillers().add(connections.get(1).getModel());
-            gameEngine.getBoard().getKillShotTrack().getKillers().add(connections.get(3).getModel());
+            gameEngine.getBoard().getKillShotTrack().getKillers().add(banshee.getModel());
+            gameEngine.getBoard().getKillShotTrack().getKillers().add(violet.getModel());
         } catch (NotAvailableAttributeException e){e.printStackTrace();}
 
+
+        //Checks that the player connections are ordinated according to the ID.
+        assertEquals(Arrays.asList(distructor, banshee, dozer, violet, sprog), gameEngine.getPlayers());
+
+        System.out.println("\n\nTest for resolve in the case that the second and the third players have the same amount of points. The end message is displayed to console\n\n");
         gameEngine.resolve();
+
+        //Checks that the player connections are ordinated according to the leaderboard.
+        assertEquals(Arrays.asList(violet, distructor, dozer, banshee, sprog), gameEngine.getPlayers());
+
+    }
+
+
+
+    /**
+     * Tests the method manageEnd().
+     * An arbitrary number of points is assigned to the players.
+     * Tests the method in the event that a single player is the winner.
+     * Checks that the player connections are ordinated according to the leaderboard.
+     */
+    @Test
+    public void manageEnd() throws NotEnoughPlayersException, SlowAnswerException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        VirtualView distructor = connections.get(0);
+        VirtualView banshee = connections.get(1);
+        VirtualView dozer = connections.get(2);
+        VirtualView violet = connections.get(3);
+        VirtualView sprog = connections.get(4);
+
+        distructor.getModel().setPoints(31);
+        banshee.getModel().setPoints(11);
+        dozer.getModel().setPoints(34);
+        violet.getModel().setPoints(31);
+        sprog.getModel().setPoints(17);
+
+        distructor.getModel().sufferDamage(3, banshee.getModel());
+
+        Board b = gameEngine.getBoard();
+        List<Player> killers = new ArrayList<>();
+        try {
+            killers = b.getKillShotTrack().getKillers();
+        } catch (NotAvailableAttributeException e){e.printStackTrace();}
+
+        killers.add(distructor.getModel());
+        killers.add(distructor.getModel());
+        killers.add(banshee.getModel());
+        killers.add(dozer.getModel());
+        killers.add(violet.getModel());
+        killers.add(distructor.getModel());
+
+        gameEngine.setTimer(new Timer(10));
+        gameEngine.manageGameEnd();
+        assertEquals(1, gameEngine.getFrenzyActivator());
+        for (VirtualView v : gameEngine.getPlayers()) {
+            if (!v.equals(distructor)) {
+                assertSame(Player.Status.FRENZY_1, v.getModel().getStatus());
+                assertTrue(v.getModel().isFlipped());
+            }
+            else{
+                assertSame(Player.Status.FRENZY_2, v.getModel().getStatus());
+                assertFalse(v.getModel().isFlipped());
+            }
+        }
+
+    }
+
+
+
+
+
+
+    /**
+     * Tests the method configureMap().
+     * Since all the answer are "1", the map ID is set to 1.
+     *
+     * @throws NotEnoughPlayersException if thrown by configureMap().
+     */
+    @Test
+    public void configureMap() throws NotEnoughPlayersException{
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+
+        gameEngine.configureMap();
+
+        assertEquals(1, gameEngine.getBoard().getId());
+    }
+
+    /**
+     * Tests the method configureMap().
+     * Since all the answer are "5", the number of skulls is set to 5.
+     *
+     * @throws NotEnoughPlayersException if thrown by configureMap() or configureKillShotTrack().
+     * @throws NotAvailableAttributeException if thrown by getKillShotTrack().
+     */
+    @Test
+    public void configureKillShotTrack() throws NotEnoughPlayersException, NotAvailableAttributeException{
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.configureMap();
+
+        assertEquals(0, gameEngine.getBoard().getKillShotTrack().getSkullsLeft());
+
+        gameEngine.configureKillShotTrack();
+
+        assertEquals(5, gameEngine.getBoard().getKillShotTrack().getSkullsLeft());
+    }
+
+    /**
+     * Tests the method configureFrenzyOptions().
+     * Since all the answer are "YES", the frenzy is set to true.
+     *
+     * @throws NotEnoughPlayersException if thrown by configureFrenzyOptions().
+     */
+    @Test
+    public void configureFrenzyOptions() throws NotEnoughPlayersException{
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+
+        assertFalse(gameEngine.isFrenzy());
+
+        gameEngine.configureFrenzyOption();
+
+        assertTrue(gameEngine.isFrenzy());
+
+    }
+
+
+    /**
+     * Tests the method configurePlayers().
+     * Since all the answer are "1", then the order of selected heroes is D_struct_or, Banshee, Dozer, Violet, Sprog.
+     *
+     * @throws NotEnoughPlayersException if thrown by configureMap() or configurePlayers().
+     */
+    @Test
+    public void configurePlayers() throws NotEnoughPlayersException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.configureMap();
+
+        assertTrue(gameEngine.getBoard().getPlayers().isEmpty());
+
+        gameEngine.configurePlayers();
+
+        assertEquals("[Player 1 : (D_struct_or), Player 2 : (Banshee), Player 3 : (Dozer), Player 4 : (Violet), Player 5 : (Sprog)]", gameEngine.getBoard().getPlayers().toString());
+
+    }
+
+
+    /**
+     * Tests the method setup(), in the case the first player selected destructor.
+     *
+     * @throws NotEnoughPlayersException if thrown by setup().
+     */
+    @Test
+    public void setup() throws NotEnoughPlayersException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        assertEquals("Player 1 : (D_struct_or)", gameEngine.getBoard().getCurrentPlayer().toString());
 
     }
 
@@ -236,6 +446,7 @@ public class GameEngineTest {
         assertEquals(connections.get(2), gameEngine.getCurrentPlayer());
     }
 
+
     /**
      * Tests if the next player is correctly calculated when the player whose turn should come is suspended.
      */
@@ -263,6 +474,7 @@ public class GameEngineTest {
         gameEngine.changePlayer();
         assertTrue(gameEngine.isGameOver());
     }
+
 
     /**
      * Tests the method addLeaderboard().
@@ -362,5 +574,83 @@ public class GameEngineTest {
 
     }
 
+
+    /**
+     * Tests the method hasAnswerd().
+     *
+     * @throws NotEnoughPlayersException if thrown by setup().
+     */
+    @Test
+    public void hasAnswered() throws NotEnoughPlayersException{
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+
+        assertFalse(gameEngine.hasAnswered(gameEngine.getCurrentPlayer()));
+
+        gameEngine.setup();
+
+        //checks that the current player has answered the last question
+        assertTrue(gameEngine.hasAnswered(gameEngine.getCurrentPlayer()));
+
+    }
+
+    /**
+     * Tests the method wait().
+     * Since all the answer are "1", the selected answer is "1".
+     *
+     * @throws NotEnoughPlayersException     if thrown by setup() or wait.
+     * @throws SlowAnswerException           if thrown by wait.
+     */
+    @Test
+    public void waitTest() throws NotEnoughPlayersException, SlowAnswerException{
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        gameEngine.getCurrentPlayer().choose("string", "test", Arrays.asList("a", "b"));
+        int selected = Integer.parseInt(gameEngine.wait(gameEngine.getCurrentPlayer()));
+        assertEquals(1, selected);
+
+    }
+
+
+    /**
+     * Tests the method waitShort() in the case the answer is given in time.
+     * Since all the answer are "1", the selected answer is "1".
+     *
+     * @throws NotEnoughPlayersException     if thrown by setup() or waitShort().
+     */
+    @Test
+    public void waitShortTest() throws NotEnoughPlayersException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        gameEngine.getCurrentPlayer().choose("string", "test", Arrays.asList("a", "b"));
+        int selected = Integer.parseInt(gameEngine.waitShort(gameEngine.getCurrentPlayer(), 10));
+        assertEquals(1, selected);
+
+    }
 
 }

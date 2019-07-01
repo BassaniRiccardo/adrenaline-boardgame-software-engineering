@@ -5,9 +5,7 @@ import it.polimi.ingsw.model.board.AmmoSquare;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.board.WeaponSquare;
-import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
-import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import org.junit.Test;
 
@@ -30,15 +28,14 @@ public class SquareTest {
     /**
      * Tests the method addPlayer(), covering all the instructions apart from the exception.
      *
-     * @throws NoMoreCardsException
-     * @throws UnacceptableItemNumberException
-     * @throws IllegalArgumentException
-     */
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+    */
     @Test
-    public void addPlayerAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
+    public void addPlayerAmmoSquare() throws NoMoreCardsException, UnacceptableItemNumberException {
 
         //Simulate a scenario, select an ammo square and a player
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         AmmoSquare ammoSquare = (AmmoSquare) b.getMap().get(1);
         Player p = b.getPlayers().get(0);
 
@@ -56,8 +53,6 @@ public class SquareTest {
 
     /**
      * Tests the method removePlayer(), covering all the instructions apart form the  exception.
-     *
-     * @throws  IllegalArgumentException
      */
     @Test
     public void removePlayerWeaponSquare() {
@@ -84,7 +79,7 @@ public class SquareTest {
     /**
      * Tests the method removePlayer(), when an exception should be thrown since the player is not in the square.
      *
-     * @throws  IllegalArgumentException
+     * @throws  IllegalArgumentException since a wrong parameter is passed to Square.removePlayer().
      */
     @Test(expected = IllegalArgumentException.class)
     public void removePlayerNotInWeaponSquare()  {
@@ -107,8 +102,6 @@ public class SquareTest {
 
     /**
      * Tests the method containsPlayer(), covering all the instructions apart from the exception.
-     *
-     * @throws IllegalArgumentException
      */
     @Test
     public void containsPlayerAmmoSquare() {
@@ -153,8 +146,7 @@ public class SquareTest {
     @Test
     public void ColorToString(){
 
-        Color color = RED;
-        assertEquals("Red", color.toString());
+        assertEquals("Red", RED.toString());
 
     }
 

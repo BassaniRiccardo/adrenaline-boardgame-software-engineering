@@ -291,11 +291,8 @@ public class ClientModel {
          */
         void pickUpWeapon(String name){
 
-            System.out.println("picking up a weapon:");
             for(SimpleWeapon w : this.position.getWeapons()){
-                System.out.println("Available: " + w.getName());
                 if(w.getName().equals(name)){
-                    System.out.println("picked up: " + name);
                     this.position.getWeapons().remove(w);
                     this.weapons.add(w);
                     return;
@@ -310,10 +307,8 @@ public class ClientModel {
          * @param name      the weapon to discard.
          */
         void discardWeapon(String name){
-            System.out.println("discarding a weapon:");
             for(SimpleWeapon w : this.weapons){
                 if(w.getName().equals(name)){
-                    System.out.println(name);
                     this.position.getWeapons().add(w);
                     this.weapons.remove(w);
                     return;

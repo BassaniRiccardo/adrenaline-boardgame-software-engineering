@@ -37,7 +37,7 @@ public class DeckTest {
     @Test
     public void addCardWeapon() {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         WeaponFactory weaponFactory = new WeaponFactory(board1);
 
         //creates an new empty deck of weapons
@@ -85,11 +85,13 @@ public class DeckTest {
 
     /**
      * Tests the method drawCard() for a deck of powerUps.
+     *
+     * @throws NoMoreCardsException if thrown by drawCard().
      */
     @Test
     public void drawCardPowerUp() throws NoMoreCardsException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
         PowerUpFactory powerUpFactory = new PowerUpFactory(board1);
 
         //creates an new empty deck of ammo tiles
@@ -126,6 +128,8 @@ public class DeckTest {
 
     /**
      * Tests the method drawCard() for a deck of powerUps, when an exception should be thrown since the deck is empty.
+     *
+     * @throws NoMoreCardsException since there are no cards in the deck.
      */
     @Test(expected = NoMoreCardsException.class)
 
@@ -135,7 +139,7 @@ public class DeckTest {
         Deck powerUpDeck = new Deck();
 
         //draws a card
-        Card drawn = powerUpDeck.drawCard();
+        powerUpDeck.drawCard();
 
         //checks that the size of the deck is still 0
         assertEquals(0, powerUpDeck.getDrawable().size());
@@ -147,13 +151,15 @@ public class DeckTest {
      * Tests the method drawCard() for a deck of power ups, drawing multiple cards.
      * Draws 4 cards.
      * The tested deck is configured as a real deck, containing all the power up cards of the game.
+     *
+     * @throws NoMoreCardsException if thrown by drawCard().
      */
     @Test
     public void drawMultiplePowerUpsFromRealDeck() throws NoMoreCardsException {
 
         //creates the board with the decks.
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        Board board1 = BoardConfigurer.configureMap(1);
+        BoardConfigurer.configureDecks(board1);
 
         //create a copy of the deck of power ups
         Deck powerUpDeck = board1.getPowerUpDeck();
@@ -188,8 +194,8 @@ public class DeckTest {
     public void shuffleRealDeckPowerUp() {
 
         //creates the board with the decks.
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        Board board1 = BoardConfigurer.configureMap(1);
+        BoardConfigurer.configureDecks(board1);
         Deck powerUpDeck = board1.getPowerUpDeck();
 
         //creates a deck with the same drawable cards of the deck of power ups
@@ -210,6 +216,8 @@ public class DeckTest {
 
     /**
      * Tests the method regenerate() for a deck of ammo tiles.
+     *
+     * @throws WrongTimeException if thrown by regenerate().
      */
     @Test
     public void regenerateAmmoTile() throws WrongTimeException {
@@ -237,6 +245,8 @@ public class DeckTest {
 
     /**
      * Tests the method regenerate() for a deck of power ups.
+     *
+     * @throws WrongTimeException if thrown by regenerate().
      */
     @Test
     public void regeneratePowerUpRealDeck() throws WrongTimeException{
@@ -246,8 +256,8 @@ public class DeckTest {
         int numberOfCopy = 2;
 
         //creates the board with the decks.
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        Board board1 = BoardConfigurer.configureMap(1);
+        BoardConfigurer.configureDecks(board1);
         Deck powerUpDeck = board1.getPowerUpDeck();
 
         //checks that the deck contains all the power ups as drawable cards
@@ -273,6 +283,8 @@ public class DeckTest {
 
     /**
      * Tests the method regenerate() for a deck of power up, when an exception should be thrown since the deck is not empty.
+     *
+     * @throws WrongTimeException if thrown by regenerate().
      */
     @Test(expected = WrongTimeException.class)
     public void regeneratePowerUpRealDeckNotEmpty() throws WrongTimeException{
@@ -282,8 +294,8 @@ public class DeckTest {
         int numberOfCopy = 2;
 
         //creates the board with the decks.
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
-        BoardConfigurer.getInstance().configureDecks(board1);
+        Board board1 = BoardConfigurer.configureMap(1);
+        BoardConfigurer.configureDecks(board1);
         Deck powerUpDeck = board1.getPowerUpDeck();
 
         //checks that the deck contains all the power ups as drawable cards

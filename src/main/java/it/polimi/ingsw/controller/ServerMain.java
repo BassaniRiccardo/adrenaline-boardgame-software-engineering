@@ -287,7 +287,7 @@ public class ServerMain {
             prop.load(input);
             return prop;
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "Cannot load client config from file", ex);
+            LOGGER.log(Level.INFO, "Cannot load client config from file", ex);
         }
         try {
             InputStream input = getClass().getResourceAsStream(SERVER_PROPERTIES_FILENAME);

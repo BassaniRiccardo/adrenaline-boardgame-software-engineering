@@ -25,6 +25,8 @@ import static it.polimi.ingsw.model.cards.Color.*;
 
 /**
  * Tests all methods of the class Player.
+ *
+ * @author BassaniRiccardo, davidealde
  */
 
 public class PlayerTest {
@@ -104,6 +106,10 @@ public class PlayerTest {
 
     /**
      * Tests collect() in an ammo square, when the ammo tile is available.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getPosition().
      */
     @Test(expected = NotAvailableAttributeException.class)
     public void collectAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
@@ -136,6 +142,11 @@ public class PlayerTest {
 
     /**
      * Tests collect() in an ammo square, when no ammo tile is available.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getPosition().
+     * @throws WrongTimeException                   if thrown by collect().
      */
     @Test(expected = NotAvailableAttributeException.class)
     public void collectNoAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
@@ -176,6 +187,10 @@ public class PlayerTest {
 
     /**
      * Tests drawPowerUp().
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws WrongTimeException                   if thrown by drawPowerUp().
      */
     @Test
     public void drawPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
@@ -199,6 +214,10 @@ public class PlayerTest {
 
     /**
      * Tests drawPowerUp(), drawing 2 power ups.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws WrongTimeException                   if thrown by drawPowerUp().
      */
     @Test
     public void drawPowerUpMultiple() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
@@ -233,7 +252,11 @@ public class PlayerTest {
 
 
     /**
-     * Tests discardPowerUp()
+     * Tests discardPowerUp().
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws WrongTimeException                   if thrown by drawPowerUp().
      */
     @Test
     public void discardPowerUp() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
@@ -264,6 +287,10 @@ public class PlayerTest {
 
     /**
      * Tests hasUsableTeleporterOrNewton() when a player has only a teleporter.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by hasUsableTeleporterOrNewton().
      */
     @Test
     public void hasUsableTeleporter() throws NoMoreCardsException, NotAvailableAttributeException, UnacceptableItemNumberException{
@@ -285,6 +312,8 @@ public class PlayerTest {
      * Tests hasUsableTeleporterOrNewton() when a player has only a newton.
      * When there are no other players on the board the newton in not usable.
      * When a player is added to the board, the newton becomes usable.
+     *
+     * @throws NotAvailableAttributeException       if thrown by hasUsableTeleporterOrNewton().
      */
     @Test
     public void hasUsableNewton() throws NotAvailableAttributeException{
@@ -395,6 +424,9 @@ public class PlayerTest {
 
     /**
      * Tests addWeapon()
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void addWeapon() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -420,6 +452,9 @@ public class PlayerTest {
 
     /**
      * Tests addWeapon()
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void addWeaponMultiple() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -447,7 +482,11 @@ public class PlayerTest {
 
 
     /**
-     * Tests discardWeapon()
+     * Tests discardWeapon().
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws WrongTimeException                   if thrown by collect().
      */
     @Test
     public void discardWeapon()  throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
@@ -476,10 +515,12 @@ public class PlayerTest {
 
 
     /**
-     * Tests updateAwards()
+     * Tests updateAwards().
+     *
+     * @throws WrongTimeException                   if thrown by updateAwards().
      */
     @Test
-    public void updateAwards() throws WrongTimeException {
+    public void updateAwards()  throws WrongTimeException {
 
         Board board1 = BoardConfigurer.configureMap(1);
 
@@ -596,10 +637,10 @@ public class PlayerTest {
     /**
      * Tests the method getReloadableWeapons().
      *
-     * @throws UnacceptableItemNumberException
+     * @throws UnacceptableItemNumberException if thrown by addWeapon().
      */
     @Test
-    public void getReloadableWeapons() throws UnacceptableItemNumberException{
+    public void getReloadableWeapons()  throws UnacceptableItemNumberException{
 
         Board b  = BoardConfigurer.configureMap(4);
         Player p1 =  new Player(1, Player.HeroName.VIOLET, b);
@@ -614,14 +655,14 @@ public class PlayerTest {
         p1.addAmmoPack(new AmmoPack(2,2,2));
 
         //the player can now reload the weapon
-        assertEquals(new ArrayList<>(Arrays.asList(lockRifle)), p1.getReloadableWeapons());
+        assertEquals(new ArrayList<>(Collections.singletonList(lockRifle)), p1.getReloadableWeapons());
 
         Weapon electroscythe = weaponFactory.createWeapon(Weapon.WeaponName.ELECTROSCYTHE);
         electroscythe.setLoaded(true);
         p1.addWeapon(electroscythe);
 
         //a loaded weapon cannot be reloaded, then only the lock rifle is returned
-        assertEquals(new ArrayList<>(Arrays.asList(lockRifle)), p1.getReloadableWeapons());
+        assertEquals(new ArrayList<>(Collections.singletonList(lockRifle)), p1.getReloadableWeapons());
 
     }
 
@@ -629,7 +670,7 @@ public class PlayerTest {
     /**
      * Tests the method getLoadedWeapons().
      *
-     * @throws UnacceptableItemNumberException
+     * @throws UnacceptableItemNumberException if thrown by addWeapon().
      */
     @Test
     public void getLoadedWeapons() throws UnacceptableItemNumberException{
@@ -649,7 +690,7 @@ public class PlayerTest {
         p1.addWeapon(electroscythe);
 
         //the electroscythe is loaded
-        assertEquals(new ArrayList<>(Arrays.asList(electroscythe)), p1.getLoadedWeapons());
+        assertEquals(new ArrayList<>(Collections.singletonList(electroscythe)), p1.getLoadedWeapons());
 
     }
 
@@ -935,7 +976,9 @@ public class PlayerTest {
 
 
     /**
-     * Tests rewardKillers()
+     * Tests rewardKillers().
+     *
+     * @throws WrongTimeException if thrown by rewardKillers().
      */
     @Test
     public void rewardKillers() throws WrongTimeException {
@@ -963,7 +1006,9 @@ public class PlayerTest {
 
 
     /**
-     * Tests rewardKillers()
+     * Tests rewardKillers().
+     *
+     * @throws WrongTimeException if thrown by rewardKillers().
      */
     @Test
     public void rewardKillersManyShooters1() throws WrongTimeException {
@@ -1000,7 +1045,9 @@ public class PlayerTest {
 
 
     /**
-     * Tests rewardKillers()
+     * Tests rewardKillers().
+     *
+     * @throws WrongTimeException if thrown by rewardKillers().
      */
     @Test
     public void rewardKillersManyShooters2() throws WrongTimeException{
@@ -1038,7 +1085,7 @@ public class PlayerTest {
 
 
     /**
-     * Tests refreshActionList()
+     * Tests refreshActionList().
      */
     @Test
     public void refreshActionListBASIC() {
@@ -1060,7 +1107,7 @@ public class PlayerTest {
 
 
     /**
-     * Tests refreshActionList()
+     * Tests refreshActionList().
      */
     @Test
     public void refreshActionListFRENZY_1() {
@@ -1085,7 +1132,7 @@ public class PlayerTest {
 
 
     /**
-     * Tests refreshActionList()
+     * Tests refreshActionList().
      */
     @Test
     public void refreshActionListFRENZY_2() {
@@ -1109,7 +1156,7 @@ public class PlayerTest {
 
 
     /**
-     * Tests refreshActionList()
+     * Tests refreshActionList().
      */
     @Test
     public void refreshActionListADRENALINE_1() {
@@ -1135,7 +1182,7 @@ public class PlayerTest {
 
 
     /**
-     * Tests refreshActionList()
+     * Tests refreshActionList().
      */
     @Test
     public void refreshActionListADRENALINE_2() {
@@ -1197,9 +1244,10 @@ public class PlayerTest {
     /**
      * Tests the method getShootingStartSquare(), when 2 is passed as a parameter.
      * The shooter holds only a lock rifle and all the other players are in the same square.
-     *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by addWeapon, getPosition or getShootingSquares().
      */
     @Test
     public void getShootingSquares2LockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -1223,8 +1271,9 @@ public class PlayerTest {
      * The shooter holds only a lock rifle and all the other players are in the same square.
      * The shooter can shoot only by moving in the third square.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by addWeapon, getPosition or getShootingSquares().
      */
     @Test
     public void getShootingSquare1LockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -1238,7 +1287,7 @@ public class PlayerTest {
         b.getPlayers().get(2).setPosition(b.getPlayers().get(4).getPosition());
         b.getPlayers().get(3).setPosition(b.getPlayers().get(4).getPosition());
 
-        List<Square> expected = new ArrayList<>(Arrays.asList(b.getMap().get(2)));
+        List<Square> expected = new ArrayList<>(Collections.singletonList(b.getMap().get(2)));
         assertEquals(expected, b.getPlayers().get(1).getShootingSquares(1, b.getPlayers().get(1).getLoadedWeapons()));
 
     }
@@ -1249,8 +1298,9 @@ public class PlayerTest {
      * The shooter holds only a lock rifle and all the other players are in the same square.
      * The shooter can not shoot.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by addWeapon, getPosition or getShootingSquares().
      */
     @Test
     public void getShootingSquare0LockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -1273,8 +1323,9 @@ public class PlayerTest {
      * Tests the method getShootingStartSquare(), when the shooter holds no weapons.
      * The shooter can not shoot.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getShootingSquares().
      */
     @Test
     public void getShootingSquareNoWeapons() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -1286,18 +1337,16 @@ public class PlayerTest {
 
 
     /**
-     * Tests the method getShootingStartSquare(), when 1 is passed as a parameter.
+     * Tests the method getShootingStartSquare(), when 2 is passed as a parameter.
      * A cyber blade is used, with its first firemode.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void getShootingSquares1Cyberblade0() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
-        /*
-
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon cyberBlade = weaponFactory.createWeapon(Weapon.WeaponName.CYBERBLADE);
         cyberBlade.setLoaded(true);
@@ -1306,19 +1355,25 @@ public class PlayerTest {
         b.getPlayers().get(2).setPosition(b.getMap().get(1));
         b.getPlayers().get(2).addWeapon(cyberBlade);
 
-        List<Square> expectedSquares = new ArrayList<>(Arrays.asList(b.getMap().get(0),b.getMap().get(1)));
+        List<Square> expectedSquares = new ArrayList<>(Arrays.asList(b.getMap().get(0), b.getMap().get(1), b.getMap().get(2), b.getMap().get(3), b.getMap().get(4), b.getMap().get(5)));
         System.out.println();
         assertEquals(expectedSquares, b.getPlayers().get(2).getShootingSquares(2, b.getPlayers().get(2).getLoadedWeapons()));
 
-        */
+
     }
 
+
+    /**
+     * Tests the method getShootingStartSquare(), when 1 is passed as a parameter.
+     * A cyber blade is used, with its first firemode.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     */
     @Test
     public void getShootingSquares1Heatseeker() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
 
-        /*
-
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon heatseeker = weaponFactory.createWeapon(Weapon.WeaponName.HEATSEEKER);
         heatseeker.setLoaded(true);
@@ -1326,26 +1381,23 @@ public class PlayerTest {
         b.getPlayers().get(2).setPosition(b.getMap().get(1));
         b.getPlayers().get(2).addWeapon(heatseeker);
 
-        //   List<Square> expectedSquares = new ArrayList<>(Arrays.asList(b.getMap().get(0),b.getMap().get(1)));
-        // assertEquals(expectedSquares, b.getPlayers().get(2).getShootingSquares(2));
-
-        List<Player> expectedPlayers1 = new ArrayList<>(Arrays.asList(b.getPlayers().get(3)));
-        List<Player> expectedPlayers2 = new ArrayList<>(Arrays.asList(b.getPlayers().get(4)));
+        List<Player> expectedPlayers1 = new ArrayList<>(Collections.singletonList(b.getPlayers().get(3)));
+        List<Player> expectedPlayers2 = new ArrayList<>(Collections.singletonList(b.getPlayers().get(4)));
 
         List<List<Player>> expectedList = new ArrayList<>();
         expectedList.add(expectedPlayers1);
         expectedList.add(expectedPlayers2);
 
-        System.out.println(b.getPlayers().get(0).getPosition());
-        System.out.println(b.getPlayers().get(1).getPosition());
-        System.out.println(b.getPlayers().get(2).getPosition());
-        System.out.println(b.getPlayers().get(3).getPosition());
-        System.out.println(b.getPlayers().get(4).getPosition());
-
-
         assertEquals(expectedList, heatseeker.getFireModeList().get(0).findTargets());
 
-        */
+        List<Square> expectedSquares = new ArrayList<>(b.getMap());
+        expectedSquares.remove(b.getMap().get(7));
+        expectedSquares.remove(b.getMap().get(8));
+        expectedSquares.remove(b.getMap().get(10));
+        expectedSquares.remove(b.getMap().get(11));
+
+        assertEquals(expectedSquares, b.getPlayers().get(2).getShootingSquares(2, b.getPlayers().get(2).getLoadedWeapons()) );
+
     }
 
 
@@ -1353,12 +1405,12 @@ public class PlayerTest {
      * Tests the method removeCollectingAction, when the collecting action must be removed since the player cannot reach
      * squares with items to collect.
      *
-     * @throws NotAvailableAttributeException
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or removeCard.
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getAmmoTile().
      */
     @Test
-    public void removeCollectingActionPositive() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
+    public void removeCollectingActionPositive() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
 
         Board b = BoardConfigurer.simulateScenario();
         b.getMap().get(0).removeCard(((AmmoSquare)b.getMap().get(0)).getAmmoTile());
@@ -1381,9 +1433,9 @@ public class PlayerTest {
     /**
      * Tests the method getAvailableActions when the status of the player is BASIC.
      *
-     * @throws NotAvailableAttributeException
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by addWeapon, getPosition or getAvailableActions().
      */
     @Test
     public void getAvailableActionsBasic() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
@@ -1408,9 +1460,9 @@ public class PlayerTest {
     /**
      * Tests the method getAvailableActions when the status of the player is ADRENALINE_2.
      *
-     * @throws NotAvailableAttributeException
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by addWeapon, getPosition or getAvailableActions().
      */
     @Test
     public void getAvailableActionsAdrenaline2() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
@@ -1437,12 +1489,12 @@ public class PlayerTest {
     /**
      * Tests the method removeShootingAction().
      *
-     * @throws NotAvailableAttributeException
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by addWeapon, getPosition or removeShootingAction().
      */
     @Test
-    public void removeShootingAction() throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
+    public void removeShootingAction()  throws NotAvailableAttributeException, UnacceptableItemNumberException, NoMoreCardsException{
 
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
@@ -1472,8 +1524,8 @@ public class PlayerTest {
      * Tests the method removeCollectingAction, when the collecting action must not be removed since the player can reach
      * squares with items to collect.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void removeCollectingAction() throws UnacceptableItemNumberException, NoMoreCardsException{
@@ -1491,11 +1543,11 @@ public class PlayerTest {
     /**
      * Tests the method getCollectibleWeapons().
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or addCard().
      */
     @Test
-    public void getCollectibleWeapons()throws UnacceptableItemNumberException, NoMoreCardsException{
+    public void getCollectibleWeapons() throws UnacceptableItemNumberException, NoMoreCardsException{
 
         Board b = BoardConfigurer.simulateScenario();
         Player p = b.getPlayers().get(0);
@@ -1514,7 +1566,7 @@ public class PlayerTest {
 
         //the player has two blue ammo, then he can collect the lock rifle  but not the heat seeker
         p.addAmmoPack(new AmmoPack(0,2, 0));
-        assertEquals(new ArrayList<>(Arrays.asList(lockRifle)), p.getCollectibleWeapons(weaponSquare));
+        assertEquals(new ArrayList<>(Collections.singletonList(lockRifle)), p.getCollectibleWeapons(weaponSquare));
 
     }
 

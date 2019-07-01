@@ -25,6 +25,9 @@ import static org.junit.Assert.*;
  * @author BassaniRiccardo
  */
 
+
+//TODO: all: remove dummyVirtual view if it is still useless. Comment the remaining tests filling the description of @throws
+
 public class TurnManagerTest {
 
 

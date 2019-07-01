@@ -8,7 +8,9 @@ import static org.junit.Assert.*;
 
 
 /**
- * Tests the override of equals for confrontations between Actions
+ * Tests the override of equals for confrontations between Actions.
+ *
+ * @author davidealde
  */
 
 public class ActionTest {
@@ -24,7 +26,7 @@ public class ActionTest {
         Action a1=new Action(1,true,false,false);
 
         //Checks that it's equal to itself
-        assertTrue(a1.equals(a1));
+        assertEquals(a1,a1);
     }
 
 
@@ -39,7 +41,7 @@ public class ActionTest {
         Player p1=new Player(1, Player.HeroName.VIOLET, new Board());
 
         //Checks that an Action it's not equal to a Player
-        assertFalse(a1.equals(p1));
+        assertNotEquals(a1,p1);
     }
 
 
@@ -54,7 +56,7 @@ public class ActionTest {
         Action a2=new Action(0,false,true,false);
 
         //Checks that they're not equal
-        assertFalse(a1.equals(a2));
+        assertNotEquals(a1,a2);
     }
 
 
@@ -69,7 +71,7 @@ public class ActionTest {
         Action a2=new Action(1,true,false,false);
 
         //Checks that they're equal
-        assertTrue(a1.equals(a2));
+        assertEquals(a1,a2);
     }
 
 

@@ -20,15 +20,14 @@ import static org.junit.Assert.*;
  * @author BassaniRiccardo
  */
 
-public class
-WeaponSquareTest {
+public class WeaponSquareTest {
 
 
     /**
      * Tests the method removeCard(), covering all the instructions apart from the exception.
      *
-     * @throws NoMoreCardsException
-     * @throws UnacceptableItemNumberException
+     * @throws NoMoreCardsException             if thrown by removeCard().
+     * @throws UnacceptableItemNumberException  if thrown by addCard().
      */
     @Test
     public void removeWeapon() throws NoMoreCardsException, UnacceptableItemNumberException {
@@ -58,7 +57,7 @@ WeaponSquareTest {
     /**
      * Tests the method removeCard(), when an exception should be thrown since the square is empty.
      *
-     * @throws NoMoreCardsException
+     * @throws NoMoreCardsException since the square is empty.
      */
     @Test(expected = NoMoreCardsException.class )
 
@@ -86,7 +85,7 @@ WeaponSquareTest {
      * Testing the exception is not necessary since there are no relevant
      * differences with the test addSingleWeaponFromDeckFullSquare.
      *
-     * @throws UnacceptableItemNumberException
+     * @throws UnacceptableItemNumberException  if thrown by addCard().
      */
     @Test
     public void addSingleWeapon() throws UnacceptableItemNumberException {
@@ -118,11 +117,11 @@ WeaponSquareTest {
     /**
      * Tests the method addCard(), covering all the instructions apart from the exception.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException  if thrown by addCard(Weapon).
+     * @throws NoMoreCardsException             if thrown by addCard().
      */
     @Test
-    public void addSingleWeaponFromDeck() throws UnacceptableItemNumberException, NoMoreCardsException {
+    public void addSingleWeaponFromDeck() throws UnacceptableItemNumberException, NoMoreCardsException  {
 
         //configures the map and the decks
 
@@ -144,12 +143,7 @@ WeaponSquareTest {
 
         //adds the first weapon of the weapon deck to the weapon square
         Weapon drawn = (Weapon) board1.getWeaponDeck().getDrawable().get(0);
-        try {
-            weaponSquare.addCard();
-        }
-        catch (UnacceptableItemNumberException e) {
-            e.printStackTrace();
-        }
+        weaponSquare.addCard();
 
         //checks that the square contains three weapons and that the added weapon has been drawn from the deck
         assertEquals(3, weaponSquare.getWeapons().size());
@@ -161,11 +155,10 @@ WeaponSquareTest {
     /**
      * Tests the method addCard() when an exception should be thrown since the square already contains three weapons.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      since too many weapons are added to the square.
+     * @throws NoMoreCardsException                 if thrown by addCard(Weapon).
      */
     @Test(expected = UnacceptableItemNumberException.class)
-
     public void addSingleWeaponFromDeckFullSquare() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         //configures the map and the decks
@@ -201,14 +194,13 @@ WeaponSquareTest {
     /**
      * Tests the method addAllCards(), covering all the instructions apart form the exceptions.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException  if thrown by addAllCards().
+     * @throws NoMoreCardsException             if thrown by addAllCards().
      */
     @Test
     public void addStartingWeaponsFromDeck() throws UnacceptableItemNumberException, NoMoreCardsException {
 
         Board board1 = BoardConfigurer.configureMap(1);
-        WeaponFactory weaponFactory = new WeaponFactory(board1);
         //configures the decks
         BoardConfigurer.configureDecks(board1);
 
@@ -236,8 +228,8 @@ WeaponSquareTest {
     /**
      * Tests the method addAllCards(), when an exception should be thrown since it is not called after the setup phase.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      since too many weapons are added to the square.
+     * @throws NoMoreCardsException                 if thrown by addAllCards.
      */
     @Test(expected = UnacceptableItemNumberException.class)
     public void addStartingWeaponsFromDeckNotSetup() throws UnacceptableItemNumberException, NoMoreCardsException {

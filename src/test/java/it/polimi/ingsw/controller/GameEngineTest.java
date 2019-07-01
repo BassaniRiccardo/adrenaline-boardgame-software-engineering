@@ -7,30 +7,20 @@ import it.polimi.ingsw.network.server.TCPVirtualView;
 import it.polimi.ingsw.network.server.VirtualView;
 import org.junit.Test;
 
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-//Tests temporarily removed while switching protocol
+//TODO: all: Remove unused tests if can't find a way to test them
+
+/**
+ * Test the methods of GameEngine which can be tested without simulating a game.
+ *
+ * @author BassaniRiccardo
+ */
 public class GameEngineTest {
-
-
-    /**
-     * Test the methods of GameEngine which can be tested without simulating a game.
-     *
-     * @author BassaniRiccardo
-     */
-
-
-    @Test
-    public void run() throws NotEnoughPlayersException, SlowAnswerException {
-
-
-    }
 
 
     /**
@@ -220,13 +210,16 @@ public class GameEngineTest {
         connections.get(2).setSuspended(true);
         connections.get(3).setSuspended(true);
 
-        assertEquals(false, gameEngine.isGameOver());
+        assertFalse(gameEngine.isGameOver());
         gameEngine.changePlayer();
-        assertEquals(true, gameEngine.isGameOver());
+        assertTrue(gameEngine.isGameOver());
     }
 
     /**
      * Tests the method addLeaderboard().
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void addLeaderboard() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -260,9 +253,10 @@ public class GameEngineTest {
     /**
      * Tests the method simulateTillEndPhase().
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NotAvailableAttributeException
-     * @throws NoMoreCardsException
+     * @throws NotAvailableAttributeException       if thrown by simulateTillEndPhase, getPosition() or getKillShotTrack().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or simulateTillEndPhase.
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or simulateTillEndPhase.
+     * @throws WrongTimeException                   if thrown by simulateTillEndPhase.
      */
     @Test
     public void simulateTillEndPhase() throws UnacceptableItemNumberException, WrongTimeException, NotAvailableAttributeException, NoMoreCardsException{

@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
+//TODO: marcobaga: Comment me! Remember a brief class descriptor.
+
 public class MatchmakingTimerTest {
 
     @Test

@@ -1,9 +1,7 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.board.Board;
-import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
-import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import it.polimi.ingsw.network.server.TCPVirtualView;
 import it.polimi.ingsw.network.server.VirtualView;
@@ -30,8 +28,8 @@ public class ServerMainTest {
     /**
      * Tests the method untrackGame().
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void untrackGame() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -59,7 +57,7 @@ public class ServerMainTest {
 
 
     /**
-     * Tests the method addPlayer.
+     * Tests the method addPlayer().
      */
     @Test
     public void addPlayer() {
@@ -79,7 +77,7 @@ public class ServerMainTest {
 
 
     /**
-     * Tests the method initializeLogger.
+     * Tests the method initializeLogger().
      */
     @Test
     public void initializeLogger() {
@@ -94,8 +92,8 @@ public class ServerMainTest {
     /**
      * Tests the method canResume().
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void canResume() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -132,10 +130,10 @@ public class ServerMainTest {
 
 
     /**
-     * Tests the method removeSuspendedPlayers.
+     * Tests the method removeSuspendedPlayers().
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void removeSuspendedPlayers() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -181,8 +179,8 @@ public class ServerMainTest {
     /**
      * Tests the method getAlreadyConnected().
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void getAlreadyConnected() throws UnacceptableItemNumberException, NoMoreCardsException {

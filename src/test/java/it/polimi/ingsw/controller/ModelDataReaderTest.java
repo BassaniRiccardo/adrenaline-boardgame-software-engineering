@@ -1,9 +1,6 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.model.cards.AmmoPack;
 import it.polimi.ingsw.model.cards.Color;
-import it.polimi.ingsw.model.cards.FireMode;
-import it.polimi.ingsw.model.cards.Weapon;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

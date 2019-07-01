@@ -20,9 +20,9 @@ import static org.junit.Assert.*;
 public class UpdaterTest {
 
     /**
-     * Tests the method getModel, simulating a game and checking that the client model is build correctly
+     * Tests the method getModel, simulating a game and checking that the client model is build correctly.
      *
-     * @throws UnacceptableItemNumberException
+     * @throws UnacceptableItemNumberException if thrown by addWeapon() or addCard().
      */
     @Test
     public void getModel() throws  UnacceptableItemNumberException{

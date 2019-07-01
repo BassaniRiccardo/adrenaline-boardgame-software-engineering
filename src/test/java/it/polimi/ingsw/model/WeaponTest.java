@@ -26,7 +26,11 @@ public class WeaponTest {
 
 
     /**
-     * Tests listAvailableFireModes() when all firemodes are available
+     * Tests listAvailableFireModes() when all firemodes are available.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or addWeapon().
+     * @throws NotAvailableAttributeException       if thrown by listAvaliableFiremodes().
      */
     @Test
     public void listAvailableFireModes() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -45,10 +49,14 @@ public class WeaponTest {
 
 
     /**
-     * Tests listAvailableFireModes() when the player has no ammo and only the main firemode is available
+     * Tests listAvailableFireModes() when the player has no ammo and only the main firemode is available.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or addWeapon().
+     * @throws NotAvailableAttributeException       if thrown by listAvaliableFiremodes().
      */
     @Test
-    public void listAvailableFireModes2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
+    public void listAvailableFireModes2()  throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         b.getPlayers().get(0).getAmmoPack().subAmmoPack(new AmmoPack(1,1,1));
@@ -64,7 +72,11 @@ public class WeaponTest {
 
     /**
      * Tests listAvailableFireModes() when only the main firemode is available due to lack of targets (it
-     * can only hit targets that are contained by mainTargets, which is empty by default)
+     * can only hit targets that are contained by mainTargets, which is empty by default).
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or addWeapon().
+     * @throws NotAvailableAttributeException       if thrown by listAvaliableFiremodes().
      */
     @Test
     public void listAvailableFireModes3() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -81,7 +93,11 @@ public class WeaponTest {
     }
 
     /**
-     * Tests listAvailableFireModes() when no firemodes are available
+     * Tests listAvailableFireModes() when no firemodes are available.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or addWeapon().
+     * @throws NotAvailableAttributeException       if thrown by listAvaliableFiremodes().
      */
     @Test
     public void listAvailableFireModes4() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -95,10 +111,14 @@ public class WeaponTest {
     }
 
     /**
-     * Tests reload(), checks for a weapon to be unloaded by default, for the reload method to work and return the correct value
+     * Tests reload(), checks for a weapon to be unloaded by default, for the reload method to work and return the correct value.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or addWeapon().
+     * @throws WrongTimeException                   if thrown by reload().
      */
     @Test
-    public void reload() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException, NotAvailableAttributeException {
+    public void reload() throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
         Board b = BoardConfigurer.simulateScenario();
         b.getPlayers().get(0).getAmmoPack().addAmmoPack(new AmmoPack(3,3,3));
         WeaponFactory weaponFactory = new WeaponFactory(b);

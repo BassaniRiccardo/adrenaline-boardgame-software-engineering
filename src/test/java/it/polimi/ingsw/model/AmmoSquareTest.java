@@ -28,13 +28,13 @@ public class AmmoSquareTest {
     /**
      * Tests the method removeCard(), covering all the instructions apart from the exception.
      *
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws NoMoreCardsException                 if thrown by getAmmoTile().
+     * @throws NotAvailableAttributeException       if thrown by getAmmoTile().
      */
     @Test(expected = NotAvailableAttributeException.class)
-    public void removeAmmo() throws NoMoreCardsException, NotAvailableAttributeException {
+    public void removeAmmo()  throws NoMoreCardsException, NotAvailableAttributeException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //creates a new ammo tile
         AmmoTile ammoTile = new AmmoTile(true, new AmmoPack(1,1,1));
@@ -59,13 +59,13 @@ public class AmmoSquareTest {
     /**
      * Tests the method removeCard(), when an exception should be thrown since the square is empty.
      *
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws NoMoreCardsException                     if thrown by getAmmoTile().
+     * @throws NotAvailableAttributeException           if thrown by removeCard().
      */
-    @Test
-    public void removeAmmoEmptySquare() throws NoMoreCardsException, NotAvailableAttributeException {
+    @Test(expected = NotAvailableAttributeException.class)
+    public void removeAmmoEmptySquare()  throws NoMoreCardsException, NotAvailableAttributeException {
 
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+        Board board1 = BoardConfigurer.configureMap(1);
 
         //creates a new ammo tile
         AmmoTile ammoTile = new AmmoTile(true, new AmmoPack(1,1,1));
@@ -79,16 +79,8 @@ public class AmmoSquareTest {
         //removes the ammo tile from the ammo square
         ammoSquare.removeCard(ammoSquare.getAmmoTile());
 
-        try{
-            //tries to remove another ammo tile
-            ammoSquare.removeCard(ammoSquare.getAmmoTile());
-        }
-        catch (NotAvailableAttributeException notAvailableAttributeException) {
-        }
-        catch (NoMoreCardsException noMoreCardsException) {
-        }
-
-
+        //tries to remove another ammo tile: exception thrown
+        ammoSquare.removeCard(ammoSquare.getAmmoTile());
 
     }
 
@@ -96,15 +88,15 @@ public class AmmoSquareTest {
     /**
      * Tests the method addAllCards(), covering all the instructions apart form the exceptions.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario() or addAllCards().
+     * @throws NoMoreCardsException             if thrown by simulateScenario() or addAllCards().
+     * @throws NotAvailableAttributeException   if thrown by getAmmoTile().
      */
     @Test
     public void addAmmo() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
 
         //initializes board
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //creates a new ammo square with no ammo tiles and no players
         AmmoSquare ammoSquare = new AmmoSquare(b, 1, 1, 1, 1, RED);
@@ -121,15 +113,15 @@ public class AmmoSquareTest {
     /**
      * Tests the method addAllCards(), when an exception should be thrown since the square already contains an ammo tile.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario() or addAllCards().
+     * @throws NoMoreCardsException             if thrown by simulateScenario() or addAllCards().
+     * @throws NotAvailableAttributeException   if thrown by getAmmoTile().
      */
     @Test(expected = UnacceptableItemNumberException.class)
     public void addAmmoFullSquare() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
 
         //initializes board
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //creates a new ammo square with no ammo tiles and no players
         AmmoSquare ammoSquare = new AmmoSquare(b, 1, 1, 1, 1, RED);

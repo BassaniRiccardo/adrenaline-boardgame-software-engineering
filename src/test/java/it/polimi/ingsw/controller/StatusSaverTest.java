@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -31,10 +32,10 @@ public class StatusSaverTest {
 
     /**
      * Tests the method updateCheckpoint, checking whether the player positions are correctly saved.
-     *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getPosition().
      */
     @Test
     public void updateCheckpointPositions() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -53,8 +54,8 @@ public class StatusSaverTest {
     /**
      * Tests the method updateCheckpoint, checking whether the players' damages are correctly saved.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void updateCheckpointDamages() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -74,9 +75,9 @@ public class StatusSaverTest {
     /**
      * Tests the method updateCheckpoint, checking whether the players' powerups are correctly saved.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws WrongTimeException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by drawPowerUp().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or by drawPowerUp().
+     * @throws WrongTimeException                   if thrown by drawPowerUp().
      */
     @Test
     public void updateCheckpointPowerUps() throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
@@ -96,8 +97,8 @@ public class StatusSaverTest {
     /**
      * Tests the method updateCheckpoint, checking whether the players' ammo are correctly saved.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void updateCheckpointAmmo() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -119,9 +120,9 @@ public class StatusSaverTest {
     /**
      * Tests the method updateCheckpoint, checking whether the current player's weapons are correctly saved.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws WrongTimeException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by collect().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or by collect().
+     * @throws WrongTimeException                   if thrown by collect().
      */
     @Test
     public void updateCheckpointCurrentWeapons() throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
@@ -131,8 +132,7 @@ public class StatusSaverTest {
         b.getPlayers().get(1).collect(b.getSpawnPoints().get(1).getWeapons().get(0));
         ss.updateCheckpoint();
 
-        List<Weapon> inModel = new ArrayList<>();
-        inModel.addAll(b.getCurrentPlayer().getWeaponList());
+        List<Weapon> inModel = new ArrayList<>(b.getCurrentPlayer().getWeaponList());
         assertEquals(inModel, ss.getCurrentPlayerWeapons());
     }
 
@@ -140,8 +140,8 @@ public class StatusSaverTest {
     /**
      * Tests the method updateCheckpoint, checking whether the current player's loaded weapons are correctly saved.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by addWeapon().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void updateCheckpointCurrentLoadedWeapons() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -166,9 +166,9 @@ public class StatusSaverTest {
     /**
      * Tests the method updateCheckpoint, checking whether the weapons in the spawn points are correctly saved.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws WrongTimeException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by drawPowerUp().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or by drawPowerUp().
+     * @throws WrongTimeException                   if thrown by drawPowerUp().
      */
     @Test
     public void updateCheckpointSquareWeapons() throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
@@ -192,8 +192,8 @@ public class StatusSaverTest {
     /**
      * Tests the method updatePowerups
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void updatePowerups() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -212,9 +212,9 @@ public class StatusSaverTest {
     /**
      * Tests the methods restoreCheckpoint, checking whether the players' positions are correctly restored.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getPosition().
      */
     @Test
     public void restoreCheckpointPositions() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -243,8 +243,8 @@ public class StatusSaverTest {
     /**
      * Tests the methods restoreCheckpoint, checking whether the players' damages are correctly restored.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void restoreCheckpointDamages() throws UnacceptableItemNumberException, NoMoreCardsException{
@@ -265,9 +265,9 @@ public class StatusSaverTest {
     /**
      * Tests the methods restoreCheckpoint, checking whether the players' powerups are correctly restored.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws WrongTimeException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by drawPowerUp().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or by drawPowerUp().
+     * @throws WrongTimeException                   if thrown by drawPowerUp().
      */
     @Test
     public void restoreCheckpointPowerups() throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
@@ -288,8 +288,8 @@ public class StatusSaverTest {
     /**
      * Tests the methods restoreCheckpoint, checking whether the players' ammo are correctly restored.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void restoreCheckpointAmmo() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -314,8 +314,8 @@ public class StatusSaverTest {
     /**
      * Tests the methods restoreCheckpoint, checking whether the current player's weapons are correctly restored.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by addWeapon().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void restoreCheckpointCurrentWeapons() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -331,7 +331,7 @@ public class StatusSaverTest {
         assertEquals(Arrays.asList(lockRifle, electroscythe), p1.getWeaponList());
 
         ss.restoreCheckpoint();
-        assertEquals(Arrays.asList(lockRifle), p1.getWeaponList());
+        assertEquals(Collections.singletonList(lockRifle), p1.getWeaponList());
 
     }
 
@@ -339,8 +339,8 @@ public class StatusSaverTest {
     /**
      * Tests the methods restoreCheckpoint, checking whether the current player's loaded weapons are correctly restored.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by addWeapon().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
      */
     @Test
     public void restoreCheckpointCurrentLoadedWeapons() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -355,12 +355,12 @@ public class StatusSaverTest {
         electroscythe.setLoaded(false);
         p1.addWeapon(electroscythe);
         ss.updateCheckpoint();
-        assertEquals(Arrays.asList(lockRifle), p1.getLoadedWeapons());
+        assertEquals(Collections.singletonList(lockRifle), p1.getLoadedWeapons());
         electroscythe.setLoaded(true);
         assertEquals(Arrays.asList(lockRifle,electroscythe), p1.getLoadedWeapons());
 
         ss.restoreCheckpoint();
-        assertEquals(Arrays.asList(lockRifle), p1.getLoadedWeapons());
+        assertEquals(Collections.singletonList(lockRifle), p1.getLoadedWeapons());
 
     }
 
@@ -368,9 +368,9 @@ public class StatusSaverTest {
     /**
      * Tests the methods restoreCheckpoint, checking whether the weapons in the spawn points are correctly restored.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws WrongTimeException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by collect().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or by collect().
+     * @throws WrongTimeException                   if thrown by collect().
      */
     @Test
     public void restoreCheckpointSquareWeapons() throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException {
@@ -396,9 +396,9 @@ public class StatusSaverTest {
     /**
      * Tests the methods restorePowerups.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws WrongTimeException
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or by drawPowerUp().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or by drawPowerUp().
+     * @throws WrongTimeException                   if thrown by drawPowerUp().
      */
     @Test
     public void restorePowerUps() throws UnacceptableItemNumberException, NoMoreCardsException, WrongTimeException{

@@ -19,6 +19,11 @@ public class TCPServer implements Runnable {
     private boolean running;
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
+    /**
+     * Constructor for TCPServer.
+     *
+     * @param port  the TCP port.
+     */
     public TCPServer(int port){
         this.port = port;
         this.running = false;
@@ -49,9 +54,10 @@ public class TCPServer implements Runnable {
     }
 
     /**
-     * Getters and setters
+     * Getter for port.
+     *
+     * @return the TCP port.
      */
-
     public int getPort() {  //only used for testing
         return port;
     }

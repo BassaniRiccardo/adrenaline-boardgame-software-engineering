@@ -26,7 +26,7 @@ public class Updater {
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
 
-    public static final String UPD_HEADER = "UPD";
+    private static final String UPD_HEADER = "UPD";
 
     public static final String RELOAD_UPD = "reload";
     public static final String POWER_UP_DECK_REGEN_UPD ="powerUpDeckRegen";
@@ -42,6 +42,10 @@ public class Updater {
     public static final String ADD_DEATH_UPD = "addDeath";
     public static final String DAMAGE_UPD = "damage";
     public static final String MARK_UPD = "mark";
+    public static final String REMOVE_MARKS = "removeMarks";
+    public static final String FROM = "from";
+    public static final String OF = "of";
+
     public static final String ADD_WEAPON_UPD = "addWeapon";
     public static final String REMOVE_WEAPON_UPD = "removeWeapon";
     public static final String SET_IN_GAME_UPD = "setInGame";
@@ -49,7 +53,7 @@ public class Updater {
     public static final String MODEL_UPD = "model";
     public static final String RENDER_UPD = "render";
 
-    public static final String HEAD_PROP = "head";
+    private static final String HEAD_PROP = "head";
     public static final String TYPE_PROP = "type";
 
     public static final String PLAYER_PROP = "player";
@@ -59,8 +63,8 @@ public class Updater {
     public static final String LOADED_PROP = "loaded";
     public static final String CARDS_NUMBER_PROP = "cardNumber";
     public static final String SKULL_NUMBER_PROP = "skullNumber";
-    public static final String KILLER_PROP = "killer";
-    public static final String OVERKILL_PROP = "overkill";
+    private static final String KILLER_PROP = "killer";
+    private static final String OVERKILL_PROP = "overkill";
     public static final String POWER_UP_NAME_PROP = "powerUpName";
     public static final String POWER_UP_COLOR_PROP = "powerUpColor";
     public static final String RED_AMMO_PROP = "redAmmo";
@@ -73,13 +77,20 @@ public class Updater {
     public static final String STATUS_PROP = "status";
 
 
-
+    /**
+     * Updater private constructor.
+     */
     private Updater(){}
 
-    /**
-     * All get methods take as input specific parameter related to the particular update being translated and output a serialization of the update.
-     */
 
+    /**
+     * Returns a serialization of a "loaded" update.
+     *
+     * @param msg       the type of update.
+     * @param w         the weapon that can be loaded or unloaded.
+     * @param loaded    whether the weapon in loaded or unloaded.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String msg, Weapon w, boolean loaded) {
         JsonObject j = getFreshUpdate(msg);
         j.addProperty(WEAPON_PROP, w.getWeaponName().toString());
@@ -88,6 +99,14 @@ public class Updater {
         return j;
     }
 
+
+    /**
+     * Returns a serialization of a "deck regeneration" update.
+     *
+     * @param msg       the type of update.
+     * @param quantity  the number of cards in the regenerated deck.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String msg, int quantity) {
         JsonObject j = getFreshUpdate(msg);
         j.addProperty(CARDS_NUMBER_PROP, quantity);
@@ -95,6 +114,16 @@ public class Updater {
         return j;
     }
 
+
+    /**
+     * Returns a serialization of a "skull removed" update.
+     *
+     * @param msg       the type of update.
+     * @param quantity  the number of cards in the regenerated deck.
+     * @param p         the killer.
+     * @param ok        whether an overkill occurred.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String msg, int quantity, Player p, boolean ok) {
         JsonObject j = getFreshUpdate(msg);
         j.addProperty(SKULL_NUMBER_PROP, quantity);
@@ -104,6 +133,14 @@ public class Updater {
         //skullRemoved
     }
 
+    /**
+     * Returns a serialization of a "draw/discard powerup" update.
+     *
+     * @param s         the type of update.
+     * @param p         the holder.
+     * @param powerUp   the powerup to draw/discard.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Player p, PowerUp powerUp) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
@@ -113,6 +150,14 @@ public class Updater {
         //drawPowerUp and discardPowerup
     }
 
+    /**
+     * Returns a serialization of a "draw/discard weapon" update.
+     *
+     * @param s         the type of update.
+     * @param p         the holder.
+     * @param w         the weapon to draw/discard.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Player p, Weapon w) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
@@ -121,6 +166,15 @@ public class Updater {
         //discardWeapon and pickUpWeapon
     }
 
+
+    /**
+     * Returns a serialization of a "use/add ammo" update.
+     *
+     * @param s         the type of update.
+     * @param p         the player who uses/gains an ammo.
+     * @param a         the amount of ammo.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Player p, AmmoPack a) {
 
         JsonObject j = getFreshUpdate(s);
@@ -133,6 +187,15 @@ public class Updater {
         //useAmmo, addAmmo
     }
 
+
+    /**
+     * Returns a serialization of a "move" update.
+     *
+     * @param s         the type of update.
+     * @param p         the player who moves.
+     * @param square   the destination square.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Player p, Square square) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
@@ -141,6 +204,14 @@ public class Updater {
         //move
     }
 
+
+    /**
+     * Returns a serialization of a "status" update.
+     *
+     * @param s         the type of update.
+     * @param p         the status.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Player p) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
@@ -150,6 +221,15 @@ public class Updater {
         //status
     }
 
+
+    /**
+     * Returns a serialization of a "add death" update.
+     *
+     * @param s         the type of update.
+     * @param p         the player who died.
+     * @param points    the number of point the player will give the next time he will die.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Player p, int points){
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
@@ -158,6 +238,15 @@ public class Updater {
         //addDeath
     }
 
+
+    /**
+     * Returns a serialization of a "damaged/marked/removeMarks" update.
+     *
+     * @param s         the type of update.
+     * @param p         the player.
+     * @param l         the updated list of damages or marks.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Player p, List<Player> l) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
@@ -170,6 +259,14 @@ public class Updater {
         //damaged, marked
     }
 
+    /**
+     * Returns a serialization of a "weapon removed/added" update.
+     *
+     * @param s         the type of update.
+     * @param sq        the square.
+     * @param w         the weapon to add/remove.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Square sq, Weapon w) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(SQUARE_PROP, sq.getId());
@@ -178,6 +275,14 @@ public class Updater {
         //weaponRemoved & addWeapon
     }
 
+    /**
+     * Returns a serialization of a "set in game" update.
+     *
+     * @param s         the type of update.
+     * @param p         the player.
+     * @param in        whether the player is in the game.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Player p, boolean in) {
         JsonObject j = getFreshUpdate(s);
         j.addProperty(PLAYER_PROP, p.getId());
@@ -186,6 +291,13 @@ public class Updater {
         //setInGame
     }
 
+    /**
+     * Returns a serialization of a "remove ammo tile" update.
+     *
+     * @param s         the type of update.
+     * @param square    the square.
+     * @return          a serialization of the update.
+     */
     public static JsonObject get(String s, Square square){
         JsonObject j = getFreshUpdate(s);
         j.addProperty(SQUARE_PROP, square.getId());
@@ -279,7 +391,7 @@ public class Updater {
      * @param board         the player board.
      * @return              the created SimplePlayer.
      */
-    public static ClientModel.SimplePlayer createSimplePlayer(Player p, Board board){
+    private static ClientModel.SimplePlayer createSimplePlayer(Player p, Board board){
 
         //create a new simplePlayer
         List<Integer> damages = new ArrayList<>();
@@ -335,20 +447,29 @@ public class Updater {
     }
 
     /**
+<<<<<<< HEAD
      * Converts a Weapon in a SimpleWeapon
      *
      * @param weapon    full model to convert
      * @return          reduced model
+=======
+     * Returns a SimpleWeapon given a Weapon
+     *
+     * @param weapon    the given Weapon.
+     * @return          the relative SimpleWeapon.
+>>>>>>> cf902beb030e7006801e05998f826bf9bcd50cf2
      */
     private static ClientModel.SimpleWeapon toSimpleWeapon(Weapon weapon){
         return new ClientModel().new SimpleWeapon(weapon.toString(), weapon.isLoaded());
     }
 
+
+
     /**
-     * Converts a Square in a SimpleSquare
+     * Returns a SimpleSquare given a WeaponSquare.
      *
-     * @param square    full model to convert
-     * @return          reduced model
+     * @param square    the given WeaponSquare.
+     * @return          the relative SimpleSquare.
      */
     private static ClientModel.SimpleSquare toSimpleSquare(WeaponSquare square){
         List<ClientModel.SimpleWeapon> weapons = new ArrayList<>();
@@ -358,12 +479,11 @@ public class Updater {
         return new ClientModel().new SimpleSquare(square.getId(), true, weapons, 0, 0, 0, false);
     }
 
-
     /**
-     * Converts a Square in a SimpleSquare
+     * Returns a SimpleSquare given a AmmoSquare.
      *
-     * @param square    full model to convert
-     * @return          reduced model
+     * @param square    the given AmmoSquare.
+     * @return          the relative SimpleSquare.
      */
     private static ClientModel.SimpleSquare toSimpleSquare(AmmoSquare square){
         int redAmmo =0;

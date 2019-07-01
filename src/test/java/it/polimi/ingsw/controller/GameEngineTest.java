@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
 import it.polimi.ingsw.model.exceptions.*;
@@ -7,29 +8,57 @@ import it.polimi.ingsw.network.server.TCPVirtualView;
 import it.polimi.ingsw.network.server.VirtualView;
 import org.junit.Test;
 
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-//Tests temporarily removed while switching protocol
+/**
+ * Test the methods of GameEngine which can be tested without simulating a game.
+ *
+ * @author BassaniRiccardo
+ */
 public class GameEngineTest {
 
+    class DummyVirtualView extends VirtualView{
+        @Override
+        public void refresh() {        }
 
-    /**
-     * Test the methods of GameEngine which can be tested without simulating a game.
-     *
-     * @author BassaniRiccardo
-     */
+        @Override
+        public void shutdown() {        }
 
+        @Override
+        public void showSuspension() {        }
 
-    @Test
-    public void run() throws NotEnoughPlayersException, SlowAnswerException {
+        @Override
+        public void showEnd(String message) {        }
 
+        @Override
+        public void choose(String type, String msg, List<?> options) {
+            notifyObservers("1");
+        }
 
+        @Override
+        public void choose(String type, String msg, List<?> options, int timeoutSec) {
+            notifyObservers("1");
+        }
+
+        @Override
+        public void display(String msg) {        }
+
+        @Override
+        public String getInputNow(String msg, int max) {
+            return "1";
+        }
+
+        @Override
+        public int chooseNow(String type, String msg, List<?> options) {
+            return 1;
+        }
+
+        @Override
+        public void update(JsonObject jsonObject) {        }
     }
 
 
@@ -39,18 +68,20 @@ public class GameEngineTest {
      */
     @Test
     public void setup() {
-/*
         List<VirtualView> connections = new ArrayList<>();
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
 
         GameEngine gameEngine = new GameEngine(connections);
-        gameEngine.setup();
+        try {
+            gameEngine.setup();
+        }catch(NotEnoughPlayersException e){
+            //
+        }
 
- */
     }
 
 
@@ -61,16 +92,20 @@ public class GameEngineTest {
      */
     @Test
     public void resolveWinner() {
-/*
+
         List<VirtualView> connections = new ArrayList<>();
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
 
         GameEngine gameEngine = new GameEngine(connections);
-        gameEngine.setup();
+        try {
+            gameEngine.setup();
+        }catch(NotEnoughPlayersException e){
+            //
+        }
 
         connections.get(0).getModel().setPoints(31);
         connections.get(1).getModel().setPoints(11);
@@ -88,7 +123,7 @@ public class GameEngineTest {
         } catch (NotAvailableAttributeException e){e.printStackTrace();}
 
         gameEngine.resolve();
-*/
+
     }
 
 
@@ -99,16 +134,20 @@ public class GameEngineTest {
      */
     @Test
     public void resolveDraw() {
-/*
+
         List<VirtualView> connections = new ArrayList<>();
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
-        connections.add(new TCPVirtualView(null));
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
 
         GameEngine gameEngine = new GameEngine(connections);
-        gameEngine.setup();
+        try {
+            gameEngine.setup();
+        }catch(NotEnoughPlayersException e){
+            //
+        }
 
         connections.get(0).getModel().setPoints(34);
         connections.get(1).getModel().setPoints(11);
@@ -122,7 +161,7 @@ public class GameEngineTest {
         } catch (NotAvailableAttributeException e){e.printStackTrace();}
 
         gameEngine.resolve();
-*/
+
     }
 
 
@@ -220,13 +259,16 @@ public class GameEngineTest {
         connections.get(2).setSuspended(true);
         connections.get(3).setSuspended(true);
 
-        assertEquals(false, gameEngine.isGameOver());
+        assertFalse(gameEngine.isGameOver());
         gameEngine.changePlayer();
-        assertEquals(true, gameEngine.isGameOver());
+        assertTrue(gameEngine.isGameOver());
     }
 
     /**
      * Tests the method addLeaderboard().
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void addLeaderboard() throws UnacceptableItemNumberException, NoMoreCardsException {
@@ -260,9 +302,10 @@ public class GameEngineTest {
     /**
      * Tests the method simulateTillEndPhase().
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NotAvailableAttributeException
-     * @throws NoMoreCardsException
+     * @throws NotAvailableAttributeException       if thrown by simulateTillEndPhase, getPosition() or getKillShotTrack().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or simulateTillEndPhase.
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario() or simulateTillEndPhase.
+     * @throws WrongTimeException                   if thrown by simulateTillEndPhase.
      */
     @Test
     public void simulateTillEndPhase() throws UnacceptableItemNumberException, WrongTimeException, NotAvailableAttributeException, NoMoreCardsException{

@@ -7,6 +7,8 @@ import static it.polimi.ingsw.model.cards.Color.*;
 import static org.junit.Assert.*;
 /**
  * Tests all methods of the class AmmoPack.
+ *
+ * @author davidealde, BassaniRiccardo
  */
 
 public class AmmoPackTest {
@@ -17,7 +19,7 @@ public class AmmoPackTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void constructAmmoPack() {
-        AmmoPack ammoPack = new AmmoPack(3,5,78);
+        new AmmoPack(3,5,78);
     }
 
 

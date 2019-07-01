@@ -6,6 +6,9 @@ import static org.junit.Assert.*;
 
 public class TCPServerTest {
 
+    /**
+     * Test that the TCP port of TCPServer is correctly assigned.
+     */
     @Test
     public void setupTest(){
         TCPServer s = new TCPServer(4000);

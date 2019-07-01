@@ -6,8 +6,14 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
+/**
+ * Simple tests for the times
+ */
 public class MatchmakingTimerTest {
 
+    /**
+     * Checks that normal functioning (without pauses) is correct
+     */
     @Test
     public void standardFunctioning() {
         Timer m = new Timer(3);
@@ -32,6 +38,9 @@ public class MatchmakingTimerTest {
         assertTrue(m.isOver());
     }
 
+    /**
+     * Checks that it is possible to stop the timer
+     */
     @Test
     public void stop() {
         Timer m = new Timer(3);
@@ -57,6 +66,9 @@ public class MatchmakingTimerTest {
         assertFalse(m.isOver());
     }
 
+    /**
+     * Checks that the timer resets correctly
+     */
     @Test
     public void reset() {
         Timer m = new Timer(3);

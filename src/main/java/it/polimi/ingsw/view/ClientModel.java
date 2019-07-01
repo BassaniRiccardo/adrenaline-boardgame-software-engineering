@@ -60,6 +60,9 @@ public class ClientModel {
             this.powerup = powerup;
         }
 
+        /*
+           Getters and setters
+         */
         public int getBlueAmmo() { return blueAmmo; }
         void setBlueAmmo(int blueAmmo) { this.blueAmmo = blueAmmo; }
         public int getRedAmmo() { return redAmmo; }
@@ -73,6 +76,11 @@ public class ClientModel {
         public List<SimpleWeapon> getWeapons() {       return weapons;    }
         public void setWeapons(List<SimpleWeapon> weapons) {   this.weapons = weapons; }
 
+
+        /**
+         * Removes a weapon from the simpleSquare
+         * @param name the weapon to remove.
+         */
         void removeWeapon(String name){
             for(SimpleWeapon w : weapons){
                 if(w.getName().equals(name)){
@@ -126,6 +134,10 @@ public class ClientModel {
             this.status = status;
         }
 
+
+        /*
+          Getters and setters
+         */
         void setStatus(String status, boolean flipped){
             this.flipped = flipped;
             this.status = status;
@@ -218,18 +230,34 @@ public class ClientModel {
             return deaths;
         }
 
+        public int getBlueAmmo() { return blueAmmo; }
+
+        public int getRedAmmo() { return redAmmo; }
+
+        public int getYellowAmmo() { return yellowAmmo; }
+
+
+        /**
+         * Increments of one the number of deaths of the player.
+         */
         void addDeath() {
             this.deaths++;
         }
 
+
         /**
-         * Complex getters and setters
+         * Given a list of Integer and a List of SimplePlayers, returns a list of SimplePlayers obtained by replacing
+         * every Integer with the SimplePlayer whose id is that Integer.
+         *
+         * @param IDs   the ordered list of Integer.
+         * @param players   the set of SimplePlayers to use to create the new list.
+         * @return the list of SimplePlayers obtained from the list of IDs.
          */
-        List<SimplePlayer> toSimplePlayerList(List<Integer> ids, List<SimplePlayer> players){
+        List<SimplePlayer> toSimplePlayerList(List<Integer> IDs, List<SimplePlayer> players){
 
             List<SimplePlayer> toReturn = new ArrayList<>();
 
-            for (Integer i: ids){
+            for (Integer i: IDs){
                 for(SimplePlayer p : players)
                     if(p.getId()==i)
                         toReturn.add(p);
@@ -237,10 +265,30 @@ public class ClientModel {
             return toReturn;
         }
 
+
+        /**
+         * Returns a list of SimplePlayers representing the damages of the SimplePlayer.
+         *
+         * @param players   the set of SimplePlayers to use to create the new list.
+         * @return the list of SimplePlayers representing the damages of the SimplePlayer.
+         */
         List<SimplePlayer> getDamage(List<SimplePlayer> players){ return toSimplePlayerList (damage, players); }
 
+
+        /**
+         * Returns a list of SimplePlayers representing the marks of the SimplePlayer.
+         *
+         * @param players   the set of SimplePlayers to use to create the new list.
+         * @return the list of SimplePlayers representing the marks of the SimplePlayer.
+         */
         List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
 
+
+        /**
+         * Removes a weapon from the player square and adds it to his hand.
+         *
+         * @param name      the weapon to pick up.
+         */
         void pickUpWeapon(String name){
 
             for(SimpleWeapon w : this.position.getWeapons()){
@@ -252,8 +300,14 @@ public class ClientModel {
             }
         }
 
+
+        /**
+         * Removes a weapon from the player hand and adds it to his square.
+         *
+         * @param name      the weapon to discard.
+         */
         void discardWeapon(String name){
-            for(SimpleWeapon w : this.position.getWeapons()){
+            for(SimpleWeapon w : this.weapons){
                 if(w.getName().equals(name)){
                     this.position.getWeapons().add(w);
                     this.weapons.remove(w);
@@ -262,18 +316,41 @@ public class ClientModel {
             }
         }
 
+
+        /**
+         * Adds the specified amount of ammo to the player ammo.
+         *
+         * @param r the amount of red ammo to add.
+         * @param b the amount of blue ammo to add.
+         * @param y the amount of yellow ammo to add.
+         */
         void addAmmo(int r, int b, int y){
             redAmmo=redAmmo+r;
             blueAmmo=blueAmmo+b;
             yellowAmmo=yellowAmmo+y;
         }
 
+
+        /**
+         * Subtract the specified amount of ammo from the player ammo.
+         *
+         * @param r the amount of red ammo to subtract.
+         * @param b the amount of blue ammo to subtract.
+         * @param y the amount of yellow ammo to subtract.
+         */
         void subAmmo(int r, int b, int y){
             redAmmo=redAmmo-r;
             blueAmmo=blueAmmo-b;
             yellowAmmo=yellowAmmo-y;
         }
 
+
+        /**
+         * Returns a simple weapon from the player hand, given its name.
+         *
+         * @param name  the weapon name.
+         * @return      the simple weapon with the right name.
+         */
         SimpleWeapon getWeapon(String name){
             for(SimpleWeapon s : weapons){
                 if(s.getName().equals(name)){
@@ -283,17 +360,6 @@ public class ClientModel {
             return new SimpleWeapon("error", false);
         }
 
-        public int getBlueAmmo() {
-            return blueAmmo;
-        }
-
-        public int getRedAmmo() {
-            return redAmmo;
-        }
-
-        public int getYellowAmmo() {
-            return yellowAmmo;
-        }
     }
 
 
@@ -309,6 +375,9 @@ public class ClientModel {
             this.loaded = loaded;
         }
 
+        /*
+          Getters and setters.
+         */
         public String getName() {
             return this.name;
         }
@@ -327,8 +396,8 @@ public class ClientModel {
     }
 
 
-    /**
-     * Getters and setters related to the whole model
+    /*
+     * Getters and setters related to the whole model.
      */
     public List<SimpleSquare> getSquares() {
         return squares;
@@ -418,18 +487,37 @@ public class ClientModel {
 
     public void setTopWalls(boolean[][] topWalls) { this.topWalls = topWalls;}
 
+
+    /**
+     * Removes a certain number of skulls from the killshot track.
+     *
+     * @param n     the number of skulls to remove.
+     */
     void removeSkulls(int n){
         if(n<skullsLeft) {
             skullsLeft = skullsLeft - n;
         }
     }
 
+
+    /**
+     * Move a player in a square.
+     * @param player    the player to move.
+     * @param square    the destination of the movement.
+     */
     void moveTo(int player, int square) {
         SimplePlayer p = getPlayer(player);
         SimpleSquare s = getSquare(square);
         p.setPosition(s);
     }
 
+
+    /**
+     * Updates the damages of a player.
+     *
+     * @param player       the player whose damages must be set.
+     * @param damage       the updated damages.
+     */
     public void damage(int player, JsonArray damage){
         List<Integer> list = getPlayer(player).getDamageID();
         list.clear();
@@ -438,6 +526,13 @@ public class ClientModel {
         }
     }
 
+
+    /**
+     * Updates the marks of a player.
+     *
+     * @param player        the player whose marks must be set.
+     * @param marks         the updated marks.
+     */
     public void mark(int player, JsonArray marks){
         List<Integer> list = getPlayer(player).getMarksID();
         list.clear();
@@ -446,6 +541,13 @@ public class ClientModel {
         }
     }
 
+
+    /**
+     * Returns the player with the given ID.
+     *
+     * @param id    the ID of the requested player.
+     * @return      the SimplePlayer with the given ID.
+     */
     public SimplePlayer getPlayer(int id){
         for(SimplePlayer s : players){
             if(s.getId() == id){
@@ -459,6 +561,13 @@ public class ClientModel {
         }
     }
 
+
+    /**
+     * Returns the square with the given ID.
+     *
+     * @param id    the ID of the requested player.
+     * @return      the SimpleSquare with the given ID.
+     */
     public SimpleSquare getSquare(int id){
         for(SimpleSquare s : squares){
             if(s.getId()==id){

@@ -1,8 +1,8 @@
-//TODO test three remaining power ups
+//TODO: BassaniRiccardo: test three remaining power ups
 
 package it.polimi.ingsw.model;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import it.polimi.ingsw.controller.BoardConfigurer;
@@ -17,11 +17,20 @@ import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Tests the methods in PowerUp, for the different type of powerUps when relevant.
+ *
+ * @author BassaniRiccardo, marcobaga.
+ */
 
 public class PowerUpTest {
 
     /**
-     * Checks that a power up is correctly marked as available
+     * Checks that a power up is correctly marked as available.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or drawCard().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by isAvailable().
      */
     @Test
     public void isAvailable() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -38,7 +47,11 @@ public class PowerUpTest {
     }
 
     /**
-     * Checks that a power up is not available when no targets can be seen
+     * Checks that a power up is not available when no targets can be seen.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or drawCard().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by isAvailable().
      */
     @Test
     public void isAvailable2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -54,7 +67,11 @@ public class PowerUpTest {
     }
 
     /**
-     * Checks that a power up is not available when players are visible but cannot be selected
+     * Checks that a power up is not available when players are visible but cannot be selected.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or drawCard().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by isAvailable().
      */
     @Test
     public void isAvailable3() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -70,7 +87,11 @@ public class PowerUpTest {
     }
 
     /**
-     * Checks that the power up applies its effect
+     * Checks that the power up applies its effect.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or drawCard().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getHolder().
      */
     @Test
     public void applyEffects() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -83,13 +104,17 @@ public class PowerUpTest {
         b.getPlayers().get(0).getPowerUpList().add(p);
         p = b.getPlayers().get(0).getPowerUpList().get(0);
         int oldDamages = b.getPlayers().get(1).getDamages().size();
-        p.applyEffects(Arrays.asList(b.getPlayers().get(1)), p.getHolder().getPosition());
+        p.applyEffects(Collections.singletonList(b.getPlayers().get(1)), p.getHolder().getPosition());
         int newDamages = b.getPlayers().get(1).getDamages().size();
         assertEquals(newDamages, oldDamages + 1);
     }
 
     /**
-     * Checks that targets are selected when there are some
+     * Checks that targets are selected when there are some.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or drawCard().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by findDestination().
      */
     @Test
     public void findTargets() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -108,7 +133,11 @@ public class PowerUpTest {
     }
 
     /**
-     * Checks that targets are selected when there are none
+     * Checks that targets are selected when there are none.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or drawCard().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by findTargets().
      */
     @Test
     public void findTargets2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
@@ -124,10 +153,14 @@ public class PowerUpTest {
     }
 
     /**
-     * Checks that destinationFinder is working correctly (Note: the only power up implemented so far always returns null as intended)
+     * Checks that destinationFinder is working correctly (Note: the only power up implemented so far always returns null as intended).
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario() or drawCard().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by findDestination().
      */
     @Test
-    public void findDestinations() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
+    public void findDestinations()throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException {
         Board b = BoardConfigurer.simulateScenario();
         PowerUp p = (PowerUp) b.getPowerUpDeck().drawCard();
         while(p.getName()!= PowerUp.PowerUpName.TARGETING_SCOPE){

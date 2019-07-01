@@ -9,23 +9,29 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Tests PowerUpFactory, checking that it correctly initializes a powerup.
+ *
+ * @author marcobaga
+ */
+
 public class PowerUpFactoryTest {
 
     /**
-     * Creates the first power up and checks that it is initialized correctly
+     * Creates the first power up and checks that it is initialized correctly.
+     *
+     * @throws NotAvailableAttributeException since the powerup does not have an holder.
      */
-    @Test
-    public void createPowerUp() {
-        Board board1 = BoardConfigurer.getInstance().configureMap(1);
+    @Test(expected = NotAvailableAttributeException.class)
+    public void createPowerUp() throws NotAvailableAttributeException {
+        Board board1 = BoardConfigurer.configureMap(1);
         PowerUpFactory powerUpFactory = new PowerUpFactory(board1);
         PowerUp p = powerUpFactory.createPowerUp(PowerUp.PowerUpName.TARGETING_SCOPE, Color.BLUE);
-        assertTrue(p.getName() == PowerUp.PowerUpName.TARGETING_SCOPE);
-        assertFalse(p.getEffect()==null);
-        assertFalse(p.getTargetFinder()==null);
-        assertFalse(p.getDestinationFinder()==null);
-        try {
-            p.getHolder();
-        } catch (NotAvailableAttributeException e){}
-        assertTrue(p.getColor() == Color.BLUE);
+        assertSame(PowerUp.PowerUpName.TARGETING_SCOPE, p.getName());
+        assertNotNull(p.getEffect());
+        assertNotNull(p.getTargetFinder());
+        assertNotNull(p.getDestinationFinder());
+        p.getHolder();
+        assertSame(Color.BLUE, p.getColor());
     }
 }

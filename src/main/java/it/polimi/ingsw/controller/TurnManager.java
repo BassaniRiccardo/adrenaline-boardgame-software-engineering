@@ -563,7 +563,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
                 currentPlayer.collect(collectedWeapon);
                 board.notifyObserver(currentPlayerConnection);
                 LOGGER.log(Level.FINE, () -> currentPlayer + " collects  " + collectedWeapon + ".");
-                if (currentPlayer.getWeaponList().size()>3){
+                if (currentPlayer.getWeaponList().size() > 3){
                     List<String> optionsToDiscard = toStringList(currentPlayer.getWeaponList());
                     optionsToDiscard.add(RESET);
                     currentPlayerConnection.choose(CHOOSE_WEAPON.toString(), SELECT_WEAPON_TO_DISCARD, optionsToDiscard);
@@ -575,7 +575,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
                     Weapon discardedWeapon = currentPlayer.getWeaponList().get(selected-1);
                     currentPlayer.discardWeapon(discardedWeapon);
                     discardedWeapon.setLoaded(false);
-                    ((WeaponSquare) currentPlayer.getPosition()).addCard(discardedWeapon);
                     board.notifyObserver(currentPlayerConnection);
                     LOGGER.log(Level.FINE, () -> currentPlayer + " discards  " + discardedWeapon + ".");
                 }

@@ -33,10 +33,18 @@ import static it.polimi.ingsw.model.cards.Color.*;
 
 public class Player {
 
+    /**
+     * An enumeration for the hero names.
+     */
     public enum HeroName {
 
         D_STRUCT_OR, BANSHEE, DOZER, VIOLET, SPROG;
 
+        /**
+         * Returns a string representing the hero name.
+         *
+         * @return a string representing the hero name.
+         */
         @Override
         public String toString(){
             return (this.name().substring(0,1) + this.name().toLowerCase().substring(1));
@@ -44,6 +52,9 @@ public class Player {
 
     }
 
+    /**
+     * An enumeration for the player status.
+     */
     public enum Status {
         BASIC, ADRENALINE_1, ADRENALINE_2, FRENZY_1, FRENZY_2
     }
@@ -202,8 +213,8 @@ public class Player {
     }
 
     /**
-     * Virtual position used for calculating shooting squares. Needs to be manually RESET
-     * @param square    virtual movement destination
+     * Virtual position used for calculating shooting squares. Needs to be manually RESET.
+     * @param square    virtual movement destination.
      */
     private void setVirtualPosition(Square square){
         if (!this.board.getMap().contains(square)) throw new IllegalArgumentException("The player must be located in a square that belongs to the board.");
@@ -276,6 +287,7 @@ public class Player {
         justDamaged = true;
         amount += frequency(getMarks(),shooter);
         marks.removeAll(singleton(shooter));
+        board.addToUpdateQueue(Updater.get(Updater.REMOVE_MARKS, this, marks));
 
         addDamages(amount, shooter);
     }
@@ -396,8 +408,6 @@ public class Player {
      */
     public boolean collect(Card collectedCard)  throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
-        position.removeCard(collectedCard);
-
         if (this.board.getSpawnPoints().contains(position)){
             addWeapon((Weapon) collectedCard);
             ((Weapon)collectedCard).setLoaded(true);
@@ -410,6 +420,9 @@ public class Player {
             }
             board.getAmmoDeck().getDiscarded().add(collectedCard);
         }
+
+        position.removeCard(collectedCard);
+
         return true;
     }
 
@@ -441,10 +454,12 @@ public class Player {
      * Removes a weapon from the player weapons list.
      *
      * @param removedWeapon         the removed weapon.
+     * @throws UnacceptableItemNumberException  if thrown by addCard().
      */
-    public void discardWeapon(Card removedWeapon) {
+    public void discardWeapon(Card removedWeapon) throws UnacceptableItemNumberException{
         if (!weaponList.contains(removedWeapon)) throw new IllegalArgumentException("The player does not own this weapon");
         weaponList.remove(removedWeapon);
+        ((WeaponSquare)position).addCard((Weapon)removedWeapon);
         board.addToUpdateQueue(Updater.get(Updater.DISCARD_WEAPON_UPD, this, (Weapon)removedWeapon));
     }
 

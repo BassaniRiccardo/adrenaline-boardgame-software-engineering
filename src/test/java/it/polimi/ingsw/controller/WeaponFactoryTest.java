@@ -15,8 +15,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-//TODO
-// SHOCKWAVE:           secondary targets should be returned in a single list since it is not possible to shoot only a part of them
+//TODO:  Bassaniriccardo: remove yellow warnings. Fill in @throws in comments please
 
 /**
  * Tests all the weapons which can be created by the class WeaponFactory.
@@ -26,6 +25,13 @@ import static org.junit.Assert.*;
 
 public class WeaponFactoryTest {
 
+
+    /**
+     * Tests basic class functionality
+     *
+     * @throws NoMoreCardsException
+     * @throws UnacceptableItemNumberException
+     */
      @Test
      public void emptyWeaponTest() throws NoMoreCardsException, UnacceptableItemNumberException {
          Board b = BoardConfigurer.simulateScenario();
@@ -42,7 +48,7 @@ public class WeaponFactoryTest {
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
-        assertTrue(w.getWeaponName() == Weapon.WeaponName.LOCK_RIFLE);
+        assertSame(Weapon.WeaponName.LOCK_RIFLE, w.getWeaponName());
 
         assertTrue(w.getFullCost().getRedAmmo()==0);
         assertTrue(w.getFullCost().getBlueAmmo()==2);
@@ -86,7 +92,7 @@ public class WeaponFactoryTest {
         Board b = BoardConfigurer.simulateScenario();
         WeaponFactory weaponFactory = new WeaponFactory(b);
         Weapon w = weaponFactory.createWeapon(Weapon.WeaponName.LOCK_RIFLE);
-        assertTrue(Color.BLUE==w.getColor());
+        assertEquals(Color.BLUE, w.getColor());
     }
 
     /**
@@ -154,6 +160,13 @@ public class WeaponFactoryTest {
         assertEquals(0,ammoPack.getBlueAmmo());
     }
 */
+
+    /**
+     * Tests that all the weapon of the game can effectively be created
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     */
     @Test
     public void createAllWeapon() throws NoMoreCardsException, UnacceptableItemNumberException{
         Board b = BoardConfigurer.simulateScenario();
@@ -185,9 +198,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the lock rifle in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void lockRifle() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -218,9 +231,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the machine gun in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void machineGun() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -259,9 +272,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the T.H.O.R. in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void thor() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -299,9 +312,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the plasma gun in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void plasmaGun() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -339,9 +352,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the whisper in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void whisper() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -360,8 +373,28 @@ public class WeaponFactoryTest {
         //MAIN DESTINATIONS
         assertTrue(whisper.getFireModeList().get(0).findDestinations(new ArrayList<>(Arrays.asList(dozer))).isEmpty());
 
-        shooter.discardWeapon(whisper);
+    }
+
+    /**
+     * Tests the whisper in a game scenario, checking that targets and destinations are correct.
+     *
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
+     */
+    @Test
+    public void whisper2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
+
+        Board b = BoardConfigurer.simulateScenario();
+        Player shooter = b.getPlayers().get(0);
+        Player banshee = b.getPlayers().get(1);
+        Player dozer = b.getPlayers().get(2);
+        Player violet = b.getPlayers().get(3);
+        Player sprog = b.getPlayers().get(4);
+        WeaponFactory weaponFactory = new WeaponFactory(b);
+        Weapon whisper = weaponFactory.createWeapon(Weapon.WeaponName.WHISPER);
         dozer.addWeapon(whisper);
+
         //MAIN TARGETS
         assertEquals("[[Player 5 : anonymous(Sprog)]]",whisper.getFireModeList().get(0).findTargets().toString());
         //MAIN DESTINATIONS
@@ -373,9 +406,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the electroscythe in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void electroscythe() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -411,9 +444,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the tractor beam in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void tractorBeam() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -481,9 +514,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the furnace in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void furnace() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -518,10 +551,10 @@ public class WeaponFactoryTest {
 
     /**
      * Tests the heatseeker in a game scenario, checking that targets and destinations are correct.
-     *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void heatseeker() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -547,9 +580,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the hellion in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void hellion() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -577,9 +610,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the flamethrower in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
 
     @Test
@@ -612,9 +645,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the grenade launcher in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void grenadeLauncher() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -650,9 +683,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the rocket launcher in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void rocketLauncher() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -691,9 +724,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the railgun in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void railgun() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -726,9 +759,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the cyberblade in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void cyberblade() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -765,9 +798,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the zx-2 in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void zx2() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -796,9 +829,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the shotgun in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void shotgun() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -828,9 +861,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the power glove in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void powerglove() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -865,9 +898,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the shockwave in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void shockwave() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -906,9 +939,9 @@ public class WeaponFactoryTest {
     /**
      * Tests the sledgehammer in a game scenario, checking that targets and destinations are correct.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws UnacceptableItemNumberException  if thrown by simulateScenario().
+     * @throws NoMoreCardsException             if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException   if thrown by simulateScenario(), addWeapon(), findTagets() or findDestinations().
      */
     @Test
     public void sledgehammer() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{

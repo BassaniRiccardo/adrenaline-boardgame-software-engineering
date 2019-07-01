@@ -4,7 +4,6 @@ import it.polimi.ingsw.controller.BoardConfigurer;
 import it.polimi.ingsw.model.board.AmmoSquare;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;
-import it.polimi.ingsw.model.board.Square;
 import it.polimi.ingsw.model.cards.PowerUp;
 import it.polimi.ingsw.model.cards.Weapon;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
@@ -22,16 +21,20 @@ import static org.junit.Assert.*;
  *
  * @author BassaniRiccardo
  */
+
 public class BoardConfigurerTest {
 
 
     /**
      * Tests if the size of the map is correctly set.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void simulateScenarioMapSize() throws NoMoreCardsException, UnacceptableItemNumberException {
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         assertEquals(12, b.getMap().size());
 
     }
@@ -39,11 +42,14 @@ public class BoardConfigurerTest {
 
     /**
      * Tests if the number of players is correctly set.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void simulateScenarioNumberOfPlayers() throws NoMoreCardsException, UnacceptableItemNumberException {
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         assertEquals(5, b.getPlayerNumber());
 
     }
@@ -51,11 +57,15 @@ public class BoardConfigurerTest {
 
     /**
      * Tests if the players are effectively located to the board.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getPosition().
      */
     @Test
     public void simulateScenarioPlayers() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException {
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
         assertEquals(5, b.getPlayers().size());
         for (Player p: b.getPlayers()){
             assertNotNull(p.getPosition());
@@ -67,11 +77,14 @@ public class BoardConfigurerTest {
     /**
      * Tests if the size of the decks are correct, considering that some cards
      * have already been placed on the board.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
     public void simulateScenarioDecksSize() throws NoMoreCardsException, UnacceptableItemNumberException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         //the expected decks sizes
 
@@ -94,11 +107,15 @@ public class BoardConfigurerTest {
 
     /**
      * Tests if the kill shot track is correctly set.
+     *
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by getKillShotTrack().
      */
     @Test
     public void simulateScenarioKillShotTrack() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException{
 
-        Board b = BoardConfigurer.getInstance().simulateScenario();
+        Board b = BoardConfigurer.simulateScenario();
 
         assertEquals(8, b.getKillShotTrack().getSkullsLeft());
 
@@ -111,10 +128,10 @@ public class BoardConfigurerTest {
     @Test
     public void unusedMaps() {
 
-        Board board2 = BoardConfigurer.getInstance().configureMap(2);
+        Board board2 = BoardConfigurer.configureMap(2);
         assertEquals(11, board2.getMap().size());
 
-        Board board3 = BoardConfigurer.getInstance().configureMap(3);
+        Board board3 = BoardConfigurer.configureMap(3);
         assertEquals(11, board3.getMap().size());
     }
 
@@ -122,21 +139,15 @@ public class BoardConfigurerTest {
     /**
      * Tests if all the ammo tiles are correctly set on the board.
      *
-     * @throws UnacceptableItemNumberException
-     * @throws NoMoreCardsException
-     * @throws NotAvailableAttributeException
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      */
     @Test
-    public void simulateScenarioSetAmmoTiles() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
-
-        Board b = BoardConfigurer.getInstance().simulateScenario();
-        for(Square s: b.getMap()){
-            if (!b.getSpawnPoints().contains(s)){
-                ((AmmoSquare)s).getAmmoTile();
+    public void simulateScenarioSetAmmoTiles() throws UnacceptableItemNumberException, NoMoreCardsException{
+        Board b = BoardConfigurer.simulateScenario();
+        for(AmmoSquare s: b.getAmmoSquares()){
+                s.hasAmmoTile();
             }
-        }
-
     }
-
 
 }

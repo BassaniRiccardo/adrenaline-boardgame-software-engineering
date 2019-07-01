@@ -27,7 +27,7 @@ public class AmmoPack {
      * @param b     amount of yellow ammo.
      * @param y     amount of blue ammo.
      *
-     * @throws      IllegalArgumentException
+     * @throws      IllegalArgumentException if an illegal amount of ammo is given as parameter.
      */
     public AmmoPack(int r, int b, int y) {
 

@@ -162,7 +162,6 @@ public class WeaponSquare extends Square {
     public void addCard(Weapon weapon) throws UnacceptableItemNumberException {
 
         if (weapons.size() >= MAX_WEAPONS_ON_SQUARE) throw new UnacceptableItemNumberException("The square already contains " + MAX_WEAPONS_ON_SQUARE + " weapons.");
-        board.addToUpdateQueue(Updater.get(Updater.ADD_WEAPON_UPD, this, weapon));
         this.weapons.add(weapon);
 
     }

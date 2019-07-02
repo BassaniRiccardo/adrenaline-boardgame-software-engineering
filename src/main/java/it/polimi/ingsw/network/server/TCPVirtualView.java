@@ -90,6 +90,45 @@ public class TCPVirtualView extends VirtualView {
         }
     }
 
+
+    /**
+     * Closes the connection to the client and the separate thread.
+     */
+    @Override
+    public void shutdown(){
+        try {
+            socket.close();
+        }catch (IOException ex){
+            LOGGER.log(Level.SEVERE, "Error while closing connection", ex);
+        }
+    }
+
+
+    /**
+     * Commands the client to show the suspension message and eventually shutdown.
+     */
+    @Override
+    public void showSuspension(){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", "SUSP");
+        send(jsonObject);
+    }
+
+
+    /**
+     * Commands the client to show an ending mesage and eventually shutdown.
+     *
+     * @param message       the message to display
+     */
+    @Override
+    public void showEnd(String message){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("head", "END");
+        jsonObject.addProperty("msg", message);
+        send(jsonObject);
+    }
+
+
     /**
      * Class sending a message to the client asking him to choose among a list of options.
      *
@@ -124,6 +163,7 @@ public class TCPVirtualView extends VirtualView {
         send(jsonObject);
     }
 
+
     /**
      * Class sending a message to the client asking him to choose among a list of options.
      * Saves a timestamp so that when the answer is received, it can be discarded if late.
@@ -139,6 +179,7 @@ public class TCPVirtualView extends VirtualView {
         timeout = true;
         timestamp = timeoutSec*1000 + System.currentTimeMillis();
     }
+
 
     /**
      * Queries the client to choose from a list of options. Only to be called before this VirtualView is
@@ -156,6 +197,7 @@ public class TCPVirtualView extends VirtualView {
         return Integer.parseInt(receive());
     }
 
+
     /**
      * Sends a message for the client to display
      *
@@ -168,6 +210,7 @@ public class TCPVirtualView extends VirtualView {
         jsonObject.addProperty("text", msg);
         send(jsonObject);
     }
+
 
     /**
      * Queries the client for input. Only to be called before this VirtualView is referred by a GameEngine.
@@ -187,6 +230,18 @@ public class TCPVirtualView extends VirtualView {
         waiting = true;
         return receive();
     }
+
+
+    /**
+     * Commands the client to update its model or to render his UI.
+     *
+     * @param jsonObject    encoded update
+     */
+    @Override
+    public void update (JsonObject jsonObject){
+        send(jsonObject);
+    }
+
 
     /**
      * Receives a message from the client (BLOCKING)
@@ -217,48 +272,6 @@ public class TCPVirtualView extends VirtualView {
         LOGGER.log(Level.FINE, "Sending a message over TCP connection");
     }
 
-    /**
-     * Commands the client to update its model or to render his UI.
-     *
-     * @param jsonObject    encoded update
-     */
-    @Override
-    public void update (JsonObject jsonObject){
-        send(jsonObject);
-    }
 
-    /**
-     * Closes the connection to the client and the separate thread.
-     */
-    @Override
-    public void shutdown(){
-        try {
-            socket.close();
-        }catch (IOException ex){
-            LOGGER.log(Level.SEVERE, "Error while closing connection", ex);
-        }
-    }
 
-    /**
-     * Commands the client to show the suspension message and eventually shutdown.
-     */
-    @Override
-    public void showSuspension(){
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", "SUSP");
-        send(jsonObject);
-    }
-
-    /**
-     * Commands the client to show an ending mesage and eventually shutdown.
-     *
-     * @param message       the message to display
-     */
-    @Override
-    public void showEnd(String message){
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("head", "END");
-        jsonObject.addProperty("msg", message);
-        send(jsonObject);
-    }
 }

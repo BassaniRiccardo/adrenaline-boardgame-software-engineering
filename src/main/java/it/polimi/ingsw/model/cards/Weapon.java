@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 public class Weapon implements Card {
 
+
     /**
      * An enumeration for the powerups names.
      */
@@ -44,6 +45,7 @@ public class Weapon implements Card {
             return res;
         }
     }
+
 
     private final WeaponName weaponName;
     private boolean loaded;
@@ -138,9 +140,10 @@ public class Weapon implements Card {
 
 
     /**
-     *Lists the firemodes which can be used since they can hit a target
+     *Lists the firemodes which can be used since they can hit a target.
      *
-     * @return      the list of available firemodes
+     * @return      the list of available firemodes.
+     * @throws NotAvailableAttributeException if the weapon does not have an holder.
      */
     public List<FireMode> listAvailableFireModes() throws NotAvailableAttributeException{
 
@@ -156,9 +159,9 @@ public class Weapon implements Card {
 
 
     /**
-     *Checks if this weapon can fire (is loaded and valid targets)
+     * Checks if this weapon can fire (is loaded and has valid targets).
      *
-     * @return      true if shooting is possible, else false
+     * @return      true if shooting is possible, else false.
      */
     public boolean canFire(){
         try {
@@ -172,6 +175,8 @@ public class Weapon implements Card {
 
     /**
      *Reloads the current weapon.
+     *
+     * @throws WrongTimeException if the weapon is already loaded.
      */
     public void reload() throws WrongTimeException {
 

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import com.google.gson.JsonObject;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
@@ -13,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.ALL;
 import static java.util.logging.Level.SEVERE;
 import static org.junit.Assert.*;
 
@@ -24,6 +24,51 @@ import static org.junit.Assert.*;
  */
 
 public class ServerMainTest {
+
+
+    /**
+     * A subclass of VirtualView simulating players answers.
+     */
+    class DummyVirtualView extends VirtualView{
+        @Override
+        public void refresh() {        }
+
+        @Override
+        public void shutdown() {        }
+
+        @Override
+        public void showSuspension() {        }
+
+        @Override
+        public void showEnd(String message) {      }
+
+        @Override
+        public void choose(String type, String msg, List<?> options) {
+            notifyObservers("1");
+        }
+
+        @Override
+        public void choose(String type, String msg, List<?> options, int timeoutSec) {
+            notifyObservers("1");
+        }
+
+        @Override
+        public void display(String msg) { }
+
+        @Override
+        public String getInputNow(String msg, int max) {
+            return "1";
+        }
+
+        @Override
+        public int chooseNow(String type, String msg, List<?> options) {
+            return 1;
+        }
+
+        @Override
+        public void update(JsonObject jsonObject) {        }
+    }
+
 
     /**
      * Tests the method untrackGame().
@@ -84,8 +129,7 @@ public class ServerMainTest {
 
         ServerMain.getInstance().initializeLogger();
         Logger LOGGER = Logger.getLogger("serverLogger");
-        assertEquals(ALL, LOGGER.getLevel());
-        LOGGER.setLevel(SEVERE);
+        assertEquals(SEVERE, LOGGER.getLevel());
     }
 
 
@@ -217,4 +261,75 @@ public class ServerMainTest {
 
     }
 
+
+
+
+    /**
+     * Tests the method matchMaking(), in the case nobody is connected.
+     */
+    /*@Test
+    public void matchMakingNoPlayers() {
+
+        ServerMain sm = ServerMain.getInstance();
+        sm.getPlayers().clear();
+        sm.getWaitingPlayers().clear();
+        sm.setup();
+        sm.matchmaking();
+
+        assertEquals("Time left: 4\n" + "Waiting for more players", sm.getOldMessage());
+
+    }
+
+
+    /**
+     * Tests the method matchMaking(), in the case a player is connected.
+     */
+    /*@Test
+    public void matchMaking1() {
+
+        ServerMain sm = ServerMain.getInstance();
+        sm.getPlayers().clear();
+        sm.getWaitingPlayers().clear();
+        sm.setup();
+        sm.addPlayer(new DummyVirtualView() { });
+        sm.getWaitingPlayers().get(0).setName("first player");
+        sm.matchmaking();
+
+        assertEquals(   "Connected players:\n" +
+                                "\tfirst player\n" +
+                                "Time left: 4\n" +
+                                "Waiting for more players", sm.getOldMessage());
+
+    }
+
+
+
+    /**
+     * Tests the method matchMaking(), in the case three players are connected and the game starts.
+     */
+    /*@Test
+    public void matchMaking3() {
+
+        ServerMain sm = ServerMain.getInstance();
+        sm.getPlayers().clear();
+        sm.getWaitingPlayers().clear();
+        sm.setup();
+        sm.addPlayer(new DummyVirtualView() { });
+        sm.getWaitingPlayers().get(0).setName("first player");
+        sm.addPlayer(new DummyVirtualView() { });
+        sm.getWaitingPlayers().get(1).setName("second player");
+        sm.addPlayer(new DummyVirtualView() { });
+        sm.getWaitingPlayers().get(2).setName("third player");
+        sm.matchmaking();
+
+        assertEquals(   "Connected players:\n" +
+                "\tfirst player\n" +
+                "\tsecond player\n" +
+                "\tthird player\n" +
+                "Time left: 4\n" +
+                "Game about to start!", sm.getOldMessage());
+
+    }
+
+    */
 }

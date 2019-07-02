@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class Timer {
+
     private boolean over;
     private long start;
     private long duration;
@@ -18,7 +19,7 @@ public class Timer {
      *
      * @param duration      duration of the timer
      */
-    public Timer(int duration){
+    Timer(int duration){
         this.duration = TimeUnit.NANOSECONDS.convert(duration, TimeUnit.SECONDS);
         this.over = false;
         this.start = 0;
@@ -100,6 +101,7 @@ public class Timer {
             update();
         }
     }
+
 
     /**
      * Returns how long is left until the timer is over

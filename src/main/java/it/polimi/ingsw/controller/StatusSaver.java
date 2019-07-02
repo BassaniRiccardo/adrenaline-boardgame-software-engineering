@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @author BassaniRiccardo
  */
 
-public class StatusSaver {
+class StatusSaver {
 
     private Board board;
     private List<Square> playersPositions;
@@ -49,7 +49,7 @@ public class StatusSaver {
         return playersDamages;
     }
 
-    public List<List<Player>> getPlayersMarks() {
+    List<List<Player>> getPlayersMarks() {
         return playersMarks;
     }
 
@@ -126,8 +126,7 @@ public class StatusSaver {
             //squares
             squareWeapons.clear();
             for (WeaponSquare s : board.getSpawnPoints()) {
-                List<Weapon> lw = new ArrayList<>();
-                lw.addAll(s.getWeapons());
+                List<Weapon> lw = new ArrayList<>(s.getWeapons());
                 squareWeapons.add(lw);
             }
         } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while updating the checkpoint", e);}

@@ -73,10 +73,10 @@ public class PowerUpFactory  {
                     }
                     List<Square> res = new ArrayList<>();
                     Square center = t.get(0).getPosition();
-                    res.add(center);
                     for (Direction d : Direction.values()) {
                         res.addAll(board.getSquaresInLine(center, d).stream()
                                 .filter(x->board.getDistance(center, x)< j.getInt(NEWTON_MAX_DISTANCE))
+                                .filter(x->!x.equals(center))
                                 .collect(Collectors.toList()));
                     }
                     return res;
@@ -85,7 +85,7 @@ public class PowerUpFactory  {
 
             case TAGBACK_GRENADE:
                 effect = (shooter, target, destination)-> target.addMarks(j.getInt(TAGBACK_GRENADE_MARKS), shooter);
-                targetFinder = p -> p.isJustDamaged()? new ArrayList<>():Collections.singletonList(Collections.singletonList(board.getCurrentPlayer()));
+                targetFinder = p -> !p.isJustDamaged()? new ArrayList<>():Collections.singletonList(Collections.singletonList(board.getCurrentPlayer()));
                 destinationFinder = (p, t) -> new ArrayList<>();
                 break;
 

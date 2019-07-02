@@ -118,7 +118,6 @@ public class GameEngineTest {
         //Checks that the player connections are ordinated according to the ID.
         assertEquals(Arrays.asList(distructor, banshee, dozer, violet, sprog), gameEngine.getPlayers());
 
-        System.out.println("\n\nTest for resolve in the case of a win. The end message is displayed to console\n\n");
         gameEngine.resolve();
 
         //Checks that the player connections are ordinated according to the leaderboard.
@@ -170,7 +169,6 @@ public class GameEngineTest {
         //Checks that the player connections are ordinated according to the ID.
         assertEquals(Arrays.asList(distructor, banshee, dozer, violet, sprog), gameEngine.getPlayers());
 
-        System.out.println("\n\nTest for resolve in the case that the second and the third players have the same amount of points. The end message is displayed to console\n\n");
         gameEngine.resolve();
 
         //Checks that the player connections are ordinated according to the leaderboard.
@@ -652,5 +650,139 @@ public class GameEngineTest {
         assertEquals(1, selected);
 
     }
+
+
+    /**
+     * Tests the method checkForSuspension(), in the case enough players reamin in the game.
+     *
+     * @throws NotEnoughPlayersException i fthrown by setup(), checkForSuspension().
+     */
+    @Test
+    public void checkForSuspensionNoGameOver() throws NotEnoughPlayersException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        connections.get(0).setSuspended(true);
+        connections.get(1).setSuspended(true);
+        gameEngine.checkForSuspension();
+    }
+
+    /**
+     * Tests the method checkForSuspension(), in the case too many player disconnected to continue the game.
+     *
+     * @throws NotEnoughPlayersException since three players disconnected.
+     */
+    @Test(expected = NotEnoughPlayersException.class)
+    public void checkForSuspension() throws NotEnoughPlayersException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        connections.get(0).setSuspended(true);
+        connections.get(1).setSuspended(true);
+        connections.get(2).setSuspended(true);
+        gameEngine.checkForSuspension();
+    }
+
+    /**
+     * Tests the method allowPlayersToResume(), in the case a player can resume.
+     *
+     * @throws NotEnoughPlayersException if thrown by setup.
+     */
+    @Test
+    public void allowPlayersToResume() throws NotEnoughPlayersException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        VirtualView suspended = connections.get(4);
+        suspended.setName("customizedName");
+        VirtualView newConnection = new DummyVirtualView();
+        newConnection.setName(suspended.getName());
+        suspended.setSuspended(true);
+        connections.add(new DummyVirtualView());
+        gameEngine.tryResuming(newConnection);
+        gameEngine.allowPlayersToResume();
+        assertEquals(newConnection, gameEngine.getPlayers().get(4));
+    }
+
+
+
+    /**
+     * Tests the method allowPlayersToResume(), in the case a player cannot resume.
+     *
+     * @throws NotEnoughPlayersException if thrown by setup.
+     */
+    @Test
+    public void allowPlayersToResumeImpossible() throws NotEnoughPlayersException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        VirtualView suspended = connections.get(4);
+        suspended.setName("customizedName");
+        VirtualView newConnection = new DummyVirtualView();
+        newConnection.setName("different");
+        suspended.setSuspended(true);
+        connections.add(new DummyVirtualView());
+        gameEngine.tryResuming(newConnection);
+        gameEngine.allowPlayersToResume();
+        assertNotEquals(newConnection, gameEngine.getPlayers().get(4));
+    }
+
+
+    /**
+     * Tests the method simulationTillEndPhaseSetup();
+     *
+     * @throws NotAvailableAttributeException   if thrown by getKillShotTrack().
+
+     */
+    @Test
+    public void simulationTillEndPhaseSetup() throws NotAvailableAttributeException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.simulationTillEndphaseSetup();
+
+        assertEquals(4, gameEngine.getBoard().getId());
+        assertEquals(6, gameEngine.getBoard().getKillShotTrack().getSkullsLeft());
+        assertTrue(gameEngine.isFrenzy());
+    }
+
 
 }

@@ -37,7 +37,6 @@ public class ClientMain {
     private static final String SELECTED_MSG = " selected.";
 
     private UI ui;
-    private Runnable connection;
     private ExecutorService executor;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private ClientModel clientModel;
@@ -117,6 +116,7 @@ public class ClientMain {
     private void setup(String[] args) {
 
         Properties prop = loadConfig(args);
+        Runnable connection;
 
         Scanner in = new Scanner(System.in);
         System.out.println(CHOOSE_UI_MSG);

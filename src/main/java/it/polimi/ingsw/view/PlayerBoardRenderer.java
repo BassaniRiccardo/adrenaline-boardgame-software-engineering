@@ -1,17 +1,14 @@
 package it.polimi.ingsw.view;
 
-import it.polimi.ingsw.model.cards.PowerUp;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
@@ -38,34 +35,35 @@ public class PlayerBoardRenderer {
         this.clientModel=clientModel;
     }
 
-    public void setScalePB(double scalePB) {
+    void setScalePB(double scalePB) {
         this.scalePB = scalePB;
     }
 
     public void setPlayers(List<ClientModel.SimplePlayer> players) {this.players = players;}
 
-    public void setClientModel(ClientModel clientModel) {
+    void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
     }
 
-    public void setRenderInstruction(String renderInstruction) {
+    void setRenderInstruction(String renderInstruction) {
         this.renderInstruction = renderInstruction;
     }
 
-    public void setInputButtons(List<Button> inputButtons) {
+    void setInputButtons(List<Button> inputButtons) {
         this.inputButtons = inputButtons;
     }
 
-    public void setLabelButton(List<String> labelButton) {
+    void setLabelButton(List<String> labelButton) {
         this.labelButton = labelButton;
     }
 
-    public List<GridPane> ammoRender(){
+    List<GridPane> ammoRender(){
     List<GridPane> playerAmmoGrid = new ArrayList<>();
 
     InputStream redAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/redAmmo.png");
     InputStream blueAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/blueAmmo.png");
     InputStream yellowAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/yellowAmmo.png");
+    System.out.println("AMMO");
 
     Image redAmmoImage=new Image(redAmmoFile);
     Image blueAmmoImage=new Image(blueAmmoFile);
@@ -110,44 +108,70 @@ public class PlayerBoardRenderer {
     return  playerAmmoGrid;
 }
 
-    public List<GridPane> damagesRenderer(){
+    List<GridPane> damagesRenderer(){
         List<GridPane> damageGrid = new ArrayList<>();
         List<ArrayList<ImageView>> damageView = new ArrayList<>();
         int gridIndex=0;
+        List<Image> damageImage = damageImageSelector();
         for(ClientModel.SimplePlayer p : players) {
             int dmgAmount = p.getDamage(players).size();
             damageGrid.add(new GridPane());
             damageView.add(new ArrayList<>());
             for(int i=0; i< dmgAmount; i++) {
-                damageView.get(gridIndex).add(new ImageView(damageImageSelecter(p.getDamage(players).get(i))));
-                damageView.get(gridIndex).get(i).setFitHeight(29*scalePB);
+                damageView.get(gridIndex).add(new ImageView(damageImage.get(damageImageIndex(p.getDamage(players).get(i).getColor()))));
+                damageView.get(gridIndex).get(i).setFitHeight(32*scalePB);
                 damageView.get(gridIndex).get(i).setPreserveRatio(true);
                 damageGrid.get(gridIndex).add(damageView.get(gridIndex).get(i),i,0);
-                damageGrid.get(gridIndex).setTranslateX(40*scalePB);
-                damageGrid.get(gridIndex).setTranslateY(50*scalePB);
+                if( ! p.isFlipped()) {
+                    damageGrid.get(gridIndex).setMargin(damageView.get(gridIndex).get(i), new javafx.geometry.Insets(0, -4.4 * scalePB, 0, 0));
+                    damageGrid.get(gridIndex).setTranslateX(40 * scalePB);
+                }
+                else {
+                    damageGrid.get(gridIndex).setMargin(damageView.get(gridIndex).get(i), new javafx.geometry.Insets(0, -5 * scalePB, 0, 0));
+                    damageGrid.get(gridIndex).setTranslateX(45 * scalePB);
+                }
+                damageGrid.get(gridIndex).setTranslateY(45*scalePB);
             }
             gridIndex++;
         }
         return damageGrid;
     }
 
-    private Image damageImageSelecter(ClientModel.SimplePlayer shooter){
-        String color;
-        color=shooter.getColor();
-        Image damageImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/"+color+"Blood.png"));
+    private List<Image> damageImageSelector(){
+        String color[] = {"green", "yellow", "grey", "purple", "blue"};
+        List<Image> damageImage = new ArrayList<>();
+        for(String c : color) {
+            damageImage.add(new Image(getClass().getResourceAsStream("/images/miscellaneous/" + c + "Blood.png")));
+        }
         return damageImage;
+    }
+
+    private int damageImageIndex(String color){
+        switch (color){
+            case "green":
+                return 0;
+            case "yellow":
+                return 1;
+            case "grey":
+                return 2;
+            case "purple":
+                return 3;
+                default:
+                    return 4;
+        }
     }
 
     public List<GridPane> marksRenderer(){
         List<GridPane> marksGrid = new ArrayList<>();
         List<ArrayList<ImageView>> marksView = new ArrayList<>();
         int gridIndex=0;
+        List<Image> damageImage = damageImageSelector();
         for(ClientModel.SimplePlayer p : players) {
             int marksAmount = p.getMark(players).size();
             marksGrid.add(new GridPane());
             marksView.add(new ArrayList<>());
             for(int i=0; i< marksAmount; i++) {
-                marksView.get(gridIndex).add(new ImageView(damageImageSelecter(p.getMark(players).get(i))));
+                marksView.get(gridIndex).add(new ImageView(damageImage.get(damageImageIndex(p.getMark(players).get(i).getColor()))));
                 marksView.get(gridIndex).get(i).setFitHeight(20*scalePB);
                 marksView.get(gridIndex).get(i).setPreserveRatio(true);
                 marksGrid.get(gridIndex).add(marksView.get(gridIndex).get(i),i,0);
@@ -158,7 +182,7 @@ public class PlayerBoardRenderer {
         return marksGrid;
     }
 
-    public List<GridPane> skullsPlayerRenderer(List<Integer> deathsNumber){
+    List<GridPane> skullsPlayerRenderer(List<Integer> deathsNumber){
         List<GridPane> skullGrid = new ArrayList<>();
         Image skullImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/skull.png"));
         List<ArrayList<ImageView>> skullView = new ArrayList<>();
@@ -171,7 +195,10 @@ public class PlayerBoardRenderer {
                 skullView.get(gridIndex).get(i).setFitHeight(40*scalePB);
                 skullView.get(gridIndex).get(i).setPreserveRatio(true);
                 skullGrid.get(gridIndex).add(skullView.get(gridIndex).get(i),i,0);
-                skullGrid.get(gridIndex).setTranslateX(100*scalePB);
+                if(p.isFlipped())
+                    skullGrid.get(gridIndex).setTranslateX(130*scalePB);
+                else
+                    skullGrid.get(gridIndex).setTranslateX(100*scalePB);
                 skullGrid.get(gridIndex).setTranslateY(80*scalePB);
             }
             gridIndex++;
@@ -179,7 +206,7 @@ public class PlayerBoardRenderer {
         return skullGrid;
     }
 
-    public List<MenuButton> handRenderer(){
+    List<MenuButton> handRenderer(){
         List<ArrayList<ImageView>> weaponHandView = new ArrayList<>();
         List<ArrayList<Label>> loadUnload = new ArrayList<>();
         List<ArrayList<Pane>> weaponContainer = new ArrayList<>();
@@ -191,6 +218,7 @@ public class PlayerBoardRenderer {
         List<ClientModel.SimpleWeapon> weapons;
         Image weaponImage;
         Image puBackImage = new Image(getClass().getResourceAsStream("/images/cards/pUBack.png"));
+
         List<Pane> puContainer = new ArrayList<>();
         for(ClientModel.SimplePlayer p : players) {
             handContainer.add(new HBox());
@@ -202,6 +230,7 @@ public class PlayerBoardRenderer {
             for (ClientModel.SimpleWeapon w : weapons) {
                 String key = w.getName();
                 weaponImage = new Image(getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png"));
+
                 weaponHandView.get(players.indexOf(p)).add(new ImageView(weaponImage));
                 weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setFitHeight(300*scalePB);
                 weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setPreserveRatio(true);
@@ -238,11 +267,12 @@ public class PlayerBoardRenderer {
                 handContainer.get(players.indexOf(p)).getChildren().addAll(puBackHandView.get(players.indexOf(p)), puHandNumber.get(players.indexOf(p)));
             else{
                 List<ImageView> puView = new ArrayList<>();
-                for(int i = 0; i< clientModel.getPowerUpInHand().size(); i++){
+                for(int i = 0; i < clientModel.getPowerUpInHand().size(); i++){
                     String color = clientModel.getColorPowerUpInHand().get(i);
                     String pu = clientModel.getPowerUpInHand().get(i);
                     System.out.println("/images/cards/"+color+pu.replace(" ","_")+".png");
                     Image puImage = new Image(getClass().getResourceAsStream("/images/cards/"+color+pu.replace(" ","_")+".png"));
+
                     puView.add(new ImageView(puImage));
                     puView.get(puView.size()-1).setFitHeight(200*scalePB);
                     puView.get(puView.size()-1).setPreserveRatio(true);
@@ -284,10 +314,11 @@ public class PlayerBoardRenderer {
         return handButton;
     }
 
-    public List<GridPane> pointsRenderer(){
+    public GridPane pointsRenderer(){
         Image point1Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point1.png"));
         Image point2Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point2.png"));
         Image point4Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point4.png"));
+
         List<ImageView> point1View = new ArrayList<>();
         List<ImageView> point2View = new ArrayList<>();
         List<ImageView> point4View = new ArrayList<>();
@@ -295,45 +326,45 @@ public class PlayerBoardRenderer {
         int p2=0;
         int p4=0;
         int rowIndex;
-        List<GridPane> pointsGrid = new ArrayList<>();
+        GridPane pointsGrid = new GridPane();
         int pointsAmount;
-        for(ClientModel.SimplePlayer p : players){
-            pointsGrid.add(new GridPane());
-            pointsAmount = p.getPoints();
+
+            pointsAmount = clientModel.getCurrentPlayer().getPoints();
             rowIndex=0;
             while(pointsAmount-4>=0){
                 pointsAmount-=4;
                 point4View.add(new ImageView(point4Image));
-                pointsGrid.get(players.indexOf(p)).add(point4View.get(p4),rowIndex,0);
+                pointsGrid.add(point4View.get(p4),rowIndex,0);
                 p4++; rowIndex++;
             }
             if(pointsAmount>=2){
                 pointsAmount-=2;
                 point2View.add(new ImageView(point2Image));
-                pointsGrid.get(players.indexOf(p)).add(point2View.get(p2),rowIndex,0);
+                pointsGrid.add(point2View.get(p2),rowIndex,0);
                 p2++; rowIndex++;
             }
             if(pointsAmount==1){
                 point1View.add(new ImageView(point1Image));
-                pointsGrid.get(players.indexOf(p)).add(point1View.get(p1),rowIndex,0);
+                pointsGrid.add(point1View.get(p1),rowIndex,0);
                 p1++;
             }
 
-        }
+
         for(ImageView one : point1View){
-            one.setFitHeight(30*scalePB);
+            one.setFitHeight(40*scalePB);
             one.setPreserveRatio(true);
         }
         for(ImageView two : point2View){
-            two.setFitHeight(30*scalePB);
+            two.setFitHeight(40*scalePB);
             two.setPreserveRatio(true);
         }
         for(ImageView four : point4View){
-            four.setFitHeight(30*scalePB);
+            four.setFitHeight(40*scalePB);
             four.setPreserveRatio(true);
         }
-        for(ClientModel.SimplePlayer p : players)
-            pointsGrid.get(players.indexOf(p)).setTranslateX(30*scalePB);
+
+        pointsGrid.setTranslateX(500*scalePB);
+        pointsGrid.setTranslateY(70*scalePB);
 
         return pointsGrid;
     }

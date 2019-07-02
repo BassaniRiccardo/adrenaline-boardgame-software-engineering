@@ -12,6 +12,7 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
 public interface Card {
 
+
     /**
      * Returns the holder of the card, null if absent.
      *
@@ -20,6 +21,7 @@ public interface Card {
      */
     Player getHolder() throws NotAvailableAttributeException;
 
+
     /**
      * Sets the holder of the card, null if absent.
      *
@@ -27,6 +29,7 @@ public interface Card {
      */
 
     void setHolder(Player holder) throws NotAvailableAttributeException;
+
 
     /**
      * Returns the color of the card, null if absent.

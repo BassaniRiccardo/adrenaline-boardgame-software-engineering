@@ -1,7 +1,5 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.controller.BoardConfigurer;
-import it.polimi.ingsw.controller.PowerUpFactory;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.cards.PowerUp;

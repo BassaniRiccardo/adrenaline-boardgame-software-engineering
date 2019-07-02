@@ -150,8 +150,6 @@ public class MapBoardRenderer {
             spawningPoint = 1;
             int buttonIndex = 0;
             for (ClientModel.SimpleSquare s : squares) {
-                System.out.println(s.getId());
-                System.out.println(buttonIndex);
                 if ((mapId == 1 || mapId == 2) && column == 3 && row == 0) {
                     row = 1;
                     column = 0;
@@ -274,7 +272,6 @@ public class MapBoardRenderer {
     GridPane killShotTrackRender(int skullNumber) {
         List<ImageView> skulls = new ArrayList<>();
         InputStream skullFile = this.getClass().getResourceAsStream("/images/miscellaneous/skull.png");
-
         Image skullImage = new Image(skullFile);
         for (int i = 0; i < skullNumber; i++)
             skulls.add(new ImageView(skullImage));
@@ -286,7 +283,7 @@ public class MapBoardRenderer {
         GridPane skullsGrid = new GridPane();
         List<ColumnConstraints> columnConstraints = new ArrayList<>();
         for (int i = 0; i < 8 - skullNumber; i++) {
-            columnConstraints.add(new ColumnConstraints(47 * scale));
+            columnConstraints.add(new ColumnConstraints(45 * scale));
             skullsGrid.getColumnConstraints().add(columnConstraints.get(i));
         }
         for (int i = 8 - skullNumber; i < 8; i++) {
@@ -295,7 +292,7 @@ public class MapBoardRenderer {
         }
 
         skullsGrid.setTranslateX(70 * scale);
-        skullsGrid.setTranslateY(40 * scale);
+        skullsGrid.setTranslateY(45 * scale);
         return skullsGrid;
 
     }
@@ -378,6 +375,7 @@ public class MapBoardRenderer {
 
     List<GridPane> weaponRenderer() {
         List<GridPane> weaponGrid = new ArrayList<>();
+        ArrayList<Image> weaponImage;
         List<ArrayList<ImageView>> weaponList = new ArrayList<>();
         List<ArrayList<ImageView>> weaponListZoom = new ArrayList<>();
         List<ArrayList<MenuItem>> itemWeaponZoom = new ArrayList<>();
@@ -389,18 +387,21 @@ public class MapBoardRenderer {
             if (s.isSpawnPoint()) {
 
                 weaponGrid.add(new GridPane());
+                weaponImage = getImageOfWeaponsInSquare(s);
                 weaponList.add(new ArrayList<>());
                 weaponListZoom.add(new ArrayList<>());
+                for(Image img : weaponImage) {
+                    weaponList.get(weaponList.size()-1).add(new ImageView(weaponImage.get(weaponImage.indexOf(img))));
+                    weaponListZoom.get(weaponListZoom.size()-1).add(new ImageView(weaponImage.get(weaponImage.indexOf(img))));
+                }
                 itemWeaponZoom.add(new ArrayList<>());
                 buttonWeaponZoom.add(new ArrayList<>());
 
-                for (int i = 0; i < 3; i++) { //grid(0) is the top one, grid(1) the left one and grid(2) the right one
-                    weaponList.get(weaponList.size() - 1).add(getImageOfWeaponsInSquare(s).get(i));
+                for (int i = 0; i < 3; i++) {
                     weaponList.get(weaponList.size() - 1).get(i).setFitHeight(160 * scale);
                     weaponList.get(weaponList.size() - 1).get(i).setPreserveRatio(true);
                     weaponGrid.get(weaponGrid.size() - 1).add(weaponList.get(weaponList.size() - 1).get(i), i, 0, 1, 1);
                     weaponGrid.get(weaponGrid.size() - 1).setMargin(weaponList.get(weaponList.size() - 1).get(i), new javafx.geometry.Insets(0, 0, 0, 19 * scale));
-                    weaponListZoom.get(weaponListZoom.size() - 1).add(getImageOfWeaponsInSquare(s).get(i));
                     itemWeaponZoom.get(itemWeaponZoom.size() - 1).add(new MenuItem());
                     if(renderInstruction.equals("Weapon")){
                         if(labelButton.get(0).equals(s.weapons.get(0).getName())){
@@ -424,7 +425,7 @@ public class MapBoardRenderer {
                 }
             }
         }
-        weaponGrid.get(0).setTranslateX(540*scale);
+        weaponGrid.get(0).setTranslateX(540*scale); //grid(0) is the top one, grid(1) the left one and grid(2) the right one
         weaponGrid.get(1).setRotate(90);
         weaponGrid.get(1).setTranslateX(-98*scale);
         weaponGrid.get(1).setTranslateY(370*scale);
@@ -435,23 +436,23 @@ public class MapBoardRenderer {
         return weaponGrid;
     }
 
-    private List<ImageView> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
-        List<ImageView> weaponView = new ArrayList<>();
-        int index=square.getId();
-        List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(index)).getWeapons();
-        //try{
+        public ArrayList<Image> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
+            ArrayList<Image> weaponView = new ArrayList<>();
+            int index=square.getId();
+            List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(index)).getWeapons();
+            //try{
             for(ClientModel.SimpleWeapon w : weaponList){
                 String key= w.getName();
                 InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png");
                 Image weaponImage = new Image(weaponFile);
                 ImageView weaponImageView = new ImageView(weaponImage);
-                weaponView.add(weaponImageView);
+                weaponView.add(weaponImage);
             }
             while (weaponView.size()<3){
                 InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/wBack.png");
                 Image weaponImage = new Image(weaponFile);
                 ImageView weaponImageView = new ImageView(weaponImage);
-                weaponView.add(weaponImageView);
+                weaponView.add(weaponImage);
             }
 
             return weaponView;

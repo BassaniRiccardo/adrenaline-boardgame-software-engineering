@@ -152,8 +152,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             Image welcomeImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/welcome.jpg"));
             welcomeView = new ImageView(welcomeImage);
             root = new BorderPane();
-            root.setCenter(welcomeView);
-            welcomeView.setFitHeight(600*scale);
+            root.setTop(welcomeView);
+            root.setAlignment(welcomeView, Pos.CENTER);
+            welcomeView.setTranslateY(80*scale);
+            welcomeView.setFitHeight(600 * scale);
             welcomeView.setPreserveRatio(true);
             root.setStyle("-fx-background-color: #000000");
             root.setBottom(messagePanel);
@@ -167,7 +169,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private void printer(){
         root = new BorderPane();
 
-            root.setCenter(welcomeView);
+            root.setTop(welcomeView);
+            root.setAlignment(welcomeView, Pos.CENTER);
+            welcomeView.setTranslateY(80*scale);
             welcomeView.setFitHeight(600 * scale);
             welcomeView.setPreserveRatio(true);
             root.setBottom(messagePanel);
@@ -245,7 +249,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             int column;
             int row;
             for(ClientModel.SimplePlayer p : players){
-                if(p.getPosition()!=null) {
+                if(p.getInGame()) {
                     column = mapBoardRenderer.columnFinder(p.getPosition());
                     row = mapBoardRenderer.rowFinder(p.getPosition());
                     roomsGrid.add(icons.get(players.indexOf(p)), column, row);
@@ -270,7 +274,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             //hand
             List<MenuButton> handButtons = playerBoardRenderer.handRenderer();
             //points
-            List<GridPane> pointGrid = playerBoardRenderer.pointsRenderer();
+            GridPane pointGrid = playerBoardRenderer.pointsRenderer();
             //skullsPlayer
             List<Integer> deathsNumber = new ArrayList<>();
             for(ClientModel.SimplePlayer p : players){
@@ -282,7 +286,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             for(int i=0; i<players.size(); i++) {
                 playerBoards.add(new StackPane());
                 playerBoards.get(i).getChildren().addAll(playerAmmoGrid.get(i), damageGrid.get(i), marksGrid.get(i),
-                        skullGrid.get(i), handButtons.get(i), pointGrid.get(i));
+                        skullGrid.get(i), handButtons.get(i));
             }
 
             VBox playerSection = new VBox();
@@ -302,6 +306,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 if (p.getId()!=clientModel.getPlayerID())
                     playerSection.getChildren().add(playerBoards.get(players.indexOf(p)));
                 else {
+                    playerBoards.get(players.indexOf(p)).getChildren().add(pointGrid);
                     mapAndStuffAbove.getChildren().add((playerBoards.get(players.indexOf(p))));//current player is added at the mapboard and translated at the bottom
                     playerBoards.get(players.indexOf(p)).setTranslateX(300*scale);
                     playerBoards.get(players.indexOf(p)).setTranslateY(740*scale);
@@ -762,6 +767,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         //try{
         InputStream playerFile = this.getClass().getResourceAsStream("/images/miscellaneous/"+key+".png");
+        System.out.println(key);
         Image playerImage = new Image(playerFile);
         ImageView playerView = new ImageView(playerImage);
         return playerView;

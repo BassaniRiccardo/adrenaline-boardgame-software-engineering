@@ -129,6 +129,7 @@ public class PowerUp implements Targeted, Card {
      * Finds players that can be chosen as targets
      *
      * @return      an ArrayList containing sets of targets to be chosen, each saved as an ArrayList
+     * @throws NotAvailableAttributeException if the powerup does not have an holder
      */
     public List<List<Player>> findTargets() throws NotAvailableAttributeException{
         return targetFinder.find(holder);

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.controller.BoardConfigurer;
 import it.polimi.ingsw.model.board.AmmoSquare;
 import it.polimi.ingsw.model.board.Board;
 import it.polimi.ingsw.model.board.Player;

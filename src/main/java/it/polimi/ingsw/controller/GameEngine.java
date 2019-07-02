@@ -135,7 +135,7 @@ public class GameEngine implements Runnable{
         return currentPlayer;
     }
 
-    public int getFrenzyActivator() {return frenzyActivator;}
+    int getFrenzyActivator() {return frenzyActivator;}
 
     public Board getBoard() {
         return board;
@@ -169,7 +169,7 @@ public class GameEngine implements Runnable{
         this.board = board;
     }
 
-    public void setTimer(Timer timer) {this.timer = timer;}
+    void setTimer(Timer timer) {this.timer = timer;}
 
     /**
      * Runs a game.
@@ -186,7 +186,7 @@ public class GameEngine implements Runnable{
             LOGGER.log(Level.FINE, "GameEngine running");
 
             if (endphaseSimulation) {
-                fakeSetup();
+                simulationTillEndphaseSetup();
                 try {
                     for (VirtualView p : players) {
                         board.addToUpdateQueue(Updater.getModel(board, p.getModel()), p);
@@ -407,7 +407,7 @@ public class GameEngine implements Runnable{
      * Asks each player to input a battle-cry.
      * After everybody chose his battle-cry, shows every player the other players battle-cries.
      */
-    public void battleCry() {
+    private void battleCry() {
         List<String> battleCries = new ArrayList<>();
         for (VirtualView p : players) {
             battleCries.add(p.getBattlecry());
@@ -461,7 +461,7 @@ public class GameEngine implements Runnable{
     /**
      * Called at the end of the game, assigns the points for the kill shot track and decides the winner.
      */
-    public void resolve(){
+    void resolve(){
 
         if (exitGame) {
             LOGGER.log(Level.INFO,"Not enough player in the game. The game ends, points are added to the players according to the kill shot track.");
@@ -754,7 +754,7 @@ public class GameEngine implements Runnable{
      *
      * @throws NotEnoughPlayersException if less than the minimum number of  players are left
      */
-    private synchronized void checkForSuspension() throws NotEnoughPlayersException{
+    synchronized void checkForSuspension() throws NotEnoughPlayersException{
         List<VirtualView> justSuspended = new ArrayList<>();
         for(VirtualView v : players){
             if(v.isJustSuspended()) {
@@ -776,6 +776,7 @@ public class GameEngine implements Runnable{
 
 
     /**
+     * Called only if endPhaseSimulation is set to true in server.properties
      * Sets the game in such a way that only a skull is left on the killshot track.
      * Three players are set on the board and they are given some damages.
      * The killshot track, the player points, deaths and status are set in a coherent way.
@@ -872,7 +873,7 @@ public class GameEngine implements Runnable{
     /**
      * After every turn, this function is called to allow players who have requested to resume back in the game.
      */
-    private synchronized void allowPlayersToResume(){
+    synchronized void allowPlayersToResume(){
         List<VirtualView> temp = new ArrayList<>(resuming);
         for(VirtualView v : temp){
             for(VirtualView old : players){
@@ -907,9 +908,10 @@ public class GameEngine implements Runnable{
 
 
     /**
-     * A fake set up to allow for quicker testing.
+     * An automatic set up to allow to show the ending phase of the game.
+     * Called only if endPhaseSimulation is set to true in server.properties
      */
-    void fakeSetup(){
+    void simulationTillEndphaseSetup(){
 
         board = BoardConfigurer.configureMap(4);
 

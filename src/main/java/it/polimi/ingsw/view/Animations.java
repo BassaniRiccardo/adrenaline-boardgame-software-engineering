@@ -5,9 +5,9 @@ import javafx.util.Duration;
 import javafx.scene.image.ImageView;
 
 
-public class Animations {
+class Animations {
 
-    public void flash(ImageView player){
+    void flash(ImageView player){
 
         FadeTransition ft = new FadeTransition();
         ft.setNode(player);

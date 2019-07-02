@@ -74,6 +74,7 @@ public class FireMode implements Targeted {
      *
      * @param  targets           the ArrayList of players being targeted
      * @param  destination       the Square players are moved to, if relevant
+     * @throws NotAvailableAttributeException if the targeted implementation does not have an holder
      */
     public void applyEffects(List<Player> targets, Square destination) throws NotAvailableAttributeException {
 
@@ -94,6 +95,7 @@ public class FireMode implements Targeted {
      * Finds players that can be chosen as targets.
      *
      * @return      an ArrayList containing sets of targets to be chosen, each saved as an ArrayList
+     * @throws NotAvailableAttributeException if the targeted implementation does not have an holder
      */
     public List<List<Player>> findTargets() throws NotAvailableAttributeException{
         List<List<Player>> res = targetFinder.find(weapon.getHolder());
@@ -108,6 +110,7 @@ public class FireMode implements Targeted {
      *
      * @param  targets  the ArrayList of already selected targets
      * @return          the set of possible destination Square objects
+     * @throws NotAvailableAttributeException if the targeted implementation does not have an holder
      */
     public List<Square> findDestinations(List<Player> targets) throws NotAvailableAttributeException{
         if(targets == null){
@@ -122,6 +125,7 @@ public class FireMode implements Targeted {
      *Establishes if this firemode can be selected according to the current board state
      *
      * @return      true is this FireMode can be used
+     * @throws NotAvailableAttributeException if the targeted implementation does not have an holder
      */
     public boolean isAvailable() throws NotAvailableAttributeException {
         for (List<Player> targets : findTargets()){

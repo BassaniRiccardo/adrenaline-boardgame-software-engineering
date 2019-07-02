@@ -54,8 +54,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private BorderPane root;
     private DataSaver dataSaver = new DataSaver();
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
-    public static final CountDownLatch latch = new CountDownLatch(1);
-    public static GUI GUI = null;
+    private static final CountDownLatch latch = new CountDownLatch(1);
+    private static GUI GUI = null;
     private ClientModel clientModel;
     private static final int DEVELOPER_WIDTH_RESOLUTION =1536;
     private static final int DEVELOPER_HEIGHT_RESOLUTION =864;
@@ -81,7 +81,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      *
      * @return
      */
-    public static GUI waitGUI() {
+    static GUI waitGUI() {
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -94,7 +94,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      *
      * @param GUI0
      */
-    public static void setGUI(GUI GUI0) {
+    private static void setGUI(GUI GUI0) {
         GUI = GUI0;
         latch.countDown();
     }
@@ -112,7 +112,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         renderAlreadyLaunched = false;
     }
 
-    public void setClientMain(ClientMain clientMain) {
+    void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
         this.clientModel=clientMain.getClientModel();   //potrebbe forse essere cancellato
     }
@@ -446,7 +446,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
-    public String removeEscapeCode(String type, String message){
+    private String removeEscapeCode(String type, String message){
         if (message.contains("0m")){
             if (type.equals(CHOOSE_POWERUP.toString())){
                 message = message.replace("[31m", "Red ");
@@ -469,8 +469,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         }
 
-        System.out.println(message);
         return message;
+
     }
 
     /**
@@ -737,7 +737,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         boolean update;
     }
 
-    public ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
+    private ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
         String key,playerColor;
         playerColor=player.getColor();
         switch (playerColor){

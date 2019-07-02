@@ -66,9 +66,51 @@ public class TurnManagerTest {
         }
 
         @Override
-        public int chooseNow(String type, String msg, List<?> options) {
-            return 1;
+        public int chooseNow(String type, String msg, List<?> options) { return 1; }
+
+        @Override
+        public void update(JsonObject jsonObject) {        }
+    }
+
+
+    /**
+     * A subclass of VirtualView simulating players answers.
+     * The answer can be set, the defaul answer is "1".
+     */
+    class DummyVirtualView2 extends VirtualView{
+
+        @Override
+        public void refresh() {        }
+
+        @Override
+        public void shutdown() {        }
+
+        @Override
+        public void showSuspension() {        }
+
+        @Override
+        public void showEnd(String message) {        }
+
+        @Override
+        public void choose(String type, String msg, List<?> options) {
+            notifyObservers("2");
         }
+
+        @Override
+        public void choose(String type, String msg, List<?> options, int timeoutSec) {
+            notifyObservers("2");
+        }
+
+        @Override
+        public void display(String msg) {        }
+
+        @Override
+        public String getInputNow(String msg, int max) {
+            return "2";
+        }
+
+        @Override
+        public int chooseNow(String type, String msg, List<?> options) { return 2; }
 
         @Override
         public void update(JsonObject jsonObject) {        }
@@ -287,7 +329,6 @@ public class TurnManagerTest {
         banshee.getModel().getPowerUpList().clear();
 
         //he can reload after the movement, he will choose yes
-        System.out.println(distructor.getModel().getActionList().get(2));
         turnManager.executeActualAction(distructor.getModel().getActionList().get(2));
 
         //check that distructor reloaded his weapon and shot banshee
@@ -580,4 +621,84 @@ public class TurnManagerTest {
 
     }
 
+
+
+    /**
+     * Tests the method resetCtion() for the first turn of the first player.
+     * DummyVirtualView2 is implemented, then the answer to askConfirmation() is no.
+     *
+     * @throws NotEnoughPlayersException         if thrown by setup(), or handleMoving().
+     * @throws SlowAnswerException               if thrown by joinBoard() or handleMoving().
+     * @throws NotAvailableAttributeException    if thrown by getPosition().
+     */
+    @Test()
+    public void resetActionMove()  throws SlowAnswerException, NotEnoughPlayersException, NotAvailableAttributeException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView2());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        VirtualView destructor = connections.get(0);
+
+        StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
+        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false, new Timer(60));
+        destructor.getModel().setInGame(true);
+        destructor.getModel().setPosition(gameEngine.getBoard().getMap().get(4));
+
+        //the player will choose to move and then he will reset
+        statusSaver.updateCheckpoint();
+        turnManager.handleMoving(destructor.getModel().getActionList().get(0));
+
+        assertEquals(4, destructor.getModel().getPosition().getId());
+    }
+
+
+
+    /**
+     * Tests the method handleDeaths() int the case of two deaths.
+     *
+     * @throws NotEnoughPlayersException         if thrown by setup(), or handleDeths().
+     * @throws SlowAnswerException               if thrown by setup(), or handleDeths().
+     */
+    @Test()
+    public void handleDeaths() throws SlowAnswerException, NotEnoughPlayersException {
+
+        List<VirtualView> connections = new ArrayList<>();
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+        connections.add(new DummyVirtualView());
+
+        GameEngine gameEngine = new GameEngine(connections);
+        gameEngine.setup();
+
+        VirtualView destructor = connections.get(0);
+        VirtualView banshee = connections.get(1);
+        VirtualView dozer = connections.get(2);
+
+        StatusSaver statusSaver = new StatusSaver(gameEngine.getBoard());
+        TurnManager turnManager = new TurnManager(gameEngine, gameEngine.getBoard(), gameEngine.getCurrentPlayer(), connections, statusSaver, false, new Timer(60));
+
+        destructor.getModel().setInGame(true);
+        banshee.getModel().setInGame(true);
+        dozer.getModel().setInGame(true);
+        destructor.getModel().setPosition(gameEngine.getBoard().getMap().get(4));
+        banshee.getModel().setPosition(gameEngine.getBoard().getMap().get(4));
+        dozer.getModel().setPosition(gameEngine.getBoard().getMap().get(4));
+
+        banshee.getModel().sufferDamage(12, destructor.getModel());
+        dozer.getModel().sufferDamage(12, destructor.getModel());
+        turnManager.setDead(Arrays.asList(2,3));
+
+        statusSaver.updateCheckpoint();
+        turnManager.handleDeaths();
+
+        assertTrue(banshee.getModel().getDamages().isEmpty());
+        assertTrue(dozer.getModel().getDamages().isEmpty());
+    }
 }

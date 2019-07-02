@@ -22,7 +22,8 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
  * The exception are:
  * - the collecting of an ammotile: since a powerup could be drawn after this (and being it a random event). The user must confirm his action before collecting the ammotile.
  * - the use of a tagback grenade, to avoid that the interruption of the shooter's turn becomes too long. The hit player cannot change is mind about the use of grenades.
- *
+ * - when no previous decisions have been taken, e.g. while spawning.
+ * - the handling of a payment, since the player will be asked for a confirmation after he will have paid.
  * @author BassaniRiccardo
  */
 
@@ -328,7 +329,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         LOGGER.log(Level.FINE, () -> currentPlayer  + " chooses the action: " + action);
 
         if (action.getSteps() > 0) {
-            System.out.println("moving");
             handleMoving(action);
         }
         if (board.isReset()) return;
@@ -339,7 +339,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         if (action.isReload()) {
             try {
                 if (currentPlayer.getShootingSquares(0, currentPlayer.getLoadedWeapons()).isEmpty()) {
-                    System.out.println("reloading");
                     reloadMandatory();
                 }
                 else {
@@ -351,7 +350,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         if (board.isReset()) return;
         if (action.isShoot()) {
             try {
-                System.out.println("shooting");
                 handleShooting();
             } catch (NotAvailableAttributeException e){LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while shooting", e);}
         }
@@ -852,7 +850,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         List<Weapon> reloadable = new ArrayList<>();
         for (Weapon w : currentPlayer.getReloadableWeapons()) {
             try {
-                if (!currentPlayer.getShootingSquares(0, new ArrayList<>(Arrays.asList(w))).isEmpty()) {
+                if (!currentPlayer.getShootingSquares(0, new ArrayList<>(Collections.singletonList(w))).isEmpty()) {
                     reloadable.add(w);
                 }
             } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE,"NotAvailableAttributeException thrown while reloading", e);}
@@ -902,7 +900,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
                 return true;
             }
             PowerUp targetingScope = currentPlayer.getPowerUps(PowerUp.PowerUpName.TARGETING_SCOPE).get(selected-1);
-            List<String> optionsTargets = toUserStringList(Arrays.asList(targets));
+            List<String> optionsTargets = toUserStringList(Collections.singletonList(targets));
             optionsTargets.add(RESET);
             currentPlayerConnection.choose(CHOOSE_PLAYER.toString(), SELECT_TARGETS, optionsTargets);
             selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
@@ -913,7 +911,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
             Player target = targets.get(selected-1);
 
             try {
-                targetingScope.applyEffects(new ArrayList<>(Arrays.asList(target)), board.getMap().get(0));
+                targetingScope.applyEffects(new ArrayList<>(Collections.singletonList(target)), board.getMap().get(0));
                 currentPlayer.discardPowerUp(targetingScope);
                 handlePayment(targetingScope.getCost());
                 board.notifyObserver(currentPlayerConnection);
@@ -932,21 +930,17 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      * Ask the suitable targets for their choices and execute them.
      *
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
-     * @throws NotAvailableAttributeException          if thrown by Player.hasUsableTagbackGrenade().
      */
-    private void askTargetsForGrenade() throws NotEnoughPlayersException, NotAvailableAttributeException {
+    private void askTargetsForGrenade() throws NotEnoughPlayersException {
 
         for (Player p : board.getActivePlayers()) {
-            System.out.println("asking to " + p);
             if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged()) {
                 getVirtualView(p).display(currentPlayer.userToString() + SHOT_YOU);
                 boolean handleAgain = true;
                 while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleAgain) {
-                    System.out.println("effectively asking to " + p);
                     handleAgain = handleTagbackGrenade(p);
                 }
             }
-            System.out.println("finished asking to " + p);
         }
     }
 
@@ -961,12 +955,10 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      */
     private boolean handleTagbackGrenade(Player p) throws NotEnoughPlayersException{
 
-        System.out.println("entering handleTagbackGrenade");
         VirtualView player = getVirtualView(p);
         player.choose(CHOOSE_STRING.toString(), DEMAND_USE_TAGBACK_GRENADE, new ArrayList(Arrays.asList(NO, YES)), GRENADE_LONG_TIMER);
         int answer = Integer.parseInt(gameEngine.waitShort(player,GRENADE_LONG_TIMER));
         if (answer == 2){
-            System.out.println("chooses yes");
             LOGGER.log(Level.FINE, () -> p + "Decides to use a grenade" );
             List<String> optionsGrenade = toStringList(p.getPowerUps(PowerUp.PowerUpName.TAGBACK_GRENADE));
             player.choose(CHOOSE_POWERUP.toString(), SELECT_TAGBACK_GRENADE, optionsGrenade, GRENADE_SHORT_TIMER);
@@ -978,12 +970,9 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
                 p.discardPowerUp(tagbackGrenade);
                 board.notifyObserver(player);
             } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while using the tagback grenade", e);}
-            System.out.println("exiting handleTagbackGrenade");
             return true;
         }
-        System.out.println("chooses no");
         LOGGER.log(Level.FINE, () -> p + "Decides not to use a grenade");
-        System.out.println("exiting handleTagbackGrenade");
         return false;
     }
 
@@ -995,7 +984,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      * @throws SlowAnswerException          if the user do not complete the turn before the timer expires.
      * @throws NotEnoughPlayersException    if the number of connected players falls below three during the turn.
      */
-    private void handleDeaths() throws SlowAnswerException, NotEnoughPlayersException{
+    void handleDeaths() throws SlowAnswerException, NotEnoughPlayersException{
 
         for (Player deadPlayer : board.getActivePlayers()) {
             if (dead.contains(deadPlayer.getId())) {
@@ -1010,7 +999,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
                     //necessary otherwise a reset would give back the damages to the dead
                     updateAndNotifyAll();
-                    if (!(killShotTrack.getSkullsLeft()==0 && !frenzy || gameEngine.isLastFrenzyPlayer()))
+                    if (!(killShotTrack.getSkullsLeft()==0 && !gameEngine.isFrenzy() || gameEngine.isLastFrenzyPlayer()))
                         joinBoard(deadPlayer, 1, true);
                     if (frenzy) {
                         deadPlayer.setFlipped(true);
@@ -1185,7 +1174,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      */
     private void resetAction() throws SlowAnswerException, NotEnoughPlayersException{
         LOGGER.log(Level.FINE, () -> currentPlayer + RESET_ACTION);
-
         statusSaver.restoreCheckpoint();
 
         board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
@@ -1367,5 +1355,12 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         int selected = Integer.parseInt(gameEngine.wait(currentPlayerConnection));
         PowerUp selectedPowerup = currentPlayer.getPowerUps(color).get(selected-1);
         currentPlayer.discardPowerUp(selectedPowerup);
+    }
+
+    /*
+    only for testing
+     */
+    void setDead(List<Integer> dead) {
+        this.dead = dead;
     }
 }

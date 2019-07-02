@@ -39,23 +39,23 @@ public class MapBoardRenderer {
         labelButton = new ArrayList<>();
     }
 
-    public void setLabelButton(List<String> labelButton) {
+    void setLabelButton(List<String> labelButton) {
         this.labelButton = labelButton;
     }
 
-    public void setInputButtons(List<Button> inputButtons) {
+    void setInputButtons(List<Button> inputButtons) {
         this.inputButtons = inputButtons;
     }
 
-    public void setClientModel(ClientModel clientModel) {
+    void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
     }
 
-    public void setRenderInstruction(String renderInstruction) {
+    void setRenderInstruction(String renderInstruction) {
         this.renderInstruction = renderInstruction;
     }
 
-    public HBox mapRenderer() {
+    HBox mapRenderer() {
         InputStream mapLeft;
         InputStream mapRight;
         if (clientModel.getMapID() == 1 || clientModel.getMapID() == 3) {
@@ -84,7 +84,7 @@ public class MapBoardRenderer {
         return map;
     }
 
-    public GridPane roomRenderer() {
+    GridPane roomRenderer() {
         int mapId = clientModel.getMapID();
         List<ClientModel.SimpleSquare> squares = clientModel.getSquares();
         GridPane roomsGrid = new GridPane();
@@ -231,7 +231,7 @@ public class MapBoardRenderer {
         return roomsGrid;
     }
 
-    public ImageView getImageOfSquare(ClientModel.SimpleSquare square) {
+    private ImageView getImageOfSquare(ClientModel.SimpleSquare square) {
         int r;
         int b;
         int y;
@@ -271,7 +271,7 @@ public class MapBoardRenderer {
         return new ImageView(ammoImage);
     }
 
-    public GridPane killShotTrackRender(int skullNumber) {
+    GridPane killShotTrackRender(int skullNumber) {
         List<ImageView> skulls = new ArrayList<>();
         InputStream skullFile = this.getClass().getResourceAsStream("/images/miscellaneous/skull.png");
 
@@ -300,7 +300,7 @@ public class MapBoardRenderer {
 
     }
 
-    public List<ImageView> iconsRenderer() {
+    List<ImageView> iconsRenderer() {
         List<ImageView> iconView = new ArrayList<>();
         List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
         Image iconImage;
@@ -342,7 +342,7 @@ public class MapBoardRenderer {
         return iconView;
     }
 
-    public int columnFinder(ClientModel.SimpleSquare square) {
+    int columnFinder(ClientModel.SimpleSquare square) {
         if (clientModel.getMapID() == 4) {
             return square.getId() % 4;
         }
@@ -367,7 +367,7 @@ public class MapBoardRenderer {
         }
     }
 
-    public int rowFinder(ClientModel.SimpleSquare square) {
+    int rowFinder(ClientModel.SimpleSquare square) {
         if (clientModel.getMapID() == 4 || clientModel.getMapID() == 3) {
             return square.getId() / 4;
         } else if (square.getId() < 2)
@@ -376,7 +376,7 @@ public class MapBoardRenderer {
             return (square.getId() + 1) / 4;
     }
 
-    public List<GridPane> weaponRenderer() {
+    List<GridPane> weaponRenderer() {
         List<GridPane> weaponGrid = new ArrayList<>();
         List<ArrayList<ImageView>> weaponList = new ArrayList<>();
         List<ArrayList<ImageView>> weaponListZoom = new ArrayList<>();
@@ -435,11 +435,11 @@ public class MapBoardRenderer {
         return weaponGrid;
     }
 
-        public List<ImageView> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
-            List<ImageView> weaponView = new ArrayList<>();
-            int index=square.getId();
-            List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(index)).getWeapons();
-            //try{
+    private List<ImageView> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
+        List<ImageView> weaponView = new ArrayList<>();
+        int index=square.getId();
+        List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(index)).getWeapons();
+        //try{
             for(ClientModel.SimpleWeapon w : weaponList){
                 String key= w.getName();
                 InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png");
@@ -455,13 +455,13 @@ public class MapBoardRenderer {
             }
 
             return weaponView;
-            //}catch (FileNotFoundException e){
-            //    e.printStackTrace();
-            //}
-            //return null;
-        }
+        //}catch (FileNotFoundException e){
+        //    e.printStackTrace();
+        //}
+        //return null;
+    }
 
-    public Pane deckRenderer(Pane mapAndStuffAbove){
+    Pane deckRenderer(Pane mapAndStuffAbove){
             InputStream pUDeckFile = this.getClass().getResourceAsStream("/images/cards/pUBack.png");
             Image pUDeckImage = new Image(pUDeckFile);
             ImageView pUDeckView = new ImageView(pUDeckImage);

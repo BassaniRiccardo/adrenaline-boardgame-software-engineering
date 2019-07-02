@@ -42,7 +42,7 @@ public abstract class VirtualView implements Runnable{
     protected GameEngine game;
     protected String name;
     boolean suspended;
-    boolean justSuspended;
+    private boolean justSuspended;
     private Player model;
     static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final int MAX_LENGTH_BATTLECRY = 32;
@@ -198,7 +198,7 @@ public abstract class VirtualView implements Runnable{
      */
     public abstract void update(JsonObject jsonObject);
 
-    public void notifyObservers(String ans){
+    protected void notifyObservers(String ans){
         if(game!=null) {
             game.notify(this, ans);
         }

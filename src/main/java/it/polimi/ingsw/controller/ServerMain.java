@@ -101,6 +101,12 @@ public class ServerMain {
         return waitingPlayers;
     }
 
+    /**
+     * Getter for oldMessage. Only for testing.
+     *
+     * @return the value of oldMessage.
+     */
+    String getOldMessage() { return oldMessage; }
 
     /**
      * Main method instantiating TCP (on a different thread) and RMI servers. It runs a main loop checking for user input
@@ -134,7 +140,7 @@ public class ServerMain {
     /**
      * Initializes logger, a reader of System.in, RMI and TCP servers
      */
-    private void setup(){
+    void setup(){
         this.initializeLogger();
         LOGGER.log(Level.INFO,"Main method started");
         LOGGER.log(Level.FINE, "Logger initialized");
@@ -272,7 +278,7 @@ public class ServerMain {
             LOGGER.addHandler(consoleHandler);
             LOGGER.setUseParentHandlers(false);
         }catch (IOException ex){LOGGER.log(Level.SEVERE, "IOException thrown while creating logger", ex);}
-        LOGGER.setLevel(Level.ALL);
+        LOGGER.setLevel(Level.SEVERE);
     }
 
 
@@ -338,7 +344,7 @@ public class ServerMain {
     /**
      * Start a game if certain conditions are satisfied
      */
-    private synchronized void matchmaking(){
+    synchronized void matchmaking(){
         List <VirtualView> selectedPlayers = new ArrayList<>();
         if (waitingPlayers.size() >= MAX_PLAYERS || (timer.isOver() && waitingPlayers.size() >= MIN_PLAYERS)) {
             for (int i = 0; i < waitingPlayers.size() && i < MAX_PLAYERS; i++) {

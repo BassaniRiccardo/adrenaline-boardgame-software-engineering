@@ -101,6 +101,7 @@ public class ServerMain {
         return waitingPlayers;
     }
 
+
     /**
      * Getter for oldMessage. Only for testing.
      *

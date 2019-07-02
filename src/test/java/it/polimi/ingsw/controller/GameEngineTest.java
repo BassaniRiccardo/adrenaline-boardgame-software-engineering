@@ -117,11 +117,12 @@ public class GameEngineTest {
 
         //Checks that the player connections are ordinated according to the ID.
         assertEquals(Arrays.asList(distructor, banshee, dozer, violet, sprog), gameEngine.getPlayers());
+        assertTrue(gameEngine.getLeaderboard().isEmpty());
 
         gameEngine.resolve();
 
         //Checks that the player connections are ordinated according to the leaderboard.
-        assertEquals(Arrays.asList(distructor, dozer, violet, banshee, sprog), gameEngine.getPlayers());
+        assertEquals(Arrays.asList(distructor, dozer, violet, banshee, sprog), gameEngine.getLeaderboard());
 
     }
 
@@ -154,6 +155,13 @@ public class GameEngineTest {
         VirtualView violet = connections.get(3);
         VirtualView sprog = connections.get(4);
 
+        distructor.setName("destructor");
+        banshee.setName("banshee");
+        dozer.setName("dozer");
+        violet.setName("violet");
+        sprog.setName("sprog");
+
+
         distructor.getModel().setPoints(34);
         banshee.getModel().setPoints(11);
         dozer.getModel().setPoints(34);
@@ -172,7 +180,7 @@ public class GameEngineTest {
         gameEngine.resolve();
 
         //Checks that the player connections are ordinated according to the leaderboard.
-        assertEquals(Arrays.asList(violet, distructor, dozer, banshee, sprog), gameEngine.getPlayers());
+        assertEquals(Arrays.asList(violet, distructor, dozer, banshee, sprog), gameEngine.getLeaderboard());
 
     }
 
@@ -497,6 +505,8 @@ public class GameEngineTest {
         for (int i=0; i<connections.size(); i++) {
             gameEngine.getPlayers().get(i).setPlayer(b.getPlayers().get(i));
         }
+
+        gameEngine.setLeaderboard(gameEngine.getPlayers());
 
         assertEquals("The leaderBoard is coming:\n" +
                 "\n" +

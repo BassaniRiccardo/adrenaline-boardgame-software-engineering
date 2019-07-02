@@ -703,6 +703,7 @@ public class Player {
     public void rewardKillers() throws WrongTimeException{
 
         if(!this.isDead()) throw new WrongTimeException("The killers are rewarded only when the player dies.");
+
         //firstblood
         if (!this.flipped) {
             damages.get(0).addPoints(1);

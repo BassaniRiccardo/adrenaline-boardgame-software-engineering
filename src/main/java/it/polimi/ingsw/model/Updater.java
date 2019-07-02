@@ -43,8 +43,6 @@ public class Updater {
     public static final String DAMAGE_UPD = "damage";
     public static final String MARK_UPD = "mark";
     public static final String REMOVE_MARKS = "removeMarks";
-    public static final String FROM = "from";
-    public static final String OF = "of";
 
     public static final String ADD_WEAPON_UPD = "addWeapon";
     public static final String REMOVE_WEAPON_UPD = "removeWeapon";
@@ -359,8 +357,6 @@ public class Updater {
         cm.setPowerUpCardsLeft(board.getPowerUpDeck().getDrawable().size());
         cm.setWeaponCardsLeft(board.getWeaponDeck().getDrawable().size());
         cm.setMapID(board.getId());
-        cm.setLeftWalls(board.getLeftWalls());
-        cm.setTopWalls(board.getTopWalls());
 
         //powerUpInHand (of the selected player)
         List<String> powerUpInHand = new ArrayList<>();
@@ -446,30 +442,22 @@ public class Updater {
         return j;
     }
 
-    /**
-<<<<<<< HEAD
+   /**
      * Converts a Weapon in a SimpleWeapon
      *
      * @param weapon    full model to convert
      * @return          reduced model
-=======
-     * Returns a SimpleWeapon given a Weapon
-     *
-     * @param weapon    the given Weapon.
-     * @return          the relative SimpleWeapon.
->>>>>>> cf902beb030e7006801e05998f826bf9bcd50cf2
-     */
+    */
     private static ClientModel.SimpleWeapon toSimpleWeapon(Weapon weapon){
         return new ClientModel().new SimpleWeapon(weapon.toString(), weapon.isLoaded());
     }
 
 
-
     /**
-     * Returns a SimpleSquare given a WeaponSquare.
+     * Converts a WeaponSquare in a SimpleSquare
      *
-     * @param square    the given WeaponSquare.
-     * @return          the relative SimpleSquare.
+     * @param square    full model to convert
+     * @return          reduced model
      */
     private static ClientModel.SimpleSquare toSimpleSquare(WeaponSquare square){
         List<ClientModel.SimpleWeapon> weapons = new ArrayList<>();
@@ -480,10 +468,10 @@ public class Updater {
     }
 
     /**
-     * Returns a SimpleSquare given a AmmoSquare.
+     * Converts an AmmoSquare in a SimpleSquare
      *
-     * @param square    the given AmmoSquare.
-     * @return          the relative SimpleSquare.
+     * @param square    full model to convert
+     * @return          reduced model
      */
     private static ClientModel.SimpleSquare toSimpleSquare(AmmoSquare square){
         int redAmmo =0;

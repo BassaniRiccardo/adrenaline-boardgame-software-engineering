@@ -13,6 +13,7 @@ public class HandRenderer {
     private static final int HAND_WIDTH = 65;
     private static final int PADDING = 3;
     private static final int SECOND_COLUMN = 30;
+    private static final String AMMO_TAG = "Ammo: ";
 
     private HandRenderer(){}
 
@@ -70,10 +71,10 @@ public class HandRenderer {
         }
 
         //printing ammo
-        for(int i=0; i<"Ammo: ".length()&&i+PADDING<HAND_WIDTH; i++){
-            box[3][i+PADDING] = String.valueOf("Ammo: ".charAt(i));
+        for(int i=0; i<AMMO_TAG.length()&&i+PADDING<HAND_WIDTH; i++){
+            box[3][i+PADDING] = String.valueOf(AMMO_TAG.charAt(i));
         }
-        j="Ammo: ".length() + PADDING;
+        j=AMMO_TAG.length() + PADDING;
         for(int i=0; i<you.getBlueAmmo()&&j<HAND_WIDTH; i++, j++){
             box[3][j] = ClientModel.getEscapeCode("blue") + "|" + RESET;
         }

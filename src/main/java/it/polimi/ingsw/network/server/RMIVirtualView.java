@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  */
 public class RMIVirtualView extends VirtualView implements RemoteController {
 
+
     private RemoteView remoteView;
     private ExecutorService executor = Executors.newCachedThreadPool();
 
@@ -32,6 +33,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         super();
         this.remoteView = remoteView;
     }
+
 
     /**
      * This method is periodically called by ServerMain and checks if it is possible to call the client's remote functions.
@@ -46,6 +48,57 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
             }
         }
     }
+
+
+    /**
+     * Closes the connection to the client and the separate thread.
+     */
+    @Override
+    public void shutdown(){
+        executor.shutdownNow();
+        try {
+            UnicastRemoteObject.unexportObject(this, false);
+        }catch(NoSuchObjectException ex){
+            LOGGER.log(Level.SEVERE, "Could not unexport RemoteController", ex);
+        }
+    }
+
+
+    /**
+     * Method called by the client to check connection status
+     */
+    @Override
+    public void ping(){
+        //empty because it only needs to be called to survey connection status
+    }
+
+
+    /**
+     * Commands the client to show the suspension message and eventually shutdown.
+     */
+    @Override
+    public void showSuspension(){
+        try{
+            remoteView.showSuspension();
+        }catch(RemoteException ex){
+            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
+        }
+    }
+
+    /**
+     * Commands the client to show an ending mesage and eventually shutdown.
+     *
+     * @param message       the message to display
+     */
+    @Override
+    public void showEnd(String message){
+        try{
+            remoteView.showEnd(message);
+        }catch(RemoteException ex){
+            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
+        }
+    }
+
 
     /**
      * Class calling a remote client function to let him choose among a list of options.
@@ -112,37 +165,6 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         );
     }
 
-    /**
-     * Sends a message for the client to display
-     *
-     * @param msg       message to display
-     */
-    @Override
-    public void display(String msg){
-        try{
-            remoteView.display(msg);
-        }catch(RemoteException ex){
-            //not necessary to suspend the player in this case
-            LOGGER.log(Level.SEVERE, "Unable to call remote function", ex);
-        }
-    }
-
-    /**
-     * Queries the client for input. Only to be called before this VirtualView is referred by a GameEngine.
-     *
-     * @param msg       message to display
-     * @param max       max length of the answer
-     * @return          client's answer
-     */
-    @Override
-    public String getInputNow(String msg, int max) {
-        try {
-            return remoteView.getInput(msg, max);
-        } catch (RemoteException ex) {
-            suspend();
-        }
-        return "";
-    }
 
     /**
      * Queries the client to choose from a list of options. Only to be called before this VirtualView is
@@ -163,6 +185,41 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         return 0;
     }
 
+
+    /**
+     * Sends a message for the client to display
+     *
+     * @param msg       message to display
+     */
+    @Override
+    public void display(String msg){
+        try{
+            remoteView.display(msg);
+        }catch(RemoteException ex){
+            //not necessary to suspend the player in this case
+            LOGGER.log(Level.SEVERE, "Unable to call remote function", ex);
+        }
+    }
+
+
+    /**
+     * Queries the client for input. Only to be called before this VirtualView is referred by a GameEngine.
+     *
+     * @param msg       message to display
+     * @param max       max length of the answer
+     * @return          client's answer
+     */
+    @Override
+    public String getInputNow(String msg, int max) {
+        try {
+            return remoteView.getInput(msg, max);
+        } catch (RemoteException ex) {
+            suspend();
+        }
+        return "";
+    }
+
+
     /**
      * Commands the client to update its model or to render his UI.
      *
@@ -178,50 +235,5 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         }
     }
 
-    /**
-     * Closes the connection to the client and the separate thread.
-     */
-    @Override
-    public void shutdown(){
-        executor.shutdownNow();
-        try {
-            UnicastRemoteObject.unexportObject(this, false);
-        }catch(NoSuchObjectException ex){
-            LOGGER.log(Level.SEVERE, "Could not unexport RemoteController", ex);
-        }
-    }
 
-    /**
-     * Method called by the client to check connection status
-     */
-    @Override
-    public void ping(){
-        //empty because it only needs to be called to survey connection status
-    }
-
-    /**
-     * Commands the client to show the suspension message and eventually shutdown.
-     */
-    @Override
-    public void showSuspension(){
-        try{
-            remoteView.showSuspension();
-        }catch(RemoteException ex){
-            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
-        }
-    }
-
-    /**
-     * Commands the client to show an ending mesage and eventually shutdown.
-     *
-     * @param message       the message to display
-     */
-    @Override
-    public void showEnd(String message){
-        try{
-            remoteView.showEnd(message);
-        }catch(RemoteException ex){
-            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
-        }
-    }
 }

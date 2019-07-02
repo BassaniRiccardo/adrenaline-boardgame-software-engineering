@@ -34,6 +34,10 @@ public class MapRenderer {
     private static final int SECOND_JUMP = 7;
     private static final int LEFT_PADDING = 5;
 
+
+    /**
+     * Standard constructor
+     */
     MapRenderer(){
         this.firstCall = true;
         this.backup = new String[MAP_HEIGHT][MAP_WIDTH];

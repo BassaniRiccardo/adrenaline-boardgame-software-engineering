@@ -22,8 +22,6 @@ public class ClientModel {
     private int powerUpCardsLeft;
 
     private int mapID;
-    private boolean[][] leftWalls;
-    private boolean[][] topWalls;
 
     private int currentPlayerId;
     private List<SimplePlayer> killShotTrack;
@@ -33,6 +31,9 @@ public class ClientModel {
     private List<String> colorPowerUpInHand;
     private int playerID;
 
+    /**
+     * Standard constructor.
+     */
     public ClientModel(){
         //attributes in this class need to be initialized one at a time
     }
@@ -478,14 +479,6 @@ public class ClientModel {
     public int getPlayerID() {return playerID;}
 
     public void setPlayerID(int playerID) {this.playerID = playerID;}
-
-    public boolean[][] getLeftWalls() { return leftWalls;}
-
-    public void setLeftWalls(boolean[][] leftWalls) { this.leftWalls = leftWalls; }
-
-    public boolean[][] getTopWalls() { return topWalls; }
-
-    public void setTopWalls(boolean[][] topWalls) { this.topWalls = topWalls;}
 
 
     /**

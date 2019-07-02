@@ -7,9 +7,7 @@ import it.polimi.ingsw.model.cards.PowerUp;
 import it.polimi.ingsw.model.cards.Weapon;
 import it.polimi.ingsw.model.exceptions.NoMoreCardsException;
 import it.polimi.ingsw.model.exceptions.UnacceptableItemNumberException;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static it.polimi.ingsw.model.board.Player.HeroName;
@@ -24,7 +22,6 @@ import static it.polimi.ingsw.model.board.Player.HeroName;
 
 public class BoardConfigurer {
 
-    private static BoardConfigurer instance = null;
     private static ModelDataReader j = new ModelDataReader();
     private static final String BOARDS = "boards";
     private static final String AMMO_TILES = "ammoTiles";
@@ -33,27 +30,10 @@ public class BoardConfigurer {
     private static final String ID = "Id";
 
 
-
     /**
      * Constructs a board configurer.
      */
     private BoardConfigurer() {}
-
-
-    /**
-     * Returns the unique instance of the board configurer.
-     * If not already existing, it calls BoardConfigurer private constructor.
-     *
-     * @return      the unique instance of the board configurer.
-     */
-    public static BoardConfigurer getInstance() {
-
-        if (instance == null){
-            instance = new BoardConfigurer();
-        }
-        return instance;
-
-    }
 
 
     /**
@@ -196,11 +176,8 @@ public class BoardConfigurer {
      */
     static void setAmmoTilesAndWeapons(Board board) throws UnacceptableItemNumberException, NoMoreCardsException {
 
-        Iterator<Square> squareIt = board.getMap().iterator();
-        while (squareIt.hasNext()){
-            Square s = squareIt.next();
+        for (Square s : board.getMap())
                 s.addAllCards();
-         }
 
     }
 

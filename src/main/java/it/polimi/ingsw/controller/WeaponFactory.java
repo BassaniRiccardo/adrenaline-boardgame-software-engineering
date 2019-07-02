@@ -8,10 +8,7 @@ import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -95,6 +92,8 @@ public class WeaponFactory {
     private static final String DAMAGE_MOVE = "damageMove";
     private static final String HELLION = "hellion";
     private static final String POWER_GLOVE = "powerGlove";
+
+    private static final String MISSING_POSITION = "Some players do not have a position.";
 
 
     /**
@@ -361,7 +360,7 @@ public class WeaponFactory {
             case PLASMA_GUN_ONE:
                 return p -> {
                             if (!p.getMainTargets().isEmpty()) {
-                                return Arrays.asList(Arrays.asList(p));
+                                return Collections.singletonList(Collections.singletonList(p));
                             }
                             List<Square> l = board.getReachable(p.getPosition(), 2);
                             for (Square s : l) {
@@ -373,7 +372,7 @@ public class WeaponFactory {
                                             .filter(x -> !x.equals(p))
                                             .map(Arrays::asList)
                                             .count()!=0) {
-                                        return Arrays.asList(Arrays.asList(p));
+                                        return Collections.singletonList(Collections.singletonList(p));
                                     }
                                 }
                             }
@@ -389,14 +388,14 @@ public class WeaponFactory {
                             try {
                                 return board.getDistance(x.getPosition(), p.getPosition()) >= 2;
                             } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                 return false;
                             }
                         })
                         .map(Arrays::asList)
                         .collect(Collectors.toList());
             case ALL_SAME_SQUARE:
-                return p -> Arrays.asList(p.getPosition().getPlayers().stream()
+                return p -> Collections.singletonList(p.getPosition().getPlayers().stream()
                         .distinct()
                         .filter(x -> (!x.equals(p)))
                         .collect(Collectors.toList()));
@@ -465,7 +464,7 @@ public class WeaponFactory {
                                         try {
                                             return x != p.getPosition().getRoomId();
                                         } catch (NotAvailableAttributeException ex) {
-                                            LOGGER.log(Level.SEVERE, "Some players do not have a position.", ex);
+                                            LOGGER.log(Level.SEVERE, MISSING_POSITION, ex);
                                             return false;
                                         }
                                     })
@@ -496,7 +495,7 @@ public class WeaponFactory {
                             try {
                                 return !board.getVisible(p.getPosition()).contains(x);
                             } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                 return false;
                             }
                         })
@@ -523,7 +522,7 @@ public class WeaponFactory {
                                             try {
                                                 return board.getReachable(p.getPosition(), 1).contains(x);
                                             } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                                 return false;
                                             }
                                         })
@@ -537,7 +536,7 @@ public class WeaponFactory {
                                             try {
                                                 return board.getReachable(p.getPosition(), 2).contains(x) && !board.getReachable(p.getPosition(), 1).contains(x);
                                             } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                                 return false;
                                             }
                                         })
@@ -561,7 +560,7 @@ public class WeaponFactory {
                                             try {
                                                 return board.getReachable(p.getPosition(), 2).contains(x);
                                             } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                                 return false;
                                             }
                                         })
@@ -591,7 +590,7 @@ public class WeaponFactory {
             case ROCKET_LAUNCHER_ONE:
                 return p -> {
                             if(!p.getMainTargets().isEmpty()){
-                                return Arrays.asList(Arrays.asList(p));
+                                return Collections.singletonList(Collections.singletonList(p));
                             }
                             List<Square> l = board.getReachable(p.getPosition(), 2);
                             for (Square s : l) {
@@ -600,7 +599,7 @@ public class WeaponFactory {
                                         .filter(x->!x.getPlayers().isEmpty())
                                         .collect(Collectors.toList());
                                 if (!targets.isEmpty() && !s.containsPlayer(p)) {
-                                    return Arrays.asList(Arrays.asList(p));
+                                    return Collections.singletonList(Collections.singletonList(p));
                                 }
                             }
                             return new ArrayList<>();
@@ -616,7 +615,7 @@ public class WeaponFactory {
                                     if (!l.contains(opt2target))
                                         l.add(opt2target);
                             }
-                            return Arrays.asList(l);
+                            return Collections.singletonList(l);
                         };
             case RAILGUN_MAIN:
                 return p -> {
@@ -674,11 +673,11 @@ public class WeaponFactory {
             case CYBERBLADE_ONE:
                 return p -> {
                             if(!p.getMainTargets().isEmpty()){
-                                return Arrays.asList(Arrays.asList(p));
+                                return Collections.singletonList(Collections.singletonList(p));
                             }
                             for (Square s : board.getReachable(p.getPosition(), 1)) {
                                 if (!s.containsPlayer(p)&&!s.getPlayers().isEmpty()) {
-                                    return Arrays.asList(Arrays.asList(p));
+                                    return Collections.singletonList(Collections.singletonList(p));
                                 }
                             }
                             return new ArrayList<>();
@@ -723,7 +722,7 @@ public class WeaponFactory {
                                             try {
                                                 return board.getReachable(p.getPosition(), 1).contains(x);
                                             } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                                 return false;
                                             }
                                         })
@@ -738,7 +737,7 @@ public class WeaponFactory {
                                             try {
                                                 return board.getReachable(p.getPosition(), 2).contains(x);
                                             } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                                 return false;
                                             }
                                         })
@@ -746,7 +745,7 @@ public class WeaponFactory {
                                             try {
                                                 return !board.getReachable(p.getPosition(), 1).contains(x);
                                             } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                                 return false;
                                             }
                                         })
@@ -771,7 +770,7 @@ public class WeaponFactory {
                                             try {
                                                 return board.getSquaresInLine(p.getPosition(), d).contains(x);
                                             } catch (NotAvailableAttributeException e) {
-                                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                                 return false;
                                             }
                                         })
@@ -796,7 +795,7 @@ public class WeaponFactory {
                             return targets;
                         };
             case SHOCKWAVE_ALT:
-                return p -> Arrays.asList(board.getReachable(p.getPosition(), 1).stream()
+                return p -> Collections.singletonList(board.getReachable(p.getPosition(), 1).stream()
                         .filter(x -> (!x.getPlayers().contains(p)))
                         .map(Square::getPlayers)
                         .flatMap(List::stream)
@@ -855,20 +854,20 @@ public class WeaponFactory {
                             try {
                                 return !t.isEmpty() && board.getReachable(t.get(0).getPosition(), 2).contains(x);
                             } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                 return false;
                             }
                         })
                         .collect(Collectors.toList());
             case SHOOTER_SQAURE:
-                return (p, t) -> Arrays.asList(p.getPosition());
+                return (p, t) -> Collections.singletonList(p.getPosition());
             case VORTEX_CANNON_MAIN:
                 return (p, t) -> board.getVisible(p.getPosition()).stream()
                         .filter(x -> {
                             try {
                                 return !t.isEmpty() && board.getReachable(t.get(0).getPosition(), 1).contains(x);
                             } catch (NotAvailableAttributeException e) {
-                                LOGGER.log(Level.SEVERE, "Some players do not have a position.", e);
+                                LOGGER.log(Level.SEVERE, MISSING_POSITION, e);
                                 return false;
                             }
                         })
@@ -876,7 +875,7 @@ public class WeaponFactory {
                         .distinct()
                         .collect(Collectors.toList());
             case VORTEX_CANNON_ONE:
-                return (p, t) -> p.getMainTargets().isEmpty() ? new ArrayList<>() : Arrays.asList(p.getMainTargets().get(0).getPosition());
+                return (p, t) -> p.getMainTargets().isEmpty() ? new ArrayList<>() : Collections.singletonList(p.getMainTargets().get(0).getPosition());
             case ADJACENT_TO_TARGET:
                 return (p, t) -> t.isEmpty() ? new ArrayList<>() : board.getReachable(t.get(0).getPosition(), 1);
             case ROCKET_LAUNCHER_ONE:
@@ -909,12 +908,12 @@ public class WeaponFactory {
                             return board.getReachable(p.getPosition(), 1).stream().filter(x -> !x.containsPlayer(p)).collect(Collectors.toList());
                         };
             case TARGET_SQUARE:
-                return (p, t) -> t.isEmpty() ? new ArrayList<>() : Arrays.asList(t.get(0).getPosition());
+                return (p, t) -> t.isEmpty() ? new ArrayList<>() : Collections.singletonList(t.get(0).getPosition());
             case POWER_GLOVE_ALT:
                 return (p, t) -> {
                             for (Player temp : t) {
                                 if (board.getDistance(p.getPosition(), temp.getPosition()) > 1) {
-                                    return Arrays.asList(temp.getPosition());
+                                    return Collections.singletonList(temp.getPosition());
                                 }
                             }
                             List<Square> res = new ArrayList<>();
@@ -1031,9 +1030,8 @@ public class WeaponFactory {
         if(damage!=0){
             return (shooter, target, destination) -> target.sufferDamage(damage, shooter);
         }
-        return (shooter, target, destination) -> {
-            target.addMarks(marks, shooter);
-        };
+        return (shooter, target, destination) -> target.addMarks(marks, shooter);
+
     }
 
     /**

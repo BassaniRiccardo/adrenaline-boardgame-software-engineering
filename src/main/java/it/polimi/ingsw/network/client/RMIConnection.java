@@ -86,10 +86,11 @@ public class RMIConnection implements Runnable, RemoteView {
     /**
      * Asks clientMain to carry out a decision
      *
+     * @param type      the type of options
      * @param msg       message to display
      * @param options   options between which to choose
      * @return          int corresponding to the choice
-     * @throws RemoteException
+     * @throws RemoteException according to RMI principles
      */
     public int choose(String type, String msg, List<String> options) throws RemoteException{
         return clientMain.choose(type, msg, options);
@@ -99,7 +100,7 @@ public class RMIConnection implements Runnable, RemoteView {
      * Asks clientMain to display a message
      *
      * @param msg           message to display
-     * @throws RemoteException
+     * @throws RemoteException according to RMI principles
      */
     public void display(String msg) throws RemoteException{
         clientMain.display(msg);
@@ -111,7 +112,7 @@ public class RMIConnection implements Runnable, RemoteView {
      * @param msg       message to display
      * @param max       max length of the answer
      * @return          clientMain's response
-     * @throws RemoteException
+     * @throws RemoteException according to RMI principles
      */
     public String getInput(String msg, int max) throws RemoteException{
         return clientMain.getInput(msg, max);
@@ -119,7 +120,7 @@ public class RMIConnection implements Runnable, RemoteView {
 
     /**
      * Remote method to be called by the server to assert the state of the connection
-     * @throws RemoteException
+     * @throws RemoteException according to RMI principles
      */
     public void ping() throws RemoteException{
         //empty method useful for checking whether the server can callback remote functions from the client
@@ -129,7 +130,7 @@ public class RMIConnection implements Runnable, RemoteView {
      * Passes an update to clientMain
      *
      * @param jsonObject        encoded update
-     * @throws RemoteException
+     * @throws RemoteException according to RMI principles
      */
     public void update(String jsonObject) throws RemoteException{
         try {
@@ -153,7 +154,7 @@ public class RMIConnection implements Runnable, RemoteView {
     /**
      * Asks the ClientMain to show the suspension screen and eventually terminate.
      *
-     * @throws RemoteException
+     * @throws RemoteException according to RMI principles
      */
     public void showSuspension() throws RemoteException{
         shutdown();
@@ -164,7 +165,7 @@ public class RMIConnection implements Runnable, RemoteView {
      * Asks the ClientMain to show the end screen and eventually terminate
      *
      * @param message           message to display at the end
-     * @throws RemoteException
+     * @throws RemoteException according to RMI principles
      */
     public void showEnd(String message) throws  RemoteException{
         shutdown();

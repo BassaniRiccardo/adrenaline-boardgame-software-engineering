@@ -41,6 +41,9 @@ public class CLI implements UI{
             "_/    _/  _/_/_/    _/    _/  _/_/_/_/  _/      _/  _/    _/  _/_/_/_/  _/_/_/  _/      _/  _/_/_/_/    \n" +
             "\na game by Philip Neduk, now loading";
 
+    private static final String SKYPPED_WAITING_TIME = "Skipped waiting time.";
+    private static final String EX_SHOWING_DISCONNECT = "Exception while showing disconnect message";
+
     private static final int WARNING_SLEEP = 1500;
     private static final int SPLASHSCREEN_SLEEP = 1000;
 
@@ -95,7 +98,7 @@ public class CLI implements UI{
             try {
                 TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             }catch(InterruptedException ex){
-                LOGGER.log(Level.INFO,"Skipped waiting time.");
+                LOGGER.log(Level.INFO, SKYPPED_WAITING_TIME);
                 Thread.currentThread().interrupt();
             }
         }
@@ -116,7 +119,7 @@ public class CLI implements UI{
                 try {
                     TimeUnit.MILLISECONDS.sleep(100);
                 } catch (InterruptedException ex) {
-                    LOGGER.log(Level.INFO, "Skipped waiting time.");
+                    LOGGER.log(Level.INFO, SKYPPED_WAITING_TIME);
                     Thread.currentThread().interrupt();
                 }
             }
@@ -156,7 +159,7 @@ public class CLI implements UI{
                 try {
                     TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
                 } catch (InterruptedException ex) {
-                    LOGGER.log(Level.INFO, "Skipped waiting time.");
+                    LOGGER.log(Level.INFO, SKYPPED_WAITING_TIME);
                     Thread.currentThread().interrupt();
                 }
             }
@@ -275,7 +278,7 @@ public class CLI implements UI{
         try {
             TimeUnit.MILLISECONDS.sleep(WARNING_SLEEP);
         }catch(InterruptedException ex){
-            LOGGER.log(Level.INFO,"Skipped waiting time.");
+            LOGGER.log(Level.INFO,SKYPPED_WAITING_TIME);
             Thread.currentThread().interrupt();
         }
         render();
@@ -289,7 +292,7 @@ public class CLI implements UI{
         try {
             Thread.sleep(SPLASHSCREEN_SLEEP);
         } catch (InterruptedException ex) {
-            LOGGER.log(Level.INFO, "Skipped waiting time.", ex);
+            LOGGER.log(Level.INFO, SKYPPED_WAITING_TIME, ex);
             Thread.currentThread().interrupt();
         }
     }
@@ -302,7 +305,7 @@ public class CLI implements UI{
         try {
             in.readLine();
         }catch(IOException ex){
-            LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
+            LOGGER.log(Level.SEVERE, EX_SHOWING_DISCONNECT, ex);
         }
     }
 
@@ -314,7 +317,7 @@ public class CLI implements UI{
         try {
             in.readLine();
         }catch(IOException ex){
-            LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
+            LOGGER.log(Level.SEVERE, EX_SHOWING_DISCONNECT, ex);
         }
     }
 
@@ -327,7 +330,7 @@ public class CLI implements UI{
         try {
             in.readLine();
         }catch(IOException ex){
-            LOGGER.log(Level.SEVERE, "Exception while showing disconnect message", ex);
+            LOGGER.log(Level.SEVERE, EX_SHOWING_DISCONNECT, ex);
         }
     }
 

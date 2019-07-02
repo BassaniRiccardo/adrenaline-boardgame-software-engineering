@@ -16,6 +16,7 @@ import java.util.List;
 
 public interface Targeted {
 
+
     /**
      * Applies the effects of the FireMode of PowerUp by modifying the state of the game.
      *
@@ -25,6 +26,7 @@ public interface Targeted {
      */
     void applyEffects(List<Player> targets, Square destination) throws NotAvailableAttributeException;
 
+
     /**
      * Simple method finding targets (other players)
      *
@@ -32,6 +34,7 @@ public interface Targeted {
      * @throws NotAvailableAttributeException if the powerup does not have an holder
      */
     List<List<Player>> findTargets() throws NotAvailableAttributeException;
+
 
     /**
      * Simple method finding destinations (squares the user or the targets may be moved to)
@@ -41,6 +44,7 @@ public interface Targeted {
      * @throws NotAvailableAttributeException if the powerup does not have an holder
      */
     List<Square> findDestinations(List<Player> targets) throws NotAvailableAttributeException;
+
 
     /**
      * Checks if the FireMode or PowerUp can be used.

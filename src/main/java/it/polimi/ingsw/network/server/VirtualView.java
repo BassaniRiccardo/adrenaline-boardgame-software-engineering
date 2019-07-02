@@ -92,11 +92,6 @@ public abstract class VirtualView implements Runnable{
         display("Name accepted. Waiting for the game to start...");
     }
 
-    /**
-     * Checks for connection with client and forwards messages
-     */
-    public abstract void refresh();
-
     //Getters and Setters
 
     public String getName() {
@@ -135,11 +130,32 @@ public abstract class VirtualView implements Runnable{
         this.name = name;
     }
 
+
+    /**
+     * Checks for connection with client and forwards messages
+     */
+    public abstract void refresh();
+
+
+    /**
+     * Closes the connection to the client and the separate thread.
+     */
     public abstract void shutdown();
 
+
+    /**
+     * Commands the client to show the suspension message and eventually shutdown.
+     */
     public abstract void showSuspension();
 
+
+    /**
+     * Commands the client to show an ending mesage and eventually shutdown.
+     *
+     * @param message       the message to display
+     */
     public abstract void showEnd(String message);
+
 
     /**
      * Suspends the player. This causes the client to shutdown, but the VirtualView is kept alive untile the player
@@ -156,18 +172,43 @@ public abstract class VirtualView implements Runnable{
         }
     }
 
+
     /**
-     * Asks a player to choose one among options (sends a request and returns immediately)
+     * Class sending a message to the client asking him to choose among a list of options.
      *
+     * @param type      type of the request
      * @param msg       message to be displayed
      * @param options   list of options to choose from
      */
     public abstract void choose(String type, String msg, List<?> options);
 
-    public abstract void choose(String type, String msg, List<?> options, int timeoutSec);
 
     /**
-     * Displays a message to the player
+     * Class sending a message to the client asking him to choose among a list of options.
+     * Saves a timestamp so that when the answer is received, it can be discarded if late.
+     *
+     * @param type      type of the request
+     * @param msg       message to display
+     * @param options   list of options to choose from
+     * @param timeoutSec    maximum time given to the client to provide an answer
+     */
+    public abstract void choose(String type, String msg, List<?> options, int timeoutSec);
+
+
+    /**
+     * Queries the client to choose from a list of options. Only to be called before this VirtualView is
+     * referenced by a GameEngine.
+     *
+     * @param type      the request's type
+     * @param msg       message to display
+     * @param options   options to choose from
+     * @return          the client's answer
+     */
+    public abstract int chooseNow(String type, String msg, List<?> options);
+
+
+    /**
+     * Sends a message for the client to display
      *
      * @param msg       message to display
      */
@@ -184,19 +225,13 @@ public abstract class VirtualView implements Runnable{
 
 
     /**
-     * Asks a player to choose one among options and waits for an answer. Only for use during login procedures.
-     * @param msg       message to display
-     * @param options   options to choose from
-     * @return          the player's choice as the index of the list of options
-     */
-    public abstract int chooseNow(String type, String msg, List<?> options);
-
-    /**
      * Sends a request for an update to the client
      *
      * @param jsonObject    encoded update
      */
     public abstract void update(JsonObject jsonObject);
+
+
 
     protected void notifyObservers(String ans){
         if(game!=null) {

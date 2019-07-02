@@ -29,6 +29,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 public class GameEngine implements Runnable{
 
     private List<VirtualView> players;
+    private List<VirtualView> leaderboard;
     private VirtualView currentPlayer;
     private int frenzyActivator;
     private Board board;
@@ -100,6 +101,7 @@ public class GameEngine implements Runnable{
     GameEngine(List<VirtualView> players){
 
         this.players = players;
+        this.leaderboard = new ArrayList<>();
         this.currentPlayer = null;
         this.frenzyActivator = 0;
         this.board = null;
@@ -128,6 +130,8 @@ public class GameEngine implements Runnable{
     public synchronized  List<VirtualView> getPlayers() {
         return players;
     }
+
+    List<VirtualView> getLeaderboard() { return leaderboard; }
 
     public VirtualView getCurrentPlayer() {
         return currentPlayer;
@@ -168,6 +172,8 @@ public class GameEngine implements Runnable{
     }
 
     void setTimer(Timer timer) {this.timer = timer;}
+
+    void setLeaderboard(List<VirtualView> leaderboard) { this.leaderboard = leaderboard;  }
 
     /**
      * Runs a game.
@@ -471,8 +477,9 @@ public class GameEngine implements Runnable{
         else LOGGER.log(Level.INFO,"Frenzy ended. Points are added to the players according to the kill shot track.");
 
         killShotTrack.rewardKillers();
+        leaderboard = new ArrayList<>(players);
 
-        Collections.sort(players, (p1,p2) -> {
+        Collections.sort(leaderboard, (p1,p2) -> {
             if (p1.getModel().getPoints() > p2.getModel().getPoints()) return -1;
             else if (p1.getModel().getPoints() < p2.getModel().getPoints()) return 1;
             else {
@@ -572,16 +579,16 @@ public class GameEngine implements Runnable{
     private void gameOver(){
 
         LOGGER.log(Level.INFO, "\nGame over.\n");
-        int maxScore = players.get(0).getModel().getPoints();
+        int maxScore = leaderboard.get(0).getModel().getPoints();
         List<VirtualView> winners = new ArrayList<>();
         boolean existsKill = false;
         List<VirtualView> suspended = new ArrayList<>();
-        for (VirtualView p : players){
+        for (VirtualView p : leaderboard){
             if (p.isSuspended())
                 suspended.add(p);
         }
-        players.removeAll(suspended);
-        for (VirtualView p : players){
+        leaderboard.removeAll(suspended);
+        for (VirtualView p : leaderboard){
             if (p.getModel().getPoints() == maxScore) {
                 winners.add(p);
                 if (killShotTrack.getKillers().contains(p.getModel())){
@@ -591,8 +598,8 @@ public class GameEngine implements Runnable{
         }
 
         if (existsKill || winners.size()==1){
-            players.get(0).showEnd(addLeaderboard(WINNER_MESSAGE));
-            for (int i = 1; i < players.size(); i++) {
+            leaderboard.get(0).showEnd(addLeaderboard(WINNER_MESSAGE));
+            for (int i = 1; i < leaderboard.size(); i++) {
                 showToLoser(i);
             }
         }
@@ -600,7 +607,7 @@ public class GameEngine implements Runnable{
             for (VirtualView v : winners){
                 v.showEnd(addLeaderboard(DRAW_MESSAGE));
             }
-            for (int i = winners.size(); i < players.size(); i++) {
+            for (int i = winners.size(); i < leaderboard.size(); i++) {
                 showToLoser(i);
             }
         }
@@ -615,9 +622,9 @@ public class GameEngine implements Runnable{
      * @param i     the index of the player the message must be sent to.
      */
     private void showToLoser(int i){
-        LOGGER.log(Level.INFO, P + players.get(i).getModel().getId() + ", " + players.get(i).getModel().getPoints() + " points.");
+        LOGGER.log(Level.INFO, P + leaderboard.get(i).getModel().getId() + ", " + leaderboard.get(i).getModel().getPoints() + " points.");
         int pos = i + 1;
-        players.get(i).showEnd(addLeaderboard(POSITION_MESSAGE + pos + EXCLAMATION_POINT));
+        leaderboard.get(i).showEnd(addLeaderboard(POSITION_MESSAGE + pos + EXCLAMATION_POINT));
     }
 
 
@@ -631,7 +638,7 @@ public class GameEngine implements Runnable{
         StringBuilder builder = new StringBuilder();
         builder.append(s);
         builder.append(LEADERBOARD);
-        for (VirtualView v : players){
+        for (VirtualView v : leaderboard){
             builder.append(v.getModel().getUsername() + COLON + v.getModel().getPoints() + POINTS);
         }
         return builder.toString();

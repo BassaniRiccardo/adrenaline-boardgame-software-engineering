@@ -75,7 +75,7 @@ public class GameEngine implements Runnable{
     private static final String COLON = ": ";
     private static final String EXCLAMATION_POINT = "!";
 
-    private static final String NOT_ENOUGH_PLAYER_GAME_OVER = "Game Over : less then three players in the game.";
+    private static final String NOT_ENOUGH_PLAYER_GAME_OVER = "Game Over: less then three players in the game.";
     private static final String WINNER_MESSAGE = "\n\nGAME OVER\n\nYou Won!";
     private static final String DRAW_MESSAGE = "\n\nGAME OVER\n\nYou and other players made the most points but did not kill anyone.\n Shame on you! The game ends with a draw.";
     private static final String POSITION_MESSAGE = "\n\nGAME OVER\n\nYour position: ";
@@ -579,7 +579,6 @@ public class GameEngine implements Runnable{
     private void gameOver(){
 
         LOGGER.log(Level.INFO, "\nGame over.\n");
-        int maxScore = leaderboard.get(0).getModel().getPoints();
         List<VirtualView> winners = new ArrayList<>();
         boolean existsKill = false;
         List<VirtualView> suspended = new ArrayList<>();
@@ -588,6 +587,7 @@ public class GameEngine implements Runnable{
                 suspended.add(p);
         }
         leaderboard.removeAll(suspended);
+        int maxScore = leaderboard.get(0).getModel().getPoints();
         for (VirtualView p : leaderboard){
             if (p.getModel().getPoints() == maxScore) {
                 winners.add(p);

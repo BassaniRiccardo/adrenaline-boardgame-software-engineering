@@ -279,7 +279,7 @@ public class PlayerBoardRenderer {
                     puContainer.add(new Pane());
                     puContainer.get(puContainer.size()-1).getChildren().add(puView.get(puView.size()-1));
                     if(renderInstruction.equals("PowerUp")){
-                        String labelPowerUp = clientModel.getColorPowerUpInHand().get(clientModel.getPowerUpInHand().indexOf(pu));
+                        String labelPowerUp = clientModel.getColorPowerUpInHand().get(i);
                         labelPowerUp = labelPowerUp.substring(0, 1).toUpperCase() + labelPowerUp.substring(1);
                         labelPowerUp = labelPowerUp + " " + pu;
                         if(labelButton.contains(labelPowerUp)) {

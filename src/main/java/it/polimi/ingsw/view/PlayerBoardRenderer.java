@@ -241,6 +241,7 @@ public class PlayerBoardRenderer {
                 for(int i = 0; i< clientModel.getPowerUpInHand().size(); i++){
                     String color = clientModel.getColorPowerUpInHand().get(i);
                     String pu = clientModel.getPowerUpInHand().get(i);
+                    System.out.println("/images/cards/"+color+pu.replace(" ","_")+".png");
                     Image puImage = new Image(getClass().getResourceAsStream("/images/cards/"+color+pu.replace(" ","_")+".png"));
                     puView.add(new ImageView(puImage));
                     puView.get(puView.size()-1).setFitHeight(200*scalePB);

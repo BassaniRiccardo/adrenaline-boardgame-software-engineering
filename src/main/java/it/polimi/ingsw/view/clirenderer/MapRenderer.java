@@ -105,7 +105,7 @@ public class MapRenderer {
                 mark = "●";
             }
             color = ClientModel.getEscapeCode(model.getPlayer(playerID).getColor());
-            if(model.getPlayer(playerID).getPosition()!=null) {
+            if(model.getPlayer(playerID).getPosition()!=null&&model.getPlayer(playerID).getInGame()) {
                 players.get(model.getPlayer(playerID).getPosition().getId()).add(color + mark + RESET);
             }
         }

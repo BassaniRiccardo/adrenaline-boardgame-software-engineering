@@ -158,7 +158,7 @@ public class ClientModel {
             return this.flipped;
         }
 
-        boolean getInGame(){
+        public boolean getInGame(){
             return this.inGame;
         }
 

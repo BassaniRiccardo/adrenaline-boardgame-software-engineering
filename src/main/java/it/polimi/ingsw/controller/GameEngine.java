@@ -20,8 +20,6 @@ import static java.util.Collections.frequency;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
 import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
-//FIXME: game setup temporarily commented out to allow for quicker testing
-
 /**
  * Class responsible of running a game.
  *

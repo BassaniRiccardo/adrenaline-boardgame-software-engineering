@@ -10,5 +10,8 @@ import java.rmi.RemoteException;
  */
 public interface RemoteController extends Remote{
 
+    /**
+     * Method called by the client to check connection status
+     */
     void ping() throws RemoteException;
 }

@@ -108,6 +108,11 @@ public class MainRenderer {
         this.currentRequest = request;
     }
 
+    /**
+     * Sets the latest message to be displayed
+     *
+     * @param message   messagr to be displayed
+     */
     public void setCurrentMessage(String message) {this.currentMessage = message + "\n";}
 
     /**

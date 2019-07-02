@@ -14,7 +14,12 @@ public class PlayersRenderer {
     private static final int LINES_PER_PLAYER = 7;
     private static final int PADDING = 3;
     private static final int SECOND_COLUMN = 24;
+    private static final String DAMAGE_TAG = "Damage:";
+    private static final String MARK_TAG = "Marks:";
 
+    /**
+     * Standard constructor
+     */
     private PlayersRenderer(){}
 
     /**
@@ -98,32 +103,32 @@ public class PlayersRenderer {
                 for (int j = 0; j < names[i].length()&&j+PADDING<PLAYERS_WIDTH; j++) {
                     box[row * LINES_PER_PLAYER + 1][j + PADDING] = ClientModel.getEscapeCode(clientModel.getPlayer(i+1).getColor()) + (names[i].charAt(j)) + RESET;
                 }
-                for (int j = 0; j < "Damage: ".length()&&j+PADDING<PLAYERS_WIDTH; j++) {
-                    box[row * LINES_PER_PLAYER + 2][j + PADDING] = String.valueOf("Damage: ".charAt(j));
+                for (int j = 0; j < DAMAGE_TAG.length()&&j+PADDING<PLAYERS_WIDTH; j++) {
+                    box[row * LINES_PER_PLAYER + 2][j + PADDING] = String.valueOf(DAMAGE_TAG.charAt(j));
                 }
 
                 int k = 0;
                 for (int color : clientModel.getPlayer(i+1).getDamageID()) {
-                    if(k+PADDING+"Damage: ".length()>PLAYERS_WIDTH){
+                    if(k+PADDING+DAMAGE_TAG.length()>PLAYERS_WIDTH){
                         break;
                     }
-                    box[row * LINES_PER_PLAYER + 2][k + PADDING+"Damage: ".length()] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "●" + RESET;
+                    box[row * LINES_PER_PLAYER + 2][k + PADDING+DAMAGE_TAG.length()] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "●" + RESET;
                     k++;
                 }
 
-                for (int j = 0; j < "Marks: ".length(); j++) {
+                for (int j = 0; j < MARK_TAG.length(); j++) {
                     if(j+SECOND_COLUMN>PLAYERS_WIDTH){
                         break;
                     }
-                    box[row * LINES_PER_PLAYER + 2][j + SECOND_COLUMN] = String.valueOf("Marks: ".charAt(j));
+                    box[row * LINES_PER_PLAYER + 2][j + SECOND_COLUMN] = String.valueOf(MARK_TAG.charAt(j));
                 }
                 k = 0;
 
                 for (int color : clientModel.getPlayer(i+1).getMarksID()) {
-                    if(k+SECOND_COLUMN+"Marks: ".length()>PLAYERS_WIDTH){
+                    if(k+SECOND_COLUMN+MARK_TAG.length()>PLAYERS_WIDTH){
                         break;
                     }
-                    box[row * LINES_PER_PLAYER + 2][k + SECOND_COLUMN + "Marks: ".length()] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "◎" + RESET;
+                    box[row * LINES_PER_PLAYER + 2][k + SECOND_COLUMN + MARK_TAG.length()] = ClientModel.getEscapeCode(clientModel.getPlayer(color).getColor()) + "◎" + RESET;
                     k++;
                 }
 

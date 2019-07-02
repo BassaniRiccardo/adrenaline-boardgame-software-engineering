@@ -71,6 +71,26 @@ public class StatusSaverTest {
         assertEquals(inModel, ss.getPlayersDamages());
     }
 
+    /**
+     * Tests the method updateCheckpoint, checking whether the players' marks are correctly saved.
+     *
+     * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NoMoreCardsException                 if thrown by simulateScenario().
+     */
+    @Test
+    public void updateCheckpointMarks() throws UnacceptableItemNumberException, NoMoreCardsException {
+        Board b = BoardConfigurer.simulateScenario();
+        StatusSaver ss = new StatusSaver(b);
+        b.getPlayers().get(0).addMarks(3, b.getPlayers().get(3));
+        ss.updateCheckpoint();
+
+        List<List<Player>> inModel = new ArrayList<>();
+        for (Player p : b.getActivePlayers()){
+            inModel.add(p.getMarks());
+        }
+        assertEquals(inModel, ss.getPlayersMarks());
+    }
+
 
     /**
      * Tests the method updateCheckpoint, checking whether the players' powerups are correctly saved.

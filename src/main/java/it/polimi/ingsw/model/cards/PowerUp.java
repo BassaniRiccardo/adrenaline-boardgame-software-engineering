@@ -76,7 +76,7 @@ public class PowerUp implements Targeted, Card {
         this.board = board;
     }
 
-    /**
+    /*
      * Getters
      */
 
@@ -113,8 +113,9 @@ public class PowerUp implements Targeted, Card {
     /**
      * Applies the effects of this power up to targets chosen.
      *
-     * @param  playerList  the ArrayList of players being targeted
-     * @param  destination the Square players are moved to, if relevant
+     * @param  playerList  the ArrayList of players being targeted.
+     * @param  destination the Square players are moved to, if relevant.
+     * @throws NotAvailableAttributeException if the powerup does not have an holder.
      */
     public void applyEffects(List<Player> playerList, Square destination) throws NotAvailableAttributeException{
 
@@ -126,10 +127,10 @@ public class PowerUp implements Targeted, Card {
     }
 
     /**
-     * Finds players that can be chosen as targets
+     * Finds players that can be chosen as targets.
      *
-     * @return      an ArrayList containing sets of targets to be chosen, each saved as an ArrayList
-     * @throws NotAvailableAttributeException if the powerup does not have an holder
+     * @return      an ArrayList containing sets of targets to be chosen, each saved as an ArrayList.
+     * @throws NotAvailableAttributeException if the powerup does not have an holder.
      */
     public List<List<Player>> findTargets() throws NotAvailableAttributeException{
         return targetFinder.find(holder);
@@ -137,10 +138,10 @@ public class PowerUp implements Targeted, Card {
 
 
     /**
-     * Finds Squares that can be chosen as destination, if relevant
+     * Finds Squares that can be chosen as destination, if relevant.
      *
-     * @param  targets the ArrayList of already selected targets
-     * @return      the set of possible destination Square objects
+     * @param  targets the ArrayList of already selected targets.
+     * @return      the set of possible destination Square objects.
      */
     public List<Square> findDestinations(List<Player> targets) throws NotAvailableAttributeException{
 
@@ -150,9 +151,10 @@ public class PowerUp implements Targeted, Card {
 
 
     /**
-     *Establishes if this power up can be used according to the current board state
+     *Establishes if this power up can be used according to the current board state.
      *
-     * @return      true if and only if  this power up cna be used
+     * @return      true if and only if  this power up cna be used.
+     * @throws NotAvailableAttributeException if the powerup does not have an holder.
      */
     public boolean isAvailable() throws NotAvailableAttributeException{
 

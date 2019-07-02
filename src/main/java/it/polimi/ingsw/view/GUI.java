@@ -77,23 +77,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private boolean renderAlreadyLaunched;
     private boolean setColor = true;
 
-
-    public ClientMain getClientMain() {
-        return clientMain;
-    }
-
-    @Override
-    public void displayDisconnection(){}
-
-    @Override
-    public void displaySuspension(){}
-
-    @Override
-    public void displayEnd(String message){}
-
-    @Override
-    public void addHistory(String message){}
-
     /**
      *
      * @return
@@ -183,13 +166,16 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     private void printer(){
         root = new BorderPane();
-        root.setCenter(welcomeView);
-        welcomeView.setFitHeight(600*scale);
-        welcomeView.setPreserveRatio(true);
+
+            root.setCenter(welcomeView);
+            welcomeView.setFitHeight(600 * scale);
+            welcomeView.setPreserveRatio(true);
+            root.setBottom(messagePanel);
+
         root.setStyle("-fx-background-color: #000000");
-        root.setBottom(messagePanel);
         scene.setRoot(root);
     }
+
     /**
      * Displays a simplified model containing all the information the user needs.
      */
@@ -205,14 +191,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         Platform.runLater( () -> {
             //try {
-
+            System.out.println("RENDER");
             clientModel=clientMain.getClientModel(); //penso sia utile solo per il test
             mapBoardRenderer.setClientModel(clientModel);
             mapBoardRenderer.setRenderInstruction(mapBoardRenderInstruction);
 
             Animations animation = new Animations();
 
-System.out.println("RENDER");
          //map
             HBox map = mapBoardRenderer.mapRenderer();
             //skullsKillShotTrack
@@ -231,7 +216,7 @@ System.out.println("RENDER");
             int playerIndex = 0;
             for (ClientModel.SimplePlayer p : players) {
                 playerBoards.add(new Pane());
-                playerView.add(getImageOfPlayer(p));
+                playerView.add(getBoardOfPlayer(p));
                 playerView.get(playerIndex).setFitWidth(userWidthResolution-1050);
                 // playerView.get(playerIndex).maxWidth(userWidthResolution-1100);
                 playerView.get(playerIndex).fitWidthProperty().bind(playerBoards.get(playerIndex).minWidthProperty());
@@ -253,7 +238,6 @@ System.out.println("RENDER");
             playerBoardRenderer.setPlayers(players);
             playerBoardRenderer.setClientModel(clientModel);
             playerBoardRenderer.setRenderInstruction(playerBoardRenderInstruction);
-            System.out.println(playerBoardRenderInstruction+"3");
 
 
             //icons
@@ -346,7 +330,8 @@ System.out.println("RENDER");
         }
 
         Platform.runLater( () -> {
-System.out.println("DISPLAY LIST");
+
+            System.out.println("DISPLAY LIST");
             List<String> modifiedList = new ArrayList<>();
             for (String opt : list) {
                 modifiedList.add(removeEscapeCode(type, opt));
@@ -360,20 +345,22 @@ System.out.println("DISPLAY LIST");
             List<String> labelButton = new ArrayList<>();
             List<Button> inputButtons = new ArrayList<>();
             boolean interactiveInput;
-            System.out.println(type+"1");
             interactiveInput =  type.equals(CHOOSE_SQUARE.toString()) ||  type.equals(CHOOSE_WEAPON.toString()) ||
             type.equals(CHOOSE_PLAYER.toString()) || type.equals(CHOOSE_POWERUP.toString());  //CHOOSE_STRING is the instruction for a render without interactive inputs
 
-            HBox optionList = new HBox();
-            optionList.setAlignment(Pos.CENTER);
-            optionList.setSpacing(10 / modifiedList.size());
+            HBox optionList1 = new HBox();
+            VBox optionList2 = new VBox();
+            optionList1.setAlignment(Pos.CENTER);
+            optionList1.setSpacing(10 / modifiedList.size());
+            optionList2.setAlignment(Pos.CENTER);
+            optionList2.setSpacing(10 / modifiedList.size());
             List<Button> buttons = new ArrayList<>();
 
             for (String item : modifiedList) {
                 Button b = new Button();
                 if(interactiveInput && item.equals("Reset")){   //reset button is always needed in the message panel
                     b.setText(item);
-                    optionList.getChildren().add(b);
+                    optionList2.getChildren().add(b);
                     b.setOnAction(e -> {
                         System.out.println("OPT " + (list.size()) + ": you clicked me!");
                         dataSaver.message = message;
@@ -390,7 +377,11 @@ System.out.println("DISPLAY LIST");
                     }else {
                         b.setText(item);
                         inputButtons.add(b);
-                        optionList.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
+                        if(clientModel==null){
+                            optionList1.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
+                        }else {
+                            optionList2.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
+                        }
                     }
                 }
                 b.setOnAction(e -> {
@@ -402,35 +393,22 @@ System.out.println("DISPLAY LIST");
 
 
             }
-            opt.getChildren().add(optionList);
-            //mapBoardRenderer.setRenderInstruction("Square");
-           /*  else {
-                HBox optionList = new HBox();
-                optionList.setAlignment(Pos.CENTER);
-                optionList.setSpacing(40 / list.size());
+            if(clientModel==null){
+                opt.getChildren().add(optionList1);
+            }else {
+                opt.getChildren().add(optionList2);
+            }
 
-                List<Button> buttons = new ArrayList<>();
-                for (String item : list) {
-                    Button b = new Button(item);
-                    buttons.add(b);
-                    b.setOnAction(e -> {
-                        System.out.println("OPT " + (buttons.indexOf(b) + 1) + ": you clicked me!");
-                        dataSaver.message = message;
-                        dataSaver.answer = Integer.toString(buttons.indexOf(b) + 1);
-                        dataSaver.update = true;
-                    });
-                }
-                optionList.getChildren().addAll(buttons);
-                opt.getChildren().add(optionList);
-            }*/
-           System.out.println(mapBoardRenderInstruction+"boh");
             if(type.equals(CHOOSE_SQUARE.toString()))
                 mapBoardRenderInstruction ="Square";
             else if(type.equals(CHOOSE_WEAPON.toString())){
                 if( ! clientModel.getCurrentPlayer().getWeapons().isEmpty()) {  //verifies if the weapons are in the player hand or on the board
-                    if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName())){
+                    if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName()) ||
+                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(1).getName()) ||
+                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(2).getName())){
                         playerBoardRenderInstruction = "Weapon";
-                    }else{  System.out.println("CHECK1");
+
+                  }else{
                         mapBoardRenderInstruction ="Weapon";}
                 }
                 else{
@@ -440,11 +418,9 @@ System.out.println("DISPLAY LIST");
             else if(type.equals(CHOOSE_PLAYER.toString()))
                 mapBoardRenderInstruction="Player";
             else{
-                System.out.println("NOOOOOOO");
                 mapBoardRenderInstruction = "Normal";
                 playerBoardRenderInstruction = "Normal";
             }
-            System.out.println(mapBoardRenderInstruction+"2");
             mapBoardRenderer.setInputButtons(inputButtons);
             mapBoardRenderer.setLabelButton(labelButton);
             playerBoardRenderer.setInputButtons(inputButtons);
@@ -621,8 +597,6 @@ System.out.println("DISPLAY LIST");
 
     }
 
-
-
     /**
      * Queries the user for input
      *
@@ -643,13 +617,9 @@ System.out.println("DISPLAY LIST");
             get(maxLength);
         }
         dataSaver.update=false;
-
-      //  display("Wait for your turn...");
-
         return dataSaver.answer;
 
     }
-
 
     /**
      * Queries the user for input
@@ -692,6 +662,7 @@ System.out.println("DISPLAY LIST");
      * Main GUI loop
      */
     public  void run(){ }
+
     /**
      * Handles complex events
      *
@@ -710,6 +681,53 @@ System.out.println("DISPLAY LIST");
         System.out.println(clientMain.getClientModel().getPlayers());
 
     }
+
+    public ClientMain getClientMain() {
+        return clientMain;
+    }
+
+    @Override
+    public void displayDisconnection(){
+        System.out.println("disconnection");
+        Label onlyLabel = new Label("Si è verificato un problema alla rete, chiudi e riapri il gioco con lo stesso nome");
+        Button exitButton = new Button("CHIUDI");
+        exitButton.setOnAction(e -> stage.close());
+        messagePanel.getChildren().addAll(onlyLabel, exitButton);
+        printer();
+        while (stage.isShowing()){try {
+            Thread.sleep(30000);
+        }catch (InterruptedException e){e.printStackTrace();}}
+    }
+
+    @Override
+    public void displaySuspension(){
+        System.out.println("suspension");
+        Label onlyLabel = new Label("Sei stato tropo lento a fare la tua mossa e sei stato disconnesso, chiudi e riapri il gioco con lo stesso nome");
+        Button exitButton = new Button("CHIUDI");
+        exitButton.setOnAction(e -> stage.close());
+        messagePanel.getChildren().addAll(onlyLabel, exitButton);
+        printer();
+        while (stage.isShowing()){try {
+            Thread.sleep(30000);
+        }catch (InterruptedException e){e.printStackTrace();}}
+    }
+
+    @Override
+    public void displayEnd(String message){
+        System.out.println("endofgame");
+        Label onlyLabel = new Label(message);
+        Button exitButton = new Button("CHIUDI");
+        exitButton.setOnAction(e -> stage.close());
+        messagePanel.getChildren().addAll(onlyLabel, exitButton);
+        printer();
+        while (stage.isShowing()){try {
+            Thread.sleep(30000);
+        }catch (InterruptedException e){e.printStackTrace();}}
+    }
+
+    @Override
+    public void addHistory(String message){}
+
     /**
      * Class storing the values the get() method must return.
      */
@@ -719,10 +737,10 @@ System.out.println("DISPLAY LIST");
         boolean update;
     }
 
-    public ImageView getImageOfPlayer(ClientModel.SimplePlayer player){
-        String key,color;
-        color=player.getColor();
-        switch (color){
+    public ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
+        String key,playerColor;
+        playerColor=player.getColor();
+        switch (playerColor){
             case "green":
                 key="Sprog";
                 break;

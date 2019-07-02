@@ -4,11 +4,14 @@ import it.polimi.ingsw.model.cards.PowerUp;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
@@ -235,8 +238,9 @@ public class PlayerBoardRenderer {
                 handContainer.get(players.indexOf(p)).getChildren().addAll(puBackHandView.get(players.indexOf(p)), puHandNumber.get(players.indexOf(p)));
             else{
                 List<ImageView> puView = new ArrayList<>();
-                for(String pu : clientModel.getPowerUpInHand()){
-                    String color = clientModel.getColorPowerUpInHand().get(clientModel.getPowerUpInHand().indexOf(pu));
+                for(int i = 0; i< clientModel.getPowerUpInHand().size(); i++){
+                    String color = clientModel.getColorPowerUpInHand().get(i);
+                    String pu = clientModel.getPowerUpInHand().get(i);
                     Image puImage = new Image(getClass().getResourceAsStream("/images/cards/"+color+pu.replace(" ","_")+".png"));
                     puView.add(new ImageView(puImage));
                     puView.get(puView.size()-1).setFitHeight(200*scalePB);
@@ -244,17 +248,28 @@ public class PlayerBoardRenderer {
                     puContainer.add(new Pane());
                     puContainer.get(puContainer.size()-1).getChildren().add(puView.get(puView.size()-1));
                     if(renderInstruction.equals("PowerUp")){
-                        System.out.println("DENREO1");
                         String labelPowerUp = clientModel.getColorPowerUpInHand().get(clientModel.getPowerUpInHand().indexOf(pu));
                         labelPowerUp = labelPowerUp.substring(0, 1).toUpperCase() + labelPowerUp.substring(1);
                         labelPowerUp = labelPowerUp + " " + pu;
                         if(labelButton.contains(labelPowerUp)) {
-                            System.out.println("dentro2");
-                        puContainer.get(puContainer.size() - 1).getChildren().add(inputButtons.get(labelButton.indexOf(labelPowerUp)));
-                        inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefWidth(135*scalePB);
-                        inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefHeight(200*scalePB);
-                        inputButtons.get(labelButton.indexOf(labelPowerUp)).setStyle("-fx-background-color: transparent;");
-                    }}
+                            System.out.println("IM IN!!!");
+                            puContainer.get(puContainer.size() - 1).getChildren().add(inputButtons.get(labelButton.indexOf(labelPowerUp)));
+                            inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefWidth(135*scalePB);
+                            inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefHeight(200*scalePB);
+                            inputButtons.get(labelButton.indexOf(labelPowerUp)).setStyle("-fx-background-color: transparent;");
+                            //labelButton.remove(labelButton.indexOf(labelPowerUp));
+                            for(String label : labelButton)
+                                if(label.equals(labelPowerUp)){
+                                    labelButton.remove(labelButton.indexOf(label));
+                                    break;
+                                }
+
+                        }else {
+                            ColorAdjust lessVisible = new ColorAdjust();
+                            lessVisible.setBrightness(-0.5);
+                            puView.get(puView.size() - 1).setEffect(lessVisible);
+                        }
+                    }
                     handContainer.get(players.indexOf(p)).getChildren().add(puContainer.get(puContainer.size()-1));
                 }
             }

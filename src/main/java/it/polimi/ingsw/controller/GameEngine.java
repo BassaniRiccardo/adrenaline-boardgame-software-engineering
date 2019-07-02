@@ -52,7 +52,7 @@ public class GameEngine implements Runnable{
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
 
-    private static final String WAIT_SHORT_MESSAGE = "Your answer did not arrive in time. You have not been suspended, but a default value has been selected. Press 1 and enter to proceed.";
+    private static final String WAIT_SHORT_MESSAGE = "Your answer did not arrive in time. You have not been suspended, but a default value has been selected.\n Press 1 and enter to proceed.";
     private static final String WAS_DISCONNECTED = " was disconnected";
     private static final String IS_BACK_MESSAGE = " is back!";
     private static final String YOU_ARE_BACK_MESSAGE = "You are back!";
@@ -78,7 +78,7 @@ public class GameEngine implements Runnable{
 
     private static final String NOT_ENOUGH_PLAYER_GAME_OVER = "Game Over : less then three players in the game.";
     private static final String WINNER_MESSAGE = "\n\nGAME OVER\n\nYou Won!";
-    private static final String DRAW_MESSAGE = "\n\nGAME OVER\n\nYou and other players made the most points but did not kill anyone. Shame on you! The game ends with a draw.";
+    private static final String DRAW_MESSAGE = "\n\nGAME OVER\n\nYou and other players made the most points but did not kill anyone.\n Shame on you! The game ends with a draw.";
     private static final String POSITION_MESSAGE = "\n\nGAME OVER\n\nYour position: ";
     private static final String LEADERBOARD = "\n\nLeaderboard:\n";
     private static final String POINTS = " points\n";

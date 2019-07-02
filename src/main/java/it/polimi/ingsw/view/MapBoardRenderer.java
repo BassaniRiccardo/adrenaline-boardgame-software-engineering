@@ -161,7 +161,6 @@ public class MapBoardRenderer {
                             inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
                             inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
                             inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-                            // inputButtons.get(buttonIndex).setStyle("-fx-background-color: transparent;");
                             buttonIndex++;
                         }
                     column++;
@@ -173,8 +172,6 @@ public class MapBoardRenderer {
                             inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
                             inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
                             inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-
-                            // inputButtons.get(buttonIndex).setStyle("-fx-background-color: transparent;");
                             buttonIndex++;
                         }
                     column++;
@@ -186,8 +183,6 @@ public class MapBoardRenderer {
                                 inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
                                 inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
                                 inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-
-                                // inputButtons.get(buttonIndex).setStyle("-fx-background-color: transparent;");
                                 buttonIndex++;
                             }
                     } else if (spawningPoint == 1) {
@@ -197,8 +192,6 @@ public class MapBoardRenderer {
                                 inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
                                 inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
                                 inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-
-                                // inputButtons.get(buttonIndex).setStyle("-fx-background-color: transparent;");
                                 buttonIndex++;
                             }
                         spawningPoint++;
@@ -209,8 +202,16 @@ public class MapBoardRenderer {
                                 inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
                                 inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
                                 inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-
-                                // inputButtons.get(buttonIndex).setStyle("-fx-background-color: transparent;");
+                                buttonIndex++;
+                            }
+                        spawningPoint++;
+                    }else if (spawningPoint == 3) {
+                        if (buttonIndex < inputButtons.size())
+                            if (("Square " + s.getId()).equals(labelButton.get(buttonIndex))) {
+                                roomsGrid.add(inputButtons.get(buttonIndex), column, row);
+                                inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
+                                inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
+                                inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
                                 buttonIndex++;
                             }
                         spawningPoint++;

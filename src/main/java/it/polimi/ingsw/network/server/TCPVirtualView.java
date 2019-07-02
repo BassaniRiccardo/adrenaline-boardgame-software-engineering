@@ -82,7 +82,7 @@ public class TCPVirtualView extends VirtualView {
                     notifyObservers(message);
                 }
             } catch (SocketTimeoutException ex) {
-                //LOGGER.log(Level.FINEST, "No incoming message from TCPVirtualView", ex);
+                //this is not significant as we expect to seldom receive messages
             } catch (IOException ex) {
                 LOGGER.log(Level.SEVERE, "Cannot reach client", ex);
                 suspend();

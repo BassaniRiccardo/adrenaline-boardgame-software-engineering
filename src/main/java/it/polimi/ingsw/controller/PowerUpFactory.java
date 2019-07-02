@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import static it.polimi.ingsw.model.board.Board.Direction;
 
 /**
- * Factory class to create power ups.
+ * Simple factory class used to create power ups.
  *
  * @author  marcobaga
  */
@@ -29,7 +29,7 @@ public class PowerUpFactory  {
 
 
     /**
-     * Constructs a PowerUpFactory with a reference to the game board
+     * Standard constructor. A reference to the board is necessary to pass to each power up.
      *
      * @param board         the board of the game
      */
@@ -37,11 +37,12 @@ public class PowerUpFactory  {
 
 
     /**
-     *Creates a PowerUp object according to its name
+     *Creates a PowerUp object according to its name. The main purpose is that of assigning a lambda function to the three
+     * most important attributes, that are vital to functioning correctly (effect, targetFinder and destinationFinder).
      *
      * @param  powerUpName  the name of the power up to be created
      * @param  color        the color of the power up
-     * @return      the PowerUp object created
+     * @return              the PowerUp object created
      */
     public PowerUp createPowerUp(PowerUp.PowerUpName powerUpName, Color color) {
 

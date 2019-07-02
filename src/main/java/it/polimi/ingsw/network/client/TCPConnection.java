@@ -153,7 +153,7 @@ public class TCPConnection implements Runnable {
      * Checks the socket input stream for new messages (NOT blocking)
      *
      * @return          the string received (empty if no message arrived)
-     * @throws SocketTimeoutException
+     * @throws SocketTimeoutException       if no message arrives before socket timeout
      */
     private String receive() throws SocketTimeoutException{
         JsonObject jsonObject = new JsonObject();

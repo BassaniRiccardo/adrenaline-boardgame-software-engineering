@@ -170,9 +170,9 @@ public class PowerUp implements Targeted, Card {
 
 
     /**
-     * Returns a string representing the powerup.
+     * Returns a string representing the PowerUp.
      *
-     * @return      the description of the powerup.
+     * @return      the description of the PowerUp.
      */
     @Override
     public String toString(){

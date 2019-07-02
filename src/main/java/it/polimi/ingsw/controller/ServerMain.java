@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 
 /**
- * Main class that manages connections and matchmaking.
+ * Main class that starts the game server, manages connections and matchmaking.
  *
  * @author  marcobaga
  */
@@ -55,7 +55,7 @@ public class ServerMain {
 
 
     /**
-     * Standard private constructor
+     * Standard private constructor.
      */
     private ServerMain(){
         players = new ArrayList<>();
@@ -70,7 +70,7 @@ public class ServerMain {
 
 
     /**
-     * Returns an instance of the class, which is a Singleton
+     * Returns an instance of the class, which is a Singleton.
      *
      * @return              the instance
      */
@@ -121,11 +121,9 @@ public class ServerMain {
         System.out.println(SETUP_COMPLETED_MESSAGE);
         while (sm.running){
             sm.manageInput();
-            //synchronized (instance){      //this might cause issues
             sm.refreshConnections();
             sm.removeSuspendedPlayers();
             sm.matchmaking();
-            //}
             try {
                 TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
             }catch(InterruptedException ex){
@@ -138,11 +136,10 @@ public class ServerMain {
 
 
     /**
-     * Initializes logger, a reader of System.in, RMI and TCP servers
+     * Initializes the logger, loads properties and creates a reader of System.in, RMI and TCP servers.
      */
     void setup(){
         this.initializeLogger();
-        LOGGER.log(Level.INFO,"Main method started");
         LOGGER.log(Level.FINE, "Logger initialized");
 
         Properties prop = this.loadConfig();
@@ -154,7 +151,7 @@ public class ServerMain {
         this.executor.submit(this.tcpServer);
         this.rmiServer = new RMIServer(Integer.parseInt(prop.getProperty("RMIPort", "3994")));
         this.rmiServer.setup();
-        LOGGER.log(Level.FINE, "TCPServer and RMIServer running, press q to quit");
+        LOGGER.log(Level.FINE, "TCPServer and RMIServer running");
 
         this.timer = new Timer(Integer.parseInt(prop.getProperty("matchmakingTime", "60")));
         this.timer.reset();
@@ -166,7 +163,7 @@ public class ServerMain {
 
 
     /**
-     * Removes a game from tracked ones.
+     * Removes a game from tracked ones. Tracked games are games that are still being played.
      *
      * @param engine        the game to be removed
      */
@@ -177,7 +174,8 @@ public class ServerMain {
 
 
     /**
-     * Adds a player to the waiting list
+     * Adds a player to the waiting list. A waiting list exist at all times and, when it reach a sufficient sizes,
+     * a set of players is removed from it and starts a game.
      *
      * @param p             the player to be added
      */
@@ -189,7 +187,7 @@ public class ServerMain {
 
 
     /**
-     * Checks if a player can be added to the waiting list and, if it can, adds it.
+     * Checks if a player can be added to the waiting list and, if it can, adds it. His name must not be already taken.
      *
      * @param p             the player attempting to log in
      */
@@ -208,7 +206,7 @@ public class ServerMain {
 
 
     /**
-     * Checks if the player chose a name belonging to a suspended player and can therefore resume
+     * Checks if the player chose a name belonging to a suspended player and can therefore resume.
      *
      * @param name          the player's name
      * @return              true if the player can resume his game, else false
@@ -224,7 +222,7 @@ public class ServerMain {
 
 
     /**
-     * Resumes a player's game, given that he canResume()
+     * Resumes a player's game, given that he canResume().
      *
      * @param p             the player attempting to resume
      * @return              true if the operation was successful, else false
@@ -240,8 +238,8 @@ public class ServerMain {
 
 
     /**
-     * Removes players who were suspended while still waiting for a game
-     *
+     * Removes players who were suspended while still waiting for a game. There is no need to reserve their nicknames
+     * as they have not made any progress in any running game.
      */
     synchronized void removeSuspendedPlayers(){
         for (VirtualView p : new ArrayList<>(waitingPlayers)){
@@ -255,7 +253,7 @@ public class ServerMain {
 
 
     /**
-     * Getter for the list of players
+     * Getter for the list of players.
      *
      * @return              the comprehensive list of all players, waiting or in a game
      */
@@ -265,7 +263,7 @@ public class ServerMain {
 
 
     /**
-     * Initializes the logger so that it writes to a txt file
+     * Initializes the logger.
      */
     void initializeLogger(){
         try {
@@ -283,7 +281,9 @@ public class ServerMain {
 
 
     /**
-     * Loads config from file if possible
+     * Tries to load config from
+     *      - a .properties file in the same folder as the jar
+     *      - the .properties file inside the jar (if the previous option is fails)
      *
      * @return              the loaded properties or empty properties if failed
      */
@@ -306,7 +306,7 @@ public class ServerMain {
 
 
     /**
-     * Handles input from keyboard (currently the only way to shutdown the server)
+     * Handles input from keyboard (currently only used to gracefully shutdown the server).
      */
     private synchronized void manageInput(){
         try{
@@ -330,7 +330,9 @@ public class ServerMain {
 
 
     /**
-     * Refreshes connections: forwards TCP messages and checks for activity or client disconnection
+     * Refreshes connections: forwards TCP messages and checks for activity or client disconnection. This class mantains a list
+     * of all connection to waiting, active and suspended players and checks it periodically. Since it runs on a separate thread
+     * from all the GameEngines, this means that messages can be received asynchronously.
      */
     private void refreshConnections(){
         for (VirtualView p : new ArrayList<>(this.players)) {
@@ -342,7 +344,8 @@ public class ServerMain {
 
 
     /**
-     * Start a game if certain conditions are satisfied
+     * Start a game if certain conditions are satisfied (more than MAX_PLAYERS waiting or more than MIN_PLAYERS waiting for long enough.
+     * It also handles the matchmaking timer and sends a list of waiting players to all waiting players.
      */
     synchronized void matchmaking(){
         List <VirtualView> selectedPlayers = new ArrayList<>();
@@ -361,6 +364,7 @@ public class ServerMain {
             timer.start();
         }
 
+        //makes sure that the list is only sent if it changes
         String alreadyConnected = getAlreadyConnected();
         String fullMessage = alreadyConnected + TIME_LEFT_MESSAGE + timer.getTimeLeft() + ENTER + (timer.isRunning()? STARTING_GAME_MESSAGE:WAITING_MESSAGE);
         if(!alreadyConnected.isEmpty()&&!oldMessage.equals(fullMessage)) {
@@ -373,7 +377,7 @@ public class ServerMain {
 
 
     /**
-     * Returns a list of waiting players formatted as a String
+     * Returns a list of waiting players formatted as a String.
      *
      * @return      a String containing all players already logged in
      */
@@ -391,5 +395,4 @@ public class ServerMain {
         bld.append(ENTER);
         return bld.toString();
     }
-
 }

@@ -267,7 +267,7 @@ public class ServerMainTest {
     /**
      * Tests the method matchMaking(), in the case nobody is connected.
      */
-    /*@Test
+    @Test
     public void matchMakingNoPlayers() {
 
         ServerMain sm = ServerMain.getInstance();
@@ -284,7 +284,7 @@ public class ServerMainTest {
     /**
      * Tests the method matchMaking(), in the case a player is connected.
      */
-    /*@Test
+    @Test
     public void matchMaking1() {
 
         ServerMain sm = ServerMain.getInstance();
@@ -307,7 +307,7 @@ public class ServerMainTest {
     /**
      * Tests the method matchMaking(), in the case three players are connected and the game starts.
      */
-    /*@Test
+    @Test
     public void matchMaking3() {
 
         ServerMain sm = ServerMain.getInstance();
@@ -331,5 +331,5 @@ public class ServerMainTest {
 
     }
 
-    */
+    
 }

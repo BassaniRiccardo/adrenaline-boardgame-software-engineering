@@ -13,7 +13,9 @@ import it.polimi.ingsw.model.exceptions.NotAvailableAttributeException;
 public interface Effect{
 
     /**
-     * Applies the outcomes of the usage of a weapon or power up.
+     * An Effect is an attribute of PowerUps or FireModes and implements the modifications these cards cause to the game state.
+     * In order to function, an effect must have a reference to the player it is being applied on, to the player that is acting
+     * and to the square it might move somebody in.
      *
      * @param  shooter      the Player who is taking action in this turn
      * @param  target       the Player the effect is applied on

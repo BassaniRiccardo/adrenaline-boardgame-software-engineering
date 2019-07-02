@@ -35,12 +35,8 @@ public class TCPServer implements Runnable {
     public void run(){
         running = true;
         ExecutorService executor = Executors.newCachedThreadPool();
-        ServerSocket serverSocket;
-        try{
-            serverSocket = new ServerSocket(port);
-
+        try(ServerSocket serverSocket = new ServerSocket(port)){
             LOGGER.log(Level.INFO, "TCPServer ready on port {0}", port);
-
             while (running){
                 Socket socket = serverSocket.accept();
                 executor.submit(new TCPVirtualView(socket));

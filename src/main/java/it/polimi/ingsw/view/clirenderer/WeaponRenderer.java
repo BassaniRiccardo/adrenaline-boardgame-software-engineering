@@ -38,7 +38,23 @@ public class WeaponRenderer {
             }
         }
 
-        //writes list of weapons on ground
+        printWeapons(rows, clientModel, box);
+
+        printKillShot(rows, clientModel, box);
+
+        printDeckSize(rows, clientModel, box);
+
+        return box;
+    }
+
+    /**
+     * Partially fills in a bidimensional array to show weapons.
+     *
+     * @param rows          the number of rooms with weapons in them
+     * @param clientModel   model of the game state
+     * @param box           array to be filled
+     */
+    private static void printWeapons(int rows, ClientModel clientModel, String[][] box){
         try {
             String[] weapons = new String[rows];
             int ind = 0;
@@ -63,26 +79,44 @@ public class WeaponRenderer {
         }catch(Exception ex){
             LOGGER.log(Level.SEVERE, "Error while listing weapons in rooms", ex);
         }
+    }
 
-        //draws killshot track
+    /**
+     * Partially fills in a bidimensional array to show the killshot track.
+     *
+     * @param rows          the number of rooms with weapons in them
+     * @param clientModel   model of the game state
+     * @param box           array to be filled
+     */
+    private static void printKillShot(int rows, ClientModel clientModel, String[][] box) {
         try {
             List<ClientModel.SimplePlayer> shooters = clientModel.getKillShotTrack();
-            String[] killshotTrack = new String[shooters.size()+clientModel.getSkullsLeft()];
+            String[] killshotTrack = new String[shooters.size() + clientModel.getSkullsLeft()];
             for (int i = 0; i < shooters.size(); i++) {
                 killshotTrack[i] = ClientModel.getEscapeCode(shooters.get(i).getColor()) + "♱" + RESET;
             }
-            for(int i=shooters.size(); i<shooters.size()+clientModel.getSkullsLeft(); i++){
+            for (int i = shooters.size(); i < shooters.size() + clientModel.getSkullsLeft(); i++) {
                 killshotTrack[i] = "#";
             }
-            for (int i = 0; i < "KillShot: ".length()&&i + PADDING < WEAPON_LENGTH; i++) {
+            for (int i = 0; i < "KillShot: ".length() && i + PADDING < WEAPON_LENGTH; i++) {
                 box[rows + 2][i + PADDING] = String.valueOf("Killshot: ".charAt(i));
             }
-            for (int i = 0; i < killshotTrack.length&&i + SECOND_COLUMN < WEAPON_LENGTH; i++) {
+            for (int i = 0; i < killshotTrack.length && i + SECOND_COLUMN < WEAPON_LENGTH; i++) {
                 box[rows + 2][i + SECOND_COLUMN] = String.valueOf(killshotTrack[i]);
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error while printing killshot track", ex);
         }
+    }
+
+    /**
+     * Partially fills in a bidimensional array to show the size of decks.
+     *
+     * @param rows          the number of rooms with weapons in them
+     * @param clientModel   model of the game state
+     * @param box           array to be filled
+     */
+    private static void printDeckSize(int rows, ClientModel clientModel, String[][] box){
 
         //prints weapon deck size
         String weaponDeck = "Weapons left in deck: " + clientModel.getWeaponCardsLeft();
@@ -95,7 +129,6 @@ public class WeaponRenderer {
         for(int i=0; i<powerUpDeck.length()&&i + PADDING < WEAPON_LENGTH; i++){
             box[rows+6][i+PADDING] = String.valueOf(powerUpDeck.charAt(i));
         }
-        return box;
     }
 
 }

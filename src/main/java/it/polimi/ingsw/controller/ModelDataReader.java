@@ -25,12 +25,11 @@ public class ModelDataReader {
     private static String miscellaneous = "miscellaneous.json";
     private static final String DATA_NOT_FOUND = "Data not found";
 
-
     /**
      * Constructor of a json class
      */
     public ModelDataReader() {
-        //The constructor is empty since all the attributes are static
+        //the constructor is empty since all the attributes are static
     }
 
     private JsonObject analyzer(String fileName){

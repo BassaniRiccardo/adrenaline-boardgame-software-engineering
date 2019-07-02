@@ -43,6 +43,8 @@ public class MainRenderer {
 
     /**
      * Prepares a bidimensional array of Strings to be displayed by assembling different content boxes.
+     * The graphical interface is aves as a bidimensional array of strings, each containing a single character and escape codes
+     * to format it.
      */
     public void render(){
         ClientModel model = clientMain.getClientModel();

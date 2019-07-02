@@ -29,7 +29,6 @@ public class PlayersRenderer {
      */
     public static String[][] get(ClientModel clientModel){
 
-        //preparing strings to print
         List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
         int playerNum = players.size();
         String[] names = new String[playerNum];
@@ -45,15 +44,43 @@ public class PlayersRenderer {
             deaths[i] = "";
         }
 
-        for(int i = 0; i<playerNum; i++){
+        buildStrings(playerNum, players, clientModel, names, weapons, ammo, deaths);
+
+        int playersHeight = (playerNum-1)*LINES_PER_PLAYER + 1;
+        String[][] box = new String[playersHeight][PLAYERS_WIDTH];
+        for(int i=0; i<box.length; i++){
+            for(int j =0; j<box[i].length; j++){
+                box[i][j] = " ";
+            }
+        }
+
+        printStrings(playerNum, playersHeight, clientModel, box, names, ammo, weapons, deaths);
+
+        return MainRenderer.trimBox(box, PADDING, PLAYERS_WIDTH);
+    }
+
+
+    /**
+     * Fills in a set of Strings which will be printed to the array.
+     *
+     * @param playerNum     number of players
+     * @param players       list of players
+     * @param clientModel   model of the game state
+     * @param names         names of the player, still empty
+     * @param weapons       weapons held by each player, still empty
+     * @param ammo          ammo owned by each player, still empty
+     * @param deaths        times each player has died so far, still empty
+     */
+    private static void buildStrings(int playerNum, List<ClientModel.SimplePlayer> players, ClientModel clientModel, String[] names, String[] weapons, String[][]ammo, String[] deaths) {
+        for (int i = 0; i < playerNum; i++) {
             ClientModel.SimplePlayer p = players.get(i);
-            names[i] = p.getUsername() + (p.getStatus().equalsIgnoreCase("basic")? "":" [" + p.getStatus() + "]") + (p.isFlipped()? " [FLIPPED]":"");
-            if(clientModel.getCurrentPlayer().getId()==p.getId()){
+            names[i] = p.getUsername() + (p.getStatus().equalsIgnoreCase("basic") ? "" : " [" + p.getStatus() + "]") + (p.isFlipped() ? " [FLIPPED]" : "");
+            if (clientModel.getCurrentPlayer().getId() == p.getId()) {
                 names[i] = names[i] + " [current]";
             }
-            weapons[i] ="Weapons: ";
+            weapons[i] = "Weapons: ";
             List<ClientModel.SimpleWeapon> currentWeapons = p.getWeapons();
-            if(currentWeapons.isEmpty()){
+            if (currentWeapons.isEmpty()) {
                 weapons[i] = weapons[i] + "none";
             } else {
                 for (int j = 0; j < currentWeapons.size(); j++) {
@@ -67,34 +94,38 @@ public class PlayersRenderer {
                 }
             }
             int count;
-            for(count = 0; count<"Ammo: ".length(); count++){
+            for (count = 0; count < "Ammo: ".length(); count++) {
                 ammo[i][count] = String.valueOf("Ammo: ".charAt(count));
             }
-            for(int j=0; j<p.getBlueAmmo(); j++){
-                ammo[i][count] = ClientModel.getEscapeCode("blue") + "|"+RESET;
+            for (int j = 0; j < p.getBlueAmmo(); j++) {
+                ammo[i][count] = ClientModel.getEscapeCode("blue") + "|" + RESET;
                 count++;
             }
-            for(int j=0; j<p.getRedAmmo(); j++){
-                ammo[i][count] = ClientModel.getEscapeCode("red") + "|"+RESET;
+            for (int j = 0; j < p.getRedAmmo(); j++) {
+                ammo[i][count] = ClientModel.getEscapeCode("red") + "|" + RESET;
                 count++;
             }
-            for(int j=0; j<p.getYellowAmmo(); j++){
-                ammo[i][count] = ClientModel.getEscapeCode("yellow") + "|"+RESET;
+            for (int j = 0; j < p.getYellowAmmo(); j++) {
+                ammo[i][count] = ClientModel.getEscapeCode("yellow") + "|" + RESET;
                 count++;
             }
             deaths[i] = "Deaths: " + p.getDeaths() + " (next death awards " + p.getNextDeathAwards() + " points)";
         }
+    }
 
-        int playersHeight = (playerNum-1)*LINES_PER_PLAYER + 1;
-        String[][] box = new String[playersHeight][PLAYERS_WIDTH];
-
-        for(int i=0; i<box.length; i++){
-            for(int j =0; j<box[i].length; j++){
-                box[i][j] = " ";
-            }
-        }
-
-        //printing strings
+    /**
+     * Places the Strings previously built on the bidimensional array.
+     *
+     * @param playerNum         number of players
+     * @param playersHeight     height of the array representing players
+     * @param clientModel       model of the game state
+     * @param box               the array that will be filled with Strings
+     * @param names             names of the player, still empty
+     * @param ammo              ammo owned by each player, still empty
+     * @param weapons           weapons held by each player, still empty
+     * @param deaths            times each player has died so far, still empty
+     */
+    private static void printStrings(int playerNum, int playersHeight, ClientModel clientModel, String[][]box, String[] names, String[][]ammo, String[]weapons, String[] deaths){
         int row =0;
         for(int i=0; i<playerNum && row*LINES_PER_PLAYER<playersHeight; i++){
 
@@ -153,6 +184,5 @@ public class PlayersRenderer {
             }
             row++;
         }
-        return MainRenderer.trimBox(box, PADDING, PLAYERS_WIDTH);
     }
 }

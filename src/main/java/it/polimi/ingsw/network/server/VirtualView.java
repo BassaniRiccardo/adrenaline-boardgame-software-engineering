@@ -70,7 +70,7 @@ public abstract class VirtualView implements Runnable{
     public void run(){
 
         String playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
-        name = getInputNow(playersAlreadyConnected+"\nSelect a name.", 16);
+        name = getInputNow(playersAlreadyConnected+"Select a name.", 16);
         battlecry = getInputNow("Now, choose your battlecry!", MAX_LENGTH_BATTLECRY);
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
@@ -232,7 +232,12 @@ public abstract class VirtualView implements Runnable{
     public abstract void update(JsonObject jsonObject);
 
 
-
+    /**
+     * Notifies the GameEngine of messages received from the client. The GameEngine is forced as an observer and does not
+     * need to subscribe.
+     *
+     * @param ans   message received from the client
+     */
     protected void notifyObservers(String ans){
         if(game!=null) {
             game.notify(this, ans);

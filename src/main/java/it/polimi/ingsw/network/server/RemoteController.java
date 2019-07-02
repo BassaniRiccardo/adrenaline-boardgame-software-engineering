@@ -12,6 +12,8 @@ public interface RemoteController extends Remote{
 
     /**
      * Method called by the client to check connection status
+     *
+     * @throws RemoteException  if connection problems subsist
      */
     void ping() throws RemoteException;
 }

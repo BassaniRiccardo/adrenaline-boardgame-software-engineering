@@ -120,19 +120,7 @@ public class MapRenderer {
             placeSquareOnMap(map, squares[n], n, mapID);
         }
 
-        //adding padding
-        String[][] paddedMap = new String[MAP_HEIGHT][MAP_WIDTH+LEFT_PADDING];
-        for(int i=0; i<paddedMap.length; i++){
-            for(int j=0; j<paddedMap[i].length; j++){
-                if(j<LEFT_PADDING){
-                    paddedMap[i][j] = " ";
-                } else {
-                    paddedMap[i][j] = map[i][j-LEFT_PADDING];
-                }
-            }
-        }
-
-        return paddedMap;
+        return addPadding(map, LEFT_PADDING);
     }
 
     /**
@@ -144,13 +132,12 @@ public class MapRenderer {
      * @param y         vertical offset
      * @return          result of the merge
      */
-    private static String[][] merge(String[][] box1, String[][]box2, int x, int y){
+    private static void merge(String[][] box1, String[][]box2, int x, int y){
         for(int i = 0; i<box2.length; i++){
             for(int j = 0; j<box2[0].length; j++){
                 box1[i+x][j+y]=box2[i][j];
             }
         }
-        return box1;
     }
 
     /**
@@ -220,4 +207,27 @@ public class MapRenderer {
         }
         return map;
     }
+
+    /**
+     * Takes a bidimensional array and adds a number of columns filled with blank spaces to the left
+     *
+     * @param map   representation of the game board
+     * @param padding   number of columns to fill with blanks
+     * @return      modified map
+     */
+    private String[][] addPadding(String[][] map, int padding){
+        String[][] paddedMap = new String[MAP_HEIGHT][MAP_WIDTH+padding];
+        for(int i=0; i<paddedMap.length; i++){
+            for(int j=0; j<paddedMap[i].length; j++){
+                if(j<padding){
+                    paddedMap[i][j] = " ";
+                } else {
+                    paddedMap[i][j] = map[i][j-LEFT_PADDING];
+                }
+            }
+        }
+        return paddedMap;
+    }
+
+
 }

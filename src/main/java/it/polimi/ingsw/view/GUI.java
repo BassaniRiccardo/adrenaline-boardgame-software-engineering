@@ -54,8 +54,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private BorderPane root;
     private DataSaver dataSaver = new DataSaver();
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
-    private static final CountDownLatch latch = new CountDownLatch(1);
-    private static GUI GUI = null;
+    public static final CountDownLatch latch = new CountDownLatch(1);
+    public static GUI GUI = null;
     private ClientModel clientModel;
     private static final int DEVELOPER_WIDTH_RESOLUTION =1536;
     private static final int DEVELOPER_HEIGHT_RESOLUTION =864;
@@ -81,7 +81,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      *
      * @return
      */
-    static GUI waitGUI() {
+    public static GUI waitGUI() {
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -94,7 +94,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      *
      * @param GUI0
      */
-    private static void setGUI(GUI GUI0) {
+    public static void setGUI(GUI GUI0) {
         GUI = GUI0;
         latch.countDown();
     }
@@ -112,7 +112,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         renderAlreadyLaunched = false;
     }
 
-    void setClientMain(ClientMain clientMain) {
+    public void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
         this.clientModel=clientMain.getClientModel();   //potrebbe forse essere cancellato
     }
@@ -154,8 +154,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             root = new BorderPane();
             root.setTop(welcomeView);
             root.setAlignment(welcomeView, Pos.CENTER);
-            welcomeView.setTranslateY(80*scale);
-            welcomeView.setFitHeight(600 * scale);
+            welcomeView.setTranslateY(30*scale);
+            welcomeView.setFitHeight(500 * scale);
             welcomeView.setPreserveRatio(true);
             root.setStyle("-fx-background-color: #000000");
             root.setBottom(messagePanel);
@@ -168,14 +168,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     private void printer(){
         root = new BorderPane();
-
-            root.setTop(welcomeView);
-            root.setAlignment(welcomeView, Pos.CENTER);
-            welcomeView.setTranslateY(80*scale);
-            welcomeView.setFitHeight(600 * scale);
-            welcomeView.setPreserveRatio(true);
-            root.setBottom(messagePanel);
-
+        root.setTop(welcomeView);
+        root.setAlignment(welcomeView, Pos.CENTER);
+        welcomeView.setTranslateY(30*scale);
+        welcomeView.setFitHeight(500 * scale);
+        welcomeView.setPreserveRatio(true);
+        root.setBottom(messagePanel);
         root.setStyle("-fx-background-color: #000000");
         scene.setRoot(root);
     }
@@ -196,7 +194,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Platform.runLater( () -> {
             //try {
             System.out.println("RENDER");
-            clientModel=clientMain.getClientModel(); //penso sia utile solo per il test
+            clientModel=clientMain.getClientModel();
             mapBoardRenderer.setClientModel(clientModel);
             mapBoardRenderer.setRenderInstruction(mapBoardRenderInstruction);
 
@@ -351,7 +349,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             List<Button> inputButtons = new ArrayList<>();
             boolean interactiveInput;
             interactiveInput =  type.equals(CHOOSE_SQUARE.toString()) ||  type.equals(CHOOSE_WEAPON.toString()) ||
-            type.equals(CHOOSE_PLAYER.toString()) || type.equals(CHOOSE_POWERUP.toString());  //CHOOSE_STRING is the instruction for a render without interactive inputs
+                    type.equals(CHOOSE_PLAYER.toString()) || type.equals(CHOOSE_POWERUP.toString());  //CHOOSE_STRING is the instruction for a render without interactive inputs
 
             HBox optionList1 = new HBox();
             VBox optionList2 = new VBox();
@@ -359,17 +357,18 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             optionList1.setSpacing(10 / modifiedList.size());
             optionList2.setAlignment(Pos.CENTER);
             optionList2.setSpacing(10 / modifiedList.size());
-            List<Button> buttons = new ArrayList<>();
 
             for (String item : modifiedList) {
                 Button b = new Button();
-                if(interactiveInput && item.equals("Reset")){   //reset button is always needed in the message panel
+                if(interactiveInput && (item.equals("Reset") || item.equals("None"))){   //reset button is always needed in the message panel
                     b.setText(item);
+                    inputButtons.add(b);
+                    labelButton.add(item);
                     optionList2.getChildren().add(b);
                     b.setOnAction(e -> {
-                        System.out.println("OPT " + (list.size()) + ": you clicked me!");
+                        System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
                         dataSaver.message = message;
-                        dataSaver.answer = Integer.toString(list.size());
+                        dataSaver.answer = Integer.toString(inputButtons.indexOf(b)+1);
                         dataSaver.update = true;
                     });
                     break;
@@ -413,7 +412,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                             modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(2).getName())){
                         playerBoardRenderInstruction = "Weapon";
 
-                  }else{
+                    }else{
                         mapBoardRenderInstruction ="Weapon";}
                 }
                 else{
@@ -431,17 +430,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             playerBoardRenderer.setInputButtons(inputButtons);
             playerBoardRenderer.setLabelButton(labelButton);
             messagePanel = opt;
-          /* if(renderAlreadyLaunched)
-                render();
-            else {
-                clientModel = clientMain.getClientModel();
-                if (clientModel != null) {
-                    renderAlreadyLaunched = true;
-                    mapBoardRenderer = new MapBoardRenderer(scale, clientModel);
-                } else
-                    printer();
-            }
-*/
+
             if(clientModel==null){
                 printer();
             }else {
@@ -451,7 +440,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
-    private String removeEscapeCode(String type, String message){
+    public String removeEscapeCode(String type, String message){
         if (message.contains("0m")){
             if (type.equals(CHOOSE_POWERUP.toString())){
                 message = message.replace("[31m", "Red ");
@@ -474,8 +463,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         }
 
+        System.out.println(message);
         return message;
-
     }
 
     /**
@@ -698,7 +687,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Button exitButton = new Button("CHIUDI");
         exitButton.setOnAction(e -> stage.close());
         messagePanel.getChildren().addAll(onlyLabel, exitButton);
-        printer();
+        render();
         while (stage.isShowing()){try {
             Thread.sleep(30000);
         }catch (InterruptedException e){e.printStackTrace();}}
@@ -711,7 +700,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Button exitButton = new Button("CHIUDI");
         exitButton.setOnAction(e -> stage.close());
         messagePanel.getChildren().addAll(onlyLabel, exitButton);
-        printer();
+        render();
         while (stage.isShowing()){try {
             Thread.sleep(30000);
         }catch (InterruptedException e){e.printStackTrace();}}
@@ -724,7 +713,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         Button exitButton = new Button("CHIUDI");
         exitButton.setOnAction(e -> stage.close());
         messagePanel.getChildren().addAll(onlyLabel, exitButton);
-        printer();
+        render();
         while (stage.isShowing()){try {
             Thread.sleep(30000);
         }catch (InterruptedException e){e.printStackTrace();}}
@@ -742,7 +731,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         boolean update;
     }
 
-    private ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
+    public ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
         String key,playerColor;
         playerColor=player.getColor();
         switch (playerColor){
@@ -767,7 +756,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         //try{
         InputStream playerFile = this.getClass().getResourceAsStream("/images/miscellaneous/"+key+".png");
-        System.out.println(key);
         Image playerImage = new Image(playerFile);
         ImageView playerView = new ImageView(playerImage);
         return playerView;

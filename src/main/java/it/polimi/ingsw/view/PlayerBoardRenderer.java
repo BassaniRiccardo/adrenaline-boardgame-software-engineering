@@ -63,7 +63,6 @@ public class PlayerBoardRenderer {
     InputStream redAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/redAmmo.png");
     InputStream blueAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/blueAmmo.png");
     InputStream yellowAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/yellowAmmo.png");
-    System.out.println("AMMO");
 
     Image redAmmoImage=new Image(redAmmoFile);
     Image blueAmmoImage=new Image(blueAmmoFile);
@@ -218,7 +217,6 @@ public class PlayerBoardRenderer {
         List<ClientModel.SimpleWeapon> weapons;
         Image weaponImage;
         Image puBackImage = new Image(getClass().getResourceAsStream("/images/cards/pUBack.png"));
-
         List<Pane> puContainer = new ArrayList<>();
         for(ClientModel.SimplePlayer p : players) {
             handContainer.add(new HBox());
@@ -235,11 +233,7 @@ public class PlayerBoardRenderer {
                 weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setFitHeight(300*scalePB);
                 weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setPreserveRatio(true);
                 loadUnload.get(players.indexOf(p)).add(new Label());
-                if(w.isLoaded()) {
-                    loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setText("CARICA!!!");
-                    loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTextFill(Color.web("#FF0000"));
-                }
-                else {
+                if( ! w.isLoaded()) {
                     loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setText("SCARICA");
                     loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTextFill(Color.web("#F8F8FF"));
                 }
@@ -248,11 +242,17 @@ public class PlayerBoardRenderer {
                 weaponContainer.get(players.indexOf(p)).add(new Pane());
                 weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().addAll(weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)),
                         loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)));
-                if(renderInstruction.equals("Weapon") && p==clientModel.getCurrentPlayer() && labelButton.contains(w.getName())){
-                    weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().add(inputButtons.get(labelButton.indexOf(w.getName())));
-                    inputButtons.get(labelButton.indexOf(w.getName())).setPrefWidth(180*scalePB);
-                    inputButtons.get(labelButton.indexOf(w.getName())).setPrefHeight(300*scalePB);
-                    inputButtons.get(labelButton.indexOf(w.getName())).setStyle("-fx-background-color: transparent;");
+                if(renderInstruction.equals("Weapon") && p==clientModel.getCurrentPlayer()){
+                    if(labelButton.contains(w.getName())) {
+                        weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().add(inputButtons.get(labelButton.indexOf(w.getName())));
+                        inputButtons.get(labelButton.indexOf(w.getName())).setPrefWidth(180 * scalePB);
+                        inputButtons.get(labelButton.indexOf(w.getName())).setPrefHeight(300 * scalePB);
+                        inputButtons.get(labelButton.indexOf(w.getName())).setStyle("-fx-background-color: transparent;");
+                    }else{
+                        ColorAdjust lessVisible = new ColorAdjust();
+                        lessVisible.setBrightness(-0.5);
+                        weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setEffect(lessVisible);
+                    }
                 }
                 handContainer.get(players.indexOf(p)).getChildren().add(weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)));
             }
@@ -270,9 +270,7 @@ public class PlayerBoardRenderer {
                 for(int i = 0; i < clientModel.getPowerUpInHand().size(); i++){
                     String color = clientModel.getColorPowerUpInHand().get(i);
                     String pu = clientModel.getPowerUpInHand().get(i);
-                    System.out.println("/images/cards/"+color+pu.replace(" ","_")+".png");
                     Image puImage = new Image(getClass().getResourceAsStream("/images/cards/"+color+pu.replace(" ","_")+".png"));
-
                     puView.add(new ImageView(puImage));
                     puView.get(puView.size()-1).setFitHeight(200*scalePB);
                     puView.get(puView.size()-1).setPreserveRatio(true);
@@ -283,18 +281,12 @@ public class PlayerBoardRenderer {
                         labelPowerUp = labelPowerUp.substring(0, 1).toUpperCase() + labelPowerUp.substring(1);
                         labelPowerUp = labelPowerUp + " " + pu;
                         if(labelButton.contains(labelPowerUp)) {
-                            System.out.println("IM IN!!!");
+                            System.out.println("IM IN!!!"+labelButton);
                             puContainer.get(puContainer.size() - 1).getChildren().add(inputButtons.get(labelButton.indexOf(labelPowerUp)));
                             inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefWidth(135*scalePB);
                             inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefHeight(200*scalePB);
                             inputButtons.get(labelButton.indexOf(labelPowerUp)).setStyle("-fx-background-color: transparent;");
-                            //labelButton.remove(labelButton.indexOf(labelPowerUp));
-                            for(String label : labelButton)
-                                if(label.equals(labelPowerUp)){
-                                    labelButton.remove(labelButton.indexOf(label));
-                                    break;
-                                }
-
+                            labelButton.set(labelButton.indexOf(labelPowerUp), "used");
                         }else {
                             ColorAdjust lessVisible = new ColorAdjust();
                             lessVisible.setBrightness(-0.5);
@@ -318,7 +310,6 @@ public class PlayerBoardRenderer {
         Image point1Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point1.png"));
         Image point2Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point2.png"));
         Image point4Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point4.png"));
-
         List<ImageView> point1View = new ArrayList<>();
         List<ImageView> point2View = new ArrayList<>();
         List<ImageView> point4View = new ArrayList<>();

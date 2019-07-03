@@ -150,7 +150,7 @@ public abstract class VirtualView implements Runnable{
 
 
     /**
-     * Commands the client to show an ending mesage and eventually shutdown.
+     * Commands the client to show an ending message and eventually shutdown.
      *
      * @param message       the message to display
      */
@@ -158,7 +158,7 @@ public abstract class VirtualView implements Runnable{
 
 
     /**
-     * Suspends the player. This causes the client to shutdown, but the VirtualView is kept alive untile the player
+     * Suspends the player. This causes the client to shutdown, but the VirtualView is kept alive until the player
      * resumes or the game ends.
      */
     public void suspend() {

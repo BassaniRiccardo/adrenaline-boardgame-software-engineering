@@ -142,8 +142,6 @@ public class MapBoardRenderer {
         }
 
     //buttons
-        System.out.println(inputButtons);
-        System.out.println(labelButton);
         if (renderInstruction.equals("Square")) {
             column = 0;
             row = 0;
@@ -154,62 +152,62 @@ public class MapBoardRenderer {
                     row = 1;
                     column = 0;
                     if (buttonIndex < inputButtons.size())
-                        if (("Square " + s.getId()).equals(labelButton.get(buttonIndex))) {
-                            roomsGrid.add(inputButtons.get(buttonIndex), column, row);
-                            inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
-                            inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
-                            inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+                        if ((labelButton.contains("Square " + s.getId()))) {
+                            roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
+                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
+                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
+                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
                             buttonIndex++;
                         }
                     column++;
                 } else if ((mapId == 1 || mapId == 3) && column == 0 && row == 2) {
                     column++;
                     if (buttonIndex < inputButtons.size())
-                        if (("Square " + s.getId()).equals(labelButton.get(buttonIndex))) {
-                            roomsGrid.add(inputButtons.get(buttonIndex), column, row);
-                            inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
-                            inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
-                            inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+                        if ((labelButton.contains("Square " + s.getId()))) {
+                            roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
+                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
+                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
+                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
                             buttonIndex++;
                         }
                     column++;
                 } else {
                     if (!s.isSpawnPoint()) {
                          if (buttonIndex < inputButtons.size())
-                            if (("Square " + s.getId()).equals(labelButton.get(buttonIndex))) {
-                                roomsGrid.add(inputButtons.get(buttonIndex), column, row);
-                                inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
-                                inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
-                                inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+                             if ((labelButton.contains("Square " + s.getId()))) {
+                                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
                                 buttonIndex++;
                             }
                     } else if (spawningPoint == 1) {
                        if (buttonIndex < inputButtons.size())
-                            if (("Square " + s.getId()).equals(labelButton.get(buttonIndex))) {
-                                roomsGrid.add(inputButtons.get(buttonIndex), column, row);
-                                inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
-                                inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
-                                inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+                           if ((labelButton.contains("Square " + s.getId()))) {
+                                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
                                 buttonIndex++;
                             }
                         spawningPoint++;
                     } else if (spawningPoint == 2) {
                        if (buttonIndex < inputButtons.size())
-                            if (("Square " + s.getId()).equals(labelButton.get(buttonIndex))) {
-                                roomsGrid.add(inputButtons.get(buttonIndex), column, row);
-                                inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
-                                inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
-                                inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+                           if ((labelButton.contains("Square " + s.getId()))) {
+                                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
                                 buttonIndex++;
                             }
                         spawningPoint++;
                     }else if (spawningPoint == 3) {
                         if (buttonIndex < inputButtons.size())
-                            if (("Square " + s.getId()).equals(labelButton.get(buttonIndex))) {
-                                roomsGrid.add(inputButtons.get(buttonIndex), column, row);
-                                inputButtons.get(buttonIndex).setPrefSize(150 * scale, 150 * scale);
-                                inputButtons.get(buttonIndex).setTranslateY(-20 * scale);
-                                inputButtons.get(buttonIndex).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+                            if ((labelButton.contains("Square " + s.getId()))) {
+                                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
+                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
                                 buttonIndex++;
                             }
                         spawningPoint++;
@@ -445,13 +443,11 @@ public class MapBoardRenderer {
                 String key= w.getName();
                 InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png");
                 Image weaponImage = new Image(weaponFile);
-                ImageView weaponImageView = new ImageView(weaponImage);
                 weaponView.add(weaponImage);
             }
             while (weaponView.size()<3){
                 InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/wBack.png");
                 Image weaponImage = new Image(weaponFile);
-                ImageView weaponImageView = new ImageView(weaponImage);
                 weaponView.add(weaponImage);
             }
 

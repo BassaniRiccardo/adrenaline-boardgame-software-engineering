@@ -75,7 +75,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private String mapBoardRenderInstruction; //andrà cancellato credo
     private String playerBoardRenderInstruction;
     private boolean renderAlreadyLaunched;
-    private boolean setColor = true;
+    private boolean setColor;
 
     /**
      *
@@ -110,6 +110,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         mapBoardRenderInstruction = "Normal";
         playerBoardRenderInstruction = "Normal";
         renderAlreadyLaunched = false;
+        this.setColor = true;
     }
 
     public void setClientMain(ClientMain clientMain) {

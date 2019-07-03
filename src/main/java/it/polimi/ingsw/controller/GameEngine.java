@@ -514,7 +514,8 @@ public class GameEngine implements Runnable{
         timer.start();
         try {
             new TurnManager(this, board, currentPlayer, players, statusSaver, frenzy, timer).runTurn();
-        } catch (Exception e ){ e.printStackTrace(); throw e;}
+        }
+        catch (Exception e ){ e.printStackTrace(); throw e;}
         timer.stop();
     }
 

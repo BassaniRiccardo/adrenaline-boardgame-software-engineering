@@ -112,19 +112,11 @@ public class MapBoardRenderer {
             } else if ((mapId == 1 || mapId == 3) && column == 0 && row == 2) {
                 roomsGrid.add(emptyRoom2, column, row);
                 column++;
-                ammoView.add(getImageOfSquare(s));
-                roomsGrid.add(ammoView.get(ammoView.size() - 1), column, row);
-                ammoView.get(ammoView.size() - 1).setFitHeight(65 * scale);
-                ammoView.get(ammoView.size() - 1).setPreserveRatio(true);
-                roomsGrid.setMargin(ammoView.get(ammoView.size() - 1), new javafx.geometry.Insets(55 * scale, 55 * scale, 55 * scale, 55 * scale));
+                roomAmmoSquareBuilder(s, roomsGrid, ammoView, column, row);
                 column++;
             } else {
                 if (!s.isSpawnPoint()) {
-                    ammoView.add(getImageOfSquare(s));
-                    roomsGrid.add(ammoView.get(ammoView.size() - 1), column, row);
-                    ammoView.get(ammoView.size() - 1).setFitHeight(65 * scale);
-                    ammoView.get(ammoView.size() - 1).setPreserveRatio(true);
-                    roomsGrid.setMargin(ammoView.get(ammoView.size() - 1), new javafx.geometry.Insets(55 * scale, 55 * scale, 55 * scale, 55 * scale));
+                    roomAmmoSquareBuilder(s, roomsGrid, ammoView, column, row);
                 } else if (spawningPoint == 1) {
                     roomsGrid.add(emptyRoom3, column, row);
                     spawningPoint++;
@@ -151,65 +143,17 @@ public class MapBoardRenderer {
                 if ((mapId == 1 || mapId == 2) && column == 3 && row == 0) {
                     row = 1;
                     column = 0;
-                    if (buttonIndex < inputButtons.size())
-                        if ((labelButton.contains("Square " + s.getId()))) {
-                            roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
-                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
-                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
-                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-                            buttonIndex++;
-                        }
+                    addRoomButton(buttonIndex,roomsGrid,column,row,s);
                     column++;
                 } else if ((mapId == 1 || mapId == 3) && column == 0 && row == 2) {
                     column++;
-                    if (buttonIndex < inputButtons.size())
-                        if ((labelButton.contains("Square " + s.getId()))) {
-                            roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
-                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
-                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
-                            inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-                            buttonIndex++;
-                        }
+                    addRoomButton(buttonIndex,roomsGrid,column,row,s);
                     column++;
                 } else {
                     if (!s.isSpawnPoint()) {
-                         if (buttonIndex < inputButtons.size())
-                             if ((labelButton.contains("Square " + s.getId()))) {
-                                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-                                buttonIndex++;
-                            }
-                    } else if (spawningPoint == 1) {
-                       if (buttonIndex < inputButtons.size())
-                           if ((labelButton.contains("Square " + s.getId()))) {
-                                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-                                buttonIndex++;
-                            }
-                        spawningPoint++;
-                    } else if (spawningPoint == 2) {
-                       if (buttonIndex < inputButtons.size())
-                           if ((labelButton.contains("Square " + s.getId()))) {
-                                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-                                buttonIndex++;
-                            }
-                        spawningPoint++;
-                    }else if (spawningPoint == 3) {
-                        if (buttonIndex < inputButtons.size())
-                            if ((labelButton.contains("Square " + s.getId()))) {
-                                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
-                                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-                                buttonIndex++;
-                            }
+                        addRoomButton(buttonIndex,roomsGrid,column,row,s);
+                    } else if (spawningPoint <= 3) {
+                        addRoomButton(buttonIndex,roomsGrid,column,row,s);
                         spawningPoint++;
                     }
                     if (column == 3) {
@@ -225,6 +169,25 @@ public class MapBoardRenderer {
         roomsGrid.setTranslateX(180 * scale);
         roomsGrid.setTranslateY((200 * scale));
         return roomsGrid;
+    }
+
+    private void roomAmmoSquareBuilder(ClientModel.SimpleSquare s, GridPane roomsGrid, List<ImageView> ammoView, int column, int row){
+        ammoView.add(getImageOfSquare(s));
+        roomsGrid.add(ammoView.get(ammoView.size() - 1), column, row);
+        ammoView.get(ammoView.size() - 1).setFitHeight(65 * scale);
+        ammoView.get(ammoView.size() - 1).setPreserveRatio(true);
+        roomsGrid.setMargin(ammoView.get(ammoView.size() - 1), new javafx.geometry.Insets(55 * scale, 55 * scale, 55 * scale, 55 * scale));
+    }
+
+    private void addRoomButton(int buttonIndex, GridPane roomsGrid, int column, int row, ClientModel.SimpleSquare s){
+        if (buttonIndex < inputButtons.size())
+            if ((labelButton.contains("Square " + s.getId()))) {
+                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
+                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
+                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
+                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+                buttonIndex++;
+            }
     }
 
     private ImageView getImageOfSquare(ClientModel.SimpleSquare square) {
@@ -267,7 +230,7 @@ public class MapBoardRenderer {
         return new ImageView(ammoImage);
     }
 
-    GridPane killShotTrackRender(int skullNumber) {
+    GridPane killShotTrackRenderer(int skullNumber) {
         List<ImageView> skulls = new ArrayList<>();
         InputStream skullFile = this.getClass().getResourceAsStream("/images/miscellaneous/skull.png");
         Image skullImage = new Image(skullFile);
@@ -299,20 +262,27 @@ public class MapBoardRenderer {
         List<ImageView> iconView = new ArrayList<>();
         List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
         Image iconImage;
-        String color;
-        for (ClientModel.SimplePlayer p : players) {
+        String color;System.out.println(players);
+        for (ClientModel.SimplePlayer p : players) {System.out.println(p);
             color = p.getColor();
             iconImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/" + color + "Hero.png"));
             iconView.add(new ImageView(iconImage));
             iconView.get(iconView.size() - 1).setFitHeight(80 * scale);
             iconView.get(iconView.size() - 1).setPreserveRatio(true);
-            if(renderInstruction.equals("Player"))
-                if(labelButton.contains(p.getUsername()))
-                    iconView.get(iconView.size() - 1).setOnMouseClicked((MouseEvent e) -> {
-                        inputButtons.get(labelButton.indexOf(p.getUsername())).fire();
-                    });
+            if (renderInstruction.equals("Player")) {
+                boolean presence = false;
+                for (String label : labelButton) {  //this is needed for the weapon furnace label
+                    if(label.contains(p.getUsername())){
+                        presence = true;
+                        break;
+                    }
+                }
+                if (presence)
+                    iconView.get(iconView.size() - 1).setOnMouseClicked((MouseEvent e) ->
+                            inputButtons.get(labelButton.indexOf(p.getUsername())).fire());
                 else
                     iconView.get(iconView.size() - 1).setOpacity(0.4);
+            }
         }
 
         for (ClientModel.SimplePlayer p : players){
@@ -328,9 +298,11 @@ public class MapBoardRenderer {
                     iconView.get(3).setTranslateX(90*scale);
                     iconView.get(3).setTranslateY(-60*scale);
                     break;
-                case(4):
-                    iconView.get(4).setTranslateX(90*scale);
+                case(0):
                     break;
+                    default:
+                        iconView.get(4).setTranslateX(90*scale);
+
             }
         }
 
@@ -373,7 +345,7 @@ public class MapBoardRenderer {
 
     List<GridPane> weaponRenderer() {
         List<GridPane> weaponGrid = new ArrayList<>();
-        ArrayList<Image> weaponImage;
+        List<Image> weaponImage;
         List<ArrayList<ImageView>> weaponList = new ArrayList<>();
         List<ArrayList<ImageView>> weaponListZoom = new ArrayList<>();
         List<ArrayList<MenuItem>> itemWeaponZoom = new ArrayList<>();
@@ -434,7 +406,7 @@ public class MapBoardRenderer {
         return weaponGrid;
     }
 
-        public ArrayList<Image> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
+        private List<Image> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
             ArrayList<Image> weaponView = new ArrayList<>();
             int index=square.getId();
             List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(index)).getWeapons();
@@ -487,88 +459,3 @@ public class MapBoardRenderer {
 
 
     }
-
-/*  Pane  emptyRoom2 = new Pane();
-        Pane  emptyRoom3 = new Pane();
-        Pane  emptyRoom4 = new Pane();
-        Pane  emptyRoom5 = new Pane();
-        List<Button> squareButton = new ArrayList<>();
-        emptyRoom1.setMinSize(175*scale, 175*scale);
-        emptyRoom2.setMinSize(175*scale, 175*scale);
-        emptyRoom3.setMinSize(175*scale, 175*scale);
-        emptyRoom4.setMinSize(175*scale, 175*scale);
-        emptyRoom5.setMinSize(175*scale, 175*scale);
-        List<ImageView> ammoView = new ArrayList<>();
-        int column=0;
-        int row=0;
-        int spawningPoint=1;
-        int buttonIndex=0;
-        for(ClientModel.SimpleSquare s : squares) {
-            if ((mapId == 1 || mapId == 2) && column == 3 && row == 0) {
-                roomsGrid.add(emptyRoom1, column, row);
-                row = 1;
-                column = 0;
-                roomsGrid.add(emptyRoom5,column,row);
-                if(("Square "+Integer.toString(s.getId())).equals(inputButtons.get(buttonIndex).getText())){
-                squareButton.add(new Button());
-                roomsGrid.add(squareButton.get(squareButton.size()-1), column, row);
-                squareButton.get(squareButton.size()-1).setPrefSize(150*scale,150*scale);
-                squareButton.get(squareButton.size()-1).setTranslateY(-20*scale);
-                squareButton.get(squareButton.size()-1).setStyle("-fx-background-color: transparent;");
-                column++;
-            } else if((mapId == 1 || mapId == 3) && column == 0 && row == 2){
-                roomsGrid.add(emptyRoom2,column,row);
-                column++;
-                ammoView.add(getImageOfSquare(s));
-                roomsGrid.add(ammoView.get(ammoView.size()-1), column, row);
-                ammoView.get(ammoView.size()-1).setFitHeight(65*scale);
-                ammoView.get(ammoView.size()-1).setPreserveRatio(true);
-                roomsGrid.setMargin(ammoView.get(ammoView.size()-1), new javafx.geometry.Insets(55*scale, 55*scale, 55*scale, 55*scale));
-                squareButton.add(new Button());
-                roomsGrid.add(squareButton.get(squareButton.size()-1), column, row);
-                squareButton.get(squareButton.size()-1).setPrefSize(150,150);
-                squareButton.get(squareButton.size()-1).setTranslateY(-20);
-                squareButton.get(squareButton.size()-1).setStyle("-fx-background-color: transparent;");
-                column++;
-            }else{
-                if (!s.isSpawnPoint()) {
-                    ammoView.add(getImageOfSquare(s));
-                    roomsGrid.add(ammoView.get(ammoView.size()-1), column, row);
-                    ammoView.get(ammoView.size()-1).setFitHeight(65*scale);
-                    ammoView.get(ammoView.size()-1).setPreserveRatio(true);
-                    roomsGrid.setMargin(ammoView.get(ammoView.size()-1), new javafx.geometry.Insets(55*scale, 55*scale, 55*scale, 55*scale));
-                    squareButton.add(new Button());
-                    roomsGrid.add(squareButton.get(squareButton.size()-1), column, row);
-                    squareButton.get(squareButton.size()-1).setPrefSize(150,150);
-                    squareButton.get(squareButton.size()-1).setTranslateY(-20);
-                    squareButton.get(squareButton.size()-1).setStyle("-fx-background-color: transparent;");
-                }
-                else if (spawningPoint==1){
-                    roomsGrid.add(emptyRoom3,column,row);
-                    squareButton.add(new Button());
-                    roomsGrid.add(squareButton.get(squareButton.size()-1), column, row);
-                    squareButton.get(squareButton.size()-1).setPrefSize(150,150);
-                    squareButton.get(squareButton.size()-1).setTranslateY(-20);
-                    squareButton.get(squareButton.size()-1).setStyle("-fx-background-color: transparent;");
-                    spawningPoint++;
-                }
-                else if (spawningPoint==2){
-                    roomsGrid.add(emptyRoom4,column,row);
-                    squareButton.add(new Button());
-                    roomsGrid.add(squareButton.get(squareButton.size()-1), column, row);
-                    squareButton.get(squareButton.size()-1).setPrefSize(150,150);
-                    squareButton.get(squareButton.size()-1).setTranslateY(-20);
-                    squareButton.get(squareButton.size()-1).setStyle("-fx-background-color: transparent;");
-                    spawningPoint++;
-                }
-                if(column==3) {
-                    column = 0;
-                    row++;
-                }else{
-                    column++;}
-            }
-        }
-        roomsGrid.setTranslateX(180*scale);
-        roomsGrid.setTranslateY((200*scale));
-        return roomsGrid;
-    }*/

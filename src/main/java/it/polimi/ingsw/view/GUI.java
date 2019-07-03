@@ -204,7 +204,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             HBox map = mapBoardRenderer.mapRenderer();
             //skullsKillShotTrack
             int skullNumber=clientModel.getSkullsLeft();
-            GridPane skullsGrid = mapBoardRenderer.killShotTrackRender(skullNumber);
+            GridPane skullsGrid = mapBoardRenderer.killShotTrackRenderer(skullNumber);
             //rooms
             GridPane roomsGrid = mapBoardRenderer.roomRenderer();
             //weapons
@@ -664,30 +664,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      */
     @Override
     public void handle(Event event) { }
-    /**
-     * Displays a simplified model containing all the information the user needs.
-     */
-    public void renderTest() {
-
-        display("MAPPA DISEGNATA");
-        //ClientModel cm = clientMain.getClientModel();
-        System.out.println(clientMain.getClientModel().getSquares());
-        System.out.println(clientMain.getClientModel().getPlayers());
-
-    }
-
-    public ClientMain getClientMain() {
-        return clientMain;
-    }
 
     @Override
     public void displayDisconnection(){
         System.out.println("disconnection");
-        Label onlyLabel = new Label("Si è verificato un problema alla rete, chiudi e riapri il gioco con lo stesso nome");
-        Button exitButton = new Button("CHIUDI");
-        exitButton.setOnAction(e -> stage.close());
-        messagePanel.getChildren().addAll(onlyLabel, exitButton);
-        render();
+        finalPrinter("Si è verificato un problema alla rete, chiudi e riapri il gioco con lo stesso nome");
+
         while (stage.isShowing()){try {
             Thread.sleep(30000);
         }catch (InterruptedException e){e.printStackTrace();}}
@@ -696,11 +678,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     @Override
     public void displaySuspension(){
         System.out.println("suspension");
-        Label onlyLabel = new Label("Sei stato tropo lento a fare la tua mossa e sei stato disconnesso, chiudi e riapri il gioco con lo stesso nome");
-        Button exitButton = new Button("CHIUDI");
-        exitButton.setOnAction(e -> stage.close());
-        messagePanel.getChildren().addAll(onlyLabel, exitButton);
-        render();
+        finalPrinter("Sei stato tropo lento a fare la tua mossa e sei stato disconnesso, chiudi e riapri il gioco con lo stesso nome");
+
         while (stage.isShowing()){try {
             Thread.sleep(30000);
         }catch (InterruptedException e){e.printStackTrace();}}
@@ -709,14 +688,30 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     @Override
     public void displayEnd(String message){
         System.out.println("endofgame");
-        Label onlyLabel = new Label(message);
-        Button exitButton = new Button("CHIUDI");
-        exitButton.setOnAction(e -> stage.close());
-        messagePanel.getChildren().addAll(onlyLabel, exitButton);
-        render();
+        finalPrinter(message);
+
         while (stage.isShowing()){try {
             Thread.sleep(30000);
         }catch (InterruptedException e){e.printStackTrace();}}
+    }
+
+    private void finalPrinter(String message){
+        VBox messageBox = new VBox();
+        messageBox.setAlignment(Pos.CENTER);
+        messageBox.setSpacing(40);
+
+        Label onlyLabel = new Label(message);
+        onlyLabel.setAlignment(Pos.CENTER);
+        messageBox.getChildren().add(onlyLabel);
+
+        Button exitButton = new Button("CHIUDI");
+        exitButton.setOnAction(e -> stage.close());
+        exitButton.setAlignment(Pos.CENTER);
+        messageBox.getChildren().add(exitButton);
+
+        messageBox.setBackground(new Background(new BackgroundFill(color, null, null)));
+        messagePanel = messageBox;
+        render();
     }
 
     @Override

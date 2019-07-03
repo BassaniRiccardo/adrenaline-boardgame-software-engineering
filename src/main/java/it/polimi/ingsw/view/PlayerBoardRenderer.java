@@ -281,7 +281,6 @@ public class PlayerBoardRenderer {
                         labelPowerUp = labelPowerUp.substring(0, 1).toUpperCase() + labelPowerUp.substring(1);
                         labelPowerUp = labelPowerUp + " " + pu;
                         if(labelButton.contains(labelPowerUp)) {
-                            System.out.println("IM IN!!!"+labelButton);
                             puContainer.get(puContainer.size() - 1).getChildren().add(inputButtons.get(labelButton.indexOf(labelPowerUp)));
                             inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefWidth(135*scalePB);
                             inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefHeight(200*scalePB);

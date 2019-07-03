@@ -48,7 +48,7 @@ public class RMIConnection implements Runnable, RemoteView {
         try {
             Registry reg = LocateRegistry.getRegistry(address, port);
             RemoteServer serverStub = (RemoteServer) reg.lookup("RMIServer");
-            String pcLookup = serverStub.getPlayerController((RemoteView) UnicastRemoteObject.exportObject(this, 0));
+            String pcLookup = serverStub.getVirtualView((RemoteView) UnicastRemoteObject.exportObject(this, 0));
             playerStub = (RemoteController) reg.lookup(pcLookup);
 
             ExecutorService executor = Executors.newCachedThreadPool();

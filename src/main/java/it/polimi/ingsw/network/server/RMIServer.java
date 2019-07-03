@@ -56,18 +56,18 @@ public class RMIServer implements RemoteServer {
      *
      * @return                  the name bound to the new VirtualView
      */
-    public synchronized String getPlayerController(RemoteView view) {
+    public synchronized String getVirtualView(RemoteView view) {
         LOGGER.log(Level.FINE, "Constructing a VirtualView with ID {0}", id);
         String remoteName = "PC"+id;
-        RMIVirtualView rmiPlayerController = new RMIVirtualView(view);
+        RMIVirtualView rmiVirtualView = new RMIVirtualView(view);
         LOGGER.log(Level.FINE, "New VirtualView created");
         try {
-            RemoteController stub = (RemoteController) UnicastRemoteObject.exportObject(rmiPlayerController, 0);
+            RemoteController stub = (RemoteController) UnicastRemoteObject.exportObject(rmiVirtualView, 0);
             reg.bind(remoteName, stub);
         }catch(RemoteException ex) {
             LOGGER.log(Level.SEVERE, "Failed to retrieve RMI register for server binding while creating PC", ex);
         }catch (AlreadyBoundException ex) {LOGGER.log(Level.SEVERE, "PC binding failed");}
-        executor.submit(rmiPlayerController);
+        executor.submit(rmiVirtualView);
         LOGGER.log(Level.FINE, "RMIVirtualView created");
         id++;
         return remoteName;

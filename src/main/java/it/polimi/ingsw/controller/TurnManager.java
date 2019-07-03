@@ -97,6 +97,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
     private static final int GRENADE_SHORT_TIMER = 10;
     private static final int GRENADE_LONG_TIMER = 15;
 
+
     /**
      * Constructs a turn manager with a reference to the board, the current player and the list of players.
      *

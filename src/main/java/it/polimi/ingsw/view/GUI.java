@@ -1,7 +1,5 @@
 package it.polimi.ingsw.view;
 
-//TODO: create a package for gui classes
-
 import java.awt.*;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -9,7 +7,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
-import it.polimi.ingsw.network.server.VirtualView;
+import it.polimi.ingsw.view.guirenderer.Animations;
+import it.polimi.ingsw.view.guirenderer.MapBoardRenderer;
+import it.polimi.ingsw.view.guirenderer.PlayerBoardRenderer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;

@@ -702,11 +702,11 @@ public class Board {
      * Sorts a list of players depending on the occurrences in a specified list of players.
      * Used by both Player and KillShotTrack.
      *
-     * @param playersToSort         the list of players to sort.
+     * @param toSort         the list of players to sort.
      * @param occurrences           the list of occurrences.
      */
-    public void sort(List<Player> playersToSort, List<Player> occurrences){
-        Collections.sort(playersToSort, (p1,p2) -> {
+    public void sort(List<Player> toSort, List<Player> occurrences){
+        Collections.sort(toSort, (p1,p2) -> {
             if (frequency(occurrences, p1) > frequency(occurrences, p2)) return -1;
             else if (frequency(occurrences, p1) < frequency(occurrences, p2)) return 1;
             else {
@@ -790,29 +790,29 @@ public class Board {
     /**
      * Adds a single update to a single update queue
      * @param jsonObject    the single update
-     * @param v             the VirtualView meant to receive the update
+     * @param p             the VirtualView meant to receive the update
      */
-    public void addToUpdateQueue(JsonObject jsonObject, VirtualView v){
+    public void addToUpdateQueue(JsonObject jsonObject, VirtualView p){
         LOGGER.log(Level.FINE, "Adding an update to a single queues");
-        String msg = v + ADDING_UPDATE + jsonObject;
+        String msg = p + ADDING_UPDATE + jsonObject;
         LOGGER.log(Level.FINE, msg);
-        updates.get(v).add(jsonObject);
+        updates.get(p).add(jsonObject);
     }
 
 
     /**
      * Removes updates to other players in case the current player reverts an action
-     * @param v     the current player
+     * @param p     the current player
      */
-    public void revertUpdates(VirtualView v){
+    public void revertUpdates(VirtualView p){
         for(Map.Entry<VirtualView, List<JsonObject>> entry : updates.entrySet()){
-            if(!entry.getKey().equals(v)){
+            if(!entry.getKey().equals(p)){
                 entry.getValue().clear();
                 LOGGER.log(Level.FINE, "Removed all updates outgoing to {0}", entry.getKey().getName());
             }
         }
         //for(VirtualView other : updates.keySet()){
-        //    if(!other.equals(v)){
+        //    if(!other.equals(p)){
         //        updates.get(other).clear();
         //        LOGGER.log(Level.FINE, "Removed all updates outgoing to {0}", other.getName());
         //    }

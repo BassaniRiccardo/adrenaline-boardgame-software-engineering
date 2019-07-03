@@ -1,5 +1,6 @@
-package it.polimi.ingsw.view;
+package it.polimi.ingsw.view.guirenderer;
 
+import it.polimi.ingsw.view.ClientModel;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -35,29 +36,29 @@ public class PlayerBoardRenderer {
         this.clientModel=clientModel;
     }
 
-    void setScalePB(double scalePB) {
+    public void setScalePB(double scalePB) {
         this.scalePB = scalePB;
     }
 
     public void setPlayers(List<ClientModel.SimplePlayer> players) {this.players = players;}
 
-    void setClientModel(ClientModel clientModel) {
+    public void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
     }
 
-    void setRenderInstruction(String renderInstruction) {
+    public void setRenderInstruction(String renderInstruction) {
         this.renderInstruction = renderInstruction;
     }
 
-    void setInputButtons(List<Button> inputButtons) {
+    public void setInputButtons(List<Button> inputButtons) {
         this.inputButtons = inputButtons;
     }
 
-    void setLabelButton(List<String> labelButton) {
+    public void setLabelButton(List<String> labelButton) {
         this.labelButton = labelButton;
     }
 
-    List<GridPane> ammoRender(){
+    public List<GridPane> ammoRender(){
     List<GridPane> playerAmmoGrid = new ArrayList<>();
 
     InputStream redAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/redAmmo.png");
@@ -107,7 +108,7 @@ public class PlayerBoardRenderer {
     return  playerAmmoGrid;
 }
 
-    List<GridPane> damagesRenderer(){
+    public List<GridPane> damagesRenderer(){
         List<GridPane> damageGrid = new ArrayList<>();
         List<ArrayList<ImageView>> damageView = new ArrayList<>();
         int gridIndex=0;
@@ -181,7 +182,7 @@ public class PlayerBoardRenderer {
         return marksGrid;
     }
 
-    List<GridPane> skullsPlayerRenderer(List<Integer> deathsNumber){
+    public List<GridPane> skullsPlayerRenderer(List<Integer> deathsNumber){
         List<GridPane> skullGrid = new ArrayList<>();
         Image skullImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/skull.png"));
         List<ArrayList<ImageView>> skullView = new ArrayList<>();
@@ -205,7 +206,7 @@ public class PlayerBoardRenderer {
         return skullGrid;
     }
 
-    List<MenuButton> handRenderer(){
+    public List<MenuButton> handRenderer(){
         List<ArrayList<ImageView>> weaponHandView = new ArrayList<>();
         List<ArrayList<Label>> loadUnload = new ArrayList<>();
         List<ArrayList<Pane>> weaponContainer = new ArrayList<>();

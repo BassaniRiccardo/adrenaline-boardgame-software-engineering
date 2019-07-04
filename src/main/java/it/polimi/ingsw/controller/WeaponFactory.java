@@ -30,6 +30,7 @@ public class WeaponFactory {
 
 
     private Board board;
+
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String WEAPONS_FILE = "weapons.json";
 

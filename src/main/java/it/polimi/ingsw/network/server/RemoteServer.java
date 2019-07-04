@@ -19,6 +19,6 @@ public interface RemoteServer extends Remote {
      * @return          the String to use for lookup
      * @throws RemoteException      if connection problems subsist
      */
-    String getPlayerController(RemoteView view) throws RemoteException;
+    String getVirtualView(RemoteView view) throws RemoteException;
 
 }

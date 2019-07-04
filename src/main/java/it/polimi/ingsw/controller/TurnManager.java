@@ -96,6 +96,8 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
     private static final int GRENADE_SHORT_TIMER = 10;
     private static final int GRENADE_LONG_TIMER = 15;
+    private static final int REBORN_TIMER = 15;
+
 
     /**
      * Constructs a turn manager with a reference to the board, the current player and the list of players.
@@ -193,7 +195,9 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
             throw new SlowAnswerException("Exception propagated from TurnManager");
         }
 
+        timer.pause();
         handleDeaths();
+        timer.resume();
         replaceWeapons();
         replaceAmmoTiles();
 
@@ -234,7 +238,10 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         board.notifyObservers();
 
         //asks the player which powerup he wants to discard
-        getVirtualView(player).choose(CHOOSE_POWERUP.toString(), SELECT_POWERUP_TO_DISCARD, player.getPowerUpList());
+        if (!reborn)
+            getVirtualView(player).choose(CHOOSE_POWERUP.toString(), SELECT_POWERUP_TO_DISCARD, player.getPowerUpList());
+        else
+            getVirtualView(player).choose(CHOOSE_POWERUP.toString(), SELECT_POWERUP_TO_DISCARD, player.getPowerUpList(), REBORN_TIMER);
         int selected = Integer.parseInt(gameEngine.wait(getVirtualView(player)));
         PowerUp discarded = player.getPowerUpList().get(selected-1);
 

@@ -1,5 +1,6 @@
-package it.polimi.ingsw.view;
+package it.polimi.ingsw.view.guirenderer;
 
+import it.polimi.ingsw.view.ClientModel;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -35,29 +36,29 @@ public class PlayerBoardRenderer {
         this.clientModel=clientModel;
     }
 
-    void setScalePB(double scalePB) {
+    public void setScalePB(double scalePB) {
         this.scalePB = scalePB;
     }
 
     public void setPlayers(List<ClientModel.SimplePlayer> players) {this.players = players;}
 
-    void setClientModel(ClientModel clientModel) {
+    public void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
     }
 
-    void setRenderInstruction(String renderInstruction) {
+    public void setRenderInstruction(String renderInstruction) {
         this.renderInstruction = renderInstruction;
     }
 
-    void setInputButtons(List<Button> inputButtons) {
+    public void setInputButtons(List<Button> inputButtons) {
         this.inputButtons = inputButtons;
     }
 
-    void setLabelButton(List<String> labelButton) {
+    public void setLabelButton(List<String> labelButton) {
         this.labelButton = labelButton;
     }
 
-    List<GridPane> ammoRender(){
+    public List<GridPane> ammoRender(){
     List<GridPane> playerAmmoGrid = new ArrayList<>();
 
     InputStream redAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/redAmmo.png");
@@ -107,7 +108,7 @@ public class PlayerBoardRenderer {
     return  playerAmmoGrid;
 }
 
-    List<GridPane> damagesRenderer(){
+    public List<GridPane> damagesRenderer(){
         List<GridPane> damageGrid = new ArrayList<>();
         List<ArrayList<ImageView>> damageView = new ArrayList<>();
         int gridIndex=0;
@@ -160,7 +161,7 @@ public class PlayerBoardRenderer {
         }
     }
 
-    List<GridPane> marksRenderer(){
+    public List<GridPane> marksRenderer(){
         List<GridPane> marksGrid = new ArrayList<>();
         List<ArrayList<ImageView>> marksView = new ArrayList<>();
         int gridIndex=0;
@@ -181,7 +182,7 @@ public class PlayerBoardRenderer {
         return marksGrid;
     }
 
-    List<GridPane> skullsPlayerRenderer(List<Integer> deathsNumber){
+    public List<GridPane> skullsPlayerRenderer(List<Integer> deathsNumber){
         List<GridPane> skullGrid = new ArrayList<>();
         Image skullImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/skull.png"));
         List<ArrayList<ImageView>> skullView = new ArrayList<>();
@@ -205,7 +206,10 @@ public class PlayerBoardRenderer {
         return skullGrid;
     }
 
-    List<MenuButton> handRenderer(){
+    public List<MenuButton> handRenderer(){
+        System.out.println(inputButtons);
+        System.out.println(labelButton);
+        System.out.println(renderInstruction);
         List<ArrayList<ImageView>> weaponHandView = new ArrayList<>();
         List<ArrayList<Label>> loadUnload = new ArrayList<>();
         List<ArrayList<Pane>> weaponContainer = new ArrayList<>();
@@ -267,6 +271,7 @@ public class PlayerBoardRenderer {
                 handContainer.get(players.indexOf(p)).getChildren().addAll(puBackHandView.get(players.indexOf(p)), puHandNumber.get(players.indexOf(p)));
             else{
                 List<ImageView> puView = new ArrayList<>();
+                List<String> labelButton2 = new ArrayList<>(labelButton);
                 for(int i = 0; i < clientModel.getPowerUpInHand().size(); i++){
                     String color = clientModel.getColorPowerUpInHand().get(i);
                     String pu = clientModel.getPowerUpInHand().get(i);
@@ -280,12 +285,12 @@ public class PlayerBoardRenderer {
                         String labelPowerUp = clientModel.getColorPowerUpInHand().get(i);
                         labelPowerUp = labelPowerUp.substring(0, 1).toUpperCase() + labelPowerUp.substring(1);
                         labelPowerUp = labelPowerUp + " " + pu;
-                        if(labelButton.contains(labelPowerUp)) {
-                            puContainer.get(puContainer.size() - 1).getChildren().add(inputButtons.get(labelButton.indexOf(labelPowerUp)));
-                            inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefWidth(135*scalePB);
-                            inputButtons.get(labelButton.indexOf(labelPowerUp)).setPrefHeight(200*scalePB);
-                            inputButtons.get(labelButton.indexOf(labelPowerUp)).setStyle("-fx-background-color: transparent;");
-                            labelButton.set(labelButton.indexOf(labelPowerUp), "used");
+                        if(labelButton2.contains(labelPowerUp)) {
+                            puContainer.get(puContainer.size() - 1).getChildren().add(inputButtons.get(labelButton2.indexOf(labelPowerUp)));
+                            inputButtons.get(labelButton2.indexOf(labelPowerUp)).setPrefWidth(135*scalePB);
+                            inputButtons.get(labelButton2.indexOf(labelPowerUp)).setPrefHeight(200*scalePB);
+                            inputButtons.get(labelButton2.indexOf(labelPowerUp)).setStyle("-fx-background-color: transparent;");
+                            labelButton2.set(labelButton2.indexOf(labelPowerUp), "used");
                         }else {
                             ColorAdjust lessVisible = new ColorAdjust();
                             lessVisible.setBrightness(-0.5);
@@ -305,7 +310,7 @@ public class PlayerBoardRenderer {
         return handButton;
     }
 
-    GridPane pointsRenderer(){
+    public GridPane pointsRenderer(){
         Image point1Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point1.png"));
         Image point2Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point2.png"));
         Image point4Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point4.png"));

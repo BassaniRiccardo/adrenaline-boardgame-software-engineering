@@ -93,6 +93,7 @@ public class GameEngine implements Runnable{
     private static final List<Integer> EMPTY_MAP_VOTES = Arrays.asList(0,0,0,0);
     private static final List<Integer> SKULL_NUMBER_OPTIONS = new ArrayList<>(Arrays.asList(5,6,7,8));
 
+
     /**
      * Constructs a GameEngine with a list of Player Controller.
      *
@@ -133,15 +134,12 @@ public class GameEngine implements Runnable{
 
     List<VirtualView> getLeaderboard() { return leaderboard; }
 
-    public VirtualView getCurrentPlayer() {
-        return currentPlayer;
-    }
+    public VirtualView getCurrentPlayer() { return currentPlayer; }
+
 
     int getFrenzyActivator() {return frenzyActivator;}
 
-    public Board getBoard() {
-        return board;
-    }
+    public Board getBoard() { return board; }
 
     boolean isLastFrenzyPlayer() {return lastFrenzyPlayer; }
 
@@ -167,9 +165,7 @@ public class GameEngine implements Runnable{
     /*
      * Only for testing
      */
-    public void setBoard(Board board) {
-        this.board = board;
-    }
+    public void setBoard(Board board) {this.board = board;}
 
     void setTimer(Timer timer) {this.timer = timer;}
 
@@ -518,7 +514,8 @@ public class GameEngine implements Runnable{
         timer.start();
         try {
             new TurnManager(this, board, currentPlayer, players, statusSaver, frenzy, timer).runTurn();
-        } catch (Exception e ){ e.printStackTrace(); throw e;}
+        }
+        catch (Exception e ){ e.printStackTrace(); throw e;}
         timer.stop();
     }
 

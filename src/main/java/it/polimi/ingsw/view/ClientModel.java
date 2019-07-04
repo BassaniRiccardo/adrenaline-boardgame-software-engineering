@@ -45,7 +45,7 @@ public class ClientModel {
 
         int id;
         boolean spawnPoint;
-        List<SimpleWeapon> weapons;
+        private List<SimpleWeapon> weapons;
         int blueAmmo;
         int redAmmo;
         int yellowAmmo;
@@ -73,7 +73,7 @@ public class ClientModel {
         public boolean isPowerup() { return powerup; }
         public void setPowerup(boolean powerup) { this.powerup = powerup; }
         public int getId(){return id;}
-        boolean isSpawnPoint() {return spawnPoint;}
+        public boolean isSpawnPoint() {return spawnPoint;}
         public List<SimpleWeapon> getWeapons() {       return weapons;    }
         public void setWeapons(List<SimpleWeapon> weapons) {   this.weapons = weapons; }
 
@@ -273,7 +273,7 @@ public class ClientModel {
          * @param players   the set of SimplePlayers to use to create the new list.
          * @return the list of SimplePlayers representing the damages of the SimplePlayer.
          */
-        List<SimplePlayer> getDamage(List<SimplePlayer> players){ return toSimplePlayerList (damage, players); }
+        public List<SimplePlayer> getDamage(List<SimplePlayer> players){ return toSimplePlayerList (damage, players); }
 
 
         /**
@@ -282,7 +282,7 @@ public class ClientModel {
          * @param players   the set of SimplePlayers to use to create the new list.
          * @return the list of SimplePlayers representing the marks of the SimplePlayer.
          */
-        List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
+        public List<SimplePlayer> getMark(List<SimplePlayer> players){ return toSimplePlayerList (marks, players); }
 
 
         /**

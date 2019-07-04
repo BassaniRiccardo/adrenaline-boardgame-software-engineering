@@ -1,14 +1,14 @@
 package it.polimi.ingsw.view;
 
-//TODO: create a package for gui classes
-
 import java.awt.*;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
-
+import it.polimi.ingsw.view.guirenderer.Animations;
+import it.polimi.ingsw.view.guirenderer.MapBoardRenderer;
+import it.polimi.ingsw.view.guirenderer.PlayerBoardRenderer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -66,7 +66,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private PlayerBoardRenderer playerBoardRenderer;
     private String mapBoardRenderInstruction;
     private String playerBoardRenderInstruction;
-    private boolean setColor = true;
+
+    private boolean renderAlreadyLaunched;
+    private boolean setColor;
 
     /**
      *
@@ -100,6 +102,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         clientModel = null;
         mapBoardRenderInstruction = "Normal";
         playerBoardRenderInstruction = "Normal";
+        renderAlreadyLaunched = false;
+        this.setColor = true;
     }
 
     public void setClientMain(ClientMain clientMain) {
@@ -234,7 +238,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             int column;
             int row;
             for(ClientModel.SimplePlayer p : players){
-                if(p.getInGame()) {
+                if(p.getInGame() && p.getPosition() != null) {
                     column = mapBoardRenderer.columnFinder(p.getPosition());
                     row = mapBoardRenderer.rowFinder(p.getPosition());
                     roomsGrid.add(icons.get(players.indexOf(p)), column, row);
@@ -330,7 +334,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             List<Button> inputButtons = new ArrayList<>();
             boolean interactiveInput;
             interactiveInput =  type.equals(CHOOSE_SQUARE.toString()) ||  type.equals(CHOOSE_WEAPON.toString()) ||
-                    type.equals(CHOOSE_PLAYER.toString()) || type.equals(CHOOSE_POWERUP.toString());  //CHOOSE_STRING is the instruction for a render without interactive inputs
+                    type.equals(CHOOSE_PLAYER.toString()) || type.equals(CHOOSE_POWERUP.toString());
 
             HBox optionList1 = new HBox();
             VBox optionList2 = new VBox();
@@ -341,7 +345,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             for (String item : modifiedList) {
                 Button b = new Button();
-                if(interactiveInput && (item.equals("Reset") || item.equals("None"))){   //reset button is always needed in the message panel
+                if(interactiveInput && (item.equals("Reset") || item.equals("None"))){   //reset and none buttons are always needed in the message panel
                     b.setText(item);
                     inputButtons.add(b);
                     labelButton.add(item);
@@ -415,6 +419,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             if(clientModel==null){
                 printer();
             }else {
+                System.out.println(inputButtons);
+                System.out.println(labelButton);
+                System.out.println(playerBoardRenderInstruction);
+                System.out.println(mapBoardRenderInstruction);
+
                 render();
             }
         });
@@ -616,7 +625,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
       @Override
     public void displayDisconnection(){
-        finalPrinter("Si è verificato un problema alla rete, chiudi e riapri il gioco con lo stesso nome");
+        finalPrinter("Si è verificato un problema alla rete,\n chiudi e riapri il gioco con lo stesso nome");
 
         while (stage.isShowing()){try {
             Thread.sleep(30000);
@@ -625,7 +634,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     @Override
     public void displaySuspension(){
-        finalPrinter("Sei stato tropo lento a fare la tua mossa e sei stato disconnesso, chiudi e riapri il gioco con lo stesso nome");
+        finalPrinter("Sei stato troppo lento a fare la tua mossa\n e sei stato disconnesso,\n chiudi e riapri il gioco con lo stesso nome");
 
         while (stage.isShowing()){try {
             Thread.sleep(30000);

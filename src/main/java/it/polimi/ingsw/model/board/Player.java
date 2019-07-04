@@ -811,7 +811,7 @@ public class Player {
      *                      false otherwise.
      * @throws NotAvailableAttributeException if thrown by Weapon.listAvailableFiremodes or by DestinationFinder.find().
      */
-    public List<Square> getShootingSquares(int steps, List<Weapon> weaponToConsider) throws NotAvailableAttributeException{
+    public List<Square> getShootingSquares(int steps, List<Weapon> toUse) throws NotAvailableAttributeException{
 
         List<Square> starting = new ArrayList<>();
         List<Square> start = board.getReachable(position, steps);
@@ -823,7 +823,7 @@ public class Player {
             boolean option1 = false;
             FireMode preMove = null;
             this.setVirtualPosition(s1);
-            for (Weapon w: weaponToConsider){
+            for (Weapon w: toUse){
 
                 // if the player can shoot from thhe square with MAIN or SECONDARY firemode, set found to true.
                 // The square will be added to the list.

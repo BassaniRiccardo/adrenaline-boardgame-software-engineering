@@ -1,13 +1,13 @@
-package it.polimi.ingsw.view;
+package it.polimi.ingsw.view.guirenderer;
 
 import javafx.animation.FadeTransition;
 import javafx.util.Duration;
 import javafx.scene.image.ImageView;
 
 
-class Animations {
+public class Animations {
 
-    void flash(ImageView player){
+    public void flash(ImageView player){
 
         FadeTransition ft = new FadeTransition();
         ft.setNode(player);

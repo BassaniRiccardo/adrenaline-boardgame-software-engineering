@@ -207,9 +207,6 @@ public class PlayerBoardRenderer {
     }
 
     public List<MenuButton> handRenderer(){
-        System.out.println(inputButtons);
-        System.out.println(labelButton);
-        System.out.println(renderInstruction);
         List<ArrayList<ImageView>> weaponHandView = new ArrayList<>();
         List<ArrayList<Label>> loadUnload = new ArrayList<>();
         List<ArrayList<Pane>> weaponContainer = new ArrayList<>();

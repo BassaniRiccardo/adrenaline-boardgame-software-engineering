@@ -30,6 +30,7 @@ public class MapBoardRenderer {
     private String renderInstruction;
     private List<Button> inputButtons;
     private List<String> labelButton;
+    private boolean renderNeeded;
 
 
     public MapBoardRenderer(double sc, ClientModel cm) {
@@ -38,7 +39,14 @@ public class MapBoardRenderer {
         this.renderInstruction = "Normal";
         inputButtons = new ArrayList<>();
         labelButton = new ArrayList<>();
+        renderNeeded = false;
     }
+
+    public void setRenderNeeded(boolean renderNeeded) {
+        this.renderNeeded = renderNeeded;
+    }
+
+    public boolean getRenderNeeded(){return renderNeeded;}
 
     public void setLabelButton(List<String> labelButton) {
         this.labelButton = labelButton;
@@ -230,7 +238,6 @@ public class MapBoardRenderer {
         return new ImageView(ammoImage);
     }
 
-
     public GridPane killShotTrackRenderer(int skullNumber) {
         List<ImageView> skulls = new ArrayList<>();
         InputStream skullFile = this.getClass().getResourceAsStream("/images/miscellaneous/skull.png");
@@ -264,6 +271,9 @@ public class MapBoardRenderer {
         List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
         Image iconImage;
         String color;
+        List<String>splittedList = new ArrayList<>();
+        if (renderInstruction.equals("Player"))
+            splittedList=splitStringsOfLabelButton();
         for (ClientModel.SimplePlayer p : players) {
             color = p.getColor();
             iconImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/" + color + "Hero.png"));
@@ -271,16 +281,9 @@ public class MapBoardRenderer {
             iconView.get(iconView.size() - 1).setFitHeight(80 * scale);
             iconView.get(iconView.size() - 1).setPreserveRatio(true);
             if (renderInstruction.equals("Player")) {
-                boolean presence = false;
-                for (String label : labelButton) {  //this is needed for the weapon furnace label
-                    if(label.contains(p.getUsername())){
-                        presence = true;
-                        break;
-                    }
-                }
-                if (presence)
+                if (splittedList.contains(p.getUsername()))
                     iconView.get(iconView.size() - 1).setOnMouseClicked((MouseEvent e) ->
-                            inputButtons.get(labelButton.indexOf(p.getUsername())).fire());
+                            targetListBuilder(p.getUsername()));
                 else
                     iconView.get(iconView.size() - 1).setOpacity(0.4);
             }
@@ -308,6 +311,68 @@ public class MapBoardRenderer {
         }
 
         return iconView;
+    }
+
+    private void targetListBuilder(String userName){
+        List<String> labelButtonFake = new ArrayList<>(labelButton);
+        for(String label : labelButtonFake) {
+            List<String> splittedList = splitString(label);
+            if (!splittedList.contains(userName)) {
+                inputButtons.remove(labelButtonFake.indexOf(label));
+                labelButton.remove(label);
+                renderNeeded = true;
+            }
+        }
+        if(inputButtons.size()==1)
+            inputButtons.get(0).fire();
+    }
+
+
+    private List<String> splitString(String label){
+        List<String> splittedList = new ArrayList<>();
+        List<StringBuilder> name = new ArrayList<>();
+        name.add(new StringBuilder());
+        for (int letterIndex = 0; letterIndex < label.length(); letterIndex++) {
+            if (label.charAt(letterIndex) != ',') {
+                name.get(name.size() - 1).append(label.charAt(letterIndex));
+            }
+            else {
+                splittedList.add(name.get(name.size() - 1).toString());
+                name.add(new StringBuilder());
+                letterIndex++; //the space next the comma
+            }
+        }
+        splittedList.add(name.get(name.size() - 1).toString());
+        return splittedList;
+    }
+
+    private List<String> splitStringsOfLabelButton() {
+        List<String>splittedList = new ArrayList<>();
+        StringBuilder name;
+        if(labelButton.contains("Reset")) {
+            inputButtons.remove(labelButton.indexOf("Reset"));
+            labelButton.remove("Reset");
+        }
+        if(labelButton.contains("None")) {
+            inputButtons.remove(labelButton.indexOf("None"));
+            labelButton.remove("None");
+        }
+        for (String label: labelButton) {
+            name = new StringBuilder();
+            for (int letterIndex = 0; letterIndex < labelButton.get(labelButton.indexOf(label)).length(); letterIndex++) {
+                if (labelButton.get(labelButton.indexOf(label)).charAt(letterIndex) != ',') {
+                    name.append(labelButton.get(labelButton.indexOf(label)).charAt(letterIndex));
+                }
+                else {
+                    splittedList.add(name.toString());
+                    name = new StringBuilder();
+                    letterIndex++; //the space next the comma
+                }
+            }
+
+            splittedList.add(name.toString());
+        }
+        return splittedList;
     }
 
     public int columnFinder(ClientModel.SimpleSquare square) {

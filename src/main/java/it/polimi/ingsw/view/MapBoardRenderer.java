@@ -262,8 +262,8 @@ public class MapBoardRenderer {
         List<ImageView> iconView = new ArrayList<>();
         List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
         Image iconImage;
-        String color;System.out.println(players);
-        for (ClientModel.SimplePlayer p : players) {System.out.println(p);
+        String color;
+        for (ClientModel.SimplePlayer p : players) {
             color = p.getColor();
             iconImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/" + color + "Hero.png"));
             iconView.add(new ImageView(iconImage));
@@ -410,7 +410,6 @@ public class MapBoardRenderer {
             ArrayList<Image> weaponView = new ArrayList<>();
             int index=square.getId();
             List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(index)).getWeapons();
-            //try{
             for(ClientModel.SimpleWeapon w : weaponList){
                 String key= w.getName();
                 InputStream weaponFile = this.getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png");
@@ -424,10 +423,6 @@ public class MapBoardRenderer {
             }
 
             return weaponView;
-        //}catch (FileNotFoundException e){
-        //    e.printStackTrace();
-        //}
-        //return null;
     }
 
     Pane deckRenderer(Pane mapAndStuffAbove){

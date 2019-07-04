@@ -160,7 +160,7 @@ public class PlayerBoardRenderer {
         }
     }
 
-    public List<GridPane> marksRenderer(){
+    List<GridPane> marksRenderer(){
         List<GridPane> marksGrid = new ArrayList<>();
         List<ArrayList<ImageView>> marksView = new ArrayList<>();
         int gridIndex=0;
@@ -305,15 +305,13 @@ public class PlayerBoardRenderer {
         return handButton;
     }
 
-    public GridPane pointsRenderer(){
+    GridPane pointsRenderer(){
         Image point1Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point1.png"));
         Image point2Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point2.png"));
         Image point4Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point4.png"));
         List<ImageView> point1View = new ArrayList<>();
         List<ImageView> point2View = new ArrayList<>();
         List<ImageView> point4View = new ArrayList<>();
-        int p1=0;
-        int p2=0;
         int p4=0;
         int rowIndex;
         GridPane pointsGrid = new GridPane();
@@ -330,13 +328,12 @@ public class PlayerBoardRenderer {
             if(pointsAmount>=2){
                 pointsAmount-=2;
                 point2View.add(new ImageView(point2Image));
-                pointsGrid.add(point2View.get(p2),rowIndex,0);
-                p2++; rowIndex++;
+                pointsGrid.add(point2View.get(0),rowIndex,0);
+                rowIndex++;
             }
             if(pointsAmount==1){
                 point1View.add(new ImageView(point1Image));
-                pointsGrid.add(point1View.get(p1),rowIndex,0);
-                p1++;
+                pointsGrid.add(point1View.get(0),rowIndex,0);
             }
 
 

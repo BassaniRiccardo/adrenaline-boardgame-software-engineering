@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
-import it.polimi.ingsw.network.server.VirtualView;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -38,11 +37,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
  */
 
 //TODO
-// Implement render()
-// Think about which methods to keep (a single get() would be sufficient, for instance...)
-// Interface UI to check and modify
 // No hardcode, keep in mind window dimension.
-// png and jpeg files (card, other graphics) must be in resources (same as json)
 
 
 public class GUI extends Application implements UI, Runnable, EventHandler {
@@ -53,18 +48,15 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private Scene scene;
     private BorderPane root;
     private DataSaver dataSaver = new DataSaver();
-    private static final Logger LOGGER = Logger.getLogger("clientLogger");
-    public static final CountDownLatch latch = new CountDownLatch(1);
-    public static GUI GUI = null;
+    private static final CountDownLatch latch = new CountDownLatch(1);
+    private static GUI GUI = null;
     private ClientModel clientModel;
-    private static final int DEVELOPER_WIDTH_RESOLUTION =1536;
-    private static final int DEVELOPER_HEIGHT_RESOLUTION =864;
+    private static final double DEVELOPER_WIDTH_RESOLUTION =1536;
+    private static final double DEVELOPER_HEIGHT_RESOLUTION =864;
     private static final double DEVELOPER_PLAYER_BOARD_WIDTH = 486;
     private double scalePB;
     private double userPlayerBoardWidth;
-    private Stage mapStage;
     private Pane messagePanel;
-    private boolean started;
     private ImageView welcomeView;
     private List<Integer> justDamaged;
     private double userWidthResolution;
@@ -72,16 +64,15 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private double scale;
     private MapBoardRenderer mapBoardRenderer;
     private PlayerBoardRenderer playerBoardRenderer;
-    private String mapBoardRenderInstruction; //andrà cancellato credo
+    private String mapBoardRenderInstruction;
     private String playerBoardRenderInstruction;
-    private boolean renderAlreadyLaunched;
     private boolean setColor = true;
 
     /**
      *
      * @return
      */
-    public static GUI waitGUI() {
+    static GUI waitGUI() {
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -94,7 +85,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      *
      * @param GUI0
      */
-    public static void setGUI(GUI GUI0) {
+    private static void setGUI(GUI GUI0) {
         GUI = GUI0;
         latch.countDown();
     }
@@ -109,12 +100,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         clientModel = null;
         mapBoardRenderInstruction = "Normal";
         playerBoardRenderInstruction = "Normal";
-        renderAlreadyLaunched = false;
     }
 
     public void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
-        this.clientModel=clientMain.getClientModel();   //potrebbe forse essere cancellato
+        this.clientModel=clientMain.getClientModel();
     }
 
     /**
@@ -137,11 +127,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 fakeScale = userWidthResolution/ DEVELOPER_WIDTH_RESOLUTION;
             if(1050*fakeScale>userWidthResolution*3/4)
                 fakeScale = userWidthResolution*3/(4* DEVELOPER_WIDTH_RESOLUTION); //sets at 3/4 of the screen width
-            scale=fakeScale; //needed for lamba necessities
+            scale=fakeScale; //needed for lambda necessities
             mapBoardRenderer = new MapBoardRenderer(scale, clientModel);
             playerBoardRenderer = new PlayerBoardRenderer(scalePB, clientModel);
 
-            mapStage = new Stage();
             stage = primaryStage;
             stage.setOnCloseRequest(e -> {System.exit(0);});
             stage.setTitle("Adrenaline");
@@ -192,7 +181,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         }
 
         Platform.runLater( () -> {
-            //try {
             System.out.println("RENDER");
             clientModel=clientMain.getClientModel();
             mapBoardRenderer.setClientModel(clientModel);
@@ -220,7 +208,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 playerBoards.add(new Pane());
                 playerView.add(getBoardOfPlayer(p));
                 playerView.get(playerIndex).setFitWidth(userWidthResolution-1050);
-                // playerView.get(playerIndex).maxWidth(userWidthResolution-1100);
                 playerView.get(playerIndex).fitWidthProperty().bind(playerBoards.get(playerIndex).minWidthProperty());
                 playerView.get(playerIndex).fitWidthProperty().bind(playerBoards.get(playerIndex).maxWidthProperty());
                 playerView.get(playerIndex).setPreserveRatio(true);
@@ -277,7 +264,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             List<Integer> deathsNumber = new ArrayList<>();
             for(ClientModel.SimplePlayer p : players){
                 deathsNumber.add(p.getDeaths());
-                //System.out.println(p.)
             }
             List<GridPane> skullGrid = playerBoardRenderer.skullsPlayerRenderer(deathsNumber);
 
@@ -316,11 +302,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             board.setStyle("-fx-background-color: #000000");
             scene.setRoot(board);
-            /*mapBoardRenderInstruction ="Normal";
-            playerBoardRenderInstruction ="Normal";*/
-            //}catch (FileNotFoundException e){
-            //    e.printStackTrace();
-            //}
         });
     }
 
@@ -354,9 +335,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             HBox optionList1 = new HBox();
             VBox optionList2 = new VBox();
             optionList1.setAlignment(Pos.CENTER);
-            optionList1.setSpacing(10 / modifiedList.size());
+            optionList1.setSpacing(10.0 / modifiedList.size());
             optionList2.setAlignment(Pos.CENTER);
-            optionList2.setSpacing(10 / modifiedList.size());
+            optionList2.setSpacing(10.0 / modifiedList.size());
 
             for (String item : modifiedList) {
                 Button b = new Button();
@@ -440,7 +421,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
-    public String removeEscapeCode(String type, String message){
+    private String removeEscapeCode(String type, String message){
         if (message.contains("0m")){
             if (type.equals(CHOOSE_POWERUP.toString())){
                 message = message.replace("[31m", "Red ");
@@ -510,11 +491,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             msg.setBackground(new Background(new BackgroundFill(color, null, null)));
             msg.getChildren().add(label);
             msg.setAlignment(Pos.CENTER);
-            Scene scene = new Scene(msg, 500, 250, color);
+            Scene scene1 = new Scene(msg, 500, 250, color);
             Stage msgStage = new Stage();
 
             if (mes.contains("disconnected")){
-                msgStage.setScene(scene);
+                msgStage.setScene(scene1);
                 msgStage.show();
                 Button close = new Button("ok");
                 close.setAlignment(Pos.CENTER);
@@ -623,22 +604,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      */
     public String get(List<String> list) {
 
-        /*boolean verified = false;
-        for(int i = 1; i<=list.size(); i++) {
-            if (String.valueOf(i).equals(dataSaver.answer)) {
-                verified = true;
-            }
-        }
-        while (!verified){
-            display(dataSaver.message, list);
-            for(int i = 1; i<=list.size(); i++) {
-                if (String.valueOf(i).equals(dataSaver.answer)) {
-                    verified = true;
-                }
-            }
-        }
-        */
-
         while (!dataSaver.update){
             try {
                 Thread.sleep(2000);
@@ -646,28 +611,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         }
 
         dataSaver.update=false;
-
-        //display("Wait for your turn...");
-
         return dataSaver.answer;
     }
 
-    /**
-     * Main GUI loop
-     */
-    public  void run(){ }
-
-    /**
-     * Handles complex events
-     *
-     * @param event
-     */
-    @Override
-    public void handle(Event event) { }
-
-    @Override
+      @Override
     public void displayDisconnection(){
-        System.out.println("disconnection");
         finalPrinter("Si è verificato un problema alla rete, chiudi e riapri il gioco con lo stesso nome");
 
         while (stage.isShowing()){try {
@@ -677,7 +625,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     @Override
     public void displaySuspension(){
-        System.out.println("suspension");
         finalPrinter("Sei stato tropo lento a fare la tua mossa e sei stato disconnesso, chiudi e riapri il gioco con lo stesso nome");
 
         while (stage.isShowing()){try {
@@ -687,7 +634,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     @Override
     public void displayEnd(String message){
-        System.out.println("endofgame");
         finalPrinter(message);
 
         while (stage.isShowing()){try {
@@ -715,7 +661,24 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     @Override
-    public void addHistory(String message){}
+    public void addHistory(String message){
+        //unnecessary
+    }
+
+    /**
+     * Main GUI loop
+     */
+    public  void run(){ }
+
+    /**
+     * Handles complex events
+     *
+     * @param event
+     */
+    @Override
+    public void handle(Event event) { }
+
+
 
     /**
      * Class storing the values the get() method must return.
@@ -726,8 +689,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         boolean update;
     }
 
-    public ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
-        String key,playerColor;
+    private ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
+        String key;
+        String playerColor;
         playerColor=player.getColor();
         switch (playerColor){
             case "green":
@@ -749,15 +713,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         if(player.isFlipped())
             key=key+"Flipped";
 
-        //try{
         InputStream playerFile = this.getClass().getResourceAsStream("/images/miscellaneous/"+key+".png");
         Image playerImage = new Image(playerFile);
-        ImageView playerView = new ImageView(playerImage);
-        return playerView;
-        //}catch (FileNotFoundException e){
-        //    e.printStackTrace();
-        //}
-        //return null;
+        return new ImageView(playerImage);
     }
 
 }

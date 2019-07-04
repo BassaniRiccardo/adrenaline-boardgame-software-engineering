@@ -305,7 +305,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             board.getChildren().addAll(mapAndStuffAbove, playerBoardAndStuffAbove);
 
             board.setStyle("-fx-background-color: #000000");
+
             scene.setRoot(board);
+
+            if(mapBoardRenderer.getRenderNeeded()){
+                mapBoardRenderer.setRenderNeeded(false);
+                render();
+            }
         });
     }
 
@@ -419,11 +425,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             if(clientModel==null){
                 printer();
             }else {
-                System.out.println(inputButtons);
-                System.out.println(labelButton);
-                System.out.println(playerBoardRenderInstruction);
-                System.out.println(mapBoardRenderInstruction);
-
                 render();
             }
         });
@@ -634,7 +635,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     @Override
     public void displaySuspension(){
-        finalPrinter("Sei stato troppo lento a fare la tua mossa\n e sei stato disconnesso,\n chiudi e riapri il gioco con lo stesso nome");
+        finalPrinter("Sei stato troppo lento a fare la tua mossa\n e sei stato disconnesso.\n chiudi e riapri il gioco con lo stesso nome");
 
         while (stage.isShowing()){try {
             Thread.sleep(30000);

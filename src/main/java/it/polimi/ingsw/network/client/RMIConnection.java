@@ -31,6 +31,8 @@ public class RMIConnection implements Runnable, RemoteView {
     private ClientMain clientMain;
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private JsonParser jsonParser;
+    private ExecutorService executor;
+
 
 
     /**
@@ -45,13 +47,13 @@ public class RMIConnection implements Runnable, RemoteView {
     public RMIConnection(ClientMain clientMain, String address, int port){
         this.clientMain = clientMain;
         this.jsonParser = new JsonParser();
+        this.executor = Executors.newCachedThreadPool();
         try {
             Registry reg = LocateRegistry.getRegistry(address, port);
             RemoteServer serverStub = (RemoteServer) reg.lookup("RMIServer");
             String pcLookup = serverStub.getVirtualView((RemoteView) UnicastRemoteObject.exportObject(this, 0));
             playerStub = (RemoteController) reg.lookup(pcLookup);
 
-            ExecutorService executor = Executors.newCachedThreadPool();
             executor.submit(()->{
                 while(Thread.currentThread().isAlive()){
                     try {
@@ -60,6 +62,7 @@ public class RMIConnection implements Runnable, RemoteView {
                         LOGGER.log(Level.INFO, "Unable to ping RMI server", ex);
                         shutdown();
                         clientMain.showDisconnection();
+                        break;
                     }
                     try {
                         TimeUnit.MILLISECONDS.sleep(SLEEP_TIMEOUT);
@@ -145,6 +148,7 @@ public class RMIConnection implements Runnable, RemoteView {
      */
     private void shutdown(){
         try {
+            executor.shutdown();
             UnicastRemoteObject.unexportObject(this, false);
         }catch(NoSuchObjectException ex){
             LOGGER.log(Level.INFO, "issue while closing connection", ex);

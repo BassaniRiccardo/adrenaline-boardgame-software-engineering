@@ -696,7 +696,7 @@ public class GameEngine implements Runnable{
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
-            if(timer.isOver()){
+            if(timer.isOver()||current.isSuspended()){
                 LOGGER.log(Level.FINE, "Player {0} took too long to answer and will be suspended", current.getName());
                 throw new SlowAnswerException("Maximum time exceeded for the user to answer.");
             }
@@ -880,6 +880,7 @@ public class GameEngine implements Runnable{
         for(VirtualView v : temp){
             for(VirtualView old : players){
                 if(v.getName().equals(old.getName())&&old.isSuspended()){
+                    v.setPlayer(old.getModel());
                     players.set(players.indexOf(old), v);
                     board.registerObserver(v);
                     resuming.remove(v);

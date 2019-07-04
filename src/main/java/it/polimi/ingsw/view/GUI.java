@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import it.polimi.ingsw.view.guirenderer.Animations;
 import it.polimi.ingsw.view.guirenderer.MapBoardRenderer;
@@ -38,6 +39,9 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
 //TODO
 // No hardcode, keep in mind window dimension.
+// - loggers dove lo dice Sonar (le eccezioni non sono davvero gestite cosí, lasciale per ultime che le sistemo io se riesco, fai prima i JavaDocs)
+// - definisci costanti come all riga 77 (sia dove te lo dice sonar che per altre stringhe utili)
+// - togli il campo alla riga 73 se inutile
 
 
 public class GUI extends Application implements UI, Runnable, EventHandler {
@@ -49,7 +53,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private BorderPane root;
     private DataSaver dataSaver = new DataSaver();
     private static final CountDownLatch latch = new CountDownLatch(1);
-    private static GUI GUI = null;
+    private static GUI gui = null;
     private ClientModel clientModel;
     private static final double DEVELOPER_WIDTH_RESOLUTION =1536;
     private static final double DEVELOPER_HEIGHT_RESOLUTION =864;
@@ -70,25 +74,25 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private boolean renderAlreadyLaunched;
     private boolean setColor;
 
-    /**
-     *
-     * @return
-     */
-    static GUI waitGUI() {
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return GUI;
+    private static final Logger LOGGER = Logger.getLogger("clientLogger");
+    private static final String CLOSE = "CLOSE";
+    private static final String DISCONNECTION_MSG = "You cannot reach the server.\nYou can try starting another client and\nlog in with the same username to resume.";
+    private static final String SUSPENSION_MSG = "You were suspended from the server\nbecause you were not able to\nfinish your turn in time.\nYou can try starting another client and\nlog in with the same username to resume.";
+    private static final int CHECK_INPUT_TIME = 10;
+    private static final int WAIT_FOR_STAGE_TIME = 10;
+    private static final int FINAL_DISPLAY_TIME = 20000;
+
+    static GUI waitGUI() throws InterruptedException{
+        latch.await();
+        return gui;
     }
 
     /**
      *
-     * @param GUI0
+     * @param guyToSet
      */
-    private static void setGUI(GUI GUI0) {
-        GUI = GUI0;
+    private static void setGui(GUI guyToSet) {
+        gui = guyToSet;
         latch.countDown();
     }
 
@@ -96,7 +100,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      *
      */
     public GUI() {
-        setGUI(this);
+        setGui(this);
         messagePanel = new Pane();
         justDamaged = new ArrayList<>();
         clientModel = null;
@@ -114,10 +118,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     /**
      *
      * @param primaryStage
-     * @throws Exception
      */
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
 
         Platform.runLater( () -> {
 
@@ -136,7 +139,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             playerBoardRenderer = new PlayerBoardRenderer(scalePB, clientModel);
 
             stage = primaryStage;
-            stage.setOnCloseRequest(e -> {System.exit(0);});
+            stage.setOnCloseRequest(e -> System.exit(0));
             stage.setTitle("Adrenaline");
             messagePanel = new VBox();
             messagePanel.setBackground(new Background(new BackgroundFill(color, null, null)));
@@ -177,12 +180,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     @Override
 
     public void render() {
-
-        while (stage==null){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
 
         Platform.runLater( () -> {
             System.out.println("RENDER");
@@ -311,15 +308,20 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     public void display(String type, String message, List<String> list) {
 
+
         while (stage==null){
             try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
+                Thread.sleep(WAIT_FOR_STAGE_TIME);
+            }catch (InterruptedException e){
+                LOGGER.log(Level.INFO, "Interrupting method" );
+                Thread.currentThread().interrupt();
+            }
         }
+
 
         Platform.runLater( () -> {
 
-            System.out.println("DISPLAY LIST");
+            LOGGER.log(Level.FINE, "about to display a list of options");
             List<String> modifiedList = new ArrayList<>();
             for (String opt : list) {
                 modifiedList.add(removeEscapeCode(type, opt));
@@ -351,7 +353,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     labelButton.add(item);
                     optionList2.getChildren().add(b);
                     b.setOnAction(e -> {
-                        System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
+                        LOGGER.log(Level.FINE, "opt: button {0} clicked", (inputButtons.indexOf(b)+1));
                         dataSaver.message = message;
                         dataSaver.answer = Integer.toString(inputButtons.indexOf(b)+1);
                         dataSaver.update = true;
@@ -452,8 +454,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             message = message.replace("", "");
 
         }
-
-        System.out.println(message);
         return message;
     }
 
@@ -467,9 +467,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         while (stage==null){
             try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
+                Thread.sleep(WAIT_FOR_STAGE_TIME);
+            }catch (InterruptedException e){
+                LOGGER.log(Level.INFO, "Interrupting method" );
+                Thread.currentThread().interrupt();
+            }
         }
+
 
         Platform.runLater( () -> {
 
@@ -531,12 +535,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      */
     public void display(String question, String maxLength) {
 
-        while (stage==null){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
-
         Platform.runLater( () -> {
 
             VBox req = new VBox();
@@ -563,7 +561,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             requestButton.setOnAction(e ->
                     {
-                        System.out.println("REQ: you clicked me!");
+                        LOGGER.log(Level.FINE, "request confirmation button clicked");
                         dataSaver.answer = (textField.getText());
                         dataSaver.message = question;
                         dataSaver.update = true;
@@ -581,6 +579,17 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
+    public void waitForInput(){
+        while (!dataSaver.update){
+            try {
+                Thread.sleep(CHECK_INPUT_TIME);
+            }catch (InterruptedException e){
+                LOGGER.log(Level.INFO, "Interrupting method" );
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
     /**
      * Queries the user for input
      *
@@ -588,13 +597,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * @return              the user's input
      */
     public String get(String maxLength) {
-
-        while (!dataSaver.update){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
-
+        waitForInput();
         while (dataSaver.answer.length() > Integer.parseInt(maxLength)){
             dataSaver.update=false;
             display("Max length exceeded, retry: " + dataSaver.message, maxLength);
@@ -602,7 +605,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         }
         dataSaver.update=false;
         return dataSaver.answer;
-
     }
 
     /**
@@ -612,42 +614,38 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * @return          the user's input
      */
     public String get(List<String> list) {
-
-        while (!dataSaver.update){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
-
+        waitForInput();
         dataSaver.update=false;
         return dataSaver.answer;
     }
 
+
+    public void closeAfterDisplay(){
+        while (stage.isShowing()){
+            try {
+                Thread.sleep(FINAL_DISPLAY_TIME);
+            }catch (InterruptedException e){
+                LOGGER.log(Level.INFO, "Interrupting method" );
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
       @Override
     public void displayDisconnection(){
-        finalPrinter("Si è verificato un problema alla rete,\n chiudi e riapri il gioco con lo stesso nome");
-
-        while (stage.isShowing()){try {
-            Thread.sleep(30000);
-        }catch (InterruptedException e){e.printStackTrace();}}
+        finalPrinter(DISCONNECTION_MSG);
+        closeAfterDisplay();
     }
 
     @Override
     public void displaySuspension(){
-        finalPrinter("Sei stato troppo lento a fare la tua mossa\n e sei stato disconnesso,\n chiudi e riapri il gioco con lo stesso nome");
-
-        while (stage.isShowing()){try {
-            Thread.sleep(30000);
-        }catch (InterruptedException e){e.printStackTrace();}}
+        finalPrinter(SUSPENSION_MSG);
+        closeAfterDisplay();
     }
 
     @Override
     public void displayEnd(String message){
         finalPrinter(message);
-
-        while (stage.isShowing()){try {
-            Thread.sleep(30000);
-        }catch (InterruptedException e){e.printStackTrace();}}
+        closeAfterDisplay();
     }
 
     private void finalPrinter(String message){
@@ -659,7 +657,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         onlyLabel.setAlignment(Pos.CENTER);
         messageBox.getChildren().add(onlyLabel);
 
-        Button exitButton = new Button("CHIUDI");
+        Button exitButton = new Button(CLOSE);
         exitButton.setOnAction(e -> stage.close());
         exitButton.setAlignment(Pos.CENTER);
         messageBox.getChildren().add(exitButton);
@@ -675,7 +673,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
-     * Main GUI loop
+     * Main gui loop
      */
     public  void run(){ }
 

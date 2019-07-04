@@ -35,6 +35,7 @@ public class ClientMain {
     private static final String INVALID_CHOICE_MSG = "Invalid choice. Try again.";
     private static final String CHOOSE_CONNECTION_MSG = "Which type of connection do you want to use?\n(if unsure, choose 1)";
     private static final String SELECTED_MSG = " selected.";
+    private static final String ERROR_GUI = "GUI not available, rerun the client and try again. If the problem persists select CLI";
 
     private UI ui;
     private ExecutorService executor;
@@ -132,7 +133,12 @@ public class ClientMain {
                     javafx.application.Application.launch(GUI.class);
                 }
             }.start();
-            ui = GUI.waitGUI();
+            try {
+                ui = GUI.waitGUI();
+            } catch (InterruptedException e) {
+                System.out.println(ERROR_GUI);
+                System.exit(0);
+            }
             ((GUI)ui).setClientMain(this);
         }else{
             ui = new CLI(this);

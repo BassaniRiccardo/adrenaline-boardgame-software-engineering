@@ -138,7 +138,7 @@ public class PlayerBoardRenderer {
     }
 
     private List<Image> damageImageSelector(){
-        String color[] = {"green", "yellow", "grey", "purple", "blue"};
+        String[] color = {"green", "yellow", "grey", "purple", "blue"};
         List<Image> damageImage = new ArrayList<>();
         for(String c : color) {
             damageImage.add(new Image(getClass().getResourceAsStream("/images/miscellaneous/" + c + "Blood.png")));
@@ -282,6 +282,8 @@ public class PlayerBoardRenderer {
                     puContainer.add(new Pane());
                     puContainer.get(puContainer.size()-1).getChildren().add(puView.get(puView.size()-1));
                     if(renderInstruction.equals("PowerUp")){
+                        StringBuilder builder = new StringBuilder();
+                        builder.append(clientModel.getColorPowerUpInHand().get(i));
                         String labelPowerUp = clientModel.getColorPowerUpInHand().get(i);
                         labelPowerUp = labelPowerUp.substring(0, 1).toUpperCase() + labelPowerUp.substring(1);
                         labelPowerUp = labelPowerUp + " " + pu;

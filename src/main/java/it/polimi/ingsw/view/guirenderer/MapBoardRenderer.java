@@ -181,14 +181,13 @@ public class MapBoardRenderer {
     }
 
     private void addRoomButton(int buttonIndex, GridPane roomsGrid, int column, int row, ClientModel.SimpleSquare s){
-        if (buttonIndex < inputButtons.size())
-            if ((labelButton.contains("Square " + s.getId()))) {
+        if (buttonIndex < inputButtons.size() && (labelButton.contains("Square " + s.getId()))) {
                 roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
                 inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
                 inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
                 inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
                 buttonIndex++;
-            }
+        }
     }
 
     private ImageView getImageOfSquare(ClientModel.SimpleSquare square) {

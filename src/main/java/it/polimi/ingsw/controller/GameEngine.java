@@ -88,7 +88,7 @@ public class GameEngine implements Runnable{
     private static final String TURN_DURATION = "turnDuration";
     private static final String DEFAULT_TURN_DURATION = "60";
 
-    private static final int SETUP_TIMEOUT = 10;
+    private static final int SETUP_TIMEOUT = 30;
     private static final List<Integer> MAP_ID_OPTIONS = new ArrayList<>(Arrays.asList(1,2,3,4));
     private static final List<Integer> EMPTY_MAP_VOTES = Arrays.asList(0,0,0,0);
     private static final List<Integer> SKULL_NUMBER_OPTIONS = new ArrayList<>(Arrays.asList(5,6,7,8));

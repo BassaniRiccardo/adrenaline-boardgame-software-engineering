@@ -50,6 +50,13 @@ public abstract class VirtualView implements Runnable{
     boolean timeout;
     long timestamp;
     private String battlecry;
+    private static final String CHOOSE_NAME = "Select a name.";
+    private static final String MALFORMED_NAME = "Your name should not be empty or contain commas. Try again.";
+    private static final String CHOOSE_BATTLECRY = "Now, choose your battlecry!";
+    private static final String CHOOSE_RESUME = "Do you want to resume?";
+    private static final String ALREADY_RESUMED = "Somebody already resumed with your name.";
+    private static final String ALREADY_TAKEN = "Name already taken. Try another one.";
+    private static final String NAME_ACCEPTED = "Name accepted. About to join the game...";
 
     public VirtualView(){
         this.game = null;
@@ -70,26 +77,32 @@ public abstract class VirtualView implements Runnable{
     public void run(){
 
         String playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
-        name = getInputNow(playersAlreadyConnected+"Select a name.", 16);
-        battlecry = getInputNow("Now, choose your battlecry!", MAX_LENGTH_BATTLECRY);
+        name = getInputNow(playersAlreadyConnected+CHOOSE_NAME, 16);
+        while(name.contains(",")||name.isEmpty()){
+            name = getInputNow(playersAlreadyConnected+MALFORMED_NAME, 16);
+        }
+        battlecry = getInputNow(CHOOSE_BATTLECRY, MAX_LENGTH_BATTLECRY);
         LOGGER.log(Level.INFO, "Login procedure initiated for {0}", name);
 
         while(!ServerMain.getInstance().login(this)){
             if(ServerMain.getInstance().canResume(name)){
-                int ans = chooseNow(ChooseOptionsType.CHOOSE_STRING.toString(), "Do you want to resume?", Arrays.asList("yes", "no"));
+                int ans = chooseNow(ChooseOptionsType.CHOOSE_STRING.toString(), CHOOSE_RESUME, Arrays.asList("Yes", "No"));
 
                 if(ans==1) {
                     if(ServerMain.getInstance().resume(this)){
                         break;
                     } else {
-                        display("Somebody already resumed.");
+                        display(ALREADY_RESUMED);
                     }
                 }
             }
             playersAlreadyConnected = ServerMain.getInstance().getAlreadyConnected();
-            name=getInputNow("Name already taken. Try another one.\n"+playersAlreadyConnected, 16);
+            name=getInputNow(playersAlreadyConnected + ALREADY_TAKEN, 16);
+            while(name.contains(",")||name.isEmpty()){
+                name = getInputNow(playersAlreadyConnected+MALFORMED_NAME, 16);
+            }
         }
-        display("Name accepted. Waiting for the game to start...");
+        display(NAME_ACCEPTED);
     }
 
     //Getters and Setters

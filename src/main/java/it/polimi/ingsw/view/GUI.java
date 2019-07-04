@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import it.polimi.ingsw.view.guirenderer.Animations;
 import it.polimi.ingsw.view.guirenderer.MapBoardRenderer;
@@ -38,6 +39,11 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
 //TODO
 // No hardcode, keep in mind window dimension.
+// - javadoc per tutto, ricordati che esiste anche il ModelDataReader
+// - definisci costanti come alla riga 77.
+//      sia dove te lo dice sonar che per tutte le stringhe/interi che usi
+//      anche per le dimensione delle finestre, eccetera. Dai dei nomi sensati alle cose!
+// - implementa history
 
 
 public class GUI extends Application implements UI, Runnable, EventHandler {
@@ -49,7 +55,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private BorderPane root;
     private DataSaver dataSaver = new DataSaver();
     private static final CountDownLatch latch = new CountDownLatch(1);
-    private static GUI GUI = null;
+    private static GUI gui = null;
     private ClientModel clientModel;
     private static final double DEVELOPER_WIDTH_RESOLUTION =1536;
     private static final double DEVELOPER_HEIGHT_RESOLUTION =864;
@@ -66,58 +72,70 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private PlayerBoardRenderer playerBoardRenderer;
     private String mapBoardRenderInstruction;
     private String playerBoardRenderInstruction;
-
-    private boolean renderAlreadyLaunched;
     private boolean setColor;
 
+    private static final Logger LOGGER = Logger.getLogger("clientLogger");
+    private static final String CLOSE = "CLOSE";
+    private static final String DISCONNECTION_MSG = "You cannot reach the server.\nYou can try starting another client and\nlog in with the same username to resume.";
+    private static final String SUSPENSION_MSG = "You were suspended from the server\nbecause you were not able to\nfinish your turn in time.\nYou can try starting another client and\nlog in with the same username to resume.";
+    private static final int CHECK_INPUT_TIME = 10;
+    private static final int WAIT_FOR_STAGE_TIME = 10;
+    private static final int FINAL_DISPLAY_TIME = 20000;
+
+
     /**
-     *
-     * @return
+     * Class storing the values the get() method must return.
      */
-    static GUI waitGUI() {
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return GUI;
+    class DataSaver{
+        String answer;
+        String message;
+        boolean update;
     }
+
+
+    static GUI waitGUI() throws InterruptedException{
+        latch.await();
+        return gui;
+    }
+
 
     /**
      *
-     * @param GUI0
+     * @param guyToSet
      */
-    private static void setGUI(GUI GUI0) {
-        GUI = GUI0;
+    private static void setGui(GUI guyToSet) {
+        gui = guyToSet;
         latch.countDown();
     }
+
 
     /**
      *
      */
     public GUI() {
-        setGUI(this);
+        setGui(this);
         messagePanel = new Pane();
         justDamaged = new ArrayList<>();
         clientModel = null;
         mapBoardRenderInstruction = "Normal";
         playerBoardRenderInstruction = "Normal";
-        renderAlreadyLaunched = false;
         this.setColor = true;
     }
+
+
 
     public void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
         this.clientModel=clientMain.getClientModel();
     }
 
+
     /**
      *
      * @param primaryStage
-     * @throws Exception
      */
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
 
         Platform.runLater( () -> {
 
@@ -136,7 +154,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             playerBoardRenderer = new PlayerBoardRenderer(scalePB, clientModel);
 
             stage = primaryStage;
-            stage.setOnCloseRequest(e -> {System.exit(0);});
+            stage.setOnCloseRequest(e -> System.exit(0));
             stage.setTitle("Adrenaline");
             messagePanel = new VBox();
             messagePanel.setBackground(new Background(new BackgroundFill(color, null, null)));
@@ -144,14 +162,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             messagePanel.getChildren().add(label);
             Image welcomeImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/welcome.jpg"));
             welcomeView = new ImageView(welcomeImage);
-            root = new BorderPane();
-            root.setTop(welcomeView);
-            root.setAlignment(welcomeView, Pos.CENTER);
-            welcomeView.setTranslateY(30*scale);
-            welcomeView.setFitHeight(500 * scale);
-            welcomeView.setPreserveRatio(true);
-            root.setStyle("-fx-background-color: #000000");
-            root.setBottom(messagePanel);
+            configureRoot();
             scene = new Scene(root, 1000, 800);
             stage.setScene(scene);
             stage.setFullScreen(true);
@@ -159,17 +170,301 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         });
     }
 
-    private void printer(){
+
+    private void configureRoot(){
         root = new BorderPane();
         root.setTop(welcomeView);
         root.setAlignment(welcomeView, Pos.CENTER);
+        root.setStyle("-fx-background-color: #000000");
         welcomeView.setTranslateY(30*scale);
         welcomeView.setFitHeight(500 * scale);
         welcomeView.setPreserveRatio(true);
         root.setBottom(messagePanel);
-        root.setStyle("-fx-background-color: #000000");
+    }
+
+
+    private void printer(){
+        configureRoot();
         scene.setRoot(root);
     }
+
+
+
+    public void display(String type, String message, List<String> list) {
+
+        Platform.runLater( () -> {
+
+            LOGGER.log(Level.INFO, "asking \"{0}\"", message);
+            List<String> modifiedList = new ArrayList<>();
+            for (String opt : list) {
+                modifiedList.add(removeEscapeCode(type, opt));
+            }
+            VBox opt = new VBox();
+            opt.setBackground(new Background(new BackgroundFill(color, null, null)));
+            Label label = new Label(message);
+            opt.getChildren().add(label);
+            opt.setAlignment(Pos.CENTER);
+            opt.setSpacing(40);
+            List<String> labelButton = new ArrayList<>();
+            List<Button> inputButtons = new ArrayList<>();
+            boolean interactiveInput;
+            interactiveInput =  type.equals(CHOOSE_SQUARE.toString()) ||  type.equals(CHOOSE_WEAPON.toString()) ||
+                    type.equals(CHOOSE_PLAYER.toString()) || type.equals(CHOOSE_POWERUP.toString());
+
+            HBox optionList1 = new HBox();
+            VBox optionList2 = new VBox();
+            optionList1.setAlignment(Pos.CENTER);
+            optionList1.setSpacing(10.0 / modifiedList.size());
+            optionList2.setAlignment(Pos.CENTER);
+            optionList2.setSpacing(10.0 / modifiedList.size());
+
+            for (String item : modifiedList) {
+                Button b = new Button();
+                if(interactiveInput && (item.equals("Reset") || item.equals("None"))){   //reset and none buttons are always needed in the message panel
+                    b.setText(item);
+                    inputButtons.add(b);
+                    labelButton.add(item);
+                    optionList2.getChildren().add(b);
+                    b.setOnAction(e -> {
+                        LOGGER.log(Level.INFO, "opt: button {0} clicked", (inputButtons.indexOf(b)+1));
+                        dataSaver.message = message;
+                        dataSaver.answer = Integer.toString(inputButtons.indexOf(b)+1);
+                        dataSaver.update = true;
+                    });
+                    break;
+                }else{
+                    if(interactiveInput) {
+                        b.setText(" ");
+                        inputButtons.add(b);
+                        labelButton.add(item);
+
+                    }else {
+                        b.setText(item);
+                        inputButtons.add(b);
+                        if(clientModel==null){
+                            optionList1.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
+                        }else {
+                            optionList2.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
+                        }
+                    }
+                }
+                b.setOnAction(e -> {
+                    dataSaver.message = message;
+                    dataSaver.answer = Integer.toString(inputButtons.indexOf(b) + 1);
+                    LOGGER.log(Level.INFO, "answer \"{0}\"", dataSaver.answer);
+                    dataSaver.update = true;
+                });
+
+
+            }
+            if(clientModel==null){
+                opt.getChildren().add(optionList1);
+            }else {
+                opt.getChildren().add(optionList2);
+            }
+
+            if(type.equals(CHOOSE_SQUARE.toString()))
+                mapBoardRenderInstruction ="Square";
+            else if(type.equals(CHOOSE_WEAPON.toString())){
+                if( ! clientModel.getCurrentPlayer().getWeapons().isEmpty()) {  //verifies if the weapons are in the player hand or on the board
+                    if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName()) ||
+                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(1).getName()) ||
+                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(2).getName())){
+                        playerBoardRenderInstruction = "Weapon";
+
+                    }else{
+                        mapBoardRenderInstruction ="Weapon";}
+                }
+                else{
+                    mapBoardRenderInstruction ="Weapon";}
+            }else if(type.equals(CHOOSE_POWERUP.toString()))
+                playerBoardRenderInstruction="PowerUp";
+            else if(type.equals(CHOOSE_PLAYER.toString()))
+                mapBoardRenderInstruction="Player";
+            else{
+                mapBoardRenderInstruction = "Normal";
+                playerBoardRenderInstruction = "Normal";
+            }
+            mapBoardRenderer.setInputButtons(inputButtons);
+            mapBoardRenderer.setLabelButton(labelButton);
+            playerBoardRenderer.setInputButtons(inputButtons);
+            playerBoardRenderer.setLabelButton(labelButton);
+            messagePanel = opt;
+
+            if(clientModel==null){
+                printer();
+            }else {
+                render();
+            }
+        });
+
+    }
+
+
+    /**
+     * Displays a MSG message
+     *
+     * @param message   message to be displayed
+     */
+    public void display(String message) {
+
+        while (stage==null){
+            try {
+                Thread.sleep(WAIT_FOR_STAGE_TIME);
+            }catch (InterruptedException e){
+                LOGGER.log(Level.INFO, "Interrupting method" );
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        Platform.runLater( () -> {
+
+            String mes = removeEscapeCode("display", message) + "\n";
+            LOGGER.log(Level.INFO, "displaying \"{0}\"", mes);
+            if      (mes.contains("Banshee") && setColor) {
+                this.color = Color.BLUE;
+                setColor = false;
+            }
+            else if (mes.contains("Sprog") && setColor) {
+                this.color = Color.GREEN;
+                setColor = false;
+            }
+            else if (mes.contains("Violet") && setColor){
+                this.color = Color.PURPLE;
+                setColor = false;
+            }
+            else if (mes.contains("Dozer") && setColor){
+                this.color = Color.GREY;
+                setColor = false;
+            }
+            else if (mes.contains("D_struct_or") && setColor){
+                this.color = Color.YELLOW;
+                setColor = false;
+            }
+
+            Label label = new Label(mes);
+            VBox msg = new VBox();
+            msg.setBackground(new Background(new BackgroundFill(color, null, null)));
+            msg.getChildren().add(label);
+            msg.setAlignment(Pos.CENTER);
+            Scene scene1 = new Scene(msg, 500, 250, color);
+            Stage msgStage = new Stage();
+
+
+            if (mes.contains("disconnected")){
+                msgStage.setScene(scene1);
+                msgStage.show();
+                Button close = new Button("ok");
+                close.setAlignment(Pos.CENTER);
+                msg.getChildren().add(close);
+                msg.setAlignment(Pos.CENTER);
+                msg.setSpacing(40);
+                close.setOnAction(e -> msgStage.close());
+            }
+
+            else {
+                messagePanel = msg;
+                if(clientModel==null){
+                    printer();
+                } else
+                    render();
+            }
+        });
+    }
+    /**
+     * Displays a REQ message
+     *
+     * @param question       text to be displayed
+     * @param maxLength      maximum length allowed for the answer
+     */
+    public void display(String question, String maxLength) {
+
+        Platform.runLater( () -> {
+
+            LOGGER.log(Level.INFO, "asking \"{0}\"", question);
+            VBox req = new VBox();
+            req.setBackground(new Background(new BackgroundFill(color, null, null)));
+            VBox quest = new VBox();
+            quest.setSpacing(10);
+            quest.setAlignment(Pos.CENTER);
+            Label label1 = new Label(question);
+            Label label2 = new Label("(max " + maxLength + " characters)");
+            quest.getChildren().addAll(label1, label2);
+            req.getChildren().add(quest);
+
+            TextField textField = new TextField();
+            textField.setAlignment(Pos.CENTER);
+            textField.setMaxSize(200, 50);
+            req.getChildren().add(textField);
+
+            Button requestButton = new Button("confirm");
+            requestButton.setAlignment(Pos.CENTER);
+            req.getChildren().add(requestButton);
+            req.setAlignment(Pos.CENTER);
+            req.setSpacing(40);
+            Stage reqStage = new Stage();
+
+            requestButton.setOnAction(e ->
+                    {
+                        LOGGER.log(Level.INFO, "request confirmation button clicked");
+                        dataSaver.answer = (textField.getText());
+                        LOGGER.log(Level.INFO, "answer \"{0}\"", dataSaver.answer);
+                        dataSaver.message = question;
+                        dataSaver.update = true;
+                        reqStage.close();
+                    }
+            );
+
+            messagePanel = req;
+            if(clientModel==null){
+                printer();
+            }
+            else
+                render();
+        });
+
+    }
+
+    public void waitForInput(){
+        while (!dataSaver.update){
+            try {
+                Thread.sleep(CHECK_INPUT_TIME);
+            }catch (InterruptedException e){
+                LOGGER.log(Level.INFO, "Interrupting method" );
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    /**
+     * Queries the user for input
+     *
+     * @param maxLength     the maximum length allowed for the answer
+     * @return              the user's input
+     */
+    public String get(String maxLength) {
+        waitForInput();
+        while (dataSaver.answer.length() > Integer.parseInt(maxLength)){
+            dataSaver.update=false;
+            display("Max length exceeded, retry: " + dataSaver.message, maxLength);
+            get(maxLength);
+        }
+        dataSaver.update=false;
+        return dataSaver.answer;
+    }
+
+    /**
+     * Queries the user for input
+     *
+     * @param list      the list of option to choose among
+     * @return          the user's input
+     */
+    public String get(List<String> list) {
+        waitForInput();
+        dataSaver.update=false;
+        return dataSaver.answer;
+    }
+
 
     /**
      * Displays a simplified model containing all the information the user needs.
@@ -177,12 +472,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     @Override
 
     public void render() {
-
-        while (stage==null){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
 
         Platform.runLater( () -> {
             System.out.println("RENDER");
@@ -192,7 +481,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             Animations animation = new Animations();
 
-         //map
+            //map
             HBox map = mapBoardRenderer.mapRenderer();
             //skullsKillShotTrack
             int skullNumber=clientModel.getSkullsLeft();
@@ -305,350 +594,40 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             board.getChildren().addAll(mapAndStuffAbove, playerBoardAndStuffAbove);
 
             board.setStyle("-fx-background-color: #000000");
-
             scene.setRoot(board);
-
-            if(mapBoardRenderer.getRenderNeeded()){
+           if(mapBoardRenderer.getRenderNeeded()){
                 mapBoardRenderer.setRenderNeeded(false);
                 render();
             }
         });
     }
 
-    public void display(String type, String message, List<String> list) {
-
-        while (stage==null){
+    public void closeAfterDisplay(){
+        while (stage.isShowing()){
             try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
+                Thread.sleep(FINAL_DISPLAY_TIME);
+            }catch (InterruptedException e){
+                LOGGER.log(Level.INFO, "Interrupting method" );
+                Thread.currentThread().interrupt();
+            }
         }
-
-        Platform.runLater( () -> {
-
-            System.out.println("DISPLAY LIST");
-            List<String> modifiedList = new ArrayList<>();
-            for (String opt : list) {
-                modifiedList.add(removeEscapeCode(type, opt));
-            }
-            VBox opt = new VBox();
-            opt.setBackground(new Background(new BackgroundFill(color, null, null)));
-            Label label = new Label(message);
-            opt.getChildren().add(label);
-            opt.setAlignment(Pos.CENTER);
-            opt.setSpacing(40);
-            List<String> labelButton = new ArrayList<>();
-            List<Button> inputButtons = new ArrayList<>();
-            boolean interactiveInput;
-            interactiveInput =  type.equals(CHOOSE_SQUARE.toString()) ||  type.equals(CHOOSE_WEAPON.toString()) ||
-                    type.equals(CHOOSE_PLAYER.toString()) || type.equals(CHOOSE_POWERUP.toString());
-
-            HBox optionList1 = new HBox();
-            VBox optionList2 = new VBox();
-            optionList1.setAlignment(Pos.CENTER);
-            optionList1.setSpacing(10.0 / modifiedList.size());
-            optionList2.setAlignment(Pos.CENTER);
-            optionList2.setSpacing(10.0 / modifiedList.size());
-
-            for (String item : modifiedList) {
-                Button b = new Button();
-                if(interactiveInput && (item.equals("Reset") || item.equals("None"))){   //reset and none buttons are always needed in the message panel
-                    b.setText(item);
-                    inputButtons.add(b);
-                    labelButton.add(item);
-                    optionList2.getChildren().add(b);
-                    b.setOnAction(e -> {
-                        System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
-                        dataSaver.message = message;
-                        dataSaver.answer = Integer.toString(inputButtons.indexOf(b)+1);
-                        dataSaver.update = true;
-                    });
-                    break;
-                }else{
-                    if(interactiveInput) {
-                        b.setText(" ");
-                        inputButtons.add(b);
-                        labelButton.add(item);
-
-                    }else {
-                        b.setText(item);
-                        inputButtons.add(b);
-                        if(clientModel==null){
-                            optionList1.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
-                        }else {
-                            optionList2.getChildren().add(inputButtons.get(modifiedList.indexOf(item)));
-                        }
-                    }
-                }
-                b.setOnAction(e -> {
-                    System.out.println("OPT " + (inputButtons.indexOf(b)+1) + ": you clicked me!");
-                    dataSaver.message = message;
-                    dataSaver.answer = Integer.toString(inputButtons.indexOf(b) + 1);
-                    dataSaver.update = true;
-                });
-
-
-            }
-            if(clientModel==null){
-                opt.getChildren().add(optionList1);
-            }else {
-                opt.getChildren().add(optionList2);
-            }
-
-            if(type.equals(CHOOSE_SQUARE.toString()))
-                mapBoardRenderInstruction ="Square";
-            else if(type.equals(CHOOSE_WEAPON.toString())){
-                if( ! clientModel.getCurrentPlayer().getWeapons().isEmpty()) {  //verifies if the weapons are in the player hand or on the board
-                    if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName()) ||
-                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(1).getName()) ||
-                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(2).getName())){
-                        playerBoardRenderInstruction = "Weapon";
-
-                    }else{
-                        mapBoardRenderInstruction ="Weapon";}
-                }
-                else{
-                    mapBoardRenderInstruction ="Weapon";}
-            }else if(type.equals(CHOOSE_POWERUP.toString()))
-                playerBoardRenderInstruction="PowerUp";
-            else if(type.equals(CHOOSE_PLAYER.toString()))
-                mapBoardRenderInstruction="Player";
-            else{
-                mapBoardRenderInstruction = "Normal";
-                playerBoardRenderInstruction = "Normal";
-            }
-            mapBoardRenderer.setInputButtons(inputButtons);
-            mapBoardRenderer.setLabelButton(labelButton);
-            playerBoardRenderer.setInputButtons(inputButtons);
-            playerBoardRenderer.setLabelButton(labelButton);
-            messagePanel = opt;
-
-            if(clientModel==null){
-                printer();
-            }else {
-                render();
-            }
-        });
-
     }
-
-    private String removeEscapeCode(String type, String message){
-        if (message.contains("0m")){
-            if (type.equals(CHOOSE_POWERUP.toString())){
-                message = message.replace("[31m", "Red ");
-                message = message.replace("[33m", "Yellow ");
-                message = message.replace("[34m", "Blue ");
-            }
-            else {
-                message = message.replace("[31m", "");
-                message = message.replace("[33m", "");
-                message = message.replace("[34m", "");
-            }
-            message = message.replace("u001b", "");
-            message = message.replace("[30m", "");
-            message = message.replace("[32m", "");
-            message = message.replace("[35m", "");
-            message = message.replace("[36m", "");
-            message = message.replace("[37m", "");
-            message = message.replace("[0m", "");
-            message = message.replace("", "");
-
-        }
-
-        System.out.println(message);
-        return message;
-    }
-
-    /**
-     * Displays a MSG message
-     *
-     * @param message   message to be displayed
-     */
-    public void display(String message) {
-
-
-        while (stage==null){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
-
-        Platform.runLater( () -> {
-
-            String mes = removeEscapeCode("display", message);
-            if      (mes.contains("Banshee") && setColor) {
-                this.color = Color.BLUE;
-                setColor = false;
-            }
-            else if (mes.contains("Sprog") && setColor) {
-                this.color = Color.GREEN;
-                setColor = false;
-            }
-            else if (mes.contains("Violet") && setColor){
-                this.color = Color.PURPLE;
-                setColor = false;
-            }
-            else if (mes.contains("Dozer") && setColor){
-                this.color = Color.GREY;
-                setColor = false;
-            }
-            else if (mes.contains("D_struct_or") && setColor){
-                this.color = Color.YELLOW;
-                setColor = false;
-            }
-
-            Label label = new Label(mes);
-            VBox msg = new VBox();
-            msg.setBackground(new Background(new BackgroundFill(color, null, null)));
-            msg.getChildren().add(label);
-            msg.setAlignment(Pos.CENTER);
-            Scene scene1 = new Scene(msg, 500, 250, color);
-            Stage msgStage = new Stage();
-
-            if (mes.contains("disconnected")){
-                msgStage.setScene(scene1);
-                msgStage.show();
-                Button close = new Button("ok");
-                close.setAlignment(Pos.CENTER);
-                msg.getChildren().add(close);
-                msg.setAlignment(Pos.CENTER);
-                msg.setSpacing(40);
-                close.setOnAction(e -> msgStage.close());
-            }
-
-            else {
-                messagePanel = msg;
-                if(clientModel==null){
-                    printer();
-                } else
-                    render();
-            }
-        });
-    }
-    /**
-     * Displays a REQ message
-     *
-     * @param question       text to be displayed
-     * @param maxLength      maximum length allowed for the answer
-     */
-    public void display(String question, String maxLength) {
-
-        while (stage==null){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
-
-        Platform.runLater( () -> {
-
-            VBox req = new VBox();
-            req.setBackground(new Background(new BackgroundFill(color, null, null)));
-            VBox quest = new VBox();
-            quest.setSpacing(10);
-            quest.setAlignment(Pos.CENTER);
-            Label label1 = new Label(question);
-            Label label2 = new Label("(max " + maxLength + " characters)");
-            quest.getChildren().addAll(label1, label2);
-            req.getChildren().add(quest);
-
-            TextField textField = new TextField();
-            textField.setAlignment(Pos.CENTER);
-            textField.setMaxSize(200, 50);
-            req.getChildren().add(textField);
-
-            Button requestButton = new Button("confirm");
-            requestButton.setAlignment(Pos.CENTER);
-            req.getChildren().add(requestButton);
-            req.setAlignment(Pos.CENTER);
-            req.setSpacing(40);
-            Stage reqStage = new Stage();
-
-            requestButton.setOnAction(e ->
-                    {
-                        System.out.println("REQ: you clicked me!");
-                        dataSaver.answer = (textField.getText());
-                        dataSaver.message = question;
-                        dataSaver.update = true;
-                        reqStage.close();
-                    }
-            );
-
-            messagePanel = req;
-            if(clientModel==null){
-                printer();
-            }
-            else
-                render();
-        });
-
-    }
-
-    /**
-     * Queries the user for input
-     *
-     * @param maxLength     the maximum length allowed for the answer
-     * @return              the user's input
-     */
-    public String get(String maxLength) {
-
-        while (!dataSaver.update){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
-
-        while (dataSaver.answer.length() > Integer.parseInt(maxLength)){
-            dataSaver.update=false;
-            display("Max length exceeded, retry: " + dataSaver.message, maxLength);
-            get(maxLength);
-        }
-        dataSaver.update=false;
-        return dataSaver.answer;
-
-    }
-
-    /**
-     * Queries the user for input
-     *
-     * @param list      the list of option to choose among
-     * @return          the user's input
-     */
-    public String get(List<String> list) {
-
-        while (!dataSaver.update){
-            try {
-                Thread.sleep(2000);
-            }catch (InterruptedException e){e.printStackTrace();}
-        }
-
-        dataSaver.update=false;
-        return dataSaver.answer;
-    }
-
       @Override
     public void displayDisconnection(){
-        finalPrinter("Si è verificato un problema alla rete,\n chiudi e riapri il gioco con lo stesso nome");
-
-        while (stage.isShowing()){try {
-            Thread.sleep(30000);
-        }catch (InterruptedException e){e.printStackTrace();}}
+        finalPrinter(DISCONNECTION_MSG);
+        closeAfterDisplay();
     }
 
     @Override
     public void displaySuspension(){
-        finalPrinter("Sei stato troppo lento a fare la tua mossa\n e sei stato disconnesso.\n chiudi e riapri il gioco con lo stesso nome");
-
-        while (stage.isShowing()){try {
-            Thread.sleep(30000);
-        }catch (InterruptedException e){e.printStackTrace();}}
+        finalPrinter(SUSPENSION_MSG);
+        closeAfterDisplay();
     }
 
     @Override
     public void displayEnd(String message){
         finalPrinter(message);
-
-        while (stage.isShowing()){try {
-            Thread.sleep(30000);
-        }catch (InterruptedException e){e.printStackTrace();}}
+        closeAfterDisplay();
     }
 
     private void finalPrinter(String message){
@@ -660,7 +639,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         onlyLabel.setAlignment(Pos.CENTER);
         messageBox.getChildren().add(onlyLabel);
 
-        Button exitButton = new Button("CHIUDI");
+        Button exitButton = new Button(CLOSE);
         exitButton.setOnAction(e -> stage.close());
         exitButton.setAlignment(Pos.CENTER);
         messageBox.getChildren().add(exitButton);
@@ -676,7 +655,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
-     * Main GUI loop
+     * Main gui loop
      */
     public  void run(){ }
 
@@ -688,16 +667,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     @Override
     public void handle(Event event) { }
 
-
-
-    /**
-     * Class storing the values the get() method must return.
-     */
-    class DataSaver{
-        String answer;
-        String message;
-        boolean update;
-    }
 
     private ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
         String key;
@@ -726,6 +695,33 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         InputStream playerFile = this.getClass().getResourceAsStream("/images/miscellaneous/"+key+".png");
         Image playerImage = new Image(playerFile);
         return new ImageView(playerImage);
+    }
+
+
+
+    private String removeEscapeCode(String type, String message){
+        if (message.contains("0m")){
+            if (type.equals(CHOOSE_POWERUP.toString())){
+                message = message.replace("[31m", "Red ");
+                message = message.replace("[33m", "Yellow ");
+                message = message.replace("[34m", "Blue ");
+            }
+            else {
+                message = message.replace("[31m", "");
+                message = message.replace("[33m", "");
+                message = message.replace("[34m", "");
+            }
+            message = message.replace("u001b", "");
+            message = message.replace("[30m", "");
+            message = message.replace("[32m", "");
+            message = message.replace("[35m", "");
+            message = message.replace("[36m", "");
+            message = message.replace("[37m", "");
+            message = message.replace("[0m", "");
+            message = message.replace("", "");
+
+        }
+        return message;
     }
 
 }

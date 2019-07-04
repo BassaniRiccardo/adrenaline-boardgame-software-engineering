@@ -43,6 +43,7 @@ public class Timer {
         reset();
     }
 
+
     /**
      * Registers the time at which the timer started or stopped
      */

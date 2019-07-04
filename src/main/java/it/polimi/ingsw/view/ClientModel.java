@@ -250,15 +250,15 @@ public class ClientModel {
          * Given a list of Integer and a List of SimplePlayers, returns a list of SimplePlayers obtained by replacing
          * every Integer with the SimplePlayer whose id is that Integer.
          *
-         * @param IDs   the ordered list of Integer.
+         * @param ids   the ordered list of Integer.
          * @param players   the set of SimplePlayers to use to create the new list.
-         * @return the list of SimplePlayers obtained from the list of IDs.
+         * @return the list of SimplePlayers obtained from the list of ids.
          */
-        List<SimplePlayer> toSimplePlayerList(List<Integer> IDs, List<SimplePlayer> players){
+        List<SimplePlayer> toSimplePlayerList(List<Integer> ids, List<SimplePlayer> players){
 
             List<SimplePlayer> toReturn = new ArrayList<>();
 
-            for (Integer i: IDs){
+            for (Integer i: ids){
                 for(SimplePlayer p : players)
                     if(p.getId()==i)
                         toReturn.add(p);

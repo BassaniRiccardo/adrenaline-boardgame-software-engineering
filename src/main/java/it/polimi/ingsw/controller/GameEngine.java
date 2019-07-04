@@ -88,7 +88,7 @@ public class GameEngine implements Runnable{
     private static final String TURN_DURATION = "turnDuration";
     private static final String DEFAULT_TURN_DURATION = "60";
 
-    private static final int SETUP_TIMEOUT = 10;
+    private static final int SETUP_TIMEOUT = 30;
     private static final List<Integer> MAP_ID_OPTIONS = new ArrayList<>(Arrays.asList(1,2,3,4));
     private static final List<Integer> EMPTY_MAP_VOTES = Arrays.asList(0,0,0,0);
     private static final List<Integer> SKULL_NUMBER_OPTIONS = new ArrayList<>(Arrays.asList(5,6,7,8));
@@ -696,7 +696,7 @@ public class GameEngine implements Runnable{
                 LOGGER.log(Level.INFO,"Skipped waiting time.");
                 Thread.currentThread().interrupt();
             }
-            if(timer.isOver()){
+            if(timer.isOver()||current.isSuspended()){
                 LOGGER.log(Level.FINE, "Player {0} took too long to answer and will be suspended", current.getName());
                 throw new SlowAnswerException("Maximum time exceeded for the user to answer.");
             }
@@ -880,6 +880,7 @@ public class GameEngine implements Runnable{
         for(VirtualView v : temp){
             for(VirtualView old : players){
                 if(v.getName().equals(old.getName())&&old.isSuspended()){
+                    v.setPlayer(old.getModel());
                     players.set(players.indexOf(old), v);
                     board.registerObserver(v);
                     resuming.remove(v);

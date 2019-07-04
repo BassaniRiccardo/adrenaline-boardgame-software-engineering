@@ -137,6 +137,7 @@ public class ClientMain {
                 ui = GUI.waitGUI();
             } catch (InterruptedException e) {
                 System.out.println(ERROR_GUI);
+                Thread.currentThread().interrupt();
                 System.exit(0);
             }
             ((GUI)ui).setClientMain(this);

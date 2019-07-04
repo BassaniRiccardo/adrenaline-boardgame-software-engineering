@@ -124,7 +124,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
 
 
-    public void setClientMain(ClientMain clientMain) {
+    void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
         this.clientModel=clientMain.getClientModel();
     }
@@ -425,7 +425,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
-    public void waitForInput(){
+    private void waitForInput(){
         while (!dataSaver.update){
             try {
                 Thread.sleep(CHECK_INPUT_TIME);
@@ -602,7 +602,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         });
     }
 
-    public void closeAfterDisplay(){
+    private void closeAfterDisplay(){
         while (stage.isShowing()){
             try {
                 Thread.sleep(FINAL_DISPLAY_TIME);

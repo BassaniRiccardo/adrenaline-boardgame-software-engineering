@@ -79,7 +79,7 @@ public class GameEngine implements Runnable{
     private static final String WINNER_MESSAGE = "\n\nGAME OVER\n\nYou Won!";
     private static final String DRAW_MESSAGE = "\n\nGAME OVER\n\nYou and other players made the most points but did not kill anyone.\n Shame on you! The game ends with a draw.";
     private static final String POSITION_MESSAGE = "\n\nGAME OVER\n\nYour position: ";
-    private static final String LEADERBOARD = "\n\nLeaderboard:\n";
+    private static final String LEADERBOARD_TAG = "\n\nLeaderboard:\n";
     private static final String POINTS = " points\n";
     private static final String KILLSHOT_TRACK_ABSENT_EX = "NotAvailableAttributeException thrown while configuring the kill shot track";
 
@@ -634,7 +634,7 @@ public class GameEngine implements Runnable{
     String addLeaderboard(String s){
         StringBuilder builder = new StringBuilder();
         builder.append(s);
-        builder.append(LEADERBOARD);
+        builder.append(LEADERBOARD_TAG);
         for (VirtualView v : leaderboard){
             builder.append(v.getModel().getUsername() + COLON + v.getModel().getPoints() + POINTS);
         }

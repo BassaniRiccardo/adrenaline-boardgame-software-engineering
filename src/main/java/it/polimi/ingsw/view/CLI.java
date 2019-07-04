@@ -28,6 +28,7 @@ public class CLI implements UI{
     private static final String INPUT_RECEIVED_MSG = "Input received. Please stand by.";
     private static final String LONG_ANSWER_1_MSG = "Your answer must be shorter than ";
     private static final String LONG_ANSWER_2_MSG = " characters, try again.";
+    private static final String COMMA_WARNING = "Your answer should not include a comma (,) and not be empty, try again.";
     private static final String CHOICES_MSG = "\nHere are your choices: ";
     private static final String CHOOSE_ONE_MSG = "\nChoose one";
     private static final String WARNING_MSG = "\n Wait some more or press q to quit";
@@ -163,10 +164,14 @@ public class CLI implements UI{
                     Thread.currentThread().interrupt();
                 }
             }
-            if (answer.length()<max) {
-                verified = true;
-            } else{
-                display(LONG_ANSWER_1_MSG + max + LONG_ANSWER_2_MSG);
+            if(answer.length()==0||!answer.contains(",")) {
+                if (answer.length() < max) {
+                    verified = true;
+                } else {
+                    display(LONG_ANSWER_1_MSG + max + LONG_ANSWER_2_MSG);
+                }
+            } else {
+                display(COMMA_WARNING);
             }
             justReceived = false;
             receiving = true;

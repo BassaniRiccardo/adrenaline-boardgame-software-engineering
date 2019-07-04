@@ -182,11 +182,18 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
                     reload(3);
                 }
             }
+            timer.pause();
+            handleDeaths();
+            timer.resume();
+            replaceWeapons();
+            replaceAmmoTiles();
+            updateAndNotifyAll();
 
         } catch(SlowAnswerException e){
             if (!statusSaver.getPlayersPositions().isEmpty()) {
                 statusSaver.restoreCheckpoint();
             }
+            handleDeaths();
             replaceWeapons();
             replaceAmmoTiles();
             board.addToUpdateQueue(Updater.getModel(board, currentPlayer), currentPlayerConnection);
@@ -194,14 +201,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
             board.notifyObserver(currentPlayerConnection);
             throw new SlowAnswerException("Exception propagated from TurnManager");
         }
-
-        timer.pause();
-        handleDeaths();
-        timer.resume();
-        replaceWeapons();
-        replaceAmmoTiles();
-
-        updateAndNotifyAll();
 
         LOGGER.log(Level.FINE, () -> currentPlayer + " ends his turn.\n\n");
         for (Player p : board.getActivePlayers()) {
@@ -238,11 +237,15 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         board.notifyObservers();
 
         //asks the player which powerup he wants to discard
-        if (!reborn)
+        int selected;
+        if (!reborn) {
             getVirtualView(player).choose(CHOOSE_POWERUP.toString(), SELECT_POWERUP_TO_DISCARD, player.getPowerUpList());
-        else
+            selected = Integer.parseInt(gameEngine.wait(getVirtualView(player)));
+        }
+        else {
             getVirtualView(player).choose(CHOOSE_POWERUP.toString(), SELECT_POWERUP_TO_DISCARD, player.getPowerUpList(), REBORN_TIMER);
-        int selected = Integer.parseInt(gameEngine.wait(getVirtualView(player)));
+            selected = Integer.parseInt(gameEngine.waitShort(getVirtualView(player), REBORN_TIMER));
+        }
         PowerUp discarded = player.getPowerUpList().get(selected-1);
 
         if (powerUpToDraw == 2)
@@ -716,7 +719,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         timer.pause();
         askTargetsForGrenade();
         for (VirtualView v : playerConnections){
-            if (!v.equals(currentPlayerConnection))
+            if (!v.equals(currentPlayerConnection) && !v.isSuspended())
                 v.display(THE_TURN_OF + currentPlayer.userToString() + CONTINUES);
             v.getModel().setJustDamaged(false);
         }
@@ -941,7 +944,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
     private void askTargetsForGrenade() throws NotEnoughPlayersException {
 
         for (Player p : board.getActivePlayers()) {
-            if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged()) {
+            if (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && !getVirtualView(p).isSuspended()) {
                 getVirtualView(p).display(currentPlayer.userToString() + SHOT_YOU);
                 boolean handleAgain = true;
                 while (!p.equals(currentPlayer) && p.hasUsableTagbackGrenade() && p.isJustDamaged() && handleAgain) {
@@ -976,6 +979,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
                 tagbackGrenade.applyEffects(new ArrayList<>(Collections.singletonList(currentPlayer)), board.getMap().get(0));
                 p.discardPowerUp(tagbackGrenade);
                 board.notifyObserver(player);
+                board.notifyObserver(currentPlayerConnection);
             } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while using the tagback grenade", e);}
             return true;
         }

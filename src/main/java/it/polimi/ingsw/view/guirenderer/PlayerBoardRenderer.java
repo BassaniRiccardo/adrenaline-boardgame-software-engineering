@@ -31,33 +31,55 @@ public class PlayerBoardRenderer {
     private List<String> labelButton;
 
 
+    /**
+     *Constructor
+     *
+     * @param scPB          scale factor
+     * @param clientModel   client model
+     */
     public PlayerBoardRenderer(double scPB, ClientModel clientModel){
         this.scalePB=scPB;
         this.clientModel=clientModel;
     }
 
+
     public void setScalePB(double scalePB) {
         this.scalePB = scalePB;
     }
 
+
     public void setPlayers(List<ClientModel.SimplePlayer> players) {this.players = players;}
+
 
     public void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
     }
 
+    /**
+     *renderInstruction gives information about the kind of input: if from message panel or a graphic one and what elements
+     *of the screen involves
+     *
+     * @param
+     */
     public void setRenderInstruction(String renderInstruction) {
         this.renderInstruction = renderInstruction;
     }
+
 
     public void setInputButtons(List<Button> inputButtons) {
         this.inputButtons = inputButtons;
     }
 
+
     public void setLabelButton(List<String> labelButton) {
         this.labelButton = labelButton;
     }
 
+    /**
+     *Configures the images of the ammo every player has
+     *
+     * @return      list where every element represents the ammo of a player
+     */
     public List<GridPane> ammoRender(){
     List<GridPane> playerAmmoGrid = new ArrayList<>();
 
@@ -108,6 +130,11 @@ public class PlayerBoardRenderer {
     return  playerAmmoGrid;
 }
 
+    /**
+     *Configures the images of the damages every player has
+     *
+     * @return      list where every element represents the damages of a player
+     */
     public List<GridPane> damagesRenderer(){
         List<GridPane> damageGrid = new ArrayList<>();
         List<ArrayList<ImageView>> damageView = new ArrayList<>();
@@ -137,6 +164,9 @@ public class PlayerBoardRenderer {
         return damageGrid;
     }
 
+    /**
+     * @return      all the images of the damages, one for each color
+     */
     private List<Image> damageImageSelector(){
         String[] color = {"green", "yellow", "grey", "purple", "blue"};
         List<Image> damageImage = new ArrayList<>();
@@ -146,6 +176,12 @@ public class PlayerBoardRenderer {
         return damageImage;
     }
 
+    /**
+     *Associates at the color in input the index of its position in the list returned from damageImageSelector()
+     *
+     * @param color     color of which we want to know the index of
+     * @return          index of the color in the list
+     */
     private int damageImageIndex(String color){
         switch (color){
             case "green":
@@ -161,6 +197,11 @@ public class PlayerBoardRenderer {
         }
     }
 
+    /**
+     *Configures the images of the marks every player has
+     *
+     * @return      list where every element represents the marks of a player
+     */
     public List<GridPane> marksRenderer(){
         List<GridPane> marksGrid = new ArrayList<>();
         List<ArrayList<ImageView>> marksView = new ArrayList<>();
@@ -182,6 +223,12 @@ public class PlayerBoardRenderer {
         return marksGrid;
     }
 
+    /**
+     *Configures the images of the skulls every player has
+     *
+     * @param deathsNumber  number of deaths of every player
+     * @return      list where every element represents the skulls of a player
+     */
     public List<GridPane> skullsPlayerRenderer(List<Integer> deathsNumber){
         List<GridPane> skullGrid = new ArrayList<>();
         Image skullImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/skull.png"));
@@ -206,6 +253,13 @@ public class PlayerBoardRenderer {
         return skullGrid;
     }
 
+    /**
+     *Configures the buttons that make visible the cards every player has in his hand
+     *Power ups of the opponents are not visible, but the number of them are
+     * There graphic effects that indicates when a weapon is unloaded and which cards are clickable
+     *
+     * @return      list of buttons that open the content of the player hands
+     */
     public List<MenuButton> handRenderer(){
         List<ArrayList<ImageView>> weaponHandView = new ArrayList<>();
         List<ArrayList<Label>> loadUnload = new ArrayList<>();
@@ -238,7 +292,7 @@ public class PlayerBoardRenderer {
                     loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setText("SCARICA");
                     loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTextFill(Color.web("#F8F8FF"));
                 }
-                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setFont(new Font("Arial", 40*scalePB));
+                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setFont(new Font("Arial", 25*scalePB));
                 loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTranslateY(50*scalePB);
                 weaponContainer.get(players.indexOf(p)).add(new Pane());
                 weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().addAll(weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)),
@@ -309,6 +363,11 @@ public class PlayerBoardRenderer {
         return handButton;
     }
 
+    /**
+     *Configures the images of the points every player has
+     *
+     * @return      list where every element represents the points of a player
+     */
     public GridPane pointsRenderer(){
         Image point1Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point1.png"));
         Image point2Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point2.png"));

@@ -78,7 +78,7 @@ public class ClientMain {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Exception thrown while creating logger", ex);
         }
-        LOGGER.setLevel(Level.SEVERE);
+        LOGGER.setLevel(Level.ALL);
     }
 
     /**

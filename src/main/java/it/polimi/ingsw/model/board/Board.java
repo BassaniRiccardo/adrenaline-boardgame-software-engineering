@@ -752,7 +752,8 @@ public class Board {
      */
     public void notifyObservers(){
         for(VirtualView p : observers){
-            notifyObserver(p);
+            if (!p.isSuspended())
+                notifyObserver(p);
         }
     }
 

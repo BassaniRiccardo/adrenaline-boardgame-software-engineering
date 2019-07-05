@@ -59,7 +59,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         try {
             UnicastRemoteObject.unexportObject(this, false);
         }catch(NoSuchObjectException ex){
-            LOGGER.log(Level.SEVERE, "Could not unexport RemoteController", ex);
+            LOGGER.log(Level.INFO, "Could not unexport RemoteController", ex);
         }
     }
 
@@ -81,7 +81,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
         try{
             remoteView.showSuspension();
         }catch(RemoteException ex){
-            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
+            LOGGER.log(Level.INFO, "Unable to send disconnection message", ex);
         }
     }
 

@@ -163,13 +163,15 @@ class StatusSaver {
         //attributes shared by all players
         for (Player p : board.getActivePlayers()) {
             i = board.getActivePlayers().indexOf(p);
-            p.setPosition(playersPositions.get(i));
-            p.setDamages(new ArrayList<>(playersDamages.get(i)));
-            p.setMarks(new ArrayList<>(playersMarks.get(i)));
-            p.setDead(playersDamages.get(i).size()>=11);
-            p.setPowerUpList(new ArrayList<>(playersPowerups.get(i)));
-            AmmoPack ap = new AmmoPack(playersAmmoPacks.get(i).getRedAmmo(), playersAmmoPacks.get(i).getBlueAmmo(), playersAmmoPacks.get(i).getYellowAmmo());
-            p.setAmmoPack(ap);
+            if (playersPositions.size() > i) {
+                p.setPosition(playersPositions.get(i));
+                p.setDamages(new ArrayList<>(playersDamages.get(i)));
+                p.setMarks(new ArrayList<>(playersMarks.get(i)));
+                p.setDead(playersDamages.get(i).size() >= 11);
+                p.setPowerUpList(new ArrayList<>(playersPowerups.get(i)));
+                AmmoPack ap = new AmmoPack(playersAmmoPacks.get(i).getRedAmmo(), playersAmmoPacks.get(i).getBlueAmmo(), playersAmmoPacks.get(i).getYellowAmmo());
+                p.setAmmoPack(ap);
+            }
         }
         //current player
         board.getCurrentPlayer().setWeaponList(new ArrayList<>(currentPlayerWeapons));

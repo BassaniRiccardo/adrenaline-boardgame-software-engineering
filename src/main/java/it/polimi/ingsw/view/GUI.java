@@ -37,13 +37,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
  * @author  BassaniRiccardo, davidealde
  */
 
-//TODO
-// No hardcode, keep in mind window dimension.
-// - definisci costanti come alla riga 77.
-//      sia dove te lo dice sonar che per tutte le stringhe/interi che usi
-//      anche per le dimensione delle finestre, eccetera. Dai dei nomi sensati alle cose!
-// - implementa history
-
+//TODO add the history
 
 public class GUI extends Application implements UI, Runnable, EventHandler {
 
@@ -80,26 +74,31 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private static final int CHECK_INPUT_TIME = 10;
     private static final int WAIT_FOR_STAGE_TIME = 10;
     private static final int FINAL_DISPLAY_TIME = 20000;
-    private static final float MAXIMUM_BOARDPANE_WIDTH= 1050;
-    private static final float WELCOME_VIEW_TY= 30;
-    private static final float WELCOME_VIEW_H = 500;
-    private static final float SCENE_W= 1000;
-    private static final float SCENE_H= 800;
-    private static final float OPT_SPACING=40 ;
-    private static final float OPTIONLIST1_SPACING=10 ;
-    private static final float OPTIONLIST2_SPACING=10 ;
-    private static final float SCENE1_W=500 ;
-    private static final float SCENE1_H=250 ;
-    private static final float MSG_SPACING=40 ;
-    private static final float QUEST_SPACING=10 ;
-    private static final float TEXTFIELD_MAXSIZE_W=200 ;
-    private static final float TEXTFIELD_MAXSIZE_H=50 ;
-    private static final float REQ_SPACING=40 ;
-    private static final float PLAYERAMMOGRID_TX=400 ;
-    private static final float PLAYERBOARDS_TX=300 ;
-    private static final float PLAYERBOARDS_TY=740 ;
-    private static final float MESSAGEBOX_SPACING=40 ;
-    private static final float BOARDPANE_WIDTH=1050 ;
+
+    private static final int MAXIMUM_BOARDPANE_WIDTH = 1050;
+    private static final int WELCOME_VIEW_TY = 30;
+    private static final int WELCOME_VIEW_H = 500;
+    private static final int SCENE_W = 1000;
+    private static final int SCENE_H = 800;
+    private static final int OPT_SPACING =40 ;
+    private static final int OPTIONLIST1_SPACING =10 ;
+    private static final int OPTIONLIST2_SPACING =10 ;
+    private static final int SCENE1_W =500 ;
+    private static final int SCENE1_H =250 ;
+    private static final int MSG_SPACING =40 ;
+    private static final int QUEST_SPACING = 10 ;
+    private static final int TEXTFIELD_MAXSIZE_W =200 ;
+    private static final int TEXTFIELD_MAXSIZE_H =50 ;
+    private static final int REQ_SPACING =40 ;
+    private static final int PLAYERAMMOGRID_TX =400 ;
+    private static final int PLAYERBOARDS_TX =300 ;
+    private static final int PLAYERBOARDS_TY =740 ;
+    private static final int MESSAGEBOX_SPACING =40 ;
+    private static final int BOARDPANE_WIDTH = 1050 ;
+
+    private static final String NORMAL = "Normal";
+    private static final String WEAPON = "Weapon";
+    private static final String INTERRUPTING_METHOD = "Interrupting method";
 
 
     /**
@@ -112,7 +111,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
+     * Returns a static reference to the GUI itself, after having waited for its configuration.
      *
+     * @return the GUI itself.
      */
     static GUI waitGUI() throws InterruptedException{
         latch.await();
@@ -121,30 +122,35 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
 
     /**
+     * Sets the attribute "gui" and makes it available.
      *
-     * @param guyToSet
+     * @param guyToSet the GUI itself, to set as a static attribute "gui".
      */
     private static void setGui(GUI guyToSet) {
-        gui = guyToSet;
-        latch.countDown();
+       gui = guyToSet;
+       latch.countDown();
     }
 
 
     /**
-     *Constructor
+     * Constructor
      */
     public GUI() {
         setGui(this);
+        clientModel = null;
         messagePanel = new Pane();
         justDamaged = new ArrayList<>();
-        clientModel = null;
-        mapBoardRenderInstruction = "Normal";
-        playerBoardRenderInstruction = "Normal";
+        mapBoardRenderInstruction = NORMAL;
+        playerBoardRenderInstruction = NORMAL;
         this.setColor = true;
     }
 
 
-
+    /**
+     * Sets the ClientMain and the ClientModel.
+     *
+     * @param clientMain    the given ClientMain.
+     */
     void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
         this.clientModel=clientMain.getClientModel();
@@ -152,10 +158,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
 
     /**
-     *First graphic method that is called, calculates the scale factor of the board, instantiates the classes used from
-     * now on from the GUI, builds the first screen and shows the stage
+     * The main entry point for the JavaFX application.
+     * Calculates the scale factor of the board, instantiates necessary classes,
+     * builds the first screen and shows the stage.
      *
-     * @param primaryStage
+     * @param primaryStage the primary stage for this application.
      */
     @Override
     public void start(Stage primaryStage) {
@@ -193,8 +200,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         });
     }
 
+
     /**
-     * Builds the setup screens
+     * Builds the setup screen.
      */
     private void configureRoot(){
         root = new BorderPane();
@@ -207,8 +215,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         root.setBottom(messagePanel);
     }
 
+
     /**
-     *Prints the root configured
+     * Prints the root configured.
      */
     private void printer(){
         configureRoot();
@@ -217,14 +226,15 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
 
     /**
-     *Called when there is the necessity to print a list of input
-     *Configures the message panel and calls printer() or render() if the game is started
-     *The inputs are put in buttons and the buttons are put in the message panel or, for a graphic input, they are passed
-     *to MapBoardRenderer or PlayerBoardRender with an instruction that indicates which kid of input it is
+     * Displays a OPT message, hence a message and a list of options to choose among.
+     * Configures the message panel and calls printer() or render() if the game is started
+     * Standard options are put in buttons and the buttons are put in the message panel.
+     * Options that can be selected by clicking on images are instead passed to MapBoardRenderer or PlayerBoardRender
+     * with information about the type of options.
      *
-     * @param type      type of input (buttons in message panels, weapons, pU, players, squares)
-     * @param message   message to be displayed
-     * @param list      list of input option
+     * @param type      the type of options (buttons in message panels, weapons, powerups, players, squares).
+     * @param message   the message to be displayed.
+     * @param list      the list of options.
      */
     public void display(String type, String message, List<String> list) {
 
@@ -250,9 +260,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             HBox optionList1 = new HBox();
             VBox optionList2 = new VBox();
             optionList1.setAlignment(Pos.CENTER);
-            optionList1.setSpacing(OPTIONLIST1_SPACING / modifiedList.size());
+            optionList1.setSpacing((float)OPTIONLIST1_SPACING / modifiedList.size());
             optionList2.setAlignment(Pos.CENTER);
-            optionList2.setSpacing(OPTIONLIST2_SPACING / modifiedList.size());
+            optionList2.setSpacing((float)OPTIONLIST2_SPACING / modifiedList.size());
 
             for (String item : modifiedList) {
                 Button b = new Button();
@@ -306,20 +316,20 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName()) ||
                             modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(1).getName()) ||
                             modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(2).getName())){
-                        playerBoardRenderInstruction = "Weapon";
+                        playerBoardRenderInstruction = WEAPON;
 
                     }else{
-                        mapBoardRenderInstruction ="Weapon";}
+                        mapBoardRenderInstruction = WEAPON;}
                 }
                 else{
-                    mapBoardRenderInstruction ="Weapon";}
+                    mapBoardRenderInstruction = WEAPON;}
             }else if(type.equals(CHOOSE_POWERUP.toString()))
                 playerBoardRenderInstruction="PowerUp";
             else if(type.equals(CHOOSE_PLAYER.toString()))
                 mapBoardRenderInstruction="Player";
             else{
-                mapBoardRenderInstruction = "Normal";
-                playerBoardRenderInstruction = "Normal";
+                mapBoardRenderInstruction = NORMAL;
+                playerBoardRenderInstruction = NORMAL;
             }
             mapBoardRenderer.setInputButtons(inputButtons);
             mapBoardRenderer.setLabelButton(labelButton);
@@ -337,7 +347,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
-     * Displays a MSG message
+     * Displays a MSG message, hence a simple message.
+     * In the case of a message notifying the user of opponents's disconnection a new window is opened.
+     * The user can read the message and close the window by pressing a button.
      *
      * @param message   message to be displayed
      */
@@ -347,7 +359,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             try {
                 Thread.sleep(WAIT_FOR_STAGE_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, "Interrupting method" );
+                LOGGER.log(Level.INFO, INTERRUPTING_METHOD);
                 Thread.currentThread().interrupt();
             }
         }
@@ -385,7 +397,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             Scene scene1 = new Scene(msg, SCENE1_W, SCENE1_H, color);
             Stage msgStage = new Stage();
 
-
             if (mes.contains("disconnected")){
                 msgStage.setScene(scene1);
                 msgStage.show();
@@ -408,10 +419,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
-     * Displays a REQ message
+     * Displays a REQ message, hence a message requiring for a text input and specifying the maximum length allowed
+     * for the answer.
      *
-     * @param question       text to be displayed
-     * @param maxLength      maximum length allowed for the answer
+     * @param question       text to be displayed.
+     * @param maxLength      maximum length allowed for the answer.
      */
     public void display(String question, String maxLength) {
 
@@ -462,24 +474,24 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
-     *Makes the thread to wait until the input arrives from the user
+     * Makes the thread wait until the input arrives from the user.
      */
     private void waitForInput(){
         while (!dataSaver.update){
             try {
                 Thread.sleep(CHECK_INPUT_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, "Interrupting method" );
+                LOGGER.log(Level.INFO, INTERRUPTING_METHOD );
                 Thread.currentThread().interrupt();
             }
         }
     }
 
     /**
-     * Queries the user for input
+     * Queries the user for input, when a maximum length is allowed for the answer.
      *
-     * @param maxLength     the maximum length allowed for the answer
-     * @return              the user's input
+     * @param maxLength     the maximum length allowed for the answer.
+     * @return              the user's input.
      */
     public String get(String maxLength) {
         waitForInput();
@@ -493,10 +505,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
-     * Queries the user for input
+     * Queries the user for input.
      *
-     * @param list      the list of option to choose among
-     * @return          the user's input
+     * @param list      the list of option to choose among.
+     * @return          the user's input.
      */
     public String get(List<String> list) {
         waitForInput();
@@ -639,14 +651,15 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
-     *Keeps screen open until the user close the game
+     * Called after the end of the game.
+     * Keeps screen open for twenty seconds or until the user close the game.
      */
     private void closeAfterDisplay(){
         while (stage.isShowing()){
             try {
                 Thread.sleep(FINAL_DISPLAY_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, "Interrupting method" );
+                LOGGER.log(Level.INFO, INTERRUPTING_METHOD );
                 Thread.currentThread().interrupt();
             }
         }

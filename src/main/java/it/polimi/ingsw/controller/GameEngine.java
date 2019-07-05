@@ -466,7 +466,8 @@ public class GameEngine implements Runnable{
         if (exitGame) {
             LOGGER.log(Level.INFO,"Not enough player in the game. The game ends, points are added to the players according to the kill shot track.");
             for (VirtualView v : players) {
-                v.display(NOT_ENOUGH_PLAYER_GAME_OVER);
+                if (!v.isSuspended())
+                    v.display(NOT_ENOUGH_PLAYER_GAME_OVER);
             }
         }
         else if (!frenzy) LOGGER.log(Level.INFO,"The last skull has been removed. Points are added to the players according to the kill shot track.");

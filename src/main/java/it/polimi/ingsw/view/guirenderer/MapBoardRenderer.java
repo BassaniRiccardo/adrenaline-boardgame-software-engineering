@@ -395,19 +395,20 @@ public class MapBoardRenderer {
         String color;
         List<String>splittedList = new ArrayList<>();
         if (renderInstruction.equals("Player"))
-            splittedList=splitStringsOfLabelButton();
+            splittedList = splitStringsOfLabelButton();
         for (ClientModel.SimplePlayer p : players) {
             color = p.getColor();
             iconImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/" + color + "Hero.png"));
-            iconView.add(new ImageView(iconImage));
-            iconView.get(iconView.size() - 1).setFitHeight(ICONVIEW_H * scale);
-            iconView.get(iconView.size() - 1).setPreserveRatio(true);
+            ImageView targ = new ImageView(iconImage);
+            iconView.add(targ);
+            targ.setFitHeight(ICONVIEW_H * scale);
+            targ.setPreserveRatio(true);
             if (renderInstruction.equals("Player")) {
                 if (splittedList.contains(p.getUsername()))
-                    iconView.get(iconView.size() - 1).setOnMouseClicked((MouseEvent e) ->
+                    targ.setOnMouseClicked((MouseEvent e) ->
                             targetListBuilder(p.getUsername()));
                 else
-                    iconView.get(iconView.size() - 1).setOpacity(0.4);
+                   targ.setOpacity(0.4);
             }
         }
 

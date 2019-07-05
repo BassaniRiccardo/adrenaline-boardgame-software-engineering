@@ -25,7 +25,7 @@
 -->
 
 **Setup:**
-- The server uses port 3994 for RMI and 4198for TCP.
+- The server uses port 3994 for RMI and 4198 for TCP.
 - Client parameters can be set at launch:
 
     java -jar client.jar [serverIP] [serverPort] [clientIP]

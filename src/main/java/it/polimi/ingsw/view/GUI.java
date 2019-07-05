@@ -268,9 +268,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             HBox optionList1 = new HBox();
             VBox optionList2 = new VBox();
             optionList1.setAlignment(Pos.CENTER);
-            optionList1.setSpacing((float)OPTIONLIST1_SPACING / modifiedList.size());
+            optionList1.setSpacing(OPTIONLIST1_SPACING / modifiedList.size());
             optionList2.setAlignment(Pos.CENTER);
-            optionList2.setSpacing((float)OPTIONLIST2_SPACING / modifiedList.size());
+            optionList2.setSpacing(OPTIONLIST2_SPACING / modifiedList.size());
 
             for (String item : modifiedList) {
                 Button b = new Button();
@@ -515,7 +515,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             display("Max length exceeded, retry: " + dataSaver.message, maxLength);
             get(maxLength);
         }
-        dataSaver.update=false;
+        dataSaver.update = false;
         return dataSaver.answer;
     }
 
@@ -527,7 +527,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      */
     public String get(List<String> list) {
         waitForInput();
-        dataSaver.update=false;
+        dataSaver.update = false;
+        if (Integer.parseInt(dataSaver.answer) < 1)
+            return "1";
         return dataSaver.answer;
     }
 

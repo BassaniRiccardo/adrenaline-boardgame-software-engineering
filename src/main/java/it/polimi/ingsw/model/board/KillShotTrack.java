@@ -111,13 +111,13 @@ public class KillShotTrack {
         if (skullsLeft != 0) {
             dead.updateAwards();
             removeSkulls(1);
-            board.addToUpdateQueue(Updater.get(Updater.SKULL_NUMBER_PROP, 1, killer, ok));
+            board.addToUpdateQueue(Updater.get(Updater.REMOVE_SKULL_UPD, 1, killer, ok));
             LOGGER.log(Level.INFO, "Skulls left: {0}. ", skullsLeft);
         }
         else {
             dead.setDead(false);
             dead.getDamages().clear();
-            board.addToUpdateQueue(Updater.get(Updater.SKULL_NUMBER_PROP, 0, killer, ok));
+            board.addToUpdateQueue(Updater.get(Updater.REMOVE_SKULL_UPD, 0, killer, ok));
         }
     }
 

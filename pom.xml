@@ -130,7 +130,7 @@
                                     <mainClass>it.polimi.ingsw.view.ClientMain</mainClass>
                                 </transformer>
                             </transformers>
-                            <finalName>client_no_jfx</finalName>
+                            <finalName>client</finalName>
                             <artifactSet>
                                 <excludes>
                                     <exclude>org.openjfx:javafx-controls</exclude>

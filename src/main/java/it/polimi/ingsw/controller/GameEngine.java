@@ -195,6 +195,7 @@ public class GameEngine implements Runnable{
             else {
                 try {
                     setup();
+                    simulationTillEndphaseSetup();
                 }catch (NotEnoughPlayersException e) {
                     for (VirtualView p : players) {
                         p.showEnd(NOT_ENOUGH_PLAYER_GAME_OVER);
@@ -794,6 +795,11 @@ public class GameEngine implements Runnable{
      */
     void simulateTillEndphase() throws NotAvailableAttributeException, NoMoreCardsException, WrongTimeException, UnacceptableItemNumberException {
 
+
+        for (Player p: board.getPlayers()){
+            p.setInGame(true);
+            p.setPosition(board.getMap().get(0));
+        }
         Player p1 = board.getPlayers().get(0);
         Player p2 = board.getPlayers().get(1);
         Player p3 = board.getPlayers().get(2);
@@ -801,7 +807,6 @@ public class GameEngine implements Runnable{
         List<Player> simulationPlayers = new ArrayList<>(Arrays.asList(p1, p2, p3));
 
         for (Player p : simulationPlayers) {
-            p.setInGame(true);
             p.addAmmoPack(new AmmoPack(2,2,2));
             p.setPosition(board.getSpawnPoints().get(simulationPlayers.indexOf(p) % 3));
             for (int i = 0; i < 3; i++) {

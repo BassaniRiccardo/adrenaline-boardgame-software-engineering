@@ -86,6 +86,7 @@ public class MainRenderer {
 
     /**
      * Shows the info o a certain weapon or powerup
+     * @param weaponName    the card to analyze
      */
     public static void showInfoScreen(String weaponName){
         System.out.print(CLEAR_CONSOLE);

@@ -42,6 +42,8 @@ public final class Action {
 
     /**
      * Getter for steps
+     *
+     * @return  number of steps
      */
     public int getSteps() {
         return steps;
@@ -49,6 +51,8 @@ public final class Action {
 
     /**
      * Getter for collect
+     *
+     * @return true is the action involves collecting
      */
     public boolean isCollect() {
         return collect;
@@ -56,6 +60,8 @@ public final class Action {
 
     /**
      * Getter for shoot
+     *
+     * @return true is the action involves shooting
      */
     public boolean isShoot() {
         return shoot;
@@ -63,6 +69,8 @@ public final class Action {
 
     /**
      * Getter for reload
+     *
+     * @return true if the action involves reloading
      */
     public boolean isReload() {
         return reload;

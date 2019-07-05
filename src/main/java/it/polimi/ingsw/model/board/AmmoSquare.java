@@ -50,6 +50,7 @@ public class AmmoSquare extends Square  {
      * Constructs an AmmoSquare with an id, a room id, a row, a column, and a color.
      * Invokes the constructor of Square.
      *
+     * @param board         the board model
      * @param id            the id of the square.
      * @param roomId        the id of the room the square is in.
      * @param row           the row of the square.

@@ -57,6 +57,8 @@ public class CLI implements UI{
 
     /**
      * Standard constructor, also showing a splash screen
+     *
+     * @param clientMain    reference to the main class
      */
     public CLI(ClientMain clientMain) {
         this.clientMain = clientMain;

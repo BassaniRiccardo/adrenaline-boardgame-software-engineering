@@ -20,12 +20,14 @@ public interface UI extends Runnable {
      * Displays a request to the user with a character limit for his input.
      *
      * @param message   message to display
+     * @param max       character limit
      */
     void display(String message, String max);
 
     /**
      * Displays a message and a list of options to the user.
      *
+     * @param type      the type of the message
      * @param message   message to display
      * @param options   options to display
      */
@@ -35,6 +37,7 @@ public interface UI extends Runnable {
     /**
      * Returns the user's input. Is usually called after display(String message).
      *
+     * @param max   the character limit
      * @return      the string typed or chosen by the user
      */
     String get(String max);

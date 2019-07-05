@@ -25,6 +25,7 @@ public interface Card {
     /**
      * Sets the holder of the card, null if absent.
      *
+     * @param holder    the holder of the card
      * @throws NotAvailableAttributeException if the card should not have a holder.
      */
 

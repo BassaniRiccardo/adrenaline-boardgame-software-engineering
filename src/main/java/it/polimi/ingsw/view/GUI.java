@@ -720,7 +720,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         messageBox.setBackground(new Background(new BackgroundFill(color, null, null)));
         messagePanel = messageBox;
-        render();
+
+        if(clientModel==null){
+            printer();
+        } else {
+            render();
+        }
     }
 
     /**

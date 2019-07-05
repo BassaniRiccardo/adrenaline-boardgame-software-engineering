@@ -20,6 +20,7 @@ public interface Effect{
      * @param  shooter      the Player who is taking action in this turn
      * @param  target       the Player the effect is applied on
      * @param  destination  the Square players are moved to, if relevant
+     * @throws NotAvailableAttributeException if the board is malformed
      */
     void apply(Player shooter, Player target, Square destination) throws NotAvailableAttributeException;
 

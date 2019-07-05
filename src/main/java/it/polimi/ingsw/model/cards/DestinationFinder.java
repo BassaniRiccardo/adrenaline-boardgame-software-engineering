@@ -23,6 +23,7 @@ public interface DestinationFinder{
      * @param  shooter      the Player who is taking action in this turn
      * @param  targets      the ArrayList of players selected as targets by the current player
      * @return              the set of possible destination Square objects
+     * @throws NotAvailableAttributeException if the board is malformed
      */
     List<Square> find(Player shooter, List<Player> targets) throws NotAvailableAttributeException;
 }

@@ -121,7 +121,7 @@ public class TurnManagerTest {
      * Tests the method runTurn() for the first turn of the first player and in the case he only makes movement actions.
      *
      * @throws NotEnoughPlayersException        if thrown by runTurn().
-     * @throws NotEnoughPlayersException        if thrown by runTurn().
+     * @throws SlowAnswerException        if thrown by runTurn().
      */
     @Test()
     public void run() throws SlowAnswerException, NotEnoughPlayersException {
@@ -160,7 +160,8 @@ public class TurnManagerTest {
      * Since the answer is always yes the collecting is confirmed.
      *
      * @throws NotEnoughPlayersException        if thrown by runTurn().
-     * @throws NotEnoughPlayersException        if thrown by runTurn().
+     * @throws SlowAnswerException        if thrown by runTurn().
+     * @throws NotAvailableAttributeException   if thrown by runTurn().
      */
     @Test()
     public void hanldeCollectingWeapon() throws SlowAnswerException, NotEnoughPlayersException, NotAvailableAttributeException {

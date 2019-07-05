@@ -21,6 +21,7 @@ public class HandRenderer {
      * Creates a bidimensional String array containing graphical data about the player chosen by the user.
      *
      * @param clientModel reference to the model
+     * @return  a bidimensional String array representing info about the player
      */
     public static String[][] get(ClientModel clientModel) {
 

@@ -110,6 +110,7 @@ public class PlayerTest {
      * @throws NoMoreCardsException                 if thrown by simulateScenario().
      * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
      * @throws NotAvailableAttributeException       if thrown by getPosition().
+     * @throws WrongTimeException                   if thrown during the test
      */
     @Test(expected = NotAvailableAttributeException.class)
     public void collectAmmo() throws NoMoreCardsException, UnacceptableItemNumberException, NotAvailableAttributeException, WrongTimeException {
@@ -1342,6 +1343,7 @@ public class PlayerTest {
      *
      * @throws NoMoreCardsException                 if thrown by simulateScenario().
      * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by simulateScenario().
      */
     @Test
     public void getShootingSquares1Cyberblade0() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{
@@ -1369,6 +1371,7 @@ public class PlayerTest {
      *
      * @throws NoMoreCardsException                 if thrown by simulateScenario().
      * @throws UnacceptableItemNumberException      if thrown by simulateScenario().
+     * @throws NotAvailableAttributeException       if thrown by simulateScenario().
      */
     @Test
     public void getShootingSquares1Heatseeker() throws UnacceptableItemNumberException, NoMoreCardsException, NotAvailableAttributeException{

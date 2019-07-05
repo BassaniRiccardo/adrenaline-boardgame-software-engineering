@@ -97,7 +97,7 @@ public class ClientMain {
                 prop.load(input);
                 return prop;
             } catch (IOException ex) {
-                //LOGGER.log(Level.SEVERE, "Cannot load client config from file", ex);
+                LOGGER.log(Level.FINE, "Cannot load client config from file", ex);
             }
             try{
                 InputStream input = getClass().getResourceAsStream("/client.properties");
@@ -166,6 +166,7 @@ public class ClientMain {
      * Prompts the UI to choose from a list of options through two separate calls to UI functions.
      * The first call displays the request, while the second returns the user's input.
      *
+     * @param type       type of the request
      * @param msg       message to display
      * @param options   options available
      * @return          int corresponding to the option chosen

@@ -54,6 +54,7 @@ public class WeaponSquare extends Square {
      * Constructs a WeaponSquare with the id, the room id, the row, the column and the color.
      * Invokes the constructor of Square.
      *
+     * @param board         the board model
      * @param id            the id of the square.
      * @param roomId        the id of the room the square is in.
      * @param row           the row of the square.

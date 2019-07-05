@@ -191,6 +191,7 @@ public class ServerMain {
      * Checks if a player can be added to the waiting list and, if it can, adds it. His name must not be already taken.
      *
      * @param p             the player attempting to log in
+     * @return              true if login was successful, false if somebody else logged in
      */
     public synchronized boolean login( VirtualView p){
         LOGGER.log(Level.FINE, "Someone is attempting to login as {0}.", p.getName());

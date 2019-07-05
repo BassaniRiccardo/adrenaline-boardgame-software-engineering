@@ -191,6 +191,9 @@ public class GameEngineTest {
      * An arbitrary number of points is assigned to the players.
      * Tests the method in the event that a single player is the winner.
      * Checks that the player connections are ordinated according to the leaderboard.
+     *
+     * @throws SlowAnswerException      this should never happen
+     * @throws NotEnoughPlayersException    this should never happen
      */
     @Test
     public void manageEnd() throws NotEnoughPlayersException, SlowAnswerException {

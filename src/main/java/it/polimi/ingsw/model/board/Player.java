@@ -398,9 +398,12 @@ public class Player {
 
     /**
      * Collects a card.
+     *
+     * @param collectedCard the card to collect
      * @throws NoMoreCardsException if no cards are present in the player position.
      * @throws UnacceptableItemNumberException if the player tries to collect a card when he already holds the maximum number allowed for its type.
      * @throws WrongTimeException if thrown by drawPowerUp().
+     * @return false if it could not draw a powerup
      */
     public boolean collect(Card collectedCard)  throws NoMoreCardsException, UnacceptableItemNumberException, WrongTimeException {
 
@@ -523,6 +526,7 @@ public class Player {
      * Returns true if the player can pay an amount of ammo, considering his ammo and the powerups he can convert.
      *
      * @param ammoPack        the price to pay.
+     * @return                true if payment is possible
      */
     public boolean canPay(AmmoPack ammoPack){
 
@@ -807,6 +811,7 @@ public class Player {
      * Returns the squares the player can shoot from after moving up to a specified number of steps.
      *
      * @param steps         the maximum number of steps the player can takes before shooting.
+     * @param toUse         the weapon to be used for shooting
      * @return              true if the player can shoot someone.
      *                      false otherwise.
      * @throws NotAvailableAttributeException if thrown by Weapon.listAvailableFiremodes or by DestinationFinder.find().

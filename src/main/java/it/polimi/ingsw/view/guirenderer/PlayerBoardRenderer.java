@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.guirenderer;
 
 import it.polimi.ingsw.view.ClientModel;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.effect.ColorAdjust;
@@ -33,6 +34,40 @@ public class PlayerBoardRenderer {
      * the type of OPT message to display
      */
     private String renderInstruction;
+    private String messageHistory1;
+    private String messageHistory2;
+    private String messageHistory3;
+
+    private static final float AMMOVIEW_H=20 ;
+    private static final float AMMOVIEW_MARGIN=5 ;
+    private static final float DAMAGEVIEW_H=32 ;
+    private static final Double DAMAGEVIEW_MAGRIN=-4.4 ;
+    private static final float DAMAGEVIEW_TX=40 ;
+    private static final float DAMAGEVIEWFLIPPED_MAGRIN=-5 ;
+    private static final float DAMAGEVIEWFLIPPED_TX=45 ;
+    private static final float DAMAGEGRID_TY=45 ;
+    private static final float MARKSVIEW_H=20 ;
+    private static final float MARKSVIEW_TX=230 ;
+    private static final float SKULLVIEW_H=40 ;
+    private static final float SKULLGRID_TX=130 ;
+    private static final float SKULLGRIDFLIPPED_TX=100 ;
+    private static final float SKULLGRID_TY=80 ;
+    private static final float WEAPONHANDVIEW_H=300 ;
+    private static final float LOADUNLOAD_FONT=25 ;
+    private static final float LOADUNLOAD_TY=50 ;
+    private static final float WEAPONBUTTON_W=180 ;
+    private static final float WEAPONBUTTON_H=300 ;
+    private static final float PUHANDNUMBER_FONT=60 ;
+    private static final float PUHANDNUMBER_TX=-50 ;
+    private static final float PUVIEW_H=200 ;
+    private static final float PUBUTTON_W=135 ;
+    private static final float PUBUTTON_H=200 ;
+    private static final float HANDBUTTON_TX=410 ;
+    private static final float HANDBUTTON_TY=80 ;
+    private static final float POINTVIEW_H=40 ;
+    private static final float POINTSGRID_TX=500 ;
+    private static final float POINTSGRID=70 ;
+    private static final String HISTORY_DIVIDER="----------------------------------";
 
     /**
      * Constructor
@@ -43,6 +78,9 @@ public class PlayerBoardRenderer {
     public PlayerBoardRenderer(double scPB, ClientModel clientModel){
         this.scalePB=scPB;
         this.clientModel=clientModel;
+        messageHistory1="";
+        messageHistory2="";
+        messageHistory3="";
     }
 
 
@@ -61,6 +99,13 @@ public class PlayerBoardRenderer {
         this.clientModel = clientModel;
     }
 
+
+    /**
+     *renderInstruction gives information about the kind of input: if from message panel or a graphic one and what elements
+     *of the screen involves
+     *
+     * @param renderInstruction     the instruction that indicates the kind of input
+     */
     public void setRenderInstruction(String renderInstruction) {
         this.renderInstruction = renderInstruction;
     }
@@ -82,6 +127,7 @@ public class PlayerBoardRenderer {
      * @return  a list where every element represents the ammo of a player.
      */
     public List<GridPane> ammoRender(){
+
         List<GridPane> playerAmmoGrid = new ArrayList<>();
 
         InputStream redAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/redAmmo.png");
@@ -102,32 +148,31 @@ public class PlayerBoardRenderer {
             int rAmmo = p.getRedAmmo();
             for (int i = 0; i < rAmmo; i++) {
                 redAmmoView.get(gridIndex).add(new ImageView(redAmmoImage));
-                redAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
+                redAmmoView.get(gridIndex).get(i).setFitHeight(AMMOVIEW_H * scalePB);
                 redAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
                 playerAmmoGrid.get(gridIndex).add(redAmmoView.get(gridIndex).get(i), i, 0);
-                playerAmmoGrid.get(gridIndex).setMargin(redAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
+                playerAmmoGrid.get(gridIndex).setMargin(redAmmoView.get(gridIndex).get(i), new Insets(0, 0, AMMOVIEW_MARGIN * scalePB, AMMOVIEW_MARGIN * scalePB));
             }
             blueAmmoView.add(new ArrayList<>());
             int bAmmo = p.getBlueAmmo();
             for (int i = 0; i < bAmmo; i++) {
                 blueAmmoView.get(gridIndex).add(new ImageView(blueAmmoImage));
-                blueAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
+                blueAmmoView.get(gridIndex).get(i).setFitHeight(AMMOVIEW_H * scalePB);
                 blueAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
                 playerAmmoGrid.get(gridIndex).add(blueAmmoView.get(gridIndex).get(i), i, 1);
-                playerAmmoGrid.get(gridIndex).setMargin(blueAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
+                playerAmmoGrid.get(gridIndex).setMargin(blueAmmoView.get(gridIndex).get(i), new Insets(0, 0, AMMOVIEW_MARGIN * scalePB, AMMOVIEW_MARGIN * scalePB));
             }
             yellowAmmoView.add(new ArrayList<>());
             int yAmmo = p.getYellowAmmo();
             for (int i = 0; i < yAmmo; i++) {
                 yellowAmmoView.get(gridIndex).add(new ImageView(yellowAmmoImage));
-                yellowAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
+                yellowAmmoView.get(gridIndex).get(i).setFitHeight(AMMOVIEW_H * scalePB);
                 yellowAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
                 playerAmmoGrid.get(gridIndex).add(yellowAmmoView.get(gridIndex).get(i), i, 2);
-                playerAmmoGrid.get(gridIndex).setMargin(yellowAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
+                playerAmmoGrid.get(gridIndex).setMargin(yellowAmmoView.get(gridIndex).get(i), new Insets(0, 0, AMMOVIEW_MARGIN * scalePB, AMMOVIEW_MARGIN * scalePB));
             }
             gridIndex++;
         }
-
         return  playerAmmoGrid;
      }
 
@@ -148,18 +193,18 @@ public class PlayerBoardRenderer {
             damageView.add(new ArrayList<>());
             for(int i=0; i< dmgAmount; i++) {
                 damageView.get(gridIndex).add(new ImageView(damageImage.get(damageImageIndex(p.getDamage(players).get(i).getColor()))));
-                damageView.get(gridIndex).get(i).setFitHeight(32*scalePB);
+                damageView.get(gridIndex).get(i).setFitHeight(DAMAGEVIEW_H*scalePB);
                 damageView.get(gridIndex).get(i).setPreserveRatio(true);
                 damageGrid.get(gridIndex).add(damageView.get(gridIndex).get(i),i,0);
                 if( ! p.isFlipped()) {
-                    damageGrid.get(gridIndex).setMargin(damageView.get(gridIndex).get(i), new javafx.geometry.Insets(0, -4.4 * scalePB, 0, 0));
-                    damageGrid.get(gridIndex).setTranslateX(40 * scalePB);
+                    damageGrid.get(gridIndex).setMargin(damageView.get(gridIndex).get(i), new javafx.geometry.Insets(0, DAMAGEVIEW_MAGRIN * scalePB, 0, 0));
+                    damageGrid.get(gridIndex).setTranslateX(DAMAGEVIEW_TX * scalePB);
                 }
                 else {
-                    damageGrid.get(gridIndex).setMargin(damageView.get(gridIndex).get(i), new javafx.geometry.Insets(0, -5 * scalePB, 0, 0));
-                    damageGrid.get(gridIndex).setTranslateX(45 * scalePB);
+                    damageGrid.get(gridIndex).setMargin(damageView.get(gridIndex).get(i), new javafx.geometry.Insets(0, DAMAGEVIEWFLIPPED_MAGRIN * scalePB, 0, 0));
+                    damageGrid.get(gridIndex).setTranslateX(DAMAGEVIEWFLIPPED_TX * scalePB);
                 }
-                damageGrid.get(gridIndex).setTranslateY(45*scalePB);
+                damageGrid.get(gridIndex).setTranslateY(DAMAGEGRID_TY*scalePB);
             }
             gridIndex++;
         }
@@ -220,10 +265,10 @@ public class PlayerBoardRenderer {
             marksView.add(new ArrayList<>());
             for(int i=0; i< marksAmount; i++) {
                 marksView.get(gridIndex).add(new ImageView(damageImage.get(damageImageIndex(p.getMark(players).get(i).getColor()))));
-                marksView.get(gridIndex).get(i).setFitHeight(20*scalePB);
+                marksView.get(gridIndex).get(i).setFitHeight(MARKSVIEW_H*scalePB);
                 marksView.get(gridIndex).get(i).setPreserveRatio(true);
                 marksGrid.get(gridIndex).add(marksView.get(gridIndex).get(i),i,0);
-                marksGrid.get(gridIndex).setTranslateX(230*scalePB);
+                marksGrid.get(gridIndex).setTranslateX(MARKSVIEW_TX*scalePB);
             }
             gridIndex++;
         }
@@ -247,14 +292,14 @@ public class PlayerBoardRenderer {
             skullView.add(new ArrayList<>());
             for(int i=0; i< deathsNumber.get(players.indexOf(p)); i++) {
                 skullView.get(gridIndex).add(new ImageView(skullImage));
-                skullView.get(gridIndex).get(i).setFitHeight(40*scalePB);
+                skullView.get(gridIndex).get(i).setFitHeight(SKULLVIEW_H*scalePB);
                 skullView.get(gridIndex).get(i).setPreserveRatio(true);
                 skullGrid.get(gridIndex).add(skullView.get(gridIndex).get(i),i,0);
                 if(p.isFlipped())
-                    skullGrid.get(gridIndex).setTranslateX(130*scalePB);
+                    skullGrid.get(gridIndex).setTranslateX(SKULLGRID_TX*scalePB);
                 else
-                    skullGrid.get(gridIndex).setTranslateX(100*scalePB);
-                skullGrid.get(gridIndex).setTranslateY(80*scalePB);
+                    skullGrid.get(gridIndex).setTranslateX(SKULLGRIDFLIPPED_TX*scalePB);
+                skullGrid.get(gridIndex).setTranslateY(SKULLGRID_TY*scalePB);
             }
             gridIndex++;
         }
@@ -294,23 +339,23 @@ public class PlayerBoardRenderer {
                 weaponImage = new Image(getClass().getResourceAsStream("/images/cards/"+key.replace(" ","_")+".png"));
 
                 weaponHandView.get(players.indexOf(p)).add(new ImageView(weaponImage));
-                weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setFitHeight(300*scalePB);
+                weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setFitHeight(WEAPONHANDVIEW_H*scalePB);
                 weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)).setPreserveRatio(true);
                 loadUnload.get(players.indexOf(p)).add(new Label());
                 if( ! w.isLoaded()) {
                     loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setText("SCARICA");
                     loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTextFill(Color.web("#F8F8FF"));
                 }
-                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setFont(new Font("Arial", 25*scalePB));
-                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTranslateY(50*scalePB);
+                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setFont(new Font("Arial", LOADUNLOAD_FONT*scalePB));
+                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTranslateY(LOADUNLOAD_TY*scalePB);
                 weaponContainer.get(players.indexOf(p)).add(new Pane());
                 weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().addAll(weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)),
                         loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)));
                 if(renderInstruction.equals("Weapon") && p==clientModel.getCurrentPlayer()){
                     if(labelButton.contains(w.getName())) {
                         weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().add(inputButtons.get(labelButton.indexOf(w.getName())));
-                        inputButtons.get(labelButton.indexOf(w.getName())).setPrefWidth(180 * scalePB);
-                        inputButtons.get(labelButton.indexOf(w.getName())).setPrefHeight(300 * scalePB);
+                        inputButtons.get(labelButton.indexOf(w.getName())).setPrefWidth(WEAPONBUTTON_W * scalePB);
+                        inputButtons.get(labelButton.indexOf(w.getName())).setPrefHeight(WEAPONBUTTON_H * scalePB);
                         inputButtons.get(labelButton.indexOf(w.getName())).setStyle("-fx-background-color: transparent;");
                     }else{
                         ColorAdjust lessVisible = new ColorAdjust();
@@ -321,12 +366,12 @@ public class PlayerBoardRenderer {
                 handContainer.get(players.indexOf(p)).getChildren().add(weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)));
             }
             puBackHandView.add(new ImageView(puBackImage));
-            puBackHandView.get(puBackHandView.size()-1).setFitHeight(200*scalePB);
+            puBackHandView.get(puBackHandView.size()-1).setFitHeight(PUVIEW_H*scalePB);
             puBackHandView.get(puBackHandView.size()-1).setPreserveRatio(true);
             puHandNumber.add(new Label(Integer.toString(p.getCardNumber())));
-            puHandNumber.get(players.indexOf(p)).setFont(new Font("Arial", 60*scalePB));
+            puHandNumber.get(players.indexOf(p)).setFont(new Font("Arial", PUHANDNUMBER_FONT*scalePB));
             puHandNumber.get(players.indexOf(p)).setTextFill(Color.web("#F8F8FF"));
-            puHandNumber.get(players.indexOf(p)).setTranslateX(-50);
+            puHandNumber.get(players.indexOf(p)).setTranslateX(PUHANDNUMBER_TX);
             if(p.getId() != clientModel.getPlayerID())
                 handContainer.get(players.indexOf(p)).getChildren().addAll(puBackHandView.get(players.indexOf(p)), puHandNumber.get(players.indexOf(p)));
             else{
@@ -337,20 +382,18 @@ public class PlayerBoardRenderer {
                     String pu = clientModel.getPowerUpInHand().get(i);
                     Image puImage = new Image(getClass().getResourceAsStream("/images/cards/"+color+pu.replace(" ","_")+".png"));
                     puView.add(new ImageView(puImage));
-                    puView.get(puView.size()-1).setFitHeight(200*scalePB);
+                    puView.get(puView.size()-1).setFitHeight(PUVIEW_H*scalePB);
                     puView.get(puView.size()-1).setPreserveRatio(true);
                     puContainer.add(new Pane());
                     puContainer.get(puContainer.size()-1).getChildren().add(puView.get(puView.size()-1));
                     if(renderInstruction.equals("PowerUp")){
-                        StringBuilder builder = new StringBuilder();
-                        builder.append(clientModel.getColorPowerUpInHand().get(i));
                         String labelPowerUp = clientModel.getColorPowerUpInHand().get(i);
                         labelPowerUp = labelPowerUp.substring(0, 1).toUpperCase() + labelPowerUp.substring(1);
                         labelPowerUp = labelPowerUp + " " + pu;
                         if(labelButton2.contains(labelPowerUp)) {
                             puContainer.get(puContainer.size() - 1).getChildren().add(inputButtons.get(labelButton2.indexOf(labelPowerUp)));
-                            inputButtons.get(labelButton2.indexOf(labelPowerUp)).setPrefWidth(135*scalePB);
-                            inputButtons.get(labelButton2.indexOf(labelPowerUp)).setPrefHeight(200*scalePB);
+                            inputButtons.get(labelButton2.indexOf(labelPowerUp)).setPrefWidth(PUBUTTON_W*scalePB);
+                            inputButtons.get(labelButton2.indexOf(labelPowerUp)).setPrefHeight(PUBUTTON_H*scalePB);
                             inputButtons.get(labelButton2.indexOf(labelPowerUp)).setStyle("-fx-background-color: transparent;");
                             labelButton2.set(labelButton2.indexOf(labelPowerUp), "used");
                         }else {
@@ -366,8 +409,8 @@ public class PlayerBoardRenderer {
             handItem.add(new MenuItem());
             handItem.get(players.indexOf(p)).setGraphic(handContainer.get(players.indexOf(p)));
             handButton.add(new MenuButton("CARTE", null, handItem.get(players.indexOf(p))));
-            handButton.get(players.indexOf(p)).setTranslateX(410 * scalePB);
-            handButton.get(players.indexOf(p)).setTranslateY(80 * scalePB);
+            handButton.get(players.indexOf(p)).setTranslateX(HANDBUTTON_TX * scalePB);
+            handButton.get(players.indexOf(p)).setTranslateY(HANDBUTTON_TY * scalePB);
         }
         return handButton;
     }
@@ -411,22 +454,54 @@ public class PlayerBoardRenderer {
 
 
         for(ImageView one : point1View){
-            one.setFitHeight(40*scalePB);
+            one.setFitHeight(POINTVIEW_H*scalePB);
             one.setPreserveRatio(true);
         }
         for(ImageView two : point2View){
-            two.setFitHeight(40*scalePB);
+            two.setFitHeight(POINTVIEW_H*scalePB);
             two.setPreserveRatio(true);
         }
         for(ImageView four : point4View){
-            four.setFitHeight(40*scalePB);
+            four.setFitHeight(POINTVIEW_H*scalePB);
             four.setPreserveRatio(true);
         }
 
-        pointsGrid.setTranslateX(500*scalePB);
-        pointsGrid.setTranslateY(70*scalePB);
+        pointsGrid.setTranslateX(POINTSGRID_TX*scalePB);
+        pointsGrid.setTranslateY(POINTSGRID*scalePB);
 
         return pointsGrid;
     }
 
+    /**
+     * Configures a panel that shows the last 3 moves of the players
+     *
+     * @param message description of the last move
+     * @return  pane containing the moves
+     */
+    public VBox historyRenderer(String message){
+        messageHistory3=messageHistory2;
+        messageHistory2=messageHistory1;
+        messageHistory1=message;
+
+        Label messageLabel1 = new Label(messageHistory1);
+        Label messageLabel2 = new Label(messageHistory2);
+        Label messageLabel3 = new Label(messageHistory3);
+        Label divider1 = new Label(HISTORY_DIVIDER);
+        Label divider2 = new Label(HISTORY_DIVIDER);
+        messageLabel1.setAlignment(Pos.CENTER);
+        messageLabel2.setAlignment(Pos.CENTER);
+        messageLabel3.setAlignment(Pos.CENTER);
+        divider1.setAlignment(Pos.CENTER);
+        divider2.setAlignment(Pos.CENTER);
+        messageLabel1.setTextFill(Color.web("#F8F8FF"));
+        messageLabel2.setTextFill(Color.web("#F8F8FF"));
+        messageLabel3.setTextFill(Color.web("#F8F8FF"));
+        divider1.setTextFill(Color.web("#F8F8FF"));
+        divider2.setTextFill(Color.web("#F8F8FF"));
+
+        VBox historyPane= new VBox();
+        historyPane.getChildren().addAll(divider1,messageLabel3,messageLabel2,messageLabel1,divider2);
+        historyPane.setAlignment(Pos.CENTER);
+        return historyPane;
+    }
 }

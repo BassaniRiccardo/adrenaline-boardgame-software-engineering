@@ -310,16 +310,19 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             }
 
             if(type.equals(CHOOSE_SQUARE.toString()))
-                mapBoardRenderInstruction ="Square";
+                mapBoardRenderInstruction = "Square";
             else if(type.equals(CHOOSE_WEAPON.toString())){
-                if( ! clientModel.getCurrentPlayer().getWeapons().isEmpty()) {  //verifies if the weapons are in the player hand or on the board
-                    if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName()) ||
-                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(1).getName()) ||
-                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(2).getName())){
-                        playerBoardRenderInstruction = WEAPON;
-
-                    }else{
-                        mapBoardRenderInstruction = WEAPON;}
+                if( ! clientModel.getCurrentPlayer().getWeapons().isEmpty()) {
+                    //verifies if the weapons are in the player hand or on the board
+                    boolean inPlayerHand = false;
+                    for (int i=0; i < clientModel.getCurrentPlayer().getWeapons().size(); i++ ){
+                        if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(i).getName())) {
+                            inPlayerHand = true;
+                            break;
+                        }
+                    }
+                    if (inPlayerHand) playerBoardRenderInstruction = WEAPON;
+                    else mapBoardRenderInstruction = WEAPON;
                 }
                 else{
                     mapBoardRenderInstruction = WEAPON;}

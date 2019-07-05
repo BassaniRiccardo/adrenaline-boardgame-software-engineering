@@ -133,7 +133,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
         currentPlayerConnection.display(TURN_START + (frenzy ? " FRENZY IS ACTIVE!" : ""));
         for (VirtualView p : playerConnections){
-            if (!p.equals(currentPlayerConnection)){
+            if (!p.equals(currentPlayerConnection) && !p.isSuspended()){
                 p.display(TURN_OF + currentPlayer.userToString() + (frenzy ? ". FRENZY IS ACTIVE!" : ""));
             }
         }
@@ -223,8 +223,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
      */
     void joinBoard(Player player, int powerUpToDraw, boolean reborn) throws SlowAnswerException, NotEnoughPlayersException {
 
-        player.setInGame(true);
-
         for (int i = 0; i < powerUpToDraw; i++) {
             try {
                 player.drawPowerUp();
@@ -261,6 +259,8 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
         for (WeaponSquare s : board.getSpawnPoints()) {
             if (s.getColor() == birthColor) player.setPosition(s);
         }
+
+        player.setInGame(true);
 
         if (frenzy){
             if (player.getId() > gameEngine.getFrenzyActivator()){

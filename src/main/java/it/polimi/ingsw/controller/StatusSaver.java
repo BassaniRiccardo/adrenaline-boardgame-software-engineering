@@ -102,7 +102,6 @@ class StatusSaver {
     void updateCheckpoint(){
 
         LOGGER.log(Level.FINE, () -> "playersPowerups saved: " + playersPowerups);
-        try {
 
             //attributes shared by all players
                 playersPositions.clear();
@@ -111,11 +110,13 @@ class StatusSaver {
                 playersPowerups.clear();
                 playersAmmoPacks.clear();
             for (Player p : board.getActivePlayers()) {
-                playersPositions.add(p.getPosition());
-                playersDamages.add(new ArrayList<>(p.getDamages()));
-                playersMarks.add(new ArrayList<>(p.getMarks()));
-                playersPowerups.add(new ArrayList<>(p.getPowerUpList()));
-                playersAmmoPacks.add(new AmmoPack(p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getYellowAmmo()));
+                try {
+                    playersPositions.add(p.getPosition());
+                } catch (NotAvailableAttributeException e) { LOGGER.log(Level.SEVERE, "updating the psition of a player with no position", e);}
+                    playersDamages.add(new ArrayList<>(p.getDamages()));
+                    playersMarks.add(new ArrayList<>(p.getMarks()));
+                    playersPowerups.add(new ArrayList<>(p.getPowerUpList()));
+                    playersAmmoPacks.add(new AmmoPack(p.getAmmoPack().getRedAmmo(), p.getAmmoPack().getBlueAmmo(), p.getAmmoPack().getYellowAmmo()));
             }
             //current player
             currentPlayerWeapons = new ArrayList<>(board.getCurrentPlayer().getWeaponList());
@@ -129,7 +130,6 @@ class StatusSaver {
                 List<Weapon> lw = new ArrayList<>(s.getWeapons());
                 squareWeapons.add(lw);
             }
-        } catch (NotAvailableAttributeException e) {LOGGER.log(Level.SEVERE, "NotAvailableAttributeException thrown while updating the checkpoint", e);}
         LOGGER.log(Level.FINE, "updating checkpoint");
         LOGGER.log(Level.FINE, () -> "playersPowerups saved: " + playersPowerups);
 

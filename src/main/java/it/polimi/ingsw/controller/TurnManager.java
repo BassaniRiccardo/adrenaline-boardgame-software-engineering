@@ -21,7 +21,8 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
  * The user is asked for a confirmation after every action and after he is given the possibility to actually see the effects of his actions.
  * The exception are:
  * - the collecting of an ammotile: since a powerup could be drawn after this (and being it a random event). The user must confirm his action before collecting the ammotile.
- * - the use of a tagback grenade, to avoid that the interruption of the shooter's turn becomes too long. The hit player cannot change is mind about the use of grenades.
+ * - The action performed out of the player turn, hence the respawn and the use of a tagback grenade.
+ *   This is made to avoid that turns become too long.
  * - when no previous decisions have been taken, e.g. while spawning.
  * - the handling of a payment, since the player will be asked for a confirmation after he will have paid.
  * @author BassaniRiccardo
@@ -275,7 +276,9 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
         LOGGER.log(Level.FINE, () -> player  + " enters in the board in the " + discarded.getColor().toStringLowerCase() + " spawn point.");
 
-        if (!askConfirmation(ASK_SPAWNING_CONFIRMATION, player)) resetJoinBoard(player, reborn);
+        if (!reborn) {
+            if (!askConfirmation(ASK_SPAWNING_CONFIRMATION, player)) resetJoinBoard(player, reborn);
+        }
         else updateAndNotifyAll();
 
 

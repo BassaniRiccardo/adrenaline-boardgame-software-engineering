@@ -11,10 +11,10 @@
 | Complete rules | [![GREEN](https://placehold.it/15/44bb44/44bb44)](#) |
 | Socket | [![GREEN](https://placehold.it/15/44bb44/44bb44)](#) |
 | RMI | [![GREEN](https://placehold.it/15/44bb44/44bb44)](#) |
-| GUI | [![YELLOW](https://placehold.it/15/ffdd00/ffdd00)](#) |
+| GUI | [![GREEN](https://placehold.it/15/44bb44/44bb44)](#) |
 | CLI | [![GREEN](https://placehold.it/15/44bb44/44bb44)](#) |
 | Multiple games | [![GREEN](https://placehold.it/15/44bb44/44bb44)](#) |
-| Persistence | [![YELLOW](https://placehold.it/15/ffdd00/ffdd00)](#) |
+| Persistence | [![RED](https://placehold.it/15/f03c15/f03c15)](#) |
 | Domination or Towers modes | [![RED](https://placehold.it/15/f03c15/f03c15)](#) |
 | Terminator | [![RED](https://placehold.it/15/f03c15/f03c15)](#) |
 
@@ -25,7 +25,7 @@
 -->
 
 **Setup:**
-- The server uses port 3993 for RMI and 4197 for TCP.
+- The server uses port 3994 for RMI and 4198for TCP.
 - Client parameters can be set at launch:
 
     java -jar client.jar [serverIP] [serverPort] [clientIP]

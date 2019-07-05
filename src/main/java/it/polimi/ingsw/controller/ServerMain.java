@@ -269,9 +269,9 @@ public class ServerMain {
     void initializeLogger(){
         try {
             ConsoleHandler consoleHandler = new ConsoleHandler();
-            consoleHandler.setLevel(Level.ALL);
+            consoleHandler.setLevel(Level.SEVERE);
             FileHandler fileHandler = new FileHandler(SERVER_LOG_FILENAME);
-            LOGGER.setLevel(Level.ALL);
+            LOGGER.setLevel(Level.SEVERE);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
             LOGGER.addHandler(consoleHandler);

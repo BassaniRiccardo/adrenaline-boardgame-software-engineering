@@ -193,9 +193,10 @@ public class GameEngine implements Runnable{
             }
 
             else {
-                try {
-                    setup();
-                }catch (NotEnoughPlayersException e) {
+              //  try {
+                    //setup();
+                    simulationTillEndphaseSetup();
+               /* }catch (NotEnoughPlayersException e) {
                     for (VirtualView p : players) {
                         p.showEnd(NOT_ENOUGH_PLAYER_GAME_OVER);
                     }
@@ -204,7 +205,7 @@ public class GameEngine implements Runnable{
                     }
                     ServerMain.getInstance().untrackGame(this);
                     return;
-                }
+                }*/
             }
 
             while (!gameOver) {

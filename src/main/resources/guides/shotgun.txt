@@ -1,0 +1,9 @@
+------------------------
+Shotgun [(blue), blue]
+------------------------
+
+Basic effect:
+	Deal 3 damage to 1 target on your square. If you want, you may then move the target 1 square.
+
+Secondary effect - Long Barrel:
+	Deal 2 damage to 1 target on any square exactly one move away.

@@ -1,0 +1,15 @@
+-------------------------
+Rocket Launcher [(red)]
+-------------------------
+
+Basic effect:
+	Deal 2 damage to 1 target you can see that is not on your square. Then you may move the target 1 square.
+
+Optional effect 1 - Rocket Jump:
+	Move 1 or 2 squares. This effect can be used either before or after the basic effect. [blue]
+
+Optional effect 2 - Fragmenting Warhead:
+	Deal 1 additional damage to the other of those targets and/or deal 1 damage to a different target you can see. [yellow]
+
+Notes:
+	If you use the rocket jump before the basic effect, you consider only your new square when determining if a target is legal. You can even move off a square so you can shoot someone on it. If you use the fragmenting warhead, you deal damage to everyone on the target's square before you move the target – your target will take 3 damage total.

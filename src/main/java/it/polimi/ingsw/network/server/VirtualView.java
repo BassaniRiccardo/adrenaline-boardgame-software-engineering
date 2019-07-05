@@ -175,10 +175,10 @@ public abstract class VirtualView implements Runnable{
      * resumes or the game ends.
      */
     public void suspend() {
-        showSuspension();
-        shutdown();
-        busy=false;
         if(!suspended) {
+            showSuspension();
+            shutdown();
+            busy=false;
             this.suspended = true;
             this.justSuspended = true;
             LOGGER.log(Level.INFO, "Player {0} was suspended", name);

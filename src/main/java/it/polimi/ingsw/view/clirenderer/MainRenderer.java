@@ -90,14 +90,14 @@ public class MainRenderer {
     public static void showInfoScreen(String weaponName){
         System.out.print(CLEAR_CONSOLE);
         try {
-            Scanner input = new Scanner(new InputStreamReader(MainRenderer.class.getResourceAsStream("/placeholder.txt")));
+            Scanner input = new Scanner(new InputStreamReader(MainRenderer.class.getResourceAsStream("/guides/"+weaponName.replace(' ', '_').toLowerCase()+".txt")));
             while (input.hasNextLine()) {
                 System.out.println(input.nextLine());
             }
-        }catch(Exception ex ){
-            System.out.println("That weapon is unknown!");
+        }catch(Exception ex){
+            System.out.println("We could not find that weapon in our manual, sorry!");
         }
-        System.out.println("Press any key to get back to the game\n");
+        System.out.println("\nPress any key to get back to the game.");
         System.out.flush();
     }
 

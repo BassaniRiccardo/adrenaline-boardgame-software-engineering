@@ -1,0 +1,11 @@
+------------------------
+Lock Rifle [(yellow), red]
+------------------------
+
+Basic effect:
+	Deal 1 damage and 2 marks to 1 target you can see.
+
+Secondary effect - Scanner Mode:
+	Choose up to 3 targets you can see and deal 1 mark to each.
+
+	Notes: Remember that the 3 targets can be in 3 different rooms.

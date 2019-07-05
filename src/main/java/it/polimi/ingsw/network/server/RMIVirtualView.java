@@ -40,12 +40,11 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void refresh(){
-        if(!isSuspended()){
-            try{
-                remoteView.ping();
-            }catch (RemoteException ex){
-                suspend();
-            }
+        if(suspended) return;
+        try{
+            remoteView.ping();
+        }catch (RemoteException ex){
+            suspend();
         }
     }
 
@@ -78,9 +77,10 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void showSuspension(){
-        try{
+        if(suspended) return;
+        try {
             remoteView.showSuspension();
-        }catch(RemoteException ex){
+        } catch (RemoteException ex) {
             LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
         }
     }
@@ -92,9 +92,10 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void showEnd(String message){
-        try{
+        if(suspended) return;
+        try {
             remoteView.showEnd(message);
-        }catch(RemoteException ex){
+        } catch (RemoteException ex) {
             LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
         }
     }
@@ -110,7 +111,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void choose(String type, String msg, List<?> options){
-        if(busy) return;
+        if(busy||suspended) return;
         busy=true;
         synchronized (game.getNotifications()) {
             game.getNotifications().remove(this);
@@ -142,7 +143,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void choose(String type, String msg, List<?> options, int timeoutSec){
-        if(busy) return;
+        if(busy||suspended) return;
         busy=true;
         long timestamp = System.currentTimeMillis() + timeoutSec*1000;
         synchronized (game.getNotifications()) {
@@ -177,12 +178,17 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public int chooseNow(String type, String msg, List<?> options){
+        if(busy||suspended) return 1;
         try {
-            return remoteView.choose(type, msg, options.stream().map(x -> (x).toString()).collect(Collectors.toList()));
-        }catch(RemoteException ex){
+            busy = true;
+            int answer = remoteView.choose(type, msg, options.stream().map(x -> (x).toString()).collect(Collectors.toList()));
+            busy = false;
+            return answer;
+        } catch (RemoteException ex) {
+            busy = false;
             suspend();
         }
-        return 0;
+        return 1;
     }
 
 
@@ -193,9 +199,10 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void display(String msg){
-        try{
+        if(suspended) return;
+        try {
             remoteView.display(msg);
-        }catch(RemoteException ex){
+        } catch (RemoteException ex) {
             //not necessary to suspend the player in this case
             LOGGER.log(Level.SEVERE, "Unable to call remote function", ex);
         }
@@ -211,9 +218,14 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public String getInputNow(String msg, int max) {
+        if(suspended) return "";
         try {
-            return remoteView.getInput(msg, max);
+            busy = true;
+            String answer = remoteView.getInput(msg, max);
+            busy = false;
+            return answer;
         } catch (RemoteException ex) {
+            busy = false;
             suspend();
         }
         return "";
@@ -227,6 +239,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void update(JsonObject jsonObject){
+        if(suspended) return;
         try {
             remoteView.update(jsonObject.toString());
         } catch (RemoteException ex) {
@@ -234,6 +247,4 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
             suspend();
         }
     }
-
-
 }

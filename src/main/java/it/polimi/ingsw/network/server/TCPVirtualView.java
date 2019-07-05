@@ -138,7 +138,7 @@ public class TCPVirtualView extends VirtualView {
      */
     @Override
     public void choose(String type, String msg, List<?> options){
-        if(busy){
+        if(busy||suspended){
             return;
         }
         try {
@@ -175,6 +175,7 @@ public class TCPVirtualView extends VirtualView {
      */
     @Override
     public void choose(String type, String msg, List<?> options, int timeoutSec){
+        if(suspended) return;
         choose(type, msg, options);
         timeout = true;
         timestamp = timeoutSec*1000 + System.currentTimeMillis();
@@ -192,6 +193,7 @@ public class TCPVirtualView extends VirtualView {
      */
     @Override
     public int chooseNow(String type, String msg, List<?> options){
+        if(suspended) return 1;
         choose(type, msg, options);
         waiting = true;
         return Integer.parseInt(receive());
@@ -221,6 +223,7 @@ public class TCPVirtualView extends VirtualView {
      */
     @Override
     public String getInputNow(String msg, int max){
+        if(suspended) return "";
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "REQ");
         jsonObject.addProperty("text", msg);
@@ -267,11 +270,9 @@ public class TCPVirtualView extends VirtualView {
      * @param jmessage  message to send
      */
     private void send (JsonObject jmessage){
+        if(suspended) return;
         out.println(jmessage.toString());
         out.flush();
         LOGGER.log(Level.FINE, "Sending a message over TCP connection");
     }
-
-
-
 }

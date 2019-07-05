@@ -25,7 +25,6 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     private RemoteView remoteView;
     private ExecutorService executor = Executors.newCachedThreadPool();
 
-
     /**
      * Standard constructor
      */
@@ -41,6 +40,9 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     @Override
     public void refresh(){
         if(suspended) return;
+        if(pinged&&System.currentTimeMillis()-lastPing>PING_TIMEOUT_MILLIS){
+            suspend();
+        }
         try{
             remoteView.ping();
         }catch (RemoteException ex){
@@ -68,7 +70,8 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void ping(){
-        //empty because it only needs to be called to survey connection status
+        pinged = true;
+        lastPing = System.currentTimeMillis();
     }
 
 

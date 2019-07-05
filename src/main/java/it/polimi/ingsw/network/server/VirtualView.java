@@ -46,10 +46,14 @@ public abstract class VirtualView implements Runnable{
     private Player model;
     static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final int MAX_LENGTH_BATTLECRY = 32;
+    protected static final int PING_TIMEOUT_MILLIS = 10000;
     boolean busy;
     boolean timeout;
     long timestamp;
     private String battlecry;
+    protected long lastPing;
+    protected boolean pinged;
+
     private static final String CHOOSE_NAME = "Select a name.";
     private static final String MALFORMED_NAME = "Your name should not be empty or contain commas. Try again.";
     private static final String CHOOSE_BATTLECRY = "Now, choose your battlecry!";
@@ -68,6 +72,8 @@ public abstract class VirtualView implements Runnable{
         this.timeout = false;
         this.timestamp = 0;
         this.battlecry = "";
+        this.pinged =false;
+        this.lastPing = System.currentTimeMillis();
     }
 
     /**

@@ -65,6 +65,11 @@ public class TCPVirtualView extends VirtualView {
                     suspend();
                 } else {
                     LOGGER.log(Level.FINE, "Received a message over TCP connection");
+                    if (message.equals("PING")){
+                        pinged=true;
+                        lastPing = System.currentTimeMillis();
+                        return;
+                    }
                     if(!busy) return;
                     busy = false;
                     if(waiting){
@@ -85,6 +90,9 @@ public class TCPVirtualView extends VirtualView {
                 //this is not significant as we expect to seldom receive messages
             } catch (IOException ex) {
                 LOGGER.log(Level.SEVERE, "Cannot reach client", ex);
+                suspend();
+            }
+            if(pinged&&System.currentTimeMillis()-lastPing>PING_TIMEOUT_MILLIS){
                 suspend();
             }
         }

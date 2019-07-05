@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import it.polimi.ingsw.view.guirenderer.Animations;
+
 import it.polimi.ingsw.view.guirenderer.MapBoardRenderer;
 import it.polimi.ingsw.view.guirenderer.PlayerBoardRenderer;
 import javafx.application.Application;
@@ -542,7 +542,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             mapBoardRenderer.setClientModel(clientModel);
             mapBoardRenderer.setRenderInstruction(mapBoardRenderInstruction);
 
-            Animations animation = new Animations();
             //map
             HBox map = mapBoardRenderer.mapRenderer();
             //skullsKillShotTrack
@@ -595,16 +594,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     roomsGrid.add(icons.get(players.indexOf(p)), column, row);
                 }
             }
-            //icons flashing when damaged
-            if(justDamaged.isEmpty()) {
-                for (ClientModel.SimplePlayer p : players)
-                    justDamaged.add(0);
-            }else
-                for (ClientModel.SimplePlayer p : players)
-                    if(justDamaged.get(players.indexOf(p))!=p.getDamageID().size())
-                        animation.flash(icons.get(players.indexOf(p)));
-            justDamaged.clear();
-
+            
             //ammo
             List<GridPane> playerAmmoGrid = playerBoardRenderer.ammoRender();
             //damages

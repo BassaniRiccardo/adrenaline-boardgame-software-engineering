@@ -14,7 +14,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +38,6 @@ public class TCPConnection implements Runnable {
     private ExecutorService executor = Executors.newCachedThreadPool();
     private static final int SOTIMEOUT = 100;
     private boolean shutdown;
-    private boolean checking;
 
     /**
      * Constructor establishing a standard TCP connection
@@ -51,7 +49,6 @@ public class TCPConnection implements Runnable {
     public TCPConnection(ClientMain clientMain, String address, int port){
         this.clientMain = clientMain;
         this.shutdown = false;
-        this.checking=false;
         LOGGER.log(Level.INFO, "Starting TCP connection");
         try {
             socket = new Socket(address, port);
@@ -68,9 +65,8 @@ public class TCPConnection implements Runnable {
             shutdown();
             clientMain.showDisconnection();
         }
-        ExecutorService executor = Executors.newCachedThreadPool();
         executor.submit(()->{
-           while(Thread.currentThread().isAlive()){
+           while(Thread.currentThread().isAlive()&&!shutdown){
                out.println("PING");
                out.flush();
                try {

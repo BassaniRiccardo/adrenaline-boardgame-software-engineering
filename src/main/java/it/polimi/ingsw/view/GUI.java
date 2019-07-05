@@ -166,11 +166,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * Calculates the scale factor of the board, instantiates necessary classes,
      * builds the first screen and shows the stage.
      *
-<<<<<<< Updated upstream
      * @param primaryStage the primary stage for this application.
-=======
-     * @param primaryStage  stage that will be shown
->>>>>>> Stashed changes
      */
     @Override
     public void start(Stage primaryStage) {

@@ -37,7 +37,6 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
  * @author  BassaniRiccardo, davidealde
  */
 
-//TODO add the history
 
 public class GUI extends Application implements UI, Runnable, EventHandler {
 
@@ -66,6 +65,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private String mapBoardRenderInstruction;
     private String playerBoardRenderInstruction;
     private boolean setColor;
+    private String historyMessage;
+    private boolean newHistoryMessage;
+    private VBox historyPanel;
+
 
     private static final Logger LOGGER = Logger.getLogger("clientLogger");
     private static final String CLOSE = "CLOSE";
@@ -75,30 +78,29 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private static final int WAIT_FOR_STAGE_TIME = 10;
     private static final int FINAL_DISPLAY_TIME = 20000;
 
-    private static final int MAXIMUM_BOARDPANE_WIDTH = 1050;
-    private static final int WELCOME_VIEW_TY = 30;
-    private static final int WELCOME_VIEW_H = 500;
-    private static final int SCENE_W = 1000;
-    private static final int SCENE_H = 800;
-    private static final int OPT_SPACING =40 ;
-    private static final int OPTIONLIST1_SPACING =10 ;
-    private static final int OPTIONLIST2_SPACING =10 ;
-    private static final int SCENE1_W =500 ;
-    private static final int SCENE1_H =250 ;
-    private static final int MSG_SPACING =40 ;
-    private static final int QUEST_SPACING = 10 ;
-    private static final int TEXTFIELD_MAXSIZE_W =200 ;
-    private static final int TEXTFIELD_MAXSIZE_H =50 ;
-    private static final int REQ_SPACING =40 ;
-    private static final int PLAYERAMMOGRID_TX =400 ;
-    private static final int PLAYERBOARDS_TX =300 ;
-    private static final int PLAYERBOARDS_TY =740 ;
-    private static final int MESSAGEBOX_SPACING =40 ;
-    private static final int BOARDPANE_WIDTH = 1050 ;
-
-    private static final String NORMAL = "Normal";
-    private static final String WEAPON = "Weapon";
-    private static final String INTERRUPTING_METHOD = "Interrupting method";
+    private static final float MAXIMUM_BOARDPANE_WIDTH= 1050;
+    private static final float WELCOME_VIEW_TY= 30;
+    private static final float WELCOME_VIEW_H = 500;
+    private static final float SCENE_W= 1000;
+    private static final float SCENE_H= 800;
+    private static final float OPT_SPACING=40 ;
+    private static final float OPTIONLIST1_SPACING=10 ;
+    private static final float OPTIONLIST2_SPACING=10 ;
+    private static final float SCENE1_W=500 ;
+    private static final float SCENE1_H=250 ;
+    private static final float MSG_SPACING=40 ;
+    private static final float QUEST_SPACING=10 ;
+    private static final float TEXTFIELD_MAXSIZE_W=200 ;
+    private static final float TEXTFIELD_MAXSIZE_H=50 ;
+    private static final float REQ_SPACING=40 ;
+    private static final float PLAYERAMMOGRID_TX=400 ;
+    private static final float PLAYERBOARDS_TX=300 ;
+    private static final float PLAYERBOARDS_TY=740 ;
+    private static final float MESSAGEBOX_SPACING=40 ;
+    private static final float BOARDPANE_WIDTH=1050 ;
+    private static final String NORMAL_RENDERINSTRUCTION="Normal" ;
+    private static final String WEAPON_RENDERINSTRUCTION="Weapon" ;
+    private static final String INTERRUPRING_METHOD_MESSAGE="Interrupting method";
 
 
     /**
@@ -140,9 +142,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         clientModel = null;
         messagePanel = new Pane();
         justDamaged = new ArrayList<>();
-        mapBoardRenderInstruction = NORMAL;
-        playerBoardRenderInstruction = NORMAL;
+        mapBoardRenderInstruction = NORMAL_RENDERINSTRUCTION;
+        playerBoardRenderInstruction = NORMAL_RENDERINSTRUCTION;
         this.setColor = true;
+        historyMessage="";
+        newHistoryMessage = false;
     }
 
 
@@ -162,7 +166,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
      * Calculates the scale factor of the board, instantiates necessary classes,
      * builds the first screen and shows the stage.
      *
+<<<<<<< Updated upstream
      * @param primaryStage the primary stage for this application.
+=======
+     * @param primaryStage  stage that will be shown
+>>>>>>> Stashed changes
      */
     @Override
     public void start(Stage primaryStage) {
@@ -321,18 +329,20 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                             break;
                         }
                     }
-                    if (inPlayerHand) playerBoardRenderInstruction = WEAPON;
-                    else mapBoardRenderInstruction = WEAPON;
+                    if (inPlayerHand) playerBoardRenderInstruction = WEAPON_RENDERINSTRUCTION;
+                    else mapBoardRenderInstruction = WEAPON_RENDERINSTRUCTION;
                 }
                 else{
-                    mapBoardRenderInstruction = WEAPON;}
+                    mapBoardRenderInstruction = WEAPON_RENDERINSTRUCTION;}
+
             }else if(type.equals(CHOOSE_POWERUP.toString()))
                 playerBoardRenderInstruction="PowerUp";
             else if(type.equals(CHOOSE_PLAYER.toString()))
                 mapBoardRenderInstruction="Player";
             else{
-                mapBoardRenderInstruction = NORMAL;
-                playerBoardRenderInstruction = NORMAL;
+
+                mapBoardRenderInstruction = NORMAL_RENDERINSTRUCTION;
+                playerBoardRenderInstruction = NORMAL_RENDERINSTRUCTION;
             }
             mapBoardRenderer.setInputButtons(inputButtons);
             mapBoardRenderer.setLabelButton(labelButton);
@@ -362,7 +372,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             try {
                 Thread.sleep(WAIT_FOR_STAGE_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, INTERRUPTING_METHOD);
+
+                LOGGER.log(Level.INFO, INTERRUPRING_METHOD_MESSAGE );
                 Thread.currentThread().interrupt();
             }
         }
@@ -484,7 +495,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             try {
                 Thread.sleep(CHECK_INPUT_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, INTERRUPTING_METHOD );
+
+                LOGGER.log(Level.INFO, INTERRUPRING_METHOD_MESSAGE );
                 Thread.currentThread().interrupt();
             }
         }
@@ -531,7 +543,6 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             mapBoardRenderer.setRenderInstruction(mapBoardRenderInstruction);
 
             Animations animation = new Animations();
-
             //map
             HBox map = mapBoardRenderer.mapRenderer();
             //skullsKillShotTrack
@@ -640,6 +651,12 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                     playerBoards.get(players.indexOf(p)).setTranslateY(PLAYERBOARDS_TY*scale);
                 }
             }
+            if( newHistoryMessage) {
+                historyPanel = playerBoardRenderer.historyRenderer(historyMessage);
+                newHistoryMessage = false;
+            }
+            if(historyPanel!=null)
+                playerSection.getChildren().add(historyPanel);
             playerSection.getChildren().add(messagePanel);
             HBox board = new HBox();
             board.getChildren().addAll(mapAndStuffAbove, playerBoardAndStuffAbove);
@@ -662,7 +679,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             try {
                 Thread.sleep(FINAL_DISPLAY_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, INTERRUPTING_METHOD );
+
+                LOGGER.log(Level.INFO, INTERRUPRING_METHOD_MESSAGE );
                 Thread.currentThread().interrupt();
             }
         }
@@ -779,8 +797,15 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         return message;
     }
 
+    /**
+     * Called when a change in the game state is done to inform all the players ad keep trace of the previous moves
+     *
+     * @param message   description of a change in the game state
+     */
     public void addHistory(String message){
-        //unnecessary
+        historyPanel = new VBox();
+        historyMessage = message;
+        newHistoryMessage = true;
     }
 
     public  void run(){

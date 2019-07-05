@@ -43,6 +43,53 @@ public class MapBoardRenderer {
      * Whether there is the necessity to update the screen for multiple input that are managed as a single one from the client.
      */
     private boolean renderNeeded;
+    private static final float MAPVIEW_H=800 ;
+    private static final float EMPTYROOM_H_W=175 ;
+    private static final float ROOMSGRID_TX=180 ;
+    private static final float ROOMSGRID_TY=200 ;
+    private static final float AMOOVIEW_H=65 ;
+    private static final float AMMOVIEW_ALLMARGIN=55 ;
+    private static final float SQUAREBUTTON_H_W=150 ;
+    private static final float SQUAREBUTTON_TY=-20 ;
+    private static final float SKULL_W=35 ;
+    private static final float EMPTYSKULLSPACE_W=45 ;
+    private static final float SKULL_MARGIN=10 ;
+    private static final float SKULLSGRID_TX=70 ;
+    private static final float SKULLSGRID_TY=45 ;
+    private static final float ICONVIEW_H=80 ;
+    private static final float ICONVIEW1_TX=45 ;
+    private static final float ICONVIEW1_TY=-60 ;
+    private static final float ICONVIEW2_TY=-60 ;
+    private static final float ICONVIEW3_TX=90 ;
+    private static final float ICONVIEW3_TY=-60 ;
+    private static final float ICONVIEW0_TX=90 ;
+    private static final float WEAPONGRID_MARGIN=19 ;
+    private static final float WEAPONBUTTON_H=300 ;
+    private static final float WEAPONBUTTON_W=180 ;
+    private static final float WEAPONLISTZOOM_H=300 ;
+    private static final float BUTTONWEAPONZOOM_H=160 ;
+    private static final float BUTTONWEAPONZOOM_W=113 ;
+    private static final float WEAPONGRID0_TX=540 ;
+    private static final float WEAPONGRID1_TX=-98 ;
+    private static final float WEAPONGRID1_ROTATE=90 ;
+    private static final float WEAPONGRID1_TY=370 ;
+    private static final float WEAPONGRID2_TX=270 ;
+    private static final float WEAPONGRID2_TY=803 ;
+    private static final float WEAPONGRID2_ROTATE=550 ;
+    private static final float PUDECKVIEW_H=110 ;
+    private static final float WEAPONDECKVIEW_H=160 ;
+    private static final float PUDECKVIEW_TX=945 ;
+    private static final float PUDECKVIEW_TY=45 ;
+    private static final float WEAPONDECKVIEW_TX=919 ;
+    private static final float WEAPONDECKVIEW_TY= 220;
+    private static final float CARDSREMAININGPU_TX= 1000;
+    private static final float CARDSREMAININGPU_TY= 45;
+    private static final String CARDSREMAININGPU_COLOR= "#F8F8FF";
+    private static final float CARDSREMAININGWEAPON_TX= 1000;
+    private static final float CARDSREMAININGWEAPON_TY= 220;
+    private static final String CARDSREMAININGWEAPON_COLOR= "#F8F8FF";
+    private static final String SQUAREINPUTINSTRUCTION= "Square ";
+    private static final String RESETBUTTONLABEL= "Reset";
 
 
     /**
@@ -110,8 +157,8 @@ public class MapBoardRenderer {
         Image imageMapRight = new Image(mapRight);
         ImageView mapLeftView = new ImageView(imageMapLeft);
         ImageView mapRightView = new ImageView(imageMapRight);
-        mapLeftView.setFitHeight(800 * scale);
-        mapRightView.setFitHeight(800 * scale);
+        mapLeftView.setFitHeight(MAPVIEW_H * scale);
+        mapRightView.setFitHeight(MAPVIEW_H * scale);
 
 
         mapLeftView.setPreserveRatio(true);
@@ -137,11 +184,11 @@ public class MapBoardRenderer {
         Pane emptyRoom3 = new Pane();
         Pane emptyRoom4 = new Pane();
         Pane emptyRoom5 = new Pane();
-        emptyRoom1.setMinSize(175 * scale, 175 * scale);
-        emptyRoom2.setMinSize(175 * scale, 175 * scale);
-        emptyRoom3.setMinSize(175 * scale, 175 * scale);
-        emptyRoom4.setMinSize(175 * scale, 175 * scale);
-        emptyRoom5.setMinSize(175 * scale, 175 * scale);
+        emptyRoom1.setMinSize(EMPTYROOM_H_W * scale, EMPTYROOM_H_W * scale);
+        emptyRoom2.setMinSize(EMPTYROOM_H_W * scale, EMPTYROOM_H_W * scale);
+        emptyRoom3.setMinSize(EMPTYROOM_H_W * scale, EMPTYROOM_H_W * scale);
+        emptyRoom4.setMinSize(EMPTYROOM_H_W * scale, EMPTYROOM_H_W * scale);
+        emptyRoom5.setMinSize(EMPTYROOM_H_W * scale, EMPTYROOM_H_W * scale);
         List<ImageView> ammoView = new ArrayList<>();
         int column = 0;
         int row = 0;
@@ -210,8 +257,8 @@ public class MapBoardRenderer {
             }
         }
 
-        roomsGrid.setTranslateX(180 * scale);
-        roomsGrid.setTranslateY((200 * scale));
+        roomsGrid.setTranslateX(ROOMSGRID_TX * scale);
+        roomsGrid.setTranslateY((ROOMSGRID_TY * scale));
         return roomsGrid;
     }
 
@@ -227,9 +274,10 @@ public class MapBoardRenderer {
     private void roomAmmoSquareBuilder(ClientModel.SimpleSquare s, GridPane roomsGrid, List<ImageView> ammoView, int column, int row){
         ammoView.add(getImageOfSquare(s));
         roomsGrid.add(ammoView.get(ammoView.size() - 1), column, row);
-        ammoView.get(ammoView.size() - 1).setFitHeight(65 * scale);
+        ammoView.get(ammoView.size() - 1).setFitHeight(AMOOVIEW_H * scale);
         ammoView.get(ammoView.size() - 1).setPreserveRatio(true);
-        roomsGrid.setMargin(ammoView.get(ammoView.size() - 1), new javafx.geometry.Insets(55 * scale, 55 * scale, 55 * scale, 55 * scale));
+        roomsGrid.setMargin(ammoView.get(ammoView.size() - 1), new javafx.geometry.Insets(AMMOVIEW_ALLMARGIN * scale,
+                AMMOVIEW_ALLMARGIN * scale, AMMOVIEW_ALLMARGIN * scale, AMMOVIEW_ALLMARGIN * scale));
     }
 
     /**
@@ -241,11 +289,13 @@ public class MapBoardRenderer {
      * @param row           the index of the row.
      */
     private void addRoomButton(int buttonIndex, GridPane roomsGrid, int column, int row, ClientModel.SimpleSquare s){
-        if (buttonIndex < inputButtons.size() && (labelButton.contains(SQUARE + s.getId()))) {
-                roomsGrid.add(inputButtons.get(labelButton.indexOf(SQUARE + s.getId())), column, row);
-                inputButtons.get(labelButton.indexOf(SQUARE + s.getId())).setPrefSize(150 * scale, 150 * scale);
-                inputButtons.get(labelButton.indexOf(SQUARE + s.getId())).setTranslateY(-20 * scale);
-                inputButtons.get(labelButton.indexOf(SQUARE + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+
+        if (buttonIndex < inputButtons.size() && (labelButton.contains(SQUAREINPUTINSTRUCTION + s.getId()))) {
+                roomsGrid.add(inputButtons.get(labelButton.indexOf(SQUAREINPUTINSTRUCTION + s.getId())), column, row);
+                inputButtons.get(labelButton.indexOf(SQUAREINPUTINSTRUCTION + s.getId())).setPrefSize(SQUAREBUTTON_H_W * scale, SQUAREBUTTON_H_W * scale);
+                inputButtons.get(labelButton.indexOf(SQUAREINPUTINSTRUCTION + s.getId())).setTranslateY(SQUAREBUTTON_TY * scale);
+                inputButtons.get(labelButton.indexOf(SQUAREINPUTINSTRUCTION + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
+                buttonIndex++;
         }
     }
 
@@ -311,22 +361,22 @@ public class MapBoardRenderer {
             skulls.add(new ImageView(skullImage));
 
         for (ImageView s : skulls) {
-            s.setFitWidth(35 * scale);
+            s.setFitWidth(SKULL_W * scale);
             s.setPreserveRatio(true);
         }
         GridPane skullsGrid = new GridPane();
         List<ColumnConstraints> columnConstraints = new ArrayList<>();
         for (int i = 0; i < 8 - skullNumber; i++) {
-            columnConstraints.add(new ColumnConstraints(45 * scale));
+            columnConstraints.add(new ColumnConstraints(EMPTYSKULLSPACE_W * scale));
             skullsGrid.getColumnConstraints().add(columnConstraints.get(i));
         }
         for (int i = 8 - skullNumber; i < 8; i++) {
             skullsGrid.add(skulls.get(i - (8 - skullNumber)), i, 0, 1, 1);
-            skullsGrid.setMargin(skulls.get(i - (8 - skullNumber)), new javafx.geometry.Insets(0, 10 * scale,0, 0));
+            skullsGrid.setMargin(skulls.get(i - (8 - skullNumber)), new javafx.geometry.Insets(0, SKULL_MARGIN * scale,0, 0));
         }
 
-        skullsGrid.setTranslateX(70 * scale);
-        skullsGrid.setTranslateY(45 * scale);
+        skullsGrid.setTranslateX(SKULLSGRID_TX * scale);
+        skullsGrid.setTranslateY(SKULLSGRID_TY * scale);
         return skullsGrid;
 
     }
@@ -350,7 +400,7 @@ public class MapBoardRenderer {
             color = p.getColor();
             iconImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/" + color + "Hero.png"));
             iconView.add(new ImageView(iconImage));
-            iconView.get(iconView.size() - 1).setFitHeight(80 * scale);
+            iconView.get(iconView.size() - 1).setFitHeight(ICONVIEW_H * scale);
             iconView.get(iconView.size() - 1).setPreserveRatio(true);
             if (renderInstruction.equals("Player")) {
                 if (splittedList.contains(p.getUsername()))
@@ -364,20 +414,20 @@ public class MapBoardRenderer {
         for (ClientModel.SimplePlayer p : players){
             switch (players.indexOf(p)){
                 case (1): //the first one of the list is ok in the default position
-                    iconView.get(1).setTranslateX(45*scale);
-                    iconView.get(1).setTranslateY(-60*scale);
+                    iconView.get(1).setTranslateX(ICONVIEW1_TX*scale);
+                    iconView.get(1).setTranslateY(ICONVIEW1_TY*scale);
                     break;
                 case(2):
-                    iconView.get(2).setTranslateY(-60*scale);
+                    iconView.get(2).setTranslateY(ICONVIEW2_TY*scale);
                     break;
                 case(3):
-                    iconView.get(3).setTranslateX(90*scale);
-                    iconView.get(3).setTranslateY(-60*scale);
+                    iconView.get(3).setTranslateX(ICONVIEW3_TX*scale);
+                    iconView.get(3).setTranslateY(ICONVIEW3_TY*scale);
                     break;
                 case(0):
                     break;
                     default:
-                        iconView.get(4).setTranslateX(90*scale);
+                        iconView.get(4).setTranslateX(ICONVIEW0_TX*scale);
 
             }
         }
@@ -438,9 +488,10 @@ public class MapBoardRenderer {
     private List<String> splitStringsOfLabelButton() {
         List<String>splittedList = new ArrayList<>();
         StringBuilder name;
-        if(labelButton.contains(RESET)) {
-            inputButtons.remove(labelButton.indexOf(RESET));
-            labelButton.remove(RESET);
+
+        if(labelButton.contains(RESETBUTTONLABEL)) {
+            inputButtons.remove(labelButton.indexOf(RESETBUTTONLABEL));
+            labelButton.remove(RESETBUTTONLABEL);
         }
         if(labelButton.contains(NONE)) {
             inputButtons.remove(labelButton.indexOf(NONE));
@@ -543,14 +594,14 @@ public class MapBoardRenderer {
                     weaponList.get(weaponList.size() - 1).get(i).setFitHeight(160 * scale);
                     weaponList.get(weaponList.size() - 1).get(i).setPreserveRatio(true);
                     weaponGrid.get(weaponGrid.size() - 1).add(weaponList.get(weaponList.size() - 1).get(i), i, 0, 1, 1);
-                    weaponGrid.get(weaponGrid.size() - 1).setMargin(weaponList.get(weaponList.size() - 1).get(i), new javafx.geometry.Insets(0, 0, 0, 19 * scale));
+                    weaponGrid.get(weaponGrid.size() - 1).setMargin(weaponList.get(weaponList.size() - 1).get(i), new javafx.geometry.Insets(0, 0, 0, WEAPONGRID_MARGIN * scale));
                     itemWeaponZoom.get(itemWeaponZoom.size() - 1).add(new MenuItem());
                     if(renderInstruction.equals("Weapon")){
                         if(labelButton.get(0).equals(s.getWeapons().get(0).getName())){
                             weaponContainer.add(new Pane());
                             weaponContainer.get(i).getChildren().addAll(weaponListZoom.get(weaponListZoom.size() - 1).get(i),inputButtons.get(i));
-                            inputButtons.get(i).setPrefHeight(300*scale);
-                            inputButtons.get(i).setPrefWidth(180*scale);
+                            inputButtons.get(i).setPrefHeight(WEAPONBUTTON_H*scale);
+                            inputButtons.get(i).setPrefWidth(WEAPONBUTTON_W*scale);
                             inputButtons.get(i).setStyle("-fx-background-color: transparent;");
                             itemWeaponZoom.get(itemWeaponZoom.size() - 1).get(i).setGraphic(weaponContainer.get(i));
                         }else
@@ -560,20 +611,20 @@ public class MapBoardRenderer {
                     buttonWeaponZoom.get(buttonWeaponZoom.size() - 1).add(new MenuButton(" ", null, itemWeaponZoom.get(itemWeaponZoom.size() - 1).get(i)));
                     weaponGrid.get(weaponGrid.size() - 1).add(buttonWeaponZoom.get(buttonWeaponZoom.size() - 1).get(i), i, 0, 1, 1);
                     buttonWeaponZoom.get(buttonWeaponZoom.size() - 1).get(i).setStyle("-fx-background-color: transparent;");
-                    weaponListZoom.get(weaponListZoom.size() - 1).get(i).setFitHeight(300*scale);
+                    weaponListZoom.get(weaponListZoom.size() - 1).get(i).setFitHeight(WEAPONLISTZOOM_H*scale);
                     weaponListZoom.get(weaponListZoom.size() - 1).get(i).setPreserveRatio(true);
-                    buttonWeaponZoom.get(buttonWeaponZoom.size() - 1).get(i).setPrefHeight(160 * scale);
-                    buttonWeaponZoom.get(buttonWeaponZoom.size() - 1).get(i).setPrefWidth(113 * scale);
+                    buttonWeaponZoom.get(buttonWeaponZoom.size() - 1).get(i).setPrefHeight(BUTTONWEAPONZOOM_H * scale);
+                    buttonWeaponZoom.get(buttonWeaponZoom.size() - 1).get(i).setPrefWidth(BUTTONWEAPONZOOM_W * scale);
                 }
             }
         }
-        weaponGrid.get(0).setTranslateX(540*scale); //grid(0) is the top one, grid(1) the left one and grid(2) the right one
-        weaponGrid.get(1).setRotate(90);
-        weaponGrid.get(1).setTranslateX(-98*scale);
-        weaponGrid.get(1).setTranslateY(370*scale);
-        weaponGrid.get(2).setRotate(270);
-        weaponGrid.get(2).setTranslateX(803*scale);
-        weaponGrid.get(2).setTranslateY(550*scale);
+        weaponGrid.get(0).setTranslateX(WEAPONGRID0_TX*scale); //grid(0) is the top one, grid(1) the left one and grid(2) the right one
+        weaponGrid.get(1).setRotate(WEAPONGRID1_ROTATE);
+        weaponGrid.get(1).setTranslateX(WEAPONGRID1_TX*scale);
+        weaponGrid.get(1).setTranslateY(WEAPONGRID1_TY*scale);
+        weaponGrid.get(2).setRotate(WEAPONGRID2_TX);
+        weaponGrid.get(2).setTranslateX(WEAPONGRID2_TY*scale);
+        weaponGrid.get(2).setTranslateY(WEAPONGRID2_ROTATE*scale);
 
         return weaponGrid;
     }
@@ -614,26 +665,26 @@ public class MapBoardRenderer {
             InputStream pUDeckFile = this.getClass().getResourceAsStream("/images/cards/pUBack.png");
             Image pUDeckImage = new Image(pUDeckFile);
             ImageView pUDeckView = new ImageView(pUDeckImage);
-            pUDeckView.setFitHeight(110*scale);
+            pUDeckView.setFitHeight(PUDECKVIEW_H*scale);
             pUDeckView.setPreserveRatio(true);
             Label cardsRemainingPU = new Label(Integer.toString(clientModel.getPowerUpCardsLeft()));
             InputStream weaponDeckFile = this.getClass().getResourceAsStream("/images/cards/wBack.png");
             Image weaponDeckImage = new Image(weaponDeckFile);
             ImageView weaponDeckView = new ImageView(weaponDeckImage);
-            weaponDeckView.setFitHeight(160*scale);
+            weaponDeckView.setFitHeight(WEAPONDECKVIEW_H*scale);
             weaponDeckView.setPreserveRatio(true);
             Label cardsRemainingWeapons = new Label(Integer.toString(clientModel.getWeaponCardsLeft()));
             mapAndStuffAbove.getChildren().addAll(weaponDeckView,pUDeckView,cardsRemainingPU,cardsRemainingWeapons);
-            pUDeckView.setTranslateX(945*scale);
-            pUDeckView.setTranslateY(45*scale);
-            weaponDeckView.setTranslateX(919*scale);
-            weaponDeckView.setTranslateY(220*scale);
-            cardsRemainingPU.setTranslateX(1000*scale);
-            cardsRemainingPU.setTranslateY(45*scale);
-            cardsRemainingPU.setTextFill(Color.web("#F8F8FF"));
-            cardsRemainingWeapons.setTranslateX(1000*scale);
-            cardsRemainingWeapons.setTranslateY(220*scale);
-            cardsRemainingWeapons.setTextFill(Color.web("#F8F8FF"));
+            pUDeckView.setTranslateX(PUDECKVIEW_TX*scale);
+            pUDeckView.setTranslateY(PUDECKVIEW_TY*scale);
+            weaponDeckView.setTranslateX(WEAPONDECKVIEW_TX*scale);
+            weaponDeckView.setTranslateY(WEAPONDECKVIEW_TY*scale);
+            cardsRemainingPU.setTranslateX(CARDSREMAININGPU_TX*scale);
+            cardsRemainingPU.setTranslateY(CARDSREMAININGPU_TY*scale);
+            cardsRemainingPU.setTextFill(Color.web(CARDSREMAININGPU_COLOR));
+            cardsRemainingWeapons.setTranslateX(CARDSREMAININGWEAPON_TX*scale);
+            cardsRemainingWeapons.setTranslateY(CARDSREMAININGWEAPON_TY*scale);
+            cardsRemainingWeapons.setTextFill(Color.web(CARDSREMAININGWEAPON_COLOR));
             return mapAndStuffAbove;
         }
 

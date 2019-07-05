@@ -241,7 +241,6 @@ public class GameEngine implements Runnable{
             ServerMain.getInstance().untrackGame(this);
 
         } catch (Exception e) {e.printStackTrace(); throw e;}
-
     }
 
 
@@ -288,8 +287,12 @@ public class GameEngine implements Runnable{
             p.choose(CHOOSE_STRING.toString(), MAP_REQUEST, MAP_ID_OPTIONS, setupTimeout);
         }
 
+        int totalTime = setupTimeout;
         for(VirtualView p : players) {
-            int vote = Integer.parseInt(waitShort(p, setupTimeout));
+            long delta = System.currentTimeMillis();
+            int vote = Integer.parseInt(waitShort(p, totalTime + 1));
+            delta = System.currentTimeMillis() - delta;
+            totalTime = Math.max(totalTime-(int)delta, 0);
             votes.set(vote-1, votes.get(vote-1)+1);
         }
         int mapId = votes.indexOf(Collections.max(votes)) + 1;
@@ -764,6 +767,7 @@ public class GameEngine implements Runnable{
             if(v.isJustSuspended()) {
                 justSuspended.add(v);
                 v.setJustSuspended(false);
+                board.removeObserver(v);
             }
         }
         for(VirtualView v : justSuspended){
@@ -883,9 +887,13 @@ public class GameEngine implements Runnable{
             for(VirtualView old : players){
                 if(v.getName().equals(old.getName())&&old.isSuspended()){
                     v.setPlayer(old.getModel());
+                    v.setGame(this);
                     players.set(players.indexOf(old), v);
+                    ServerMain.getInstance().getPlayers().remove(old);
+                    ServerMain.getInstance().getPlayers().add(v);
                     board.registerObserver(v);
                     resuming.remove(v);
+                    notifications.remove(old);
                     ServerMain.getInstance().getPlayers().remove(old);
                     for(VirtualView p : players){
                         if(p.equals(v)){

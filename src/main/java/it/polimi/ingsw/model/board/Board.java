@@ -738,12 +738,23 @@ public class Board {
 
     /**
      * Registers VirtualView as an observer
+     *
      * @param p     the registering VirtualView
      */
     public void registerObserver(VirtualView p){
         LOGGER.log(Level.FINE, "{0} registered as an observer to Board.", p);
         observers.add(p);
         updates.put(p, new ArrayList<>());
+    }
+
+    /**
+     * Removes a VirtualView from list of observers
+     *
+     * @param p     the VirtualView to remove
+     */
+    public void removeObserver(VirtualView p){
+        observers.remove(p);
+        updates.remove(p);
     }
 
 
@@ -796,7 +807,11 @@ public class Board {
         LOGGER.log(Level.FINE, "Adding an update to a single queues");
         String msg = p + ADDING_UPDATE + jsonObject;
         LOGGER.log(Level.FINE, msg);
-        updates.get(p).add(jsonObject);
+        try {
+            updates.get(p).add(jsonObject);
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.INFO, "The player had been removed from update lists", ex);
+        }
     }
 
 

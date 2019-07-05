@@ -138,15 +138,15 @@ public class TCPVirtualView extends VirtualView {
      */
     @Override
     public void choose(String type, String msg, List<?> options){
-        if(busy||suspended){
-            return;
-        }
         try {
             synchronized (game.getNotifications()){
                 game.getNotifications().remove(this);
             }
         }catch(NullPointerException ex){
-            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+            LOGGER.log(Level.SEVERE, "No old notifications to remove", ex);
+        }
+        if(busy||suspended){
+            return;
         }
         busy = true;
         JsonObject jsonObject = new JsonObject();
@@ -175,8 +175,8 @@ public class TCPVirtualView extends VirtualView {
      */
     @Override
     public void choose(String type, String msg, List<?> options, int timeoutSec){
-        if(suspended) return;
         choose(type, msg, options);
+        if(suspended||busy) return;
         timeout = true;
         timestamp = timeoutSec*1000 + System.currentTimeMillis();
     }
@@ -193,8 +193,8 @@ public class TCPVirtualView extends VirtualView {
      */
     @Override
     public int chooseNow(String type, String msg, List<?> options){
-        if(suspended) return 1;
         choose(type, msg, options);
+        if(suspended||busy) return 1;
         waiting = true;
         return Integer.parseInt(receive());
     }
@@ -223,7 +223,7 @@ public class TCPVirtualView extends VirtualView {
      */
     @Override
     public String getInputNow(String msg, int max){
-        if(suspended) return "";
+        if(busy||suspended) return "";
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("head", "REQ");
         jsonObject.addProperty("text", msg);

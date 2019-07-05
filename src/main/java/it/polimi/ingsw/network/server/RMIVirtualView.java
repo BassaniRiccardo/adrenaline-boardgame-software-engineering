@@ -111,11 +111,15 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void choose(String type, String msg, List<?> options){
+        try {
+            synchronized (game.getNotifications()){
+                game.getNotifications().remove(this);
+            }
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+        }
         if(busy||suspended) return;
         busy=true;
-        synchronized (game.getNotifications()) {
-            game.getNotifications().remove(this);
-        }
         executor.submit(
             ()-> {
                 try {
@@ -143,12 +147,16 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public void choose(String type, String msg, List<?> options, int timeoutSec){
+        try {
+            synchronized (game.getNotifications()){
+                game.getNotifications().remove(this);
+            }
+        }catch(NullPointerException ex){
+            LOGGER.log(Level.FINEST, "No old notifications to remove", ex);
+        }
         if(busy||suspended) return;
         busy=true;
         long timestamp = System.currentTimeMillis() + timeoutSec*1000;
-        synchronized (game.getNotifications()) {
-            game.getNotifications().remove(this);
-        }
         executor.submit(
                 ()-> {
                     try {
@@ -218,7 +226,7 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
      */
     @Override
     public String getInputNow(String msg, int max) {
-        if(suspended) return "";
+        if(busy||suspended) return "";
         try {
             busy = true;
             String answer = remoteView.getInput(msg, max);

@@ -19,7 +19,7 @@ import java.util.List;
 
 
 /**
- * Class with methods used by render for rendering the map board
+ * Class with methods used by render for rendering the map board.
  *
  * @author  davidealde
  */
@@ -27,12 +27,30 @@ public class MapBoardRenderer {
 
     private double scale;
     private ClientModel clientModel;
-    private String renderInstruction;
     private List<Button> inputButtons;
     private List<String> labelButton;
+
+    private static final String SQUARE = "Square ";
+    private static final String RESET = "Reset";
+    private static final String NONE = "None";
+
+    /**
+     * The type of OPT message to display.
+     */
+    private String renderInstruction;
+
+    /**
+     * Whether there is the necessity to update the screen for multiple input that are managed as a single one from the client.
+     */
     private boolean renderNeeded;
 
 
+    /**
+     * Constructor.
+     *
+     * @param sc        the scale factor.
+     * @param cm        the client model.
+     */
     public MapBoardRenderer(double sc, ClientModel cm) {
         this.scale = sc;
         this.clientModel = cm;
@@ -42,19 +60,24 @@ public class MapBoardRenderer {
         renderNeeded = false;
     }
 
+
     public void setRenderNeeded(boolean renderNeeded) {
         this.renderNeeded = renderNeeded;
     }
 
+
     public boolean getRenderNeeded(){return renderNeeded;}
+
 
     public void setLabelButton(List<String> labelButton) {
         this.labelButton = labelButton;
     }
 
+
     public void setInputButtons(List<Button> inputButtons) {
         this.inputButtons = inputButtons;
     }
+
 
     public void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
@@ -64,7 +87,13 @@ public class MapBoardRenderer {
         this.renderInstruction = renderInstruction;
     }
 
+    /**
+     * Builds the map based on the game configuration.
+     *
+     * @return      a panel that contains the map.
+     */
     public HBox mapRenderer() {
+
         InputStream mapLeft;
         InputStream mapRight;
         if (clientModel.getMapID() == 1 || clientModel.getMapID() == 3) {
@@ -93,7 +122,13 @@ public class MapBoardRenderer {
         return map;
     }
 
+    /**
+     * Collocates in all the square the corresponding ammo and buttons.
+     *
+     * @return a GridPane representing the square, its ammo and its buttons.
+     */
     public GridPane roomRenderer() {
+
         int mapId = clientModel.getMapID();
         List<ClientModel.SimpleSquare> squares = clientModel.getSquares();
         GridPane roomsGrid = new GridPane();
@@ -180,6 +215,15 @@ public class MapBoardRenderer {
         return roomsGrid;
     }
 
+    /**
+     * Adds an ammo tile to a square.
+     *
+     * @param s             the square.
+     * @param roomsGrid     the pane.
+     * @param ammoView      the ammo view of the ammo.
+     * @param column        the index of the column.
+     * @param row           the index of the row.
+     */
     private void roomAmmoSquareBuilder(ClientModel.SimpleSquare s, GridPane roomsGrid, List<ImageView> ammoView, int column, int row){
         ammoView.add(getImageOfSquare(s));
         roomsGrid.add(ammoView.get(ammoView.size() - 1), column, row);
@@ -188,17 +232,31 @@ public class MapBoardRenderer {
         roomsGrid.setMargin(ammoView.get(ammoView.size() - 1), new javafx.geometry.Insets(55 * scale, 55 * scale, 55 * scale, 55 * scale));
     }
 
+    /**
+     * Adds a button the a square.
+     *
+     * @param s             the square.
+     * @param roomsGrid     the pane.
+     * @param column        the index of the column.
+     * @param row           the index of the row.
+     */
     private void addRoomButton(int buttonIndex, GridPane roomsGrid, int column, int row, ClientModel.SimpleSquare s){
-        if (buttonIndex < inputButtons.size() && (labelButton.contains("Square " + s.getId()))) {
-                roomsGrid.add(inputButtons.get(labelButton.indexOf("Square " + s.getId())), column, row);
-                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setPrefSize(150 * scale, 150 * scale);
-                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setTranslateY(-20 * scale);
-                inputButtons.get(labelButton.indexOf("Square " + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
-                buttonIndex++;
+        if (buttonIndex < inputButtons.size() && (labelButton.contains(SQUARE + s.getId()))) {
+                roomsGrid.add(inputButtons.get(labelButton.indexOf(SQUARE + s.getId())), column, row);
+                inputButtons.get(labelButton.indexOf(SQUARE + s.getId())).setPrefSize(150 * scale, 150 * scale);
+                inputButtons.get(labelButton.indexOf(SQUARE + s.getId())).setTranslateY(-20 * scale);
+                inputButtons.get(labelButton.indexOf(SQUARE + s.getId())).setStyle("-fx-background-color: rgb(200, 200, 200, 0.3)");
         }
     }
 
+    /**
+     * Takes from resources the right image of the ammo tile in the square.
+     *
+     * @param square    square of interest.
+     * @return          the image view of the ammo tile.
+     */
     private ImageView getImageOfSquare(ClientModel.SimpleSquare square) {
+
         int r;
         int b;
         int y;
@@ -238,7 +296,14 @@ public class MapBoardRenderer {
         return new ImageView(ammoImage);
     }
 
+    /**
+     * Configures the killShotTrack.
+     *
+     * @param skullNumber   number of skulls on the killShotTrack.
+     * @return              a GridPane with the skulls.
+     */
     public GridPane killShotTrackRenderer(int skullNumber) {
+
         List<ImageView> skulls = new ArrayList<>();
         InputStream skullFile = this.getClass().getResourceAsStream("/images/miscellaneous/skull.png");
         Image skullImage = new Image(skullFile);
@@ -266,7 +331,14 @@ public class MapBoardRenderer {
 
     }
 
+    /**
+     * Returns the imageViews of the icons of the players and collocates them in a precise position in the square to avoid overlapping.
+     * Makes some icons clickable if there is a graphic input on the players.
+     *
+     * @return all the images with some visual proprieties.
+     */
     public List<ImageView> iconsRenderer() {
+
         List<ImageView> iconView = new ArrayList<>();
         List<ClientModel.SimplePlayer> players = clientModel.getPlayers();
         Image iconImage;
@@ -313,6 +385,13 @@ public class MapBoardRenderer {
         return iconView;
     }
 
+    /**
+     * Called from iconRenderer() when a player icon is clicked.
+     * It eliminates the inputButtons that don't contain the selected player until only the
+     * right button remains and it activates it.
+     *
+     * @param userName      user name of the clicked player.
+     */
     private void targetListBuilder(String userName){
         List<String> labelButtonFake = new ArrayList<>(labelButton);
         for(String label : labelButtonFake) {
@@ -327,7 +406,12 @@ public class MapBoardRenderer {
             inputButtons.get(0).fire();
     }
 
-
+    /**
+     * Divides a labelButton in all the user names that are contained in it and add them to a list.
+     *
+     * @param label     label that has to be divided.
+     * @return          list of user names.
+     */
     private List<String> splitString(String label){
         List<String> splittedList = new ArrayList<>();
         List<StringBuilder> name = new ArrayList<>();
@@ -346,16 +430,21 @@ public class MapBoardRenderer {
         return splittedList;
     }
 
+    /**
+     * Divides all the elements of labelButton in all the user names that are contained in them and add them in a list.
+     *
+     * @return      list of all the user names of the players that can be clicked.
+     */
     private List<String> splitStringsOfLabelButton() {
         List<String>splittedList = new ArrayList<>();
         StringBuilder name;
-        if(labelButton.contains("Reset")) {
-            inputButtons.remove(labelButton.indexOf("Reset"));
-            labelButton.remove("Reset");
+        if(labelButton.contains(RESET)) {
+            inputButtons.remove(labelButton.indexOf(RESET));
+            labelButton.remove(RESET);
         }
-        if(labelButton.contains("None")) {
-            inputButtons.remove(labelButton.indexOf("None"));
-            labelButton.remove("None");
+        if(labelButton.contains(NONE)) {
+            inputButtons.remove(labelButton.indexOf(NONE));
+            labelButton.remove(NONE);
         }
         for (String label: labelButton) {
             name = new StringBuilder();
@@ -375,6 +464,12 @@ public class MapBoardRenderer {
         return splittedList;
     }
 
+    /**
+     * Finds the index of the column of a square.
+     *
+     * @param square    the square of interest.
+     * @return          index of the column.
+     */
     public int columnFinder(ClientModel.SimpleSquare square) {
         if (clientModel.getMapID() == 4) {
             return square.getId() % 4;
@@ -400,6 +495,12 @@ public class MapBoardRenderer {
         }
     }
 
+    /**
+     * Finds the index of the row of a square.
+     *
+     * @param square    the square of interest.
+     * @return          index of the row.
+     */
     public int rowFinder(ClientModel.SimpleSquare square) {
         if (clientModel.getMapID() == 4 || clientModel.getMapID() == 3) {
             return square.getId() / 4;
@@ -409,6 +510,11 @@ public class MapBoardRenderer {
             return (square.getId() + 1) / 4;
     }
 
+    /**
+     * Configures the three sets of weapon images of the spawning points.
+     *
+     * @return      three panes containing the images of the weapons of the respective spawning points.
+     */
     public List<GridPane> weaponRenderer() {
         List<GridPane> weaponGrid = new ArrayList<>();
         List<Image> weaponImage;
@@ -472,7 +578,13 @@ public class MapBoardRenderer {
         return weaponGrid;
     }
 
-        private List<Image> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
+    /**
+     * Returns the list of images of the weapons in a determined spawning point.
+     *
+     * @param square    the square (the spawning point).
+     * @return          the list of images of the weapons.
+     */
+    private List<Image> getImageOfWeaponsInSquare(ClientModel.SimpleSquare square){
             ArrayList<Image> weaponView = new ArrayList<>();
             int index=square.getId();
             List<ClientModel.SimpleWeapon> weaponList =(clientModel.getSquares().get(index)).getWeapons();
@@ -491,6 +603,13 @@ public class MapBoardRenderer {
             return weaponView;
     }
 
+    /**
+     * Puts in the pane of the board the powerups deck and the weapons deck with the relative
+     * numbers of remaining cards.
+     *
+     * @param mapAndStuffAbove      the board pane.
+     * @return                      the board pane including the decks.
+     */
     public Pane deckRenderer(Pane mapAndStuffAbove){
             InputStream pUDeckFile = this.getClass().getResourceAsStream("/images/cards/pUBack.png");
             Image pUDeckImage = new Image(pUDeckFile);

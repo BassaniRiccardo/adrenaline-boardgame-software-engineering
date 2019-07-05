@@ -78,7 +78,7 @@ public class ClientMain {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Exception thrown while creating logger", ex);
         }
-        LOGGER.setLevel(Level.ALL);
+        LOGGER.setLevel(Level.SEVERE);
     }
 
     /**
@@ -137,6 +137,7 @@ public class ClientMain {
                 ui = GUI.waitGUI();
             } catch (InterruptedException e) {
                 System.out.println(ERROR_GUI);
+                Thread.currentThread().interrupt();
                 System.exit(0);
             }
             ((GUI)ui).setClientMain(this);

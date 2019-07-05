@@ -751,7 +751,7 @@ public class Board {
      * Notifies all observers with model update messages
      */
     public void notifyObservers(){
-        for(VirtualView p : observers){
+        for(VirtualView p : observers) {
             notifyObserver(p);
         }
     }

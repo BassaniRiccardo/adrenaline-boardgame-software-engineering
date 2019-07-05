@@ -17,7 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 /**
- * Class with methods used by render for rendering the player boards
+ * Class containing methods to render the player boards.
  *
  * @author  davidealde
  */
@@ -26,21 +26,36 @@ public class PlayerBoardRenderer {
     private double scalePB;
     private List<ClientModel.SimplePlayer> players;
     private ClientModel clientModel;
-    private String renderInstruction;
     private List<Button> inputButtons;
     private List<String> labelButton;
 
+    /**
+     * the type of OPT message to display
+     */
+    private String renderInstruction;
 
+    /**
+     * Constructor
+     *
+     * @param scPB          scale factor
+     * @param clientModel   client model
+     */
     public PlayerBoardRenderer(double scPB, ClientModel clientModel){
         this.scalePB=scPB;
         this.clientModel=clientModel;
     }
 
+
+    /*
+     Setters
+     */
     public void setScalePB(double scalePB) {
         this.scalePB = scalePB;
     }
 
+
     public void setPlayers(List<ClientModel.SimplePlayer> players) {this.players = players;}
+
 
     public void setClientModel(ClientModel clientModel) {
         this.clientModel = clientModel;
@@ -50,64 +65,78 @@ public class PlayerBoardRenderer {
         this.renderInstruction = renderInstruction;
     }
 
+
     public void setInputButtons(List<Button> inputButtons) {
         this.inputButtons = inputButtons;
     }
+
 
     public void setLabelButton(List<String> labelButton) {
         this.labelButton = labelButton;
     }
 
+
+    /**
+     * Configures the images of the ammo of the players.
+     *
+     * @return  a list where every element represents the ammo of a player.
+     */
     public List<GridPane> ammoRender(){
-    List<GridPane> playerAmmoGrid = new ArrayList<>();
+        List<GridPane> playerAmmoGrid = new ArrayList<>();
 
-    InputStream redAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/redAmmo.png");
-    InputStream blueAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/blueAmmo.png");
-    InputStream yellowAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/yellowAmmo.png");
+        InputStream redAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/redAmmo.png");
+        InputStream blueAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/blueAmmo.png");
+        InputStream yellowAmmoFile=this.getClass().getResourceAsStream("/images/miscellaneous/yellowAmmo.png");
 
-    Image redAmmoImage=new Image(redAmmoFile);
-    Image blueAmmoImage=new Image(blueAmmoFile);
-    Image yellowAmmoImage=new Image(yellowAmmoFile);
-    List<ArrayList<ImageView>> redAmmoView = new ArrayList<>();
-    List<ArrayList<ImageView>> blueAmmoView = new ArrayList<>();
-    List<ArrayList<ImageView>> yellowAmmoView = new ArrayList<>();
+        Image redAmmoImage=new Image(redAmmoFile);
+        Image blueAmmoImage=new Image(blueAmmoFile);
+        Image yellowAmmoImage=new Image(yellowAmmoFile);
+        List<ArrayList<ImageView>> redAmmoView = new ArrayList<>();
+        List<ArrayList<ImageView>> blueAmmoView = new ArrayList<>();
+        List<ArrayList<ImageView>> yellowAmmoView = new ArrayList<>();
 
-    int gridIndex=0;
-    for(ClientModel.SimplePlayer p : players) {
-        playerAmmoGrid.add(new GridPane());
-        redAmmoView.add(new ArrayList<>());
-        int rAmmo = p.getRedAmmo();
-        for (int i = 0; i < rAmmo; i++) {
-            redAmmoView.get(gridIndex).add(new ImageView(redAmmoImage));
-            redAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
-            redAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
-            playerAmmoGrid.get(gridIndex).add(redAmmoView.get(gridIndex).get(i), i, 0);
-            playerAmmoGrid.get(gridIndex).setMargin(redAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
+        int gridIndex=0;
+        for(ClientModel.SimplePlayer p : players) {
+            playerAmmoGrid.add(new GridPane());
+            redAmmoView.add(new ArrayList<>());
+            int rAmmo = p.getRedAmmo();
+            for (int i = 0; i < rAmmo; i++) {
+                redAmmoView.get(gridIndex).add(new ImageView(redAmmoImage));
+                redAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
+                redAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
+                playerAmmoGrid.get(gridIndex).add(redAmmoView.get(gridIndex).get(i), i, 0);
+                playerAmmoGrid.get(gridIndex).setMargin(redAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
+            }
+            blueAmmoView.add(new ArrayList<>());
+            int bAmmo = p.getBlueAmmo();
+            for (int i = 0; i < bAmmo; i++) {
+                blueAmmoView.get(gridIndex).add(new ImageView(blueAmmoImage));
+                blueAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
+                blueAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
+                playerAmmoGrid.get(gridIndex).add(blueAmmoView.get(gridIndex).get(i), i, 1);
+                playerAmmoGrid.get(gridIndex).setMargin(blueAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
+            }
+            yellowAmmoView.add(new ArrayList<>());
+            int yAmmo = p.getYellowAmmo();
+            for (int i = 0; i < yAmmo; i++) {
+                yellowAmmoView.get(gridIndex).add(new ImageView(yellowAmmoImage));
+                yellowAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
+                yellowAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
+                playerAmmoGrid.get(gridIndex).add(yellowAmmoView.get(gridIndex).get(i), i, 2);
+                playerAmmoGrid.get(gridIndex).setMargin(yellowAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
+            }
+            gridIndex++;
         }
-        blueAmmoView.add(new ArrayList<>());
-        int bAmmo = p.getBlueAmmo();
-        for (int i = 0; i < bAmmo; i++) {
-            blueAmmoView.get(gridIndex).add(new ImageView(blueAmmoImage));
-            blueAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
-            blueAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
-            playerAmmoGrid.get(gridIndex).add(blueAmmoView.get(gridIndex).get(i), i, 1);
-            playerAmmoGrid.get(gridIndex).setMargin(blueAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
-        }
-        yellowAmmoView.add(new ArrayList<>());
-        int yAmmo = p.getYellowAmmo();
-        for (int i = 0; i < yAmmo; i++) {
-            yellowAmmoView.get(gridIndex).add(new ImageView(yellowAmmoImage));
-            yellowAmmoView.get(gridIndex).get(i).setFitHeight(20*scalePB);
-            yellowAmmoView.get(gridIndex).get(i).setPreserveRatio(true);
-            playerAmmoGrid.get(gridIndex).add(yellowAmmoView.get(gridIndex).get(i), i, 2);
-            playerAmmoGrid.get(gridIndex).setMargin(yellowAmmoView.get(gridIndex).get(i),new Insets(0,0,5*scalePB,5*scalePB));
-        }
-        gridIndex++;
-    }
 
-    return  playerAmmoGrid;
-}
+        return  playerAmmoGrid;
+     }
 
+
+    /**
+     * Configures the images of the damages of every player.
+     *
+     * @return a list where every element represents the damages of a player.
+     */
     public List<GridPane> damagesRenderer(){
         List<GridPane> damageGrid = new ArrayList<>();
         List<ArrayList<ImageView>> damageView = new ArrayList<>();
@@ -137,15 +166,28 @@ public class PlayerBoardRenderer {
         return damageGrid;
     }
 
+
+    /**
+     * Returns all the images of the damages, one for each color.
+     *
+     * @return   all the images of the damages, one for each color.
+     */
     private List<Image> damageImageSelector(){
-        String[] color = {"green", "yellow", "grey", "purple", "blue"};
+        String[] colors = {"green", "yellow", "grey", "purple", "blue"};
         List<Image> damageImage = new ArrayList<>();
-        for(String c : color) {
+        for(String c : colors) {
             damageImage.add(new Image(getClass().getResourceAsStream("/images/miscellaneous/" + c + "Blood.png")));
         }
         return damageImage;
     }
 
+
+    /**
+     *Associates to a color the index of its position in the list returned from damageImageSelector()
+     *
+     * @param color     the given color.
+     * @return          index of the color in the list of colors.
+     */
     private int damageImageIndex(String color){
         switch (color){
             case "green":
@@ -161,6 +203,12 @@ public class PlayerBoardRenderer {
         }
     }
 
+
+    /**
+     * Configures the images of the marks of every player.
+     *
+     * @return a list where every element represents the marks of a player.
+     */
     public List<GridPane> marksRenderer(){
         List<GridPane> marksGrid = new ArrayList<>();
         List<ArrayList<ImageView>> marksView = new ArrayList<>();
@@ -182,6 +230,13 @@ public class PlayerBoardRenderer {
         return marksGrid;
     }
 
+
+    /**
+     * Configures the images of the skulls of every player
+     *
+     * @param deathsNumber  number of deaths of every player
+     * @return a list where every element represents the skulls of a player.
+     */
     public List<GridPane> skullsPlayerRenderer(List<Integer> deathsNumber){
         List<GridPane> skullGrid = new ArrayList<>();
         Image skullImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/skull.png"));
@@ -206,6 +261,14 @@ public class PlayerBoardRenderer {
         return skullGrid;
     }
 
+
+    /**
+     * Configures the buttons that make visible the cards every player has in his hand.
+     * Powerups of the opponents are not visible, but the number of them is.
+     * There are graphic effects that indicates when a weapon is unloaded and which cards are clickable.
+     *
+     * @return      list of buttons that open the content of the player hands
+     */
     public List<MenuButton> handRenderer(){
         List<ArrayList<ImageView>> weaponHandView = new ArrayList<>();
         List<ArrayList<Label>> loadUnload = new ArrayList<>();
@@ -238,7 +301,7 @@ public class PlayerBoardRenderer {
                     loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setText("SCARICA");
                     loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTextFill(Color.web("#F8F8FF"));
                 }
-                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setFont(new Font("Arial", 40*scalePB));
+                loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setFont(new Font("Arial", 25*scalePB));
                 loadUnload.get(players.indexOf(p)).get(weapons.indexOf(w)).setTranslateY(50*scalePB);
                 weaponContainer.get(players.indexOf(p)).add(new Pane());
                 weaponContainer.get(players.indexOf(p)).get(weapons.indexOf(w)).getChildren().addAll(weaponHandView.get(players.indexOf(p)).get(weapons.indexOf(w)),
@@ -309,6 +372,12 @@ public class PlayerBoardRenderer {
         return handButton;
     }
 
+
+    /**
+     * Configures the images of the points every player has.
+     *
+     * @return a list where every element represents the points of a player.
+     */
     public GridPane pointsRenderer(){
         Image point1Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point1.png"));
         Image point2Image = new Image(getClass().getResourceAsStream("/images/miscellaneous/point2.png"));

@@ -47,6 +47,7 @@ public class GameEngine implements Runnable{
 
     private boolean endphaseSimulation;
     private int turnDuration;
+    private int setupTimeout;
 
     private static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final String P = "Player ";
@@ -79,16 +80,10 @@ public class GameEngine implements Runnable{
     private static final String WINNER_MESSAGE = "\n\nGAME OVER\n\nYou Won!";
     private static final String DRAW_MESSAGE = "\n\nGAME OVER\n\nYou and other players made the most points but did not kill anyone.\n Shame on you! The game ends with a draw.";
     private static final String POSITION_MESSAGE = "\n\nGAME OVER\n\nYour position: ";
-    private static final String LEADERBOARD = "\n\nLeaderboard:\n";
+    private static final String LEADERBOARD_TAG = "\n\nLeaderboard:\n";
     private static final String POINTS = " points\n";
     private static final String KILLSHOT_TRACK_ABSENT_EX = "NotAvailableAttributeException thrown while configuring the kill shot track";
 
-    private static final String ENDPHASE_SIMULATION = "endPhaseSimulation";
-    private static final String DEFAULT_ENDPHASE_SIMULATION = "false";
-    private static final String TURN_DURATION = "turnDuration";
-    private static final String DEFAULT_TURN_DURATION = "60";
-
-    private static final int SETUP_TIMEOUT = 30;
     private static final List<Integer> MAP_ID_OPTIONS = new ArrayList<>(Arrays.asList(1,2,3,4));
     private static final List<Integer> EMPTY_MAP_VOTES = Arrays.asList(0,0,0,0);
     private static final List<Integer> SKULL_NUMBER_OPTIONS = new ArrayList<>(Arrays.asList(5,6,7,8));
@@ -202,7 +197,10 @@ public class GameEngine implements Runnable{
                     setup();
                 }catch (NotEnoughPlayersException e) {
                     for (VirtualView p : players) {
-                        p.showEnd("There are no enough player to start the game. Try to join another game.");
+                        p.showEnd(NOT_ENOUGH_PLAYER_GAME_OVER);
+                    }
+                    for (VirtualView p : resuming) {
+                        p.showEnd(NOT_ENOUGH_PLAYER_GAME_OVER);
                     }
                     ServerMain.getInstance().untrackGame(this);
                     return;
@@ -287,11 +285,11 @@ public class GameEngine implements Runnable{
 
         for(VirtualView p : players) {
             p.display("");
-            p.choose(CHOOSE_STRING.toString(), MAP_REQUEST, MAP_ID_OPTIONS, SETUP_TIMEOUT);
+            p.choose(CHOOSE_STRING.toString(), MAP_REQUEST, MAP_ID_OPTIONS, setupTimeout);
         }
 
         for(VirtualView p : players) {
-            int vote = Integer.parseInt(waitShort(p, SETUP_TIMEOUT));
+            int vote = Integer.parseInt(waitShort(p, setupTimeout));
             votes.set(vote-1, votes.get(vote-1)+1);
         }
         int mapId = votes.indexOf(Collections.max(votes)) + 1;
@@ -318,10 +316,10 @@ public class GameEngine implements Runnable{
         int totalSkullNumber = 0;
 
         for (VirtualView p : players) {
-            p.choose(CHOOSE_STRING.toString(), SKULL_NUMBER_REQUEST, SKULL_NUMBER_OPTIONS, SETUP_TIMEOUT);
+            p.choose(CHOOSE_STRING.toString(), SKULL_NUMBER_REQUEST, SKULL_NUMBER_OPTIONS, setupTimeout);
         }
         for (VirtualView p : players) {
-            int selected = Integer.parseInt(waitShort(p, SETUP_TIMEOUT));
+            int selected = Integer.parseInt(waitShort(p, setupTimeout));
             totalSkullNumber = totalSkullNumber + selected + 4;
         }
 
@@ -351,10 +349,10 @@ public class GameEngine implements Runnable{
         int no = 0;
         frenzyOptions.addAll(Arrays.asList(YES, NO));
         for (VirtualView p: players) {
-            p.choose(CHOOSE_STRING.toString(), FRENZY_REQUEST, frenzyOptions, SETUP_TIMEOUT);
+            p.choose(CHOOSE_STRING.toString(), FRENZY_REQUEST, frenzyOptions, setupTimeout);
         }
         for(VirtualView p : players){
-            if(Integer.parseInt(waitShort(p, SETUP_TIMEOUT))==1) yes++;
+            if(Integer.parseInt(waitShort(p, setupTimeout))==1) yes++;
             else no++;
         }
         if (yes>=no) {
@@ -382,8 +380,8 @@ public class GameEngine implements Runnable{
         int id = 1;
 
         for(VirtualView p : players) {
-            p.choose(CHOOSE_STRING.toString(), HERO_REQUEST, heroList, SETUP_TIMEOUT);
-            int selected = Integer.parseInt(waitShort(p, SETUP_TIMEOUT));
+            p.choose(CHOOSE_STRING.toString(), HERO_REQUEST, heroList, setupTimeout);
+            int selected = Integer.parseInt(waitShort(p, setupTimeout));
             LOGGER.log(Level.INFO, "selected {0}", selected);
             LOGGER.log(Level.INFO, "index: {0}", players.indexOf(p));
             LOGGER.log(Level.INFO, "{0}", heroList);
@@ -466,6 +464,9 @@ public class GameEngine implements Runnable{
         if (exitGame) {
             LOGGER.log(Level.INFO,"Not enough player in the game. The game ends, points are added to the players according to the kill shot track.");
             for (VirtualView v : players) {
+                v.display(NOT_ENOUGH_PLAYER_GAME_OVER);
+            }
+            for (VirtualView v : resuming) {
                 v.display(NOT_ENOUGH_PLAYER_GAME_OVER);
             }
         }
@@ -634,7 +635,7 @@ public class GameEngine implements Runnable{
     String addLeaderboard(String s){
         StringBuilder builder = new StringBuilder();
         builder.append(s);
-        builder.append(LEADERBOARD);
+        builder.append(LEADERBOARD_TAG);
         for (VirtualView v : leaderboard){
             builder.append(v.getModel().getUsername() + COLON + v.getModel().getPoints() + POINTS);
         }
@@ -728,6 +729,7 @@ public class GameEngine implements Runnable{
      * @param message   a notification from the observed object
      */
     public void notify(VirtualView p, String message){
+        if(!players.contains(p)) return;
         try {
             synchronized (notifications) {
                 notifications.putIfAbsent(p, message);
@@ -905,8 +907,9 @@ public class GameEngine implements Runnable{
      */
     private void loadParams() {
         Properties prop = ServerMain.getInstance().loadConfig();
-        this.endphaseSimulation = Boolean.parseBoolean(prop.getProperty(ENDPHASE_SIMULATION, DEFAULT_ENDPHASE_SIMULATION));
-        this.turnDuration = Integer.parseInt(prop.getProperty(TURN_DURATION, DEFAULT_TURN_DURATION));
+        this.endphaseSimulation = Boolean.parseBoolean(prop.getProperty("endPhaseSimulation", "false"));
+        this.turnDuration = Integer.parseInt(prop.getProperty("turnDuration", "60"));
+        this.setupTimeout = Integer.parseInt(prop.getProperty("setupTimeout", "20"));
     }
 
 

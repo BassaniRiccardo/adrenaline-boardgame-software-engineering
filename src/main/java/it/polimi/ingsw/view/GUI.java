@@ -37,14 +37,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
  * @author  BassaniRiccardo, davidealde
  */
 
-//TODO
-// No hardcode, keep in mind window dimension.
-// - javadoc per tutto, ricordati che esiste anche il ModelDataReader
-// - definisci costanti come alla riga 77.
-//      sia dove te lo dice sonar che per tutte le stringhe/interi che usi
-//      anche per le dimensione delle finestre, eccetera. Dai dei nomi sensati alle cose!
-// - implementa history
-
+//TODO add the history
 
 public class GUI extends Application implements UI, Runnable, EventHandler {
 
@@ -82,6 +75,31 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     private static final int WAIT_FOR_STAGE_TIME = 10;
     private static final int FINAL_DISPLAY_TIME = 20000;
 
+    private static final int MAXIMUM_BOARDPANE_WIDTH = 1050;
+    private static final int WELCOME_VIEW_TY = 30;
+    private static final int WELCOME_VIEW_H = 500;
+    private static final int SCENE_W = 1000;
+    private static final int SCENE_H = 800;
+    private static final int OPT_SPACING =40 ;
+    private static final int OPTIONLIST1_SPACING =10 ;
+    private static final int OPTIONLIST2_SPACING =10 ;
+    private static final int SCENE1_W =500 ;
+    private static final int SCENE1_H =250 ;
+    private static final int MSG_SPACING =40 ;
+    private static final int QUEST_SPACING = 10 ;
+    private static final int TEXTFIELD_MAXSIZE_W =200 ;
+    private static final int TEXTFIELD_MAXSIZE_H =50 ;
+    private static final int REQ_SPACING =40 ;
+    private static final int PLAYERAMMOGRID_TX =400 ;
+    private static final int PLAYERBOARDS_TX =300 ;
+    private static final int PLAYERBOARDS_TY =740 ;
+    private static final int MESSAGEBOX_SPACING =40 ;
+    private static final int BOARDPANE_WIDTH = 1050 ;
+
+    private static final String NORMAL = "Normal";
+    private static final String WEAPON = "Weapon";
+    private static final String INTERRUPTING_METHOD = "Interrupting method";
+
 
     /**
      * Class storing the values the get() method must return.
@@ -92,7 +110,11 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         boolean update;
     }
 
-
+    /**
+     * Returns a static reference to the GUI itself, after having waited for its configuration.
+     *
+     * @return the GUI itself.
+     */
     static GUI waitGUI() throws InterruptedException{
         latch.await();
         return gui;
@@ -100,39 +122,47 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
 
     /**
+     * Sets the attribute "gui" and makes it available.
      *
-     * @param guyToSet
+     * @param guyToSet the GUI itself, to set as a static attribute "gui".
      */
     private static void setGui(GUI guyToSet) {
-        gui = guyToSet;
-        latch.countDown();
+       gui = guyToSet;
+       latch.countDown();
     }
 
 
     /**
-     *
+     * Constructor
      */
     public GUI() {
         setGui(this);
+        clientModel = null;
         messagePanel = new Pane();
         justDamaged = new ArrayList<>();
-        clientModel = null;
-        mapBoardRenderInstruction = "Normal";
-        playerBoardRenderInstruction = "Normal";
+        mapBoardRenderInstruction = NORMAL;
+        playerBoardRenderInstruction = NORMAL;
         this.setColor = true;
     }
 
 
-
-    public void setClientMain(ClientMain clientMain) {
+    /**
+     * Sets the ClientMain and the ClientModel.
+     *
+     * @param clientMain    the given ClientMain.
+     */
+    void setClientMain(ClientMain clientMain) {
         this.clientMain = clientMain;
         this.clientModel=clientMain.getClientModel();
     }
 
 
     /**
+     * The main entry point for the JavaFX application.
+     * Calculates the scale factor of the board, instantiates necessary classes,
+     * builds the first screen and shows the stage.
      *
-     * @param primaryStage
+     * @param primaryStage the primary stage for this application.
      */
     @Override
     public void start(Stage primaryStage) {
@@ -147,7 +177,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 fakeScale = userHeightResolution/ DEVELOPER_HEIGHT_RESOLUTION;
             else
                 fakeScale = userWidthResolution/ DEVELOPER_WIDTH_RESOLUTION;
-            if(1050*fakeScale>userWidthResolution*3/4)
+            if(MAXIMUM_BOARDPANE_WIDTH*fakeScale>userWidthResolution*3/4)
                 fakeScale = userWidthResolution*3/(4* DEVELOPER_WIDTH_RESOLUTION); //sets at 3/4 of the screen width
             scale=fakeScale; //needed for lambda necessities
             mapBoardRenderer = new MapBoardRenderer(scale, clientModel);
@@ -163,7 +193,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             Image welcomeImage = new Image(getClass().getResourceAsStream("/images/miscellaneous/welcome.jpg"));
             welcomeView = new ImageView(welcomeImage);
             configureRoot();
-            scene = new Scene(root, 1000, 800);
+            scene = new Scene(root, SCENE_W, SCENE_H);
             stage.setScene(scene);
             stage.setFullScreen(true);
             stage.show();
@@ -171,25 +201,41 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
 
+    /**
+     * Builds the setup screen.
+     */
     private void configureRoot(){
         root = new BorderPane();
         root.setTop(welcomeView);
         root.setAlignment(welcomeView, Pos.CENTER);
         root.setStyle("-fx-background-color: #000000");
-        welcomeView.setTranslateY(30*scale);
-        welcomeView.setFitHeight(500 * scale);
+        welcomeView.setTranslateY(WELCOME_VIEW_TY*scale);
+        welcomeView.setFitHeight(WELCOME_VIEW_H * scale);
         welcomeView.setPreserveRatio(true);
         root.setBottom(messagePanel);
     }
 
 
+    /**
+     * Prints the root configured.
+     */
     private void printer(){
         configureRoot();
         scene.setRoot(root);
     }
 
 
-
+    /**
+     * Displays a OPT message, hence a message and a list of options to choose among.
+     * Configures the message panel and calls printer() or render() if the game is started
+     * Standard options are put in buttons and the buttons are put in the message panel.
+     * Options that can be selected by clicking on images are instead passed to MapBoardRenderer or PlayerBoardRender
+     * with information about the type of options.
+     *
+     * @param type      the type of options (buttons in message panels, weapons, powerups, players, squares).
+     * @param message   the message to be displayed.
+     * @param list      the list of options.
+     */
     public void display(String type, String message, List<String> list) {
 
         Platform.runLater( () -> {
@@ -204,7 +250,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             Label label = new Label(message);
             opt.getChildren().add(label);
             opt.setAlignment(Pos.CENTER);
-            opt.setSpacing(40);
+            opt.setSpacing(OPT_SPACING);
             List<String> labelButton = new ArrayList<>();
             List<Button> inputButtons = new ArrayList<>();
             boolean interactiveInput;
@@ -214,9 +260,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             HBox optionList1 = new HBox();
             VBox optionList2 = new VBox();
             optionList1.setAlignment(Pos.CENTER);
-            optionList1.setSpacing(10.0 / modifiedList.size());
+            optionList1.setSpacing((float)OPTIONLIST1_SPACING / modifiedList.size());
             optionList2.setAlignment(Pos.CENTER);
-            optionList2.setSpacing(10.0 / modifiedList.size());
+            optionList2.setSpacing((float)OPTIONLIST2_SPACING / modifiedList.size());
 
             for (String item : modifiedList) {
                 Button b = new Button();
@@ -264,26 +310,29 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             }
 
             if(type.equals(CHOOSE_SQUARE.toString()))
-                mapBoardRenderInstruction ="Square";
+                mapBoardRenderInstruction = "Square";
             else if(type.equals(CHOOSE_WEAPON.toString())){
-                if( ! clientModel.getCurrentPlayer().getWeapons().isEmpty()) {  //verifies if the weapons are in the player hand or on the board
-                    if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(0).getName()) ||
-                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(1).getName()) ||
-                            modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(2).getName())){
-                        playerBoardRenderInstruction = "Weapon";
-
-                    }else{
-                        mapBoardRenderInstruction ="Weapon";}
+                if( ! clientModel.getCurrentPlayer().getWeapons().isEmpty()) {
+                    //verifies if the weapons are in the player hand or on the board
+                    boolean inPlayerHand = false;
+                    for (int i=0; i < clientModel.getCurrentPlayer().getWeapons().size(); i++ ){
+                        if (modifiedList.get(0).equals(clientModel.getCurrentPlayer().getWeapons().get(i).getName())) {
+                            inPlayerHand = true;
+                            break;
+                        }
+                    }
+                    if (inPlayerHand) playerBoardRenderInstruction = WEAPON;
+                    else mapBoardRenderInstruction = WEAPON;
                 }
                 else{
-                    mapBoardRenderInstruction ="Weapon";}
+                    mapBoardRenderInstruction = WEAPON;}
             }else if(type.equals(CHOOSE_POWERUP.toString()))
                 playerBoardRenderInstruction="PowerUp";
             else if(type.equals(CHOOSE_PLAYER.toString()))
                 mapBoardRenderInstruction="Player";
             else{
-                mapBoardRenderInstruction = "Normal";
-                playerBoardRenderInstruction = "Normal";
+                mapBoardRenderInstruction = NORMAL;
+                playerBoardRenderInstruction = NORMAL;
             }
             mapBoardRenderer.setInputButtons(inputButtons);
             mapBoardRenderer.setLabelButton(labelButton);
@@ -300,9 +349,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
-
     /**
-     * Displays a MSG message
+     * Displays a MSG message, hence a simple message.
+     * In the case of a message notifying the user of opponents's disconnection a new window is opened.
+     * The user can read the message and close the window by pressing a button.
      *
      * @param message   message to be displayed
      */
@@ -312,7 +362,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             try {
                 Thread.sleep(WAIT_FOR_STAGE_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, "Interrupting method" );
+                LOGGER.log(Level.INFO, INTERRUPTING_METHOD);
                 Thread.currentThread().interrupt();
             }
         }
@@ -347,9 +397,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             msg.setBackground(new Background(new BackgroundFill(color, null, null)));
             msg.getChildren().add(label);
             msg.setAlignment(Pos.CENTER);
-            Scene scene1 = new Scene(msg, 500, 250, color);
+            Scene scene1 = new Scene(msg, SCENE1_W, SCENE1_H, color);
             Stage msgStage = new Stage();
-
 
             if (mes.contains("disconnected")){
                 msgStage.setScene(scene1);
@@ -358,7 +407,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 close.setAlignment(Pos.CENTER);
                 msg.getChildren().add(close);
                 msg.setAlignment(Pos.CENTER);
-                msg.setSpacing(40);
+                msg.setSpacing(MSG_SPACING);
                 close.setOnAction(e -> msgStage.close());
             }
 
@@ -371,11 +420,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             }
         });
     }
+
     /**
-     * Displays a REQ message
+     * Displays a REQ message, hence a message requiring for a text input and specifying the maximum length allowed
+     * for the answer.
      *
-     * @param question       text to be displayed
-     * @param maxLength      maximum length allowed for the answer
+     * @param question       text to be displayed.
+     * @param maxLength      maximum length allowed for the answer.
      */
     public void display(String question, String maxLength) {
 
@@ -385,7 +436,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             VBox req = new VBox();
             req.setBackground(new Background(new BackgroundFill(color, null, null)));
             VBox quest = new VBox();
-            quest.setSpacing(10);
+            quest.setSpacing(QUEST_SPACING);
             quest.setAlignment(Pos.CENTER);
             Label label1 = new Label(question);
             Label label2 = new Label("(max " + maxLength + " characters)");
@@ -394,14 +445,14 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
             TextField textField = new TextField();
             textField.setAlignment(Pos.CENTER);
-            textField.setMaxSize(200, 50);
+            textField.setMaxSize(TEXTFIELD_MAXSIZE_W, TEXTFIELD_MAXSIZE_H);
             req.getChildren().add(textField);
 
             Button requestButton = new Button("confirm");
             requestButton.setAlignment(Pos.CENTER);
             req.getChildren().add(requestButton);
             req.setAlignment(Pos.CENTER);
-            req.setSpacing(40);
+            req.setSpacing(REQ_SPACING);
             Stage reqStage = new Stage();
 
             requestButton.setOnAction(e ->
@@ -425,22 +476,25 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
     }
 
-    public void waitForInput(){
+    /**
+     * Makes the thread wait until the input arrives from the user.
+     */
+    private void waitForInput(){
         while (!dataSaver.update){
             try {
                 Thread.sleep(CHECK_INPUT_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, "Interrupting method" );
+                LOGGER.log(Level.INFO, INTERRUPTING_METHOD );
                 Thread.currentThread().interrupt();
             }
         }
     }
 
     /**
-     * Queries the user for input
+     * Queries the user for input, when a maximum length is allowed for the answer.
      *
-     * @param maxLength     the maximum length allowed for the answer
-     * @return              the user's input
+     * @param maxLength     the maximum length allowed for the answer.
+     * @return              the user's input.
      */
     public String get(String maxLength) {
         waitForInput();
@@ -454,10 +508,10 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
     }
 
     /**
-     * Queries the user for input
+     * Queries the user for input.
      *
-     * @param list      the list of option to choose among
-     * @return          the user's input
+     * @param list      the list of option to choose among.
+     * @return          the user's input.
      */
     public String get(List<String> list) {
         waitForInput();
@@ -465,16 +519,13 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         return dataSaver.answer;
     }
 
-
     /**
      * Displays a simplified model containing all the information the user needs.
      */
     @Override
-
     public void render() {
 
         Platform.runLater( () -> {
-            System.out.println("RENDER");
             clientModel=clientMain.getClientModel();
             mapBoardRenderer.setClientModel(clientModel);
             mapBoardRenderer.setRenderInstruction(mapBoardRenderInstruction);
@@ -500,7 +551,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             for (ClientModel.SimplePlayer p : players) {
                 playerBoards.add(new Pane());
                 playerView.add(getBoardOfPlayer(p));
-                playerView.get(playerIndex).setFitWidth(userWidthResolution-1050);
+                playerView.get(playerIndex).setFitWidth(userWidthResolution-BOARDPANE_WIDTH);
                 playerView.get(playerIndex).fitWidthProperty().bind(playerBoards.get(playerIndex).minWidthProperty());
                 playerView.get(playerIndex).fitWidthProperty().bind(playerBoards.get(playerIndex).maxWidthProperty());
                 playerView.get(playerIndex).setPreserveRatio(true);
@@ -510,7 +561,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             for(int i=0; i<players.size(); i++) {
                 playerBoards.add(new Pane());
                 playerBoards.get(i).getChildren().add(playerView.get(i));
-                playerBoards.get(i).setMaxWidth(userWidthResolution-1050*scale); //minimum
+                playerBoards.get(i).setMaxWidth(userWidthResolution-BOARDPANE_WIDTH*scale); //minimum
                 playerBoards.get(i).setMinWidth(userWidthResolution/4);
             }
 
@@ -571,7 +622,7 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
             StackPane playerBoardAndStuffAbove = new StackPane();
             playerBoardAndStuffAbove.getChildren().add(playerSection);
             for(GridPane g : playerAmmoGrid)
-                g.setTranslateX(400*scalePB);
+                g.setTranslateX(PLAYERAMMOGRID_TX*scalePB);
 
             //layout
             Pane mapAndStuffAbove = new Pane();
@@ -585,8 +636,8 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
                 else {
                     playerBoards.get(players.indexOf(p)).getChildren().add(pointGrid);
                     mapAndStuffAbove.getChildren().add((playerBoards.get(players.indexOf(p))));//current player is added at the mapboard and translated at the bottom
-                    playerBoards.get(players.indexOf(p)).setTranslateX(300*scale);
-                    playerBoards.get(players.indexOf(p)).setTranslateY(740*scale);
+                    playerBoards.get(players.indexOf(p)).setTranslateX(PLAYERBOARDS_TX*scale);
+                    playerBoards.get(players.indexOf(p)).setTranslateY(PLAYERBOARDS_TY*scale);
                 }
             }
             playerSection.getChildren().add(messagePanel);
@@ -602,38 +653,55 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         });
     }
 
-    public void closeAfterDisplay(){
+    /**
+     * Called after the end of the game.
+     * Keeps screen open for twenty seconds or until the user close the game.
+     */
+    private void closeAfterDisplay(){
         while (stage.isShowing()){
             try {
                 Thread.sleep(FINAL_DISPLAY_TIME);
             }catch (InterruptedException e){
-                LOGGER.log(Level.INFO, "Interrupting method" );
+                LOGGER.log(Level.INFO, INTERRUPTING_METHOD );
                 Thread.currentThread().interrupt();
             }
         }
     }
+
+    /**
+     *Shows a screen when the player is disconnected
+     */
       @Override
     public void displayDisconnection(){
         finalPrinter(DISCONNECTION_MSG);
         closeAfterDisplay();
     }
 
+    /**
+     *Shows a screen when the player is suspended
+     */
     @Override
     public void displaySuspension(){
         finalPrinter(SUSPENSION_MSG);
         closeAfterDisplay();
     }
 
+    /**
+     *Shows the screen of the end of the game with the ranking
+     */
     @Override
     public void displayEnd(String message){
         finalPrinter(message);
         closeAfterDisplay();
     }
 
+    /**
+     *Configures the message panel for disconnection, suspension and the end of the game
+     */
     private void finalPrinter(String message){
         VBox messageBox = new VBox();
         messageBox.setAlignment(Pos.CENTER);
-        messageBox.setSpacing(40);
+        messageBox.setSpacing(MESSAGEBOX_SPACING);
 
         Label onlyLabel = new Label(message);
         onlyLabel.setAlignment(Pos.CENTER);
@@ -649,25 +717,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
         render();
     }
 
-    @Override
-    public void addHistory(String message){
-        //unnecessary
-    }
-
     /**
-     * Main gui loop
-     */
-    public  void run(){ }
-
-    /**
-     * Handles complex events
      *
-     * @param event
      */
-    @Override
-    public void handle(Event event) { }
-
-
     private ImageView getBoardOfPlayer(ClientModel.SimplePlayer player){
         String key;
         String playerColor;
@@ -699,6 +751,9 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
 
 
+    /**
+     *Removes the escape codes for the colored font from a string
+     */
     private String removeEscapeCode(String type, String message){
         if (message.contains("0m")){
             if (type.equals(CHOOSE_POWERUP.toString())){
@@ -722,6 +777,18 @@ public class GUI extends Application implements UI, Runnable, EventHandler {
 
         }
         return message;
+    }
+
+    public void addHistory(String message){
+        //unnecessary
+    }
+
+    public  void run(){
+        //unnecessary
+    }
+
+    public void handle(Event event) {
+        //unnecessary
     }
 
 }

@@ -46,7 +46,7 @@ public abstract class VirtualView implements Runnable{
     private Player model;
     static final Logger LOGGER = Logger.getLogger("serverLogger");
     private static final int MAX_LENGTH_BATTLECRY = 32;
-    protected static final int PING_TIMEOUT_MILLIS = 10000;
+    protected static final int PING_TIMEOUT_MILLIS = 5000;
     boolean busy;
     boolean timeout;
     long timestamp;

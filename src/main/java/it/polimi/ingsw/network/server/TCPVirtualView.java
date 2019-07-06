@@ -24,6 +24,7 @@ public class TCPVirtualView extends VirtualView {
     private PrintWriter out;
     private boolean waiting;
     private String answer;
+    private long lastPingSent;
 
     /**
      * Constructor for TCPVirtualView.
@@ -35,6 +36,7 @@ public class TCPVirtualView extends VirtualView {
         this.socket = socket;
         this.waiting = false;
         this.answer = "default";
+        this.lastPingSent = System.currentTimeMillis();
     }
 
     /**
@@ -94,6 +96,12 @@ public class TCPVirtualView extends VirtualView {
             }
             if(pinged&&System.currentTimeMillis()-lastPing>PING_TIMEOUT_MILLIS){
                 suspend();
+            }
+
+            if(System.currentTimeMillis() - lastPingSent > 1000){
+                out.println("PING");
+                out.flush();
+                lastPingSent = System.currentTimeMillis();
             }
         }
     }

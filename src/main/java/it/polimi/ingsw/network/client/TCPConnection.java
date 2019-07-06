@@ -38,6 +38,8 @@ public class TCPConnection implements Runnable {
     private ExecutorService executor = Executors.newCachedThreadPool();
     private static final int SOTIMEOUT = 100;
     private boolean shutdown;
+    private long lastPingReceived;
+    private boolean pingReceived;
 
     /**
      * Constructor establishing a standard TCP connection
@@ -49,6 +51,8 @@ public class TCPConnection implements Runnable {
     public TCPConnection(ClientMain clientMain, String address, int port){
         this.clientMain = clientMain;
         this.shutdown = false;
+        this.lastPingReceived = System.currentTimeMillis();
+        this.pingReceived = false;
         LOGGER.log(Level.INFO, "Starting TCP connection");
         try {
             socket = new Socket(address, port);
@@ -95,6 +99,10 @@ public class TCPConnection implements Runnable {
                 handleRequest(jMessage);
             }catch (SocketTimeoutException ex) {
                 LOGGER.log(Level.FINEST, "No incoming message from TCPVirtualView", ex);
+                if(pingReceived && System.currentTimeMillis() - lastPingReceived > 5000){
+                    shutdown();
+                    clientMain.showSuspension();
+                }
             }catch(Exception ex){
                 LOGGER.log(Level.SEVERE, "Received string cannot be parsed to Json", ex);
                 JsonObject jMessage = new JsonObject();
@@ -181,6 +189,10 @@ public class TCPConnection implements Runnable {
                 LOGGER.log(Level.INFO, "TCPConnection: server disconnected, shutting down");
                 shutdown();
                 clientMain.showDisconnection();
+            } else if (message.equals("PING")){
+                lastPingReceived = System.currentTimeMillis();
+                pingReceived = true;
+                throw new SocketTimeoutException();
             }
         }catch(SocketTimeoutException ex) {
             throw new SocketTimeoutException();

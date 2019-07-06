@@ -7,8 +7,7 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -44,8 +43,14 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
             suspend();
         }
         try{
-            remoteView.ping();
-        }catch (RemoteException ex){
+            Future<Void> future = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    remoteView.ping();
+                    return null;
+                }
+            });
+            future.get(PING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        }catch (Exception ex){
             suspend();
         }
     }
@@ -81,10 +86,16 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     @Override
     public void showSuspension(){
         if(suspended) return;
-        try {
-            remoteView.showSuspension();
-        }catch(RemoteException ex){
-            LOGGER.log(Level.INFO, "Unable to send disconnection message", ex);
+        try{
+            Future<Void> future = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    remoteView.showSuspension();
+                    return null;
+                }
+            });
+            future.get(PING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        }catch (Exception ex){
+            //suspend();
         }
     }
 
@@ -96,10 +107,17 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     @Override
     public void showEnd(String message){
         if(suspended) return;
-        try {
-            remoteView.showEnd(message);
-        } catch (RemoteException ex) {
-            LOGGER.log(Level.SEVERE, "Unable to send disconnection message", ex);
+
+        try{
+            Future<Void> future = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    remoteView.showEnd(message);
+                    return null;
+                }
+            });
+            future.get(PING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        }catch (Exception ex){
+            //suspend();
         }
     }
 
@@ -211,11 +229,16 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     @Override
     public void display(String msg){
         if(suspended) return;
-        try {
-            remoteView.display(msg);
-        } catch (RemoteException ex) {
-            //not necessary to suspend the player in this case
-            LOGGER.log(Level.SEVERE, "Unable to call remote function", ex);
+        try{
+            Future<Void> future = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    remoteView.display(msg);
+                    return null;
+                }
+            });
+            future.get(PING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        }catch (Exception ex){
+            //suspend();
         }
     }
 
@@ -251,10 +274,16 @@ public class RMIVirtualView extends VirtualView implements RemoteController {
     @Override
     public void update(JsonObject jsonObject){
         if(suspended) return;
-        try {
-            remoteView.update(jsonObject.toString());
-        } catch (RemoteException ex) {
-            LOGGER.log(Level.SEVERE, "Error while updating", ex);
+
+        try{
+            Future<Void> future = executor.submit(new Callable<Void>() {
+                public Void call() throws Exception {
+                    remoteView.update(jsonObject.toString());
+                    return null;
+                }
+            });
+            future.get(PING_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        }catch (Exception ex){
             suspend();
         }
     }

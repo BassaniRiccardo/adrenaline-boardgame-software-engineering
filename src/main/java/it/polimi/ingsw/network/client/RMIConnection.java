@@ -12,9 +12,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static it.polimi.ingsw.controller.ServerMain.SLEEP_TIMEOUT;
@@ -56,9 +54,16 @@ public class RMIConnection implements Runnable, RemoteView {
 
             executor.submit(()->{
                 while(Thread.currentThread().isAlive()){
-                    try {
-                        playerStub.ping();
-                    }catch(RemoteException ex){
+
+                    try{
+                        Future<Void> future = executor.submit(new Callable<Void>() {
+                            public Void call() throws Exception {
+                                playerStub.ping();
+                                return null;
+                            }
+                        });
+                        future.get(1, TimeUnit.SECONDS);
+                    }catch (Exception ex){
                         LOGGER.log(Level.INFO, "Unable to ping RMI server", ex);
                         shutdown();
                         clientMain.showDisconnection();

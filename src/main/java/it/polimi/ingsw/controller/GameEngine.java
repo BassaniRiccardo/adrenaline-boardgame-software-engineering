@@ -288,12 +288,8 @@ public class GameEngine implements Runnable{
             p.choose(CHOOSE_STRING.toString(), MAP_REQUEST, MAP_ID_OPTIONS, setupTimeout);
         }
 
-        int totalTime = setupTimeout;
         for(VirtualView p : players) {
-            long delta = System.currentTimeMillis();
-            int vote = Integer.parseInt(waitShort(p, totalTime + 1));
-            delta = System.currentTimeMillis() - delta;
-            totalTime = Math.max(totalTime-(int)delta, 0);
+            int vote = Integer.parseInt(waitShort(p, setupTimeout));
             votes.set(vote-1, votes.get(vote-1)+1);
         }
         int mapId = votes.indexOf(Collections.max(votes)) + 1;
@@ -768,7 +764,11 @@ public class GameEngine implements Runnable{
             if(v.isJustSuspended()) {
                 justSuspended.add(v);
                 v.setJustSuspended(false);
-                board.removeObserver(v);
+                try {
+                    board.removeObserver(v);
+                } catch (Exception e){
+                    //thrown when the game has not started yet.
+                }
             }
         }
         for(VirtualView v : justSuspended){

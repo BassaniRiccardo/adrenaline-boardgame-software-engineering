@@ -278,6 +278,7 @@ import static it.polimi.ingsw.network.server.VirtualView.ChooseOptionsType.*;
 
         if (!reborn) {
             if (!askConfirmation(ASK_SPAWNING_CONFIRMATION, player)) resetJoinBoard(player, reborn);
+            else updateAndNotifyAll();
         }
         else updateAndNotifyAll();
 

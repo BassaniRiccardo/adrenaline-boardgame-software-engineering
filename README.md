@@ -35,3 +35,10 @@
 
 - Server properties (IPs and ports) must be set in a server.property file, which can be either in the same folder as the jar file, or in /resources before building the jar.
 The server will first check for properties in the same folder.
+
+**Note on late push**
+
+We are aware that these changes might not be considered, but we felt the need to conclude ongoing work, even if this will be ignored.
+The changes in the last push are minimal:
+- our connection relied on RemoteExceptions or IOExceptions to be thrown when network issues arise. However, this is not guaranteed to happen with some network configurations. The ping system was slightly improved to be more robust.
+- a one-line fix was needed to prevent a bug in a very particular situation during setup.

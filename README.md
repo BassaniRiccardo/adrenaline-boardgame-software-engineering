@@ -2,7 +2,8 @@
 
 ## Politecnico di Milano
 
-# Java implementation of the game "Adrenaline". Team project with a strong focus on the design phase.
+# Java implementation of the game "Adrenaline".
+# Team project with a strong focus on the design phase.
 
 - ###   Riccardo Bassani ([@BassaniRiccardo](https://github.com/BassaniRiccardo))
 - ###   Marco Bagatella ([@marcobaga](https://github.com/marcobaga))
